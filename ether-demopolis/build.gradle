@@ -1,0 +1,6 @@
+description = """ether-demopolis"""
+
+dependencies {
+    compile project(':ether-core')
+    compile 'org.glassfish:javax.json:1.0.4'
+}

@@ -1,0 +1,16 @@
+subprojects {
+    version = '1.0'
+
+    group = 'ch.fhnw.ether'
+
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+        maven { url "http://xuggle.googlecode.com/svn/trunk/repo/share/java/" }
+    }
+}

@@ -1,0 +1,15 @@
+description = """ether-core"""
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+    compile 'org.jogamp.jogl:jogl-all-main:2.3.2'
+    compile 'com.github.wendykierp:JTransforms:3.1'
+    compile 'xuggle:xuggle-xuggler:5.4'
+    compile 'com.github.sarxos:webcam-capture:0.3.11'
+    compile files('libs/jaad/jaad-0.8.4.jar')
+    compile files('libs/jcodec/jcodec-0.2.jar')
+}

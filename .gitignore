@@ -2,6 +2,7 @@
 .classpath
 .project
 .settings/
+bin/
 
 # Intellij
 .idea/
@@ -10,6 +11,11 @@
 
 # Mac
 .DS_Store
+
+# Gradle
+.gradle
+.gradletasknamecache
+build/
 
 # Maven
 log/
