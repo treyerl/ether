@@ -31,8 +31,8 @@ package ch.fhnw.demopolis.ui;
 
 import java.io.IOException;
 
-import assets.Asset;
 import ch.fhnw.demopolis.config.IUIColors;
+import ch.fhnw.demopolis.model.Asset;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.util.color.RGB;
 

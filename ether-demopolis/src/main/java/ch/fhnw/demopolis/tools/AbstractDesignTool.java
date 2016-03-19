@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import assets.Asset;
 import ch.fhnw.demopolis.config.IUIColors;
+import ch.fhnw.demopolis.model.Asset;
 import ch.fhnw.demopolis.model.Model;
 import ch.fhnw.demopolis.model.entities.IDesignEntity;
 import ch.fhnw.demopolis.model.entities.IDesignEntity.IButtonInfo;

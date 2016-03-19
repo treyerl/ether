@@ -73,7 +73,7 @@ public final class Program {
 	}
 
 	private final static Class<?> LIBRARY_BASE = IShader.class;
-	private final static String LIBRARY_PATH = "glsl/lib";
+	private final static String LIBRARY_PATH = "/shaders/lib";
 
 	private static final class Shader {
 		static final Map<String, Shader> SHADERS = new HashMap<>();

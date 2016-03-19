@@ -27,13 +27,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package assets;
+package ch.fhnw.demopolis.model;
 
 import java.net.URL;
 
 public final class Asset {
 	public static URL get(String name) {
-		URL url = Asset.class.getResource(name);
+		URL url = Asset.class.getResource("/assets/" + name);
 		if (url == null)
 			throw new IllegalArgumentException("no such asset: " + name);
 		return url;

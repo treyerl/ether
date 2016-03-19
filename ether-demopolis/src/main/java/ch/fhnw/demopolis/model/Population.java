@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import assets.Asset;
 import ch.fhnw.demopolis.config.I3DConfig;
 import ch.fhnw.demopolis.config.IPopulationAssets;
 import ch.fhnw.demopolis.render.MaskMaterial;

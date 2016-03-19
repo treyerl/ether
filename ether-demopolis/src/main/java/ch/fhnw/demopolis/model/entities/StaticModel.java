@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import assets.Asset;
 import ch.fhnw.demopolis.config.I3DColors;
+import ch.fhnw.demopolis.model.Asset;
 import ch.fhnw.demopolis.model.Model;
 import ch.fhnw.demopolis.render.PolisMaterial;
 import ch.fhnw.ether.formats.ModelObject;

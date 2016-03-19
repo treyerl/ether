@@ -29,7 +29,7 @@
 
 package ch.fhnw.demopolis.render;
 
-import assets.Asset;
+import ch.fhnw.demopolis.model.Asset;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
 import ch.fhnw.ether.render.variable.builtin.ColorMapArray;

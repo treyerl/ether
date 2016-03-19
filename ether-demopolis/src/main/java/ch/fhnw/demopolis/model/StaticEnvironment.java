@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import assets.Asset;
 import ch.fhnw.demopolis.config.I3DConfig;
 import ch.fhnw.ether.formats.obj.ObjReader;
 import ch.fhnw.ether.scene.IScene;
