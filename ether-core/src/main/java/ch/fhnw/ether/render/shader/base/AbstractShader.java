@@ -88,9 +88,9 @@ public abstract class AbstractShader implements IShader {
 			String fragShader;
 			String geomShader;
 			if(source.length == 1) {
-				vertShader = "/shaders/" + source[0] + "_vert.glsl";
-				fragShader = "/shaders/" + source[0] + "_frag.glsl";
-				geomShader = "/shaders/" + source[0] + "_geom.glsl";
+				vertShader = source[0] + "_vert.glsl";
+				fragShader = source[0] + "_frag.glsl";
+				geomShader = source[0] + "_geom.glsl";
 			} else {
 				vertShader = INLINE + source[0];
 				fragShader = INLINE + source[1];

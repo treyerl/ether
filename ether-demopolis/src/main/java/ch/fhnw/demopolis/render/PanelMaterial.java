@@ -47,7 +47,7 @@ import ch.fhnw.ether.scene.mesh.material.Texture;
 public final class PanelMaterial extends AbstractMaterial implements ICustomMaterial {
 	private static class PanelShader extends AbstractShader {
 		PanelShader() {
-			super(Asset.class, "demopolis.panel_shader", "panel_shader", Primitive.TRIANGLES);
+			super(Asset.class, "demopolis.panel_shader", "/assets/shaders/panel_shader", Primitive.TRIANGLES);
 			addArray(new PositionArray());
 			addArray(new ColorArray());
 			addArray(new ColorMapArray());

@@ -48,7 +48,7 @@ import ch.fhnw.util.color.RGBA;
 
 public class LineShader extends AbstractShader {
 	public LineShader(Collection<IAttribute> attributes, Primitive primitive) {
-		super(IShader.class, "builtin.shader.lines", "unshaded_vct", primitive);
+		super(IShader.class, "builtin.shader.lines", "/shaders/unshaded_vct", primitive);
 
 		boolean useVertexColors = attributes.contains(IGeometry.COLOR_ARRAY);
 		

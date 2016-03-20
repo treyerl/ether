@@ -44,9 +44,9 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public final class MaskMaterial extends AbstractMaterial implements ICustomMaterial {
-	private static class PanelShader extends AbstractShader {
-		PanelShader() {
-			super(Asset.class, "demopolis.mask_shader", "mask_shader", Primitive.TRIANGLES);
+	private static class MaskShader extends AbstractShader {
+		MaskShader() {
+			super(Asset.class, "demopolis.mask_shader", "/assets/shaders/mask_shader", Primitive.TRIANGLES);
 			addArray(new PositionArray());
 			addArray(new ColorMapArray());
 
@@ -56,7 +56,7 @@ public final class MaskMaterial extends AbstractMaterial implements ICustomMater
 		}
 	}
 
-	private final IShader shader = new PanelShader();
+	private final IShader shader = new MaskShader();
 	private Texture texture;
 
 	public MaskMaterial(Texture texture) {

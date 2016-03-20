@@ -158,16 +158,16 @@ public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVide
 			int idx = 0;
 			if(greyscale) {
 				for(int i = 1; i< frame.width - 1; i++) {
-					float val = convolute(frame, i, j, kernel, 0) + convolute(frame, i, j, kernel, 1) + convolute(frame, i, j, kernel, 2); 
+					float val = convolve(frame, i, j, kernel, 0) + convolve(frame, i, j, kernel, 1) + convolve(frame, i, j, kernel, 2); 
 					outFrame[j][idx++] = val; 
 					outFrame[j][idx++] = val; 
 					outFrame[j][idx++] = val; 
 				}
 			} else {
 				for(int i = 1; i< frame.width - 1; i++) {
-					outFrame[j][idx++] = convolute(frame, i, j, kernel, 0); 
-					outFrame[j][idx++] = convolute(frame, i, j, kernel, 1); 
-					outFrame[j][idx++] = convolute(frame, i, j, kernel, 2); 
+					outFrame[j][idx++] = convolve(frame, i, j, kernel, 0); 
+					outFrame[j][idx++] = convolve(frame, i, j, kernel, 1); 
+					outFrame[j][idx++] = convolve(frame, i, j, kernel, 2); 
 				}
 			}
 		}
@@ -194,7 +194,7 @@ public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVide
 		}
 	}
 
-	private float convolute(Frame frame, int x, int y, Mat3 kernel, int c) {
+	private float convolve(Frame frame, int x, int y, Mat3 kernel, int c) {
 		return
 				frame.getFloatComponent(x-1, y-1, c) * kernel.m00 +
 				frame.getFloatComponent(x-1, y,   c) * kernel.m10 +

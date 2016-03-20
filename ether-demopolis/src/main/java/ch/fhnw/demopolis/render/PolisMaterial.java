@@ -48,7 +48,7 @@ import ch.fhnw.util.color.RGB;
 public final class PolisMaterial extends AbstractMaterial implements ICustomMaterial {
 	private static class PolisShader extends AbstractShader {
 		PolisShader() {
-			super(Asset.class, "demopolis.panel_shader", "polis_shader_v", Primitive.TRIANGLES);
+			super(Asset.class, "demopolis.panel_shader", "/assets/shaders/polis_shader_v", Primitive.TRIANGLES);
 
 			addArray(new PositionArray());
 			addArray(new NormalArray());

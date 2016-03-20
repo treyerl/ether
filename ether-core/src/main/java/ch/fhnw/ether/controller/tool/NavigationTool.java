@@ -34,8 +34,6 @@ package ch.fhnw.ether.controller.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jogamp.newt.event.MouseEvent;
-
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
@@ -164,10 +162,10 @@ public class NavigationTool extends AbstractTool {
 			float dy = mouseY - e.getY();
 			float moveFactor = 0.001f * control.getDistance();
 			float turnFactor = 0.2f;
-			if (button == MouseEvent.BUTTON1) {
+			if (button == IPointerEvent.BUTTON_1) {
 				control.addToAzimuth(turnFactor * dx);
 				control.addToElevation(turnFactor * dy);
-			} else if (button == MouseEvent.BUTTON2 || button == MouseEvent.BUTTON3) {
+			} else if (button == IPointerEvent.BUTTON_2 || button == IPointerEvent.BUTTON_3) {
 				control.track(moveFactor * dx, moveFactor * dy);
 			}
 			mouseX = e.getX();

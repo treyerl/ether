@@ -31,10 +31,9 @@
 
 package ch.fhnw.ether.examples.threed;
 
-import java.awt.event.KeyEvent;
-
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.camera.Camera;
@@ -76,7 +75,7 @@ public final class SimpleCubeExample {
 			//scene.add3DObject(MeshUtilities.createCylinder(6, true));
 			
 			// Add an exit button
-			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", KeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
+			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
 		});
 	}
 }

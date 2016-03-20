@@ -51,7 +51,7 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial;
 
 public class FlatShadedTriangleShader extends AbstractShader {
 	public FlatShadedTriangleShader(Collection<IAttribute> attributes) {
-		super(IShader.class, "builtin.shader.flat_shaded_triangles", "flat_shaded_vct", Primitive.TRIANGLES);
+		super(IShader.class, "builtin.shader.flat_shaded_triangles", "/shaders/flat_shaded_vct", Primitive.TRIANGLES);
 
 		boolean useTexture = attributes.contains(IGeometry.COLOR_MAP_ARRAY);
 

@@ -51,7 +51,7 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial;
 
 public class FragmentShadedTriangleShader extends AbstractShader {
 	public FragmentShadedTriangleShader(Collection<IAttribute> attributes) {
-		super(IShader.class, "builtin.shader.fragment_shaded_triangles", "fragment_shaded_vct", Primitive.TRIANGLES);
+		super(IShader.class, "builtin.shader.fragment_shaded_triangles", "/shaders/fragment_shaded_vct", Primitive.TRIANGLES);
 
 		boolean useTexture = attributes.contains(IGeometry.COLOR_MAP_ARRAY);
 

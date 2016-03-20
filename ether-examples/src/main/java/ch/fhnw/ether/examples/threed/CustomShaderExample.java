@@ -87,7 +87,7 @@ public final class CustomShaderExample {
 
 	public static class ExampleCustomShader extends AbstractShader {
 		public ExampleCustomShader() {
-			super(CustomShaderExample.class, "custom_shader_example.custom_shader", "custom_shader", Primitive.TRIANGLES);
+			super(CustomShaderExample.class, "custom_shader_example.custom_shader", "/shaders/custom_shader", Primitive.TRIANGLES);
 			addArray(new PositionArray());
 			addArray(new ColorArray());
 

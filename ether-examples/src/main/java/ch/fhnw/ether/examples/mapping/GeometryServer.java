@@ -31,15 +31,11 @@
 
 package ch.fhnw.ether.examples.mapping;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-
-import javax.swing.Timer;
 
 import ch.fhnw.ether.controller.event.IEventScheduler;
 import ch.fhnw.util.math.Vec3;
