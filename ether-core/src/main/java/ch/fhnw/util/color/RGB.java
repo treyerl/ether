@@ -157,15 +157,12 @@ public final class RGB implements IColor, IVec3 {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof RGB) {
-			final RGB v = (RGB) obj;
-			return r == v.r && g == v.g && b == v.b;
-		}
-		return false;
+		if (!(obj instanceof RGB))
+			return false;
+		RGB v = (RGB) obj;
+		return r == v.r && g == v.g && b == v.b;
 	}
 	
 	@Override

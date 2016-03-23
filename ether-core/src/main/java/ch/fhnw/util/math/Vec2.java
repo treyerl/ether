@@ -111,15 +111,12 @@ public final class Vec2 implements IFloatArrayCopyProvider {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof Vec2) {
-			final Vec2 v = (Vec2) obj;
-			return x == v.x && y == v.y;
-		}
-		return false;
+		if (!(obj instanceof Vec2))
+			return false;
+		Vec2 v = (Vec2) obj;
+		return x == v.x && y == v.y;
 	}
 	
 	@Override

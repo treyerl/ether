@@ -196,8 +196,7 @@ public final class Camera implements ICamera {
 
 	@Override
 	public String toString() {
-		return "camera '" + getName() + "' [" + position + target + up + "][" + getCameraXAxis() + getCameraYAxis()
-				+ getCameraZAxis() + "]";
+		return "camera '" + getName() + "' [" + position + target + up + "][" + getCameraXAxis() + getCameraYAxis() + getCameraZAxis() + "]";
 	}
 	
 	private void updateRequest() {

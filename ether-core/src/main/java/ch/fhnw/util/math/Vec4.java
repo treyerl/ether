@@ -151,15 +151,12 @@ public final class Vec4 implements IVec4 {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof Vec4) {
-			final Vec4 v = (Vec4) obj;
-			return x == v.x && y == v.y && z == v.z && w == v.w;
-		}
-		return false;
+		if (!(obj instanceof Vec4))
+			return false;
+		Vec4 v = (Vec4) obj;
+		return x == v.x && y == v.y && z == v.z && w == v.w;
 	}
 	
 	@Override

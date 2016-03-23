@@ -402,19 +402,17 @@ public final class Mat3 implements IFloatArrayCopyProvider {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof Mat3) {
-			final Mat3 v = (Mat3) obj;
-			//@formatter:off
-			return m00 == v.m00 && m10 == v.m10 && m20 == v.m20 && 
-				   m01 == v.m01 && m11 == v.m11 && m21 == v.m21 && 
-				   m02 == v.m02 && m12 == v.m12 && m22 == v.m22;
-			//@formatter:on
-		}
-		return false;
+		if (!(obj instanceof Mat3))
+			return false;
+		
+		Mat3 v = (Mat3) obj;
+		//@formatter:off
+		return m00 == v.m00 && m10 == v.m10 && m20 == v.m20 && 
+			   m01 == v.m01 && m11 == v.m11 && m21 == v.m21 && 
+			   m02 == v.m02 && m12 == v.m12 && m22 == v.m22;
+		//@formatter:on
 	}
 
 	@Override

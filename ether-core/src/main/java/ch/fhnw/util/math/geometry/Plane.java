@@ -175,12 +175,10 @@ public final class Plane {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-
-		if (obj instanceof Plane) {
-			final Plane p = (Plane) obj;
-			return offset == p.offset && origin.equals(p.origin) && normal.equals(p.normal);
-		}
-		return false;
+		if (!(obj instanceof Plane))
+			return false;
+		Plane p = (Plane) obj;
+		return offset == p.offset && origin.equals(p.origin) && normal.equals(p.normal);
 	}
 
 	@Override

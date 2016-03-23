@@ -473,6 +473,24 @@ public final class Polygon {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof Polygon))
+			return false;
+		Polygon p = (Polygon) obj;
+		return Arrays.equals(vertices, p.vertices);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		for (Vec3 v : vertices)
+			hash += v.hashCode();
+		return hash;
+	}
+
+	@Override
 	public String toString() {
 		String result = "[ ";
 		for (Vec3 v : vertices)
@@ -512,38 +530,5 @@ public final class Polygon {
 		}
 		float l = MathUtilities.length(nx, ny, nz);
 		return new Vec3(nx / l, ny / l, nz / l);
-	}
-
-	public static void main(String[] args) {
-		Polygon poly = new Polygon(v(-1, -1), v(1, -1), v(1, 1), v(-1, 1));
-		System.out.println(poly);
-		System.out.println();
-		System.out.println(poly.clip(new Plane(Vec3.Y)));
-		System.out.println(poly.clip(new Plane(Vec3.Y_NEG)));
-		System.out.println();
-		System.out.println(poly.clip(new Plane(Vec3.X)));
-		System.out.println(poly.clip(new Plane(Vec3.X_NEG)));
-		System.out.println();
-		System.out.println(poly.clip(new Plane(new Vec3(-1, -1, 0), Vec3.X)));
-		System.out.println(poly.clip(new Plane(new Vec3(1, -1, 0), Vec3.X_NEG)));
-		System.out.println();
-		System.out.println(poly.offset(0.1f));
-		System.out.println(poly.offset(-0.1f));
-		System.out.println(" ----- ");
-
-		//Pair<Polygon, Polygon> split = poly.split(0, 1);
-		//System.out.println(split.first);
-		//System.out.println(split.second);
-		
-		poly = new Polygon(v(-0.5f, -1), v(0.5f, -1), v(1, 0), v(0.5f, 1), v(-0.5f, 1), v(-1, 0));
-		for (int i = 0; i < poly.getNumVertices(); ++i) {
-			System.out.println(poly);
-			System.out.println(poly.clipTo(i, 0.1f));
-			System.out.println();
-		}
-	}
-	
-	private static Vec3 v(float x, float y) {
-		return new Vec3(x, y, 0);
 	}
 }

@@ -90,6 +90,21 @@ public abstract class AbstractMaterial implements IMaterial {
 	}
 	
 	@Override
+	public final boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof AbstractMaterial))
+			return false;
+		AbstractMaterial m = (AbstractMaterial) obj;
+		return name.equals(m.name) && Arrays.equals(providedAttributes, m.providedAttributes) && Arrays.equals(geometryAttributes, m.geometryAttributes) && Arrays.equals(getData(), m.getData());
+	}
+	
+	@Override
+	public final int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		return name;
 	}

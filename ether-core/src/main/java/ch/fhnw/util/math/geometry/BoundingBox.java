@@ -268,16 +268,12 @@ public final class BoundingBox {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof BoundingBox) {
-			final BoundingBox b = (BoundingBox) obj;
-			return minX == b.minX && maxX == b.maxX && minY == b.minY && maxY == b.maxY && minZ == b.minZ
-					&& maxZ == b.maxZ;
-		}
-		return false;
+		if (!(obj instanceof BoundingBox))
+			return false;
+		BoundingBox b = (BoundingBox) obj;
+		return minX == b.minX && maxX == b.maxX && minY == b.minY && maxY == b.maxY && minZ == b.minZ && maxZ == b.maxZ;
 	}
 
 	@Override

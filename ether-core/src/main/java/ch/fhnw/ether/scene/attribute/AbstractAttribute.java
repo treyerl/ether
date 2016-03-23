@@ -49,6 +49,11 @@ public abstract class AbstractAttribute<T> implements ITypedAttribute<T> {
 	}
 
 	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
 	public String toString() {
 		return id;
 	}

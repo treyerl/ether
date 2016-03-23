@@ -513,12 +513,10 @@ public final class Quaternion {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-
-		if (obj instanceof Quaternion) {
-			Quaternion v = (Quaternion) obj;
-			return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
-		}
-		return false;
+		if (!(obj instanceof Quaternion))
+			return false;
+		Quaternion v = (Quaternion) obj;
+		return (x == v.x) && (y == v.y) && (z == v.z) && (w == v.w);
 	}
 
 	@Override

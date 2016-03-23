@@ -160,12 +160,10 @@ public final class Line {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-
-		if (obj instanceof Line) {
-			final Line l = (Line) obj;
-			return origin.equals(l.origin) && direction.equals(l.direction);
-		}
-		return false;
+		if (!(obj instanceof Line))
+			return false;
+		Line l = (Line) obj;
+		return origin.equals(l.origin) && direction.equals(l.direction);
 	}
 
 	@Override

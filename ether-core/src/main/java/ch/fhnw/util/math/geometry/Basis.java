@@ -90,4 +90,24 @@ public class Basis {
 	public Mat4 getXYZToUVWTransform() {
 		return new Mat4(u, v, w, origin);		
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof Basis))
+			return false;
+		Basis b = (Basis) obj;
+		return origin.equals(b.origin) && u.equals(b.u) && v.equals(b.v) && w.equals(b.w);
+	}
+	
+	@Override
+	public int hashCode() {
+		return origin.hashCode() + u.hashCode() + v.hashCode() + w.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "[" + origin + ", " + u + ", " + v + ", " + w + "]";
+	}	
 }

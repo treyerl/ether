@@ -673,20 +673,17 @@ public final class Mat4 implements IFloatArrayCopyProvider {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof Mat4) {
-			final Mat4 v = (Mat4) obj;
-			//@formatter:off
-			return m00 == v.m00 && m10 == v.m10 && m20 == v.m20 && m30 == v.m30 &&
-				   m01 == v.m01 && m11 == v.m11 && m21 == v.m21 && m31 == v.m31 &&
-				   m02 == v.m02 && m12 == v.m12 && m22 == v.m22 && m32 == v.m32 &&
-				   m03 == v.m03 && m13 == v.m13 && m23 == v.m23 && m33 == v.m33;
-			//@formatter:off
-		}
-		return false;
+		if (!(obj instanceof Mat4))
+			return false;
+		Mat4 v = (Mat4) obj;
+		//@formatter:off
+		return m00 == v.m00 && m10 == v.m10 && m20 == v.m20 && m30 == v.m30 &&
+			   m01 == v.m01 && m11 == v.m11 && m21 == v.m21 && m31 == v.m31 &&
+			   m02 == v.m02 && m12 == v.m12 && m22 == v.m22 && m32 == v.m32 &&
+			   m03 == v.m03 && m13 == v.m13 && m23 == v.m23 && m33 == v.m33;
+		//@formatter:off
 	}
 
 	@Override

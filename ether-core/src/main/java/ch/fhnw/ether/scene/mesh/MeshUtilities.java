@@ -312,7 +312,6 @@ public final class MeshUtilities {
 	/**
 	 * Merges a list of meshes by material. Note that materials are compared by
 	 * reference.
-	 * TODO: implement proper material comparison & optimize for large input lists
 	 */
 	public static List<IMesh> mergeMeshes(List<IMesh> meshes) {
 		int maxNumAttributes = 0;

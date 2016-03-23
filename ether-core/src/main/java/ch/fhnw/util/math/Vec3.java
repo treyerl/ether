@@ -146,15 +146,12 @@ public final class Vec3 implements IVec3 {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof Vec3) {
-			final Vec3 v = (Vec3) obj;
-			return x == v.x && y == v.y && z == v.z;
-		}
-		return false;
+		if (!(obj instanceof Vec3))
+			return false;
+		Vec3 v = (Vec3) obj;
+		return x == v.x && y == v.y && z == v.z;
 	}
 	
 	@Override

@@ -158,15 +158,12 @@ public final class RGBA implements IColor, IVec4 {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (obj instanceof RGBA) {
-			final RGBA v = (RGBA) obj;
-			return r == v.r && g == v.g && b == v.b && a == v.a;
-		}
-		return false;
+		if (!(obj instanceof RGBA))
+			return false;
+		RGBA v = (RGBA) obj;
+		return r == v.r && g == v.g && b == v.b && a == v.a;
 	}
 	
 	@Override
