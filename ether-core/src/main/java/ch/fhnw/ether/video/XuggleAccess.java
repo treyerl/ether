@@ -69,7 +69,7 @@ import ch.fhnw.util.SortedLongMap;
 import ch.fhnw.util.TextUtilities;
 
 public final class XuggleAccess extends FrameAccess implements Runnable {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final int QUEUE_SZ = 8;
 
@@ -274,7 +274,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					while(offset < currentPacket.getSize()) {
 						int bytesDecoded = audioCoder.decodeAudio(samples, currentPacket, offset);
 						if (bytesDecoded < 0) {
-							log.warning("got error decoding audio");
+							LOG.warning("got error decoding audio");
 							break;
 						}
 						offset += bytesDecoded;
@@ -284,7 +284,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 				}
 			}
 		} catch (Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		} finally {
 			container.close();
 		}
@@ -336,12 +336,12 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					tmpPicture = IVideoPicture.make(resampler.getOutputPixelFormat(), w, h); 
 				newPic = tmpPicture;
 				if (resampler.resample(newPic, currentPicture.get()) < 0) {
-					log.warning("could not resample video");
+					LOG.warning("could not resample video");
 					return null;
 				}
 			}
 			if (newPic.getPixelType() != IPixelFormat.Type.RGB24) {
-				log.warning("could not decode video as RGB24 bit data");
+				LOG.warning("could not decode video as RGB24 bit data");
 				return null;
 			}
 			ByteBuffer dstBuffer = BufferUtilities.createDirectByteBuffer(w * h * 3);
@@ -355,7 +355,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					audioData.add(this.audioData.take());
 			}
 		} catch(Throwable t) {
-			log.warning(t);
+			LOG.warning(t);
 		}
 		return result;
 	}

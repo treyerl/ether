@@ -48,7 +48,7 @@ import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.NetworkUtilities;
 
 public class RTSPRequest implements Runnable {
-	private final static Log log = Log.create();
+	private final static Log LOG = Log.create();
 	final static int MJPEG_TIMEBASE = 90000;
 
 	final static String CRLF = "\r\n";
@@ -179,17 +179,17 @@ public class RTSPRequest implements Runnable {
 						//in = new DataInputStream(Base64.getDecoder().wrap(in));
 						break;
 					default:
-						log.warning(this + "Unexpected request:" + request);
+						LOG.warning(this + "Unexpected request:" + request);
 						break;
 					}
 				}
 		in.close();
 		out.close();
 		} catch(Throwable t) {
-			log.warning(toString(), t);
+			LOG.warning(toString(), t);
 		}
 		server.closeSession(getSessionKey());
-		log.info(this+"Connetion closed");
+		LOG.info(this+"Connetion closed");
 	}
 
 	private String readLine(DataInputStream in) throws IOException, InterruptedException {

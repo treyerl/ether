@@ -59,9 +59,9 @@ public final class ShadedMaterial extends AbstractMaterial {
 	}
 
 	public ShadedMaterial(RGB emission, RGB ambient, RGB diffuse, RGB specular, float shininess, float strength, float alpha, Texture colorMap) {
-		super(material(IMaterial.EMISSION, IMaterial.AMBIENT, IMaterial.DIFFUSE, IMaterial.SPECULAR,
+		super(provide(IMaterial.EMISSION, IMaterial.AMBIENT, IMaterial.DIFFUSE, IMaterial.SPECULAR,
 					   IMaterial.SHININESS, IMaterial.STRENGTH, IMaterial.ALPHA, colorMap != null ? IMaterial.COLOR_MAP : null),
-			  geometry(IGeometry.POSITION_ARRAY, IGeometry.NORMAL_ARRAY, colorMap != null ? IGeometry.COLOR_MAP_ARRAY : null));
+			  require(IGeometry.POSITION_ARRAY, IGeometry.NORMAL_ARRAY, colorMap != null ? IGeometry.COLOR_MAP_ARRAY : null));
 
 		this.emission = emission;
 		this.ambient = ambient;

@@ -55,7 +55,7 @@ import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.Line;
 
 public class RayTracer extends AbstractFrameSource implements IVideoSource {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final RGBA BACKGROUND_COLOR   = RGBA.WHITE;
 	private static final int  BACKGROUND_COLOR_I = RGBA.WHITE.toRGBA32();
@@ -79,7 +79,7 @@ public class RayTracer extends AbstractFrameSource implements IVideoSource {
 		if(mesh instanceof RayTraceMesh)
 			meshes.add((RayTraceMesh) mesh);
 		else
-			log.info("Ignored non-RayTraceMesh: " + mesh);
+			LOG.info("Ignored non-RayTraceMesh: " + mesh);
 	}
 
 	public void removeMesh(IMesh mesh) {

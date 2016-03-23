@@ -77,7 +77,7 @@ import ch.fhnw.util.math.Mat4;
 
 public class SimplePlayerGL {
 	private static final float  SCALE  = 2.5f;
-	private static final Log    log    = Log.create();
+	private static final Log    LOG    = Log.create();
 
 	public SimplePlayerGL(AbstractFrameSource source, IVideoSource mask) throws RenderCommandException {
 		final IController            controller = new DefaultController(source.getFrameRate());
@@ -140,7 +140,7 @@ public class SimplePlayerGL {
 
 				videoOut.start();
 			} catch(Throwable t) {
-				log.severe(t);
+				LOG.severe(t);
 			}
 		});
 	}

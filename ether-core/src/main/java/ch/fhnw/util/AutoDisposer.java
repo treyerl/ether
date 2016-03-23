@@ -37,7 +37,7 @@ import java.lang.reflect.Constructor;
 import java.util.Set;
 
 public class AutoDisposer<T> extends Thread {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final boolean DBG = false;
 	
@@ -76,7 +76,7 @@ public class AutoDisposer<T> extends Thread {
 
 			if(DBG) System.out.println("add:" + ref);
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		}
 	}
 
@@ -86,7 +86,7 @@ public class AutoDisposer<T> extends Thread {
 			try {
 				doDispose((Reference<?>)refQ.remove());
 			} catch (Throwable t) {
-				log.severe(t);
+				LOG.severe(t);
 			}
 		}
 	}

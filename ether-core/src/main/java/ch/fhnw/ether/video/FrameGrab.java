@@ -86,7 +86,7 @@ import ch.fhnw.util.Log;
  * 
  */
 public class FrameGrab {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private final AbstractMP4DemuxerTrack videoTrack;
 	private final AbstractMP4DemuxerTrack audioTrack;
@@ -281,7 +281,7 @@ public class FrameGrab {
 			return new MPEGDecoder();
 		else if (fourcc.equals("apco") || fourcc.equals("apcs") || fourcc.equals("apcn") || fourcc.equals("apch") || fourcc.equals("ap4h"))
 			return new ProresDecoder();
-		log.info("No video decoder for '" + fourcc + "'");
+		LOG.info("No video decoder for '" + fourcc + "'");
 		return null;
 	}
 
@@ -292,7 +292,7 @@ public class FrameGrab {
 			return new S302MDecoder(); /*
 		else if(AACDecoder.canDecode(profile))
 			return new AACDecoder(decoderSpecificInfo, audioInfo); */
-		log.info("No audio decoder for '" + fourcc + "'");
+		LOG.info("No audio decoder for '" + fourcc + "'");
 		return null;
 	}
 

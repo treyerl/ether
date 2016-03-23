@@ -58,7 +58,7 @@ import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.GeodesicSphere;
 
 public final class SimpleSphereExample {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	public static void main(String[] args) {
 		new SimpleSphereExample();
@@ -114,7 +114,7 @@ public final class SimpleSphereExample {
 				// Add an exit button
 				controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
 			} catch(Throwable t) {
-				log.severe(t);
+				LOG.severe(t);
 			}
 		});
 	}

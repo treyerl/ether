@@ -44,7 +44,7 @@ import ch.fhnw.ether.image.ImageScaler;
 import ch.fhnw.util.Log;
 
 public class RTPServer extends Thread {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 	
 	private final Map<Integer, RTPSession>  sessions = new ConcurrentHashMap<>();
 	private final Map<String,  RTSPRequest> channels = new ConcurrentHashMap<>();
@@ -72,7 +72,7 @@ public class RTPServer extends Thread {
 			for(;;)
 				new RTSPRequest(this, listenSocket.accept());
 		} catch (Exception e) {
-			log.severe(e);
+			LOG.severe(e);
 		}
 	}
 	

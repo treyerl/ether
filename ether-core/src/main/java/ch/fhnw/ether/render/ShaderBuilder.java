@@ -58,8 +58,17 @@ public final class ShaderBuilder {
 		final Map<IAttribute, Pair<Integer, Supplier<?>>> attributes = new HashMap<>();
 
 		void provide(IAttribute attribute, Pair<Integer, Supplier<?>> link) {
+			if (attribute == null)
+				return;
 			if (attributes.put(attribute, link) != null)
 				throw new IllegalArgumentException("duplicate attribute: " + attribute);
+		}
+		
+		void require(IAttribute attribute) {
+			if (attribute == null)
+				return;
+			if (attributes.put(attribute, null) != null)
+				throw new IllegalArgumentException("duplicate attribute: " + attribute);			
 		}
 
 		Pair<Integer, Supplier<?>> getSupplier(IShader shader, IShaderUniform<?> uniform) {
@@ -88,8 +97,8 @@ public final class ShaderBuilder {
 			for (int i = 0; i < provided.length; ++i)
 				attributes.provide(provided[i], new Pair<>(i, null));
 
-			for (IAttribute required : mesh.getMaterial().getGeometryAttributes())
-				attributes.provide(required, null);
+			for (IAttribute required : mesh.getMaterial().getRequiredAttributes())
+				attributes.require(required);
 		}
 
 		// add global attributes

@@ -47,7 +47,7 @@ import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.Log;
 
 public final class JCodecAccess extends FrameAccess {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private   SeekableByteChannel channel;
 	protected FrameGrab           grab;
@@ -109,7 +109,7 @@ public final class JCodecAccess extends FrameAccess {
 			numPlays--;
 			grab.seekToFramePrecise(0);
 		} catch (Throwable t) {
-			log.warning(t);
+			LOG.warning(t);
 		}
 	}
 

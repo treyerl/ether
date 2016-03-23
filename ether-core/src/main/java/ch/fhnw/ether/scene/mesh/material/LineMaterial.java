@@ -45,8 +45,8 @@ public final class LineMaterial extends AbstractMaterial {
 	}
 
 	public LineMaterial(RGBA color, boolean perVertexColor) {
-		super(material(IMaterial.COLOR, IMaterial.LINE_WIDTH),
-		      geometry(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null));		
+		super(provide(IMaterial.COLOR, IMaterial.LINE_WIDTH),
+		      require(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null));		
 				  
 		this.color = color;
 	}

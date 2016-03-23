@@ -73,7 +73,7 @@ import ch.fhnw.util.TextUtilities;
 
 
 public class URLAudioSource extends AbstractFrameSource implements Runnable, IDisposable, IAudioSource {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final double        SEC2US = 1000000;
 	private static final MidiEvent[]   EMPTY_MidiEventA = new MidiEvent[0];
@@ -210,7 +210,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 		try {
 			return (List<AudioFileReader>) ClassUtilities.getMethod(AudioSystem.class, "getAudioFileReaders").invoke(null);
 		} catch (Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 			return Collections.emptyList();
 		}
 	}
@@ -270,7 +270,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 					bufSemaphore.release();
 			}
 		} catch(Throwable t) {
-			log.warning(t);
+			LOG.warning(t);
 		}
 	}
 

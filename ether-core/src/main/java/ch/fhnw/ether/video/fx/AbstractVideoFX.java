@@ -59,7 +59,6 @@ import ch.fhnw.ether.render.variable.builtin.ColorMapArray;
 import ch.fhnw.ether.render.variable.builtin.ColorMapUniform;
 import ch.fhnw.ether.render.variable.builtin.PositionArray;
 import ch.fhnw.ether.scene.attribute.AbstractAttribute;
-import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -71,6 +70,7 @@ import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
 import ch.fhnw.ether.scene.mesh.material.AbstractMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
+import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.video.AbstractVideoTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
@@ -87,7 +87,7 @@ import ch.fhnw.util.math.Mat3;
 import ch.fhnw.util.math.Mat4;
 
 public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRenderTarget> {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 	
 	public static final Class<?>     GLFX        = IVideoGLFX.class;
 	public static final Class<?>     FRAMEFX     = IVideoFrameFX.class;
@@ -95,7 +95,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	public static final Uniform<?>[] NO_UNIFORMS = new Uniform<?>[0];
 	public static final String[]     NO_INOUT    = ClassUtilities.EMPTY_StringA;
 
-	public static final class Uniform<T> extends AbstractAttribute<T> {
+	public static final class Uniform<T> extends AbstractAttribute<T> implements IMaterialAttribute<T> {
 		private T value;
 
 		public Uniform(String id, T value) {
@@ -182,7 +182,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		private Texture           dstTexture;
 		private Texture           lastDstTexture;
 
-		protected FxMaterial(IAttribute[] attrs) {
+		protected FxMaterial(IMaterialAttribute<?>[] attrs) {
 			super(attrs, new IGeometryAttribute[] {IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY});
 			shader = new FxShader();
 		}
@@ -253,7 +253,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				name2uniform.put(u.id(), u);
 			for(Uniform<?> u : uniformsfrag)
 				name2uniform.put(u.id(), u);
-			IAttribute[] attrs = new IAttribute[parameters.length + 1 + uniformsvert.length + uniformsfrag.length];
+			IMaterialAttribute<?>[] attrs = new IMaterialAttribute<?>[parameters.length + 1 + uniformsvert.length + uniformsfrag.length];
 			int idx = 0;
 			for(int i = 0; i < parameters.length; i++)
 				attrs[idx++] = parameters[i];
@@ -279,7 +279,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			this.material     = null;
 			this.quad         = null;
 			this.renderable   = null;
-			log.severe("'" + this + "' must implement at least one of " + TextUtilities.toString(FX_CLASSES));
+			LOG.severe("'" + this + "' must implement at least one of " + TextUtilities.toString(FX_CLASSES));
 			System.exit(0);
 		}
 	}
@@ -371,15 +371,15 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		return Primitive.TRIANGLES;
 	}
 
-	public IGeometryAttribute[] getGeometryAttributes() {
-		return material.getGeometryAttributes();
+	public IGeometryAttribute[] getRequiredAttributes() {
+		return material.getRequiredAttributes();
 	}
 
 	public UpdateRequest getUpdater() {
 		return material.getUpdater();
 	}
 
-	public IAttribute[] getProvidedAttributes() {
+	public IMaterialAttribute<?>[] getProvidedAttributes() {
 		return material.getProvidedAttributes();
 	}
 

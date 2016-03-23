@@ -39,7 +39,7 @@ import ch.fhnw.util.Log;
 import com.jogamp.opengl.GL3;
 
 public abstract class AbstractVariable<T> implements IShaderVariable<T> {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 	
 	private final String id;
 	private final String shaderName;
@@ -67,7 +67,7 @@ public abstract class AbstractVariable<T> implements IShaderVariable<T> {
 		if (shaderIndex == -1) {
 			shaderIndex = resolveShaderIndex(gl, program, shaderName);
 			if (shaderIndex == -1) {
-				log.warning("shader variable " + id + ": cannot resolve glsl name " + shaderName);
+				LOG.warning("shader variable " + id + ": cannot resolve glsl name " + shaderName);
 				shaderIndex = -2;
 			}
 		}

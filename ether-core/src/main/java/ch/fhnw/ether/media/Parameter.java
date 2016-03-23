@@ -31,10 +31,10 @@
 
 package ch.fhnw.ether.media;
 
-import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.util.TextUtilities;
+import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
 
-public class Parameter implements IAttribute {
+public class Parameter implements IMaterialAttribute<Float> {
 	public enum Type {RANGE, ITEMS}
 
 	private final String   name;

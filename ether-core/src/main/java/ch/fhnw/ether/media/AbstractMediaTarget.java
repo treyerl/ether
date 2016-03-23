@@ -42,7 +42,7 @@ import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
 public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRenderTarget<F>> implements IRenderTarget<F>, IScheduler {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private   final int                     priority;
 	private   final boolean                 realTime;
@@ -70,7 +70,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 				setRendering(true);
 				runOneCycle();
 			} catch(Throwable e) {
-				log.severe(e);
+				LOG.severe(e);
 			}
 			setRendering(false);
 		} else {
@@ -83,7 +83,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 						runOneCycle();
 				} catch(Throwable e) {
 					setRendering(false);
-					log.severe(e);
+					LOG.severe(e);
 				}
 			}, TextUtilities.getShortClassName(this));
 			framePump.setDaemon(true);
@@ -93,7 +93,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 				startLatch.await();
 				startTime = System.nanoTime();
 			} catch (InterruptedException e) {
-				log.severe(e);
+				LOG.severe(e);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 		try {
 			Thread.sleep(1);
 		} catch (Throwable t) {
-			log.warning(t);
+			LOG.warning(t);
 		}
 	}
 
@@ -184,7 +184,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 						if(sleep > 0)
 							Thread.sleep(sleep);
 					} catch (Throwable t) {
-						log.warning(t);
+						LOG.warning(t);
 					}
 				}
 				while(getTime() <= time)
@@ -238,7 +238,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 			try {
 				latch.await();
 			} catch(Throwable t) {
-				AbstractMediaTarget.log.warning(t);
+				AbstractMediaTarget.LOG.warning(t);
 			}
 		}
 	}

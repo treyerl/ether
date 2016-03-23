@@ -31,10 +31,7 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
@@ -44,20 +41,19 @@ public abstract class AbstractMaterial implements IMaterial {
 	protected static final IAttribute[] NO_ATTRIBUTES = {};
 	protected static final Object[] NO_DATA = {};
 	
-	private final IAttribute[] providedAttributes;
+	private final IMaterialAttribute<?>[] providedAttributes;
 	private final IGeometryAttribute[] geometryAttributes;
 
 	private final UpdateRequest update = new UpdateRequest();
 	
 	private String name = "material";
 	
-	protected AbstractMaterial(IAttribute[] providedAttributes, IGeometryAttribute[] geometryAttributes) {
-		List<IAttribute> pa = new ArrayList<>(Arrays.asList(providedAttributes));
-		pa.removeIf(Objects::isNull);
-		this.providedAttributes = pa.toArray(new IAttribute[0]);
-		List<IGeometryAttribute> ga = new ArrayList<>(Arrays.asList(geometryAttributes));
-		ga.removeIf(Objects::isNull);
-		this.geometryAttributes = ga.toArray(new IGeometryAttribute[0]);
+	/**
+	 * Note: providedAttributes & requiredAttributes are allowed to contain null elements.
+	 */
+	protected AbstractMaterial(IMaterialAttribute<?>[] providedAttributes, IGeometryAttribute[] requiredAttributes) {
+		this.providedAttributes = providedAttributes;
+		this.geometryAttributes = requiredAttributes;
 	}
 
 	@Override
@@ -72,12 +68,12 @@ public abstract class AbstractMaterial implements IMaterial {
 	}
 	
 	@Override
-	public final IAttribute[] getProvidedAttributes() {
+	public final IMaterialAttribute<?>[] getProvidedAttributes() {
 		return providedAttributes;
 	}
 
 	@Override
-	public final IGeometryAttribute[] getGeometryAttributes() {
+	public final IGeometryAttribute[] getRequiredAttributes() {
 		return geometryAttributes;
 	}
 	
@@ -109,11 +105,11 @@ public abstract class AbstractMaterial implements IMaterial {
 		return name;
 	}
 	
-	protected static IAttribute[] material(IAttribute... attributes) {
+	protected static IMaterialAttribute<?>[] provide(IMaterialAttribute<?>... attributes) {
 		return attributes;
 	}
 
-	protected static IGeometryAttribute[] geometry(IGeometryAttribute... attributes) {
+	protected static IGeometryAttribute[] require(IGeometryAttribute... attributes) {
 		return attributes;
 	}
 	

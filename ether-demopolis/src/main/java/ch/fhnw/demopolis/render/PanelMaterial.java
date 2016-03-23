@@ -62,8 +62,8 @@ public final class PanelMaterial extends AbstractMaterial implements ICustomMate
 	private Texture texture;
 
 	public PanelMaterial(Texture texture) {
-		super(material(IMaterial.COLOR_MAP), 
-			  geometry(IGeometry.POSITION_ARRAY, IGeometry.COLOR_ARRAY, IGeometry.COLOR_MAP_ARRAY));
+		super(provide(IMaterial.COLOR_MAP), 
+			  require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_ARRAY, IGeometry.COLOR_MAP_ARRAY));
 		this.texture = texture;
 	}
 

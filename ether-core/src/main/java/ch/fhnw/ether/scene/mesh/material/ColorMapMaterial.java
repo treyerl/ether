@@ -52,8 +52,8 @@ public final class ColorMapMaterial extends AbstractMaterial {
 	}
 
 	public ColorMapMaterial(RGBA color, Texture colorMap, boolean perVertexColor) {
-		super(material(IMaterial.COLOR, IMaterial.COLOR_MAP),
-			  geometry(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null, IGeometry.COLOR_MAP_ARRAY));		
+		super(provide(IMaterial.COLOR, IMaterial.COLOR_MAP),
+			  require(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null, IGeometry.COLOR_MAP_ARRAY));		
 			  
 		this.color = color;
 		this.colorMap = colorMap;

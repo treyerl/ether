@@ -46,7 +46,7 @@ import ch.fhnw.util.Log;
 import ch.fhnw.util.math.MathUtilities;
 
 public class SpectrumAudioTarget implements IAudioRenderTarget {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private final int                         numChannels;
 	private final float                       sRate;
@@ -67,7 +67,7 @@ public class SpectrumAudioTarget implements IAudioRenderTarget {
 		this.numChannels = numChannels;
 		this.sRate       = sampleRate;
 		this.fftSize     = MathUtilities.nextPowerOfTwo((int)(sRate / minFreq));
-		log.info("FFT of " + fftSize + " at " + sRate + " Hz");
+		LOG.info("FFT of " + fftSize + " at " + sRate + " Hz");
 		this.fft         = new FloatFFT_1D(fftSize);
 		this.buffer      = new BlockBuffer(fftSize, true, windowType);
 	}
@@ -110,7 +110,7 @@ public class SpectrumAudioTarget implements IAudioRenderTarget {
 				}
 			}
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		} finally {
 			isRendering.set(false);
 		}

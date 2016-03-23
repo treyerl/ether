@@ -60,8 +60,8 @@ public final class MaskMaterial extends AbstractMaterial implements ICustomMater
 	private Texture texture;
 
 	public MaskMaterial(Texture texture) {
-		super(material(IMaterial.COLOR_MAP), 
-			  geometry(IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY));
+		super(provide(IMaterial.COLOR_MAP), 
+			  require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY));
 		this.texture = texture;
 	}
 

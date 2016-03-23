@@ -34,7 +34,7 @@ package ch.fhnw.ether.media;
 import ch.fhnw.util.Log;
 
 public interface IScheduler extends ITimebase {
-	Log log = Log.create();
+	Log LOG = Log.create();
 	
 	double NOT_RENDERING = -1;
 

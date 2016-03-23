@@ -49,7 +49,7 @@ import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.Log;
 
 public class CameraSource extends AbstractFrameSource implements IVideoSource, IDisposable, WebcamListener {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final AtomicBoolean kill   = new AtomicBoolean();
 	private static final int           Q_SIZE = 3;             
@@ -160,7 +160,7 @@ public class CameraSource extends AbstractFrameSource implements IVideoSource, I
 			if(imgQ.size() == Q_SIZE) imgQ.poll();
 			imgQ.put(event.getImage());
 		} catch (Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		}
 	}
 

@@ -45,7 +45,7 @@ import ch.fhnw.util.Log;
 import ch.fhnw.util.math.MathUtilities;
 
 public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private final float         minFreq;
 	private final Window        windowType;
@@ -67,7 +67,7 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 		sRate    = target.getSampleRate();
 		fftSize  = MathUtilities.nextPowerOfTwo((int)(sRate / minFreq));
 		fftSize2 = fftSize / 2;
-		log.info("FFT of " + fftSize + " at " + sRate + " Hz");
+		LOG.info("FFT of " + fftSize + " at " + sRate + " Hz");
 		fft      = new FloatFFT_1D(fftSize);
 		buffer   = new BlockBuffer(fftSize, true, windowType);
 		block    = new float[fftSize];

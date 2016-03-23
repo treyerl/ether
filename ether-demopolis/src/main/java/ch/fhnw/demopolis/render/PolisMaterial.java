@@ -77,8 +77,8 @@ public final class PolisMaterial extends AbstractMaterial implements ICustomMate
 	}
 
 	public PolisMaterial(RGB ambient, RGB diffuse, float alpha) {
-		super(material(IMaterial.AMBIENT, IMaterial.DIFFUSE, IMaterial.ALPHA), 
-			  geometry(IGeometry.POSITION_ARRAY, IGeometry.NORMAL_ARRAY));
+		super(provide(IMaterial.AMBIENT, IMaterial.DIFFUSE, IMaterial.ALPHA), 
+			  require(IGeometry.POSITION_ARRAY, IGeometry.NORMAL_ARRAY));
 		this.ambient = ambient;
 		this.diffuse = diffuse;
 		this.alpha = alpha;

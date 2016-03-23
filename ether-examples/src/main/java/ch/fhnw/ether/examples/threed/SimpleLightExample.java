@@ -69,7 +69,7 @@ import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.GeodesicSphere;
 
 public final class SimpleLightExample {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final String[] HELP = { 
 			//@formatter:off
@@ -216,7 +216,7 @@ public final class SimpleLightExample {
 					}
 				}
 			} catch(Throwable t) {
-				log.severe(t);
+				LOG.severe(t);
 			}
 		});
 	}

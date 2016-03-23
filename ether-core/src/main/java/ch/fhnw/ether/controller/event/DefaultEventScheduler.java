@@ -220,7 +220,7 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 					Thread.sleep(1);
 			}
 		} catch (Throwable t) {
-			log.warning(t);
+			LOG.warning(t);
 		}
 	}
 
@@ -239,7 +239,7 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 			try {
 				latch.await();
 			} catch (Throwable t) {
-				log.warning(t);
+				LOG.warning(t);
 			}
 		}
 	}

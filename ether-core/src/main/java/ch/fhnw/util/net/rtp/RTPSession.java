@@ -48,7 +48,7 @@ import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.NetworkUtilities;
 
 public class RTPSession implements ActionListener {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private static final String CRLF = "\r\n";
 
@@ -166,7 +166,7 @@ public class RTPSession implements ActionListener {
 					}
 					RTPServer.log(this+rtpcQ.take().toString());
 				} catch (Throwable t) {
-					log.severe(t);
+					LOG.severe(t);
 				}
 			}
 		}
@@ -211,7 +211,7 @@ public class RTPSession implements ActionListener {
 			//RTPServer.log(this + "Sent frame #" + imagenb + " as "+rtp_packets.size()+" packets to " + (socketRTP == null ? " channel " : clientIP + ":") + clientRTPport); 
 		}
 		catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 			timer.stop();
 			rtcpReceiver.close();
 		}

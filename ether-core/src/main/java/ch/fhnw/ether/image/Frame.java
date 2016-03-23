@@ -242,7 +242,7 @@ public abstract class Frame extends AbstractVideoTarget {
 			gl.glBindTexture(target, 0);
 			return result;
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 			return null;
 		}
 	}
@@ -553,7 +553,7 @@ public abstract class Frame extends AbstractVideoTarget {
 				gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
 				gl.glFinish();
 			} catch(Throwable t) {
-				log.warning(t);
+				LOG.warning(t);
 			}
 		}
 		return texture;

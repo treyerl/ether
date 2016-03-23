@@ -44,8 +44,8 @@ public final class PointMaterial extends AbstractMaterial {
 	}
 
 	public PointMaterial(RGBA color, float size, boolean perVertexColor, boolean perVertexSize) {
-		super(material(IMaterial.COLOR, IMaterial.POINT_SIZE),
-			  geometry(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null, perVertexSize ? IGeometry.POINT_SIZE_ARRAY : null));		
+		super(provide(IMaterial.COLOR, IMaterial.POINT_SIZE),
+			  require(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null, perVertexSize ? IGeometry.POINT_SIZE_ARRAY : null));		
 				  
 		this.color = color;
 		this.size = size;

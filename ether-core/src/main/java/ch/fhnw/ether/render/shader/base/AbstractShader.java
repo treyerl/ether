@@ -46,7 +46,7 @@ import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.util.Log;
 
 public abstract class AbstractShader implements IShader {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 	
 	public static final String INLINE = "/*__inline__*/\n"; 
 
@@ -99,7 +99,7 @@ public abstract class AbstractShader implements IShader {
 			try {
 				program = Program.create(gl, root, vertShader, fragShader, geomShader, System.err);
 			} catch (Throwable t) {
-				log.severe("cannot create glsl program. exiting.", t);
+				LOG.severe("cannot create glsl program. exiting.", t);
 				System.exit(1);
 			}
 		}

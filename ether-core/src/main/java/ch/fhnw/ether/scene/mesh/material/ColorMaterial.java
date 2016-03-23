@@ -43,8 +43,8 @@ public final class ColorMaterial extends AbstractMaterial {
 	}
 
 	public ColorMaterial(RGBA color, boolean perVertexColor) {
-		super(material(IMaterial.COLOR),
-			  geometry(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null));		
+		super(provide(IMaterial.COLOR),
+			  require(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null));		
 				  
 		this.color = color;
 	}

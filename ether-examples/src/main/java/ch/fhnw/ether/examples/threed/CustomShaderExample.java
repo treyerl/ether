@@ -59,7 +59,7 @@ public final class CustomShaderExample {
 		private float redGain;
 
 		public ExampleCustomMaterial(ExampleCustomShader shader, float redGain) {
-			super(material(new MaterialAttribute<Float>("custom.red_gain")), geometry(IGeometry.POSITION_ARRAY));
+			super(provide(new MaterialAttribute<Float>("custom.red_gain")), require(IGeometry.POSITION_ARRAY));
 
 			this.shader = shader;
 			this.redGain = redGain;

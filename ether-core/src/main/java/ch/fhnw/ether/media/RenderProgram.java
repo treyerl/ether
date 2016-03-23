@@ -45,7 +45,7 @@ import ch.fhnw.util.IdentityHashSet;
 import ch.fhnw.util.Log;
 
 public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCommand<T> {
-	private static Log log = Log.create();
+	private static Log LOG = Log.create();
 
 	private final AtomicReference<T> target = new AtomicReference<>();
 
@@ -180,7 +180,7 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 					if(cmd instanceof IDisposable)
 						((IDisposable)cmd).dispose();
 				} catch(Throwable t) {
-					log.warning(t);
+					LOG.warning(t);
 				}
 			}
 		}, "disposing:" + removed).start();

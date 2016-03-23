@@ -49,7 +49,7 @@ import ch.fhnw.util.Log;
 import ch.fhnw.util.Log.Level;
 
 public class RTPmjpg {
-	private static final Log log = Log.create(Level.SEVERE, Level.WARN);
+	private static final Log LOG = Log.create(Level.SEVERE, Level.WARN);
 
 	/**
 	 * Payload encode JPEG pictures into RTP packets according to RFC 2435.
@@ -344,7 +344,7 @@ public class RTPmjpg {
 					throw new Exception("not enough data for table ("+quant_size+" < "+(tab_size + 1)+")");
 				}
 
-				log.info("read quant table "+id+", tab_size "+tab_size+", prec "+prec);
+				LOG.info("read quant table "+id+", tab_size "+tab_size+", prec "+prec);
 
 				tables[id] = extract(data, offset+1, tab_size);
 
@@ -354,7 +354,7 @@ public class RTPmjpg {
 			}
 			return offset + quant_size;
 		} catch(Exception e) {
-			log.warning(e);
+			LOG.warning(e);
 			return size;
 		}
 	}
@@ -394,7 +394,7 @@ public class RTPmjpg {
 			width  = ((data[off + 2] & 0xFF) << 8) | (data[off + 3] & 0xFF);
 			off += 4;
 
-			log.info("got dimensions "+ width+"x"+height);
+			LOG.info("got dimensions "+ width+"x"+height);
 
 			if (height == 0) {
 				throw new Exception("Wrong dimension, size "+width+"x"+height);
@@ -426,7 +426,7 @@ public class RTPmjpg {
 				elem.id   = data[off++];
 				elem.samp = data[off++];
 				elem.qt   = data[off++];
-				log.info("got comp "+elem.id+", samp "+elem.samp+", qt "+elem.qt);
+				LOG.info("got comp "+elem.id+", samp "+elem.samp+", qt "+elem.qt);
 				/* insertion sort from the last element to the first */
 				for (j = infolen; j > 1; j--) {
 					if(info[j - 1].id < elem.id)
@@ -467,7 +467,7 @@ public class RTPmjpg {
 
 			return true;
 		} catch(Exception e) {
-			log.warning(e);
+			LOG.warning(e);
 			return false;
 		}
 	}
@@ -499,7 +499,7 @@ public class RTPmjpg {
 
 			return dri.restart_interval > 0;
 		}  catch(Exception e) {
-			log.warning(e);
+			LOG.warning(e);
 			return false;
 		}
 	}
@@ -508,13 +508,13 @@ public class RTPmjpg {
 		while ((data[(offset[0])++] != JPEG_MARKER.MARKER.v) && ((offset[0]) < size));
 
 		if((offset[0]) >= size) {
-			log.info("found EOI marker");
+			LOG.info("found EOI marker");
 			return JPEG_MARKER.EOI;
 		}
 		JPEG_MARKER marker;
 
 		marker = JPEG_MARKER.valueOf(data[offset[0]]);
-		log.info("found "+marker+" marker at offset "+offset[0]);
+		LOG.info("found "+marker+" marker at offset "+offset[0]);
 		offset[0]++;
 		return marker;
 	}
@@ -536,7 +536,7 @@ public class RTPmjpg {
 		boolean sos_found, sof_found, dqt_found, dri_found;
 		int i;
 
-		log.info("got buffer size "+size);
+		LOG.info("got buffer size "+size);
 
 		/* parse the jpeg header for 'start of scan' and read quant tables if needed */
 		sos_found = false;
@@ -546,13 +546,13 @@ public class RTPmjpg {
 
 		try {
 			while (!sos_found && (offset[0] < size)) {
-				log.info("checking from offset "+offset[0]);
+				LOG.info("checking from offset "+offset[0]);
 				switch (gst_rtp_jpeg_pay_scan_marker (data, size, offset)) {
 				case JFIF:
 				case CMT:
 				case DHT:
 				case H264:
-					log.info("skipping marker");
+					LOG.info("skipping marker");
 					offset[0] += gst_rtp_jpeg_pay_header_size(data, offset[0]);
 					break;
 				case SOF:
@@ -561,23 +561,23 @@ public class RTPmjpg {
 					sof_found = true;
 					break;
 				case DQT:
-					log.info("DQT found");
+					LOG.info("DQT found");
 					offset[0] = gst_rtp_jpeg_pay_read_quant_table(data, size, offset[0], tables);
 					dqt_found = true;
 					break;
 				case SOS:
 					sos_found = true;
-					log.info("SOS found");
+					LOG.info("SOS found");
 					jpeg_header_size = offset[0] + gst_rtp_jpeg_pay_header_size(data, offset[0]);
 					break;
 				case EOI:
-					log.warning("EOI reached before SOS!");
+					LOG.warning("EOI reached before SOS!");
 					break;
 				case SOI:
-					log.info("SOI found");
+					LOG.info("SOI found");
 					break;
 				case DRI:
-					log.info("DRI found");
+					LOG.info("DRI found");
 					if (gst_rtp_jpeg_pay_read_dri (data, size, offset, restart_marker_header))
 						dri_found = true;
 					break;
@@ -593,7 +593,7 @@ public class RTPmjpg {
 			if (width < 0 || height < 0)
 				throw new Exception("No size given");
 
-			log.info("header size "+jpeg_header_size);
+			LOG.info("header size "+jpeg_header_size);
 
 			size -= jpeg_header_size;
 			data = ArrayUtilities.dropFirst(jpeg_header_size, data);
@@ -637,7 +637,7 @@ public class RTPmjpg {
 				quant_data_size += quant_header.sizeof();
 			}
 
-			log.info("quant_data size"+quant_data_size);
+			LOG.info("quant_data size"+quant_data_size);
 
 			bytes_left = jpeg_header.sizeof() + quant_data_size + size;
 
@@ -655,7 +655,7 @@ public class RTPmjpg {
 				payload_size = (bytes_left < (mtu - rtp_header_size) ? bytes_left : (mtu - rtp_header_size));
 
 				if (payload_size == bytes_left) {
-					log.info("last packet of frame");
+					LOG.info("last packet of frame");
 					frame_done = true;
 					rtp.set_marker(true);
 				}
@@ -685,13 +685,13 @@ public class RTPmjpg {
 						qsize = tables[qt].length;
 						payload.addAll(tables[qt]);
 
-						log.info("component "+i+" using quant "+qt+", size "+qsize);
+						LOG.info("component "+i+" using quant "+qt+", size "+qsize);
 					}
 					payload_size -= quant_data_size;
 					bytes_left -= quant_data_size;
 					quant_data_size = 0;
 				}
-				log.info("adding payload size "+ payload_size);
+				LOG.info("adding payload size "+ payload_size);
 				payload.addAll(data, 0, payload_size);
 				result.add(rtp);
 				if(frame_done) break;
@@ -703,7 +703,7 @@ public class RTPmjpg {
 			while (!frame_done);
 			return result;
 		} catch(Exception e) {
-			log.warning(e);
+			LOG.warning(e);
 			return result;
 		}
 	}
@@ -714,7 +714,7 @@ public class RTPmjpg {
 
 	// for testing
 	public static void main(String[] args) throws IOException {
-		log.setLevels(Log.ALL);
+		LOG.setLevels(Log.ALL);
 		BufferedImage img = new BufferedImage(500, 300, BufferedImage.TYPE_INT_RGB);
 		for(int y = img.getHeight(); --y >= 0;)
 			for(int x = img.getWidth(); --x >= 0;)

@@ -46,7 +46,7 @@ import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 import ch.fhnw.util.Log;
 
 public final class JOGLAccess extends FrameAccess {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	private final GLMediaPlayer player;
 
@@ -59,7 +59,7 @@ public final class JOGLAccess extends FrameAccess {
 				Thread.sleep(10);
 			player.initGL(ctx.getGL());
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		}
 	}
 
@@ -68,7 +68,7 @@ public final class JOGLAccess extends FrameAccess {
 		try(IGLContext ctx = GLContextManager.acquireContext()) {
 			player.destroy(ctx.getGL());
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 		}
 	}
 
@@ -113,7 +113,7 @@ public final class JOGLAccess extends FrameAccess {
 		try(IGLContext ctx = GLContextManager.acquireContext()) {
 			return Frame.create(player.getNextTexture(ctx.getGL()).getTexture());
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 			return null;
 		}
 	}
@@ -123,7 +123,7 @@ public final class JOGLAccess extends FrameAccess {
 		try(IGLContext ctx = GLContextManager.acquireContext()) {
 			return new Texture(player.getNextTexture(ctx.getGL()).getTexture());
 		} catch(Throwable t) {
-			log.severe(t);
+			LOG.severe(t);
 			return null;
 		}
 	}

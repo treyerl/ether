@@ -276,7 +276,7 @@ public final class MeshUtilities {
 	}
 	
 	private static boolean requireTexCoords(IMaterial material) {
-		return ArrayUtilities.contains(material.getGeometryAttributes(), IGeometry.COLOR_MAP_ARRAY);
+		return ArrayUtilities.contains(material.getRequiredAttributes(), IGeometry.COLOR_MAP_ARRAY);
 	}
 
 	public static void addLine(List<Vec3> dst, float x0, float y0, float x1, float y1) {
@@ -316,7 +316,7 @@ public final class MeshUtilities {
 	public static List<IMesh> mergeMeshes(List<IMesh> meshes) {
 		int maxNumAttributes = 0;
 		for (IMesh mesh : meshes)
-			maxNumAttributes = Math.max(maxNumAttributes, mesh.getMaterial().getGeometryAttributes().length);
+			maxNumAttributes = Math.max(maxNumAttributes, mesh.getMaterial().getRequiredAttributes().length);
 		
 		FloatList[] buffers = new FloatList[maxNumAttributes];
 		for (int i = 0; i < maxNumAttributes; ++i)
@@ -338,7 +338,7 @@ public final class MeshUtilities {
 					.collect(Collectors.toList());
 
 			IMaterial material = first.getMaterial();
-			IGeometryAttribute[] attributes = material.getGeometryAttributes();
+			IGeometryAttribute[] attributes = material.getRequiredAttributes();
 			FloatList data[] = new FloatList[attributes.length];
 			for (int i = 0; i < data.length; ++i) {
 				data[i] = buffers[i];

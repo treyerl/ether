@@ -45,7 +45,7 @@ import ch.fhnw.util.Log;
  * @author radar
  */
 public class Texture {
-	private static final Log log = Log.create();
+	private static final Log LOG = Log.create();
 
 	public static final Texture TRANSPARENT_1x1 = new RGBA8Frame(1,1).getTexture();
 
@@ -65,7 +65,7 @@ public class Texture {
 			try(IGLContext ctx = GLContextManager.acquireContext()) {
 				texture.destroy(ctx.getGL());
 			} catch(Throwable t) {
-				log.severe(t);
+				LOG.severe(t);
 			}
 		}
 	}

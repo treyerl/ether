@@ -252,7 +252,9 @@ public final class DefaultMesh implements IMesh {
 	private static void checkAttributeConsistency(IMaterial material, IGeometry geometry) {
 		// geometry must provide all materials required by material
 		List<IGeometryAttribute> geometryAttributes = Arrays.asList(geometry.getAttributes());
-		for (IAttribute attr : material.getGeometryAttributes()) {
+		for (IAttribute attr : material.getRequiredAttributes()) {
+			if (attr == null)
+				continue;
 			if (!geometryAttributes.contains(attr))
 				throw new IllegalArgumentException("geometry does not provide required attribute: " + attr);				
 		}
