@@ -45,6 +45,7 @@ import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.view.IView;
+import ch.fhnw.ether.view.IView.ViewFlag;
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 
@@ -108,7 +109,10 @@ public abstract class AbstractRenderer implements IRenderer {
 		// every render runnable created. otherwise scene-render state will
 		// get out of sync resulting in ugly fails.
 		try (IGLContext ctx = GLContextManager.acquireContext()) {
-			renderState.getRenderUpdates().forEach(update -> update.update());
+			renderState.getRenderUpdates().forEach(update -> {
+				update.update();
+				checkGLError("updates");
+			});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -117,49 +121,59 @@ public abstract class AbstractRenderer implements IRenderer {
 		renderState.getRenderStates().forEach(targetState -> {
 			IView view = targetState.getView();
 			IViewCameraState vcs = targetState.getViewCameraState();
-			targetState.getView().getWindow().display(drawable -> {
-                try {
-                    render(targetState, view, vcs);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-				return true;
-			});
+            try {
+    			view.getWindow().makeCurrent(true);
+    			render(targetState, view, vcs);
+    			view.getWindow().makeCurrent(false);
+				checkGLError("rendering");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 		});
+	}
+	
+	public static void checkGLError(String where) {
+		int error = GL11.glGetError();
+		if (error != 0)
+			System.err.println("opengl: " + where + " caused GL error 0x" + Integer.toHexString(error));		
 	}
 
 	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
-		try {
-			// XXX: make sure we only render on render thread (e.g. jogl
-			// will do repaints on other threads when resizing windows...)
-			if (!isRenderThread()) {
-				return;
-			}
-
-			// gl = new TraceGL3(gl, System.out);
-			// gl = new DebugGL3(gl);
-
-			// FIXME: currently we clear in DefaultView.display() ... needs
-			// to move
-			// gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT |
-			// GL.GL_STENCIL_BUFFER_BIT);
-
-			if (!view.isEnabled())
-				return;
-
-			// update views and lights
-			globals.viewInfo.update(vcs);
-			globals.lightInfo.update(vcs, renderState.getLights());
-
-			// render everything
-			render(renderState);
-
-			int error = GL11.glGetError();
-			if (error != 0)
-				System.err.println("renderer returned with exisiting GL error 0x" + Integer.toHexString(error));
-		} catch (Exception e) {
-			e.printStackTrace();
+		// XXX: make sure we only render on render thread (e.g. jogl
+		// will do repaints on other threads when resizing windows...)
+		if (!isRenderThread()) {
+			return;
 		}
+
+		// default gl state
+		// FIXME: need to make this configurable and move to renderer
+		GL11.glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+		GL11.glClearDepth(1.0f);
+
+		if (view.getConfig().has(ViewFlag.SMOOTH_LINES)) {
+			GL11.glEnable(GL11.GL_LINE_SMOOTH);
+			GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+		}
+
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		
+		// culling is enabled per default, and only disabled when requested
+		GL11.glEnable(GL11.GL_CULL_FACE);
+
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+
+		GL11.glViewport(0, 0, view.getViewport().w, view.getViewport().h);
+		
+		if (!view.isEnabled())
+			return;
+
+		// update views and lights
+		globals.viewInfo.update(vcs);
+		globals.lightInfo.update(vcs, renderState.getLights());
+
+		// render everything
+		render(renderState);
+		view.getWindow().swapBuffers();
 	}
 	
 	protected abstract void render(IRenderTargetState state);

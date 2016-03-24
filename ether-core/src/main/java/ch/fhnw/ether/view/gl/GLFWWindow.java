@@ -32,38 +32,60 @@
 package ch.fhnw.ether.view.gl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
+import org.lwjgl.glfw.GLFWWindowCloseCallback;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowRefreshCallback;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.libffi.Closure;
+
+import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.Config;
+import ch.fhnw.ether.view.IView.ViewType;
 import ch.fhnw.ether.view.IWindow;
-import ch.fhnw.util.math.Vec2;
 
 /**
- * JOGL/NEWT window class.
+ * GLFW window class.
  *
  * @author radar
  */
 final class GLFWWindow implements IWindow {
-	private static int numWindows = 0;
-
 	private long window;
+	private IView view;
+	private int vao = -1;
+	
+	private final List<Closure.Void> callbacks = new ArrayList<>();
 
-	/**
-	 * Creates undecorated frame.
-	 *
-	 * @param width
-	 *            the frame's width
-	 * @param height
-	 *            the frame's height
-	 * @param config
-	 *            The configuration.
-	 */
-	public GLFWWindow(int width, int height, Config config) {
-		this(width, height, null, config);
+//	private GLFWCursorEnterCallback pointerEnterCallback;
+//	private GLFWCursorPosCallback pointerPositionCallback;
+//	private GLFWMouseButtonCallback pointerButtonCallback;
+//	private GLFWScrollCallback pointerScrollCallback;
+	
+	private static GLFWErrorCallback errorCallback;
+
+	static {
+        // Setup an error callback. The default implementation
+        // will print the error message in System.err.
+        GLFW.glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
+ 
+        // Initialize GLFW. Most GLFW functions will not work before doing this.
+        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
+            throw new IllegalStateException("unable to initialize glfw");
 	}
-
+	
 	/**
-	 * Creates a decorated or undecorated frame with given dimensions
+	 * Creates window.
 	 *
+	 * @param view
+	 *            the associated view
 	 * @param width
 	 *            the frame's width
 	 * @param height
@@ -73,42 +95,148 @@ final class GLFWWindow implements IWindow {
 	 * @param config
 	 *            The configuration.
 	 */
-	public GLFWWindow(int width, int height, String title, Config config) {
+	public GLFWWindow(IView view, int width, int height, String title, Config config) {
+		// make sure this comes before setting up window hints due to side effects!
+        GLFWWindow shared = GLContextManager.getSharedContextWindow();
+
+        boolean interactive = config.getViewType() == ViewType.INTERACTIVE_VIEW;
+		
+        GLFW.glfwDefaultWindowHints();
+
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
+        GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);		
+
+        //GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+        
+        GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, interactive ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, interactive ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+
+        window = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, shared != null ? shared.window : MemoryUtil.NULL);
+        if (window == MemoryUtil.NULL)
+            throw new RuntimeException("failed to create window");
+ 	}
+	
+	GLFWWindow() {
+		this(null, 16, 16, "", IView.RENDER_VIEW);
+	}
+	
+	@Override
+	public void destroy() {
+		callbacks.forEach(c -> c.release());
+		GLFW.glfwDestroyWindow(window);
+	}
+	
+	@Override
+	public void makeCurrent(boolean current) {
+		if (current) {
+			GLFW.glfwMakeContextCurrent(window);
+			try {
+				GL.getCapabilities();
+			} catch (Exception e) {
+				GL.createCapabilities(true);			
+			}
+			// we're not using VAOs but still need to create one
+			if (vao == -1)
+				vao = GL30.glGenVertexArrays();
+			GL30.glBindVertexArray(vao);			
+		} else {
+			GLFW.glfwMakeContextCurrent(0);
+		}
+	}
+	
+	@Override
+	public void swapBuffers() {
+		GLFW.glfwSwapBuffers(window);
 	}
 
-	public void dispose() {
-	}
+	public void setWindowListener(IWindowListener listener) {
+		GLFWWindowCloseCallback closeCallback = new GLFWWindowCloseCallback() {
+			@Override
+			public void invoke(long window) {
+				listener.windowCloseRequest(GLFWWindow.this);
+			}
+		};
+		
+		GLFWWindowRefreshCallback refreshCallback = new GLFWWindowRefreshCallback() {
+			@Override
+			public void invoke(long window) {
+				listener.windowRefresh(GLFWWindow.this);
+			}
+		};
+		
+		GLFWWindowFocusCallback focusCallback = new GLFWWindowFocusCallback() {
+			@Override
+			public void invoke(long window, int focused) {
+				if (focused > 0)
+					listener.windowGainedFocus(GLFWWindow.this);
+				else
+					listener.windowLostFocus(GLFWWindow.this);
+			}
+		};
+		
+		GLFWFramebufferSizeCallback sizeCallback = new GLFWFramebufferSizeCallback() {
+			@Override
+			public void invoke(long window, int width, int height) {
+				listener.framebufferResized(GLFWWindow.this, width, height);
+			}
+		};
 
-	public long getWindow() {
-		return 0;
+		GLFW.glfwSetWindowCloseCallback(window, closeCallback);
+		GLFW.glfwSetWindowRefreshCallback(window, refreshCallback);
+		GLFW.glfwSetWindowFocusCallback(window, focusCallback);
+		GLFW.glfwSetFramebufferSizeCallback(window, sizeCallback);
+		
+		callbacks.add(closeCallback);
+		callbacks.add(refreshCallback);
+		callbacks.add(focusCallback);
+		callbacks.add(sizeCallback);
+	}
+	
+	public void setKeyListener(IKeyListener listener) {
+		GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
+			@Override
+			public void invoke(long window, int key, int scancode, int action, int mods) {
+			}
+		};
+
+		GLFW.glfwSetKeyCallback(window, keyCallback);
+
+		callbacks.add(keyCallback);
+	}
+	
+	public void setPointerListener(IPointerListener listener) {
+		
 	}
 
 	public void requestFocus() {
-	}
-
-	@Override
-	public String getTitle() {
-		return null;
+		// TODO: can this be done with GLFW???
 	}
 
 	@Override
 	public void setTitle(String title) {
+		GLFW.glfwSetWindowTitle(window, title);
 	}
 
 	@Override
 	public void setVisible(boolean visible) {
-	}
-
-	public Vec2 getPosition() {
-		return null;
+		if (visible) {
+			GLFW.glfwShowWindow(window);
+		} else {
+			GLFW.glfwHideWindow(window);
+		}
 	}
 
 	@Override
 	public void setPosition(int x, int y) {
+		GLFW.glfwSetWindowPos(window, x, y);
 	}
 
 	@Override
 	public void setSize(int width, int height) {
+		GLFW.glfwSetWindowSize(window, width, height);
 	}
 
 	@Override
@@ -139,9 +267,5 @@ final class GLFWWindow implements IWindow {
 	@Override
 	public int convertFromWindowToPixelUnits(int value) {
 		return 0;
-	}
-
-	@Override
-	public void display() {
 	}
 }

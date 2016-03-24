@@ -199,7 +199,7 @@ public final class Program {
 
 	public void setUniformVec4(int index, float[] value) {
 		if (value != null && index >= 0)
-			GL20.glUniform4f(index, value[0], value[1], value[2], value[4]);
+			GL20.glUniform4f(index, value[0], value[1], value[2], value[3]);
 	}
 
 	public void setUniformMat3(int index, float[] value) {
@@ -271,21 +271,28 @@ public final class Program {
 
 	private static boolean checkStatus(int object, int statusType, PrintStream out) {
 		int status = 0;
-		if (statusType == GL20.GL_COMPILE_STATUS)
+		if (statusType == GL20.GL_COMPILE_STATUS) {
 			status = GL20.glGetShaderi(object, statusType);
-		else if (statusType == GL20.GL_LINK_STATUS || statusType == GL20.GL_VALIDATE_STATUS)
-			status = GL20.glGetProgrami(object, statusType);
-
-		if (status != 1) {
-			status = GL20.glGetShaderi(object, GL20.GL_INFO_LOG_LENGTH);
-			if (status > 0) {
-				if (statusType == GL20.GL_COMPILE_STATUS)
+			if (status != 1) {
+				status = GL20.glGetShaderi(object, GL20.GL_INFO_LOG_LENGTH);
+				if (status > 0) {
 					out.println(GL20.glGetShaderInfoLog(object));
-				else if (statusType == GL20.GL_LINK_STATUS)
+				} else {
+					out.println("unknown compile status");
+				}
+				return false;
+			}
+		} else if (statusType == GL20.GL_LINK_STATUS || statusType == GL20.GL_VALIDATE_STATUS) {
+			status = GL20.glGetProgrami(object, statusType);
+			if (status != 1) {
+				status = GL20.glGetProgrami(object, GL20.GL_INFO_LOG_LENGTH);
+				if (status > 0) {
 					out.println(GL20.glGetProgramInfoLog(object));
-			} else
-				out.println("unknown (" + (statusType == GL20.GL_COMPILE_STATUS ? "GL_COMPILE_STATUS" : "GL_LINK_STATUS") + ")");
-			return false;
+				} else {
+					out.println("unknown link / validate status");
+				}
+				return false;
+			}
 		}
 		return true;
 	}

@@ -31,16 +31,15 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.camera.Camera;
 import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
-import ch.fhnw.ether.ui.Button;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.math.Vec3;
@@ -53,12 +52,12 @@ public final class SimpleCubeExample {
 	public SimpleCubeExample() {
 		// Create controller
 		IController controller = new DefaultController();
+		// Create view
+		IView view = new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Cube");
 		controller.run(time -> {
 			// Add UI
-			controller.setUI(new UI(controller));
+			//controller.setUI(new UI(controller));
 			
-			// Create view
-			IView view = new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Cube");
 	
 			// Create scene
 			IScene scene = new DefaultScene(controller);
@@ -75,7 +74,16 @@ public final class SimpleCubeExample {
 			//scene.add3DObject(MeshUtilities.createCylinder(6, true));
 			
 			// Add an exit button
-			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
+			//controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
 		});
+		
+		controller.animate((t, i) -> {
+			//System.out.println("render");
+		});
+		
+        while (true) {
+            GLFW.glfwPollEvents();
+        }
+		//controller.start();
 	}
 }

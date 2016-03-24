@@ -33,19 +33,69 @@ package ch.fhnw.ether.view;
 
 import java.io.File;
 
+import ch.fhnw.ether.controller.event.IKeyEvent;
+import ch.fhnw.ether.controller.event.IPointerEvent;
+
 public interface IWindow {
+	interface IWindowListener {
+		void windowCloseRequest(IWindow window);
+
+		void windowRefresh(IWindow window);
+
+		void windowGainedFocus(IWindow window);
+
+		void windowLostFocus(IWindow window);
+
+		void framebufferResized(IWindow window, int w, int h);
+	}
+
+	interface IKeyListener {
+		void keyPressed(IKeyEvent e);
+
+		void keyReleased(IKeyEvent e);
+	}
+
+	interface IPointerListener {
+		public void pointerEntered(IPointerEvent e);
+
+		public void pointerExited(IPointerEvent e);
+
+		public void pointerPressed(IPointerEvent e);
+
+		public void pointerReleased(IPointerEvent e);
+
+		public void pointerClicked(IPointerEvent e);
+
+		public void pointerMoved(IPointerEvent e);
+
+		public void pointerDragged(IPointerEvent e);
+
+		public void pointerWheelMoved(IPointerEvent e);
+	}
+	
 	/**
-	 * Returns the title, which is currently displayed for this window.
-	 * @return
+	 * Destroy this window and free all resources associated with it.
 	 */
-	String getTitle();
+	void destroy();
+	
+	/**
+	 * Make this window's OpenGL context current or release the current context.
+	 */
+	void makeCurrent(boolean current);
 
 	/**
-	 * Changes the title of this window to the given string.
-	 * @param title New window title.
+	 * Swap buffers.
+	 */
+	void swapBuffers();	
+
+	/**
+	 * Set this window's title.
+	 * 
+	 * @param title
+	 *            New window title.
 	 */
 	void setTitle(String title);
-	
+
 	/**
 	 * Shows / hides this window.
 	 */
@@ -96,9 +146,4 @@ public interface IWindow {
 	 * Convert from window to pixel units.
 	 */
 	int convertFromWindowToPixelUnits(int value);
-
-	/**
-	 * Display (i.e. render) this view. Must be run from render thread.
-	 */
-	void display();
 }

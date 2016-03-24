@@ -33,53 +33,36 @@ package ch.fhnw.ether.view.gl;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GLCapabilities;
-
-import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.IView.Config;
 
 public class GLContextManager {
+	private static final int NUM_CONTEXTS = 4;
+
 	public interface IGLContext extends AutoCloseable {
-		long getContext();
 	}
 
 	private static final class ExistingContext implements IGLContext {
-		@Override
-		public long getContext() {
-			return GLFW.glfwGetCurrentContext();
-		}
-
 		@Override
 		public void close() throws Exception {
 		}		
 	}
 
 	private static final class TemporaryContext implements IGLContext {
-		long window;
+		GLFWWindow window;
 
 		TemporaryContext() {
-			GLCapabilitiesImmutable capabilities = getSharedDrawable().getChosenGLCapabilities();
-			GLAutoDrawable drawable = GLDrawableFactory.getFactory(capabilities.getGLProfile()).createDummyAutoDrawable(null, true, capabilities, null);
-			context = drawable.createContext(getSharedDrawable().getContext());
-			drawable.setContext(context, true);
+			window = new GLFWWindow();
 		}
 
-		void makeCurrent() {
-			GLFW.glfwMakeContextCurrent(0);
+		void acquire() {
+			window.makeCurrent(true);
 		}
 
 		void release() {
-			GLFW.glfwMakeContextCurrent(window);
+			window.makeCurrent(false);
 		}
 
-		@Override
-		public long getContext() {
-			return GLFW.glfwGetCurrentContext();
-		}
-		
 		@Override
 		public void close() throws Exception {
 			releaseContext(this);
@@ -87,84 +70,64 @@ public class GLContextManager {
 	}
 
 	private static class ContextPool {
-		static final int MAX_CONTEXTS = 10;
-		final AtomicInteger numContexts = new AtomicInteger();
 		final BlockingQueue<TemporaryContext> contexts = new LinkedBlockingQueue<>();
+		
+		public ContextPool() {
+			contexts.add(new TemporaryContext());
+		}
 		
 		TemporaryContext acquireContext(boolean wait) {
 			TemporaryContext context = null;
-			context = contexts.poll();
-			if (context == null) {
-				if (numContexts.incrementAndGet() < MAX_CONTEXTS) {
-					context = new TemporaryContext();
-				} else if (wait) {
-					try {
-						context = contexts.take();
-					} catch (InterruptedException e) {
-					}
-				}
+			if (wait) {
+				try {
+					context = contexts.take();
+				} catch (InterruptedException e) {
+				}				
+			} else {
+				context = contexts.poll();
 			}
 			if (context != null)
-				context.makeCurrent();
+				context.acquire();
 			return context;
 		}
 		
 		void releaseContext(TemporaryContext context) {
 			context.release();
 			contexts.add(context);			
-		}
-		
+		}		
 	}
+	
 
 	private static final IGLContext VOID_CONTEXT = new ExistingContext();
 
-	private static ContextPool contexts = new ContextPool();
+	private static final ContextPool CONTEXTS;
 	
-	private static GLAutoDrawable theSharedDrawable;
+	private static final GLFWWindow SHARED_CONTEXT;
+
+	static {
+		CONTEXTS = new ContextPool();
+		SHARED_CONTEXT = CONTEXTS.contexts.peek().window;
+		for (int i = 0; i < NUM_CONTEXTS - 1; ++i)
+			CONTEXTS.contexts.add(new TemporaryContext());
+	}
 
 	public static IGLContext acquireContext() {
 		return acquireContext(true);
 	}
 
 	public static IGLContext acquireContext(boolean wait) {
-		if (GLContext.getCurrent() != null)
+		if (GLFW.glfwGetCurrentContext() != 0)
 			return VOID_CONTEXT;
 
-		return contexts.acquireContext(wait);
+		return CONTEXTS.acquireContext(wait);
 	}
 
 	public static void releaseContext(IGLContext context) {
 		if (context instanceof TemporaryContext)
-			contexts.releaseContext((TemporaryContext)context);
+			CONTEXTS.releaseContext((TemporaryContext)context);
 	}
 
-	public static GLAutoDrawable getSharedDrawable() {
-		return getSharedDrawable(null);
-	}
-	
-	public synchronized static GLAutoDrawable getSharedDrawable(GLCapabilities capabilities) {
-		if (theSharedDrawable == null) {
-			if (capabilities == null)
-				capabilities = getCapabilities(IView.INTERACTIVE_VIEW);
-			theSharedDrawable = GLDrawableFactory.getFactory(capabilities.getGLProfile()).createDummyAutoDrawable(null, true, capabilities, null);
-			theSharedDrawable.display();					
-		}
-		return theSharedDrawable;
-	}
-
-	public static GLCapabilities getCapabilities(Config config) {
-		// TODO: make this configurable
-		GLProfile profile = GLProfile.get(GLProfile.GL3);
-		GLCapabilities caps = new GLCapabilities(profile);
-		caps.setAlphaBits(8);
-		caps.setStencilBits(16);
-		if (config.getFSAASamples() > 0) {
-			caps.setSampleBuffers(true);
-			caps.setNumSamples(config.getFSAASamples());
-		} else {
-			caps.setSampleBuffers(false);
-			caps.setNumSamples(1);
-		}
-		return caps;
+	public static GLFWWindow getSharedContextWindow() {
+		return SHARED_CONTEXT;
 	}
 }

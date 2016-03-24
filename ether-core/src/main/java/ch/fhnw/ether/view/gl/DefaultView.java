@@ -32,12 +32,14 @@
 package ch.fhnw.ether.view.gl;
 
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.controller.event.IEvent;
+import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
-import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.ether.view.IWindow.IKeyListener;
+import ch.fhnw.ether.view.IWindow.IPointerListener;
+import ch.fhnw.ether.view.IWindow.IWindowListener;
 import ch.fhnw.util.Viewport;
 
 /**
@@ -62,30 +64,30 @@ public class DefaultView implements IView {
 		this.controller = controller;
 		this.viewConfig = viewConfig;
 
-		window = new GLFWWindow(w, h, title, viewConfig);
-		window.getWindow().addGLEventListener(glEventListener);
-		window.getWindow().addWindowListener(windowListener);
-		window.getWindow().addMouseListener(mouseListener);
-		window.getWindow().addKeyListener(keyListener);
+		window = new GLFWWindow(this, 16, 16, title, viewConfig);
 
-		Vec2 p = window.getPosition();
-		if (x != -1)
-			p.setX(x);
-		if (y != -1)
-			p.setY(y);
-		window.setPosition(p.getX(), p.getY());
+		window.setWindowListener(windowListener);
+		window.setKeyListener(keyListener);
+		window.setPointerListener(pointerListener);
 
 		// note: the order here is quite important. the view starts sending
 		// events after setVisible(), and we're still in the view's constructor.
 		// need to see if this doesn't get us into trouble in the long run.
-		controller.viewCreated(this);
+		// XXX NEEDS FIXING ANYWAY (LWJGL)
+		controller.run(time -> {
+			controller.viewCreated(this);			
+		});
+
+		if (x != -1)
+			window.setPosition(x, y);
+		window.setSize(w, h);
 		window.setVisible(true);
 	}
 
 	@Override
 	public void dispose() {
-		// the gl event listener below will deal with disposing
-		window.dispose();
+		window.destroy();
+		window = null;
 	}
 
 	@Override
@@ -128,37 +130,7 @@ public class DefaultView implements IView {
 	}
 
 	// GLEventListener implementation
-
-	private GLEventListener glEventListener = new GLEventListener() {
-		@Override
-		public final void init(GLAutoDrawable drawable) {
-			try {
-				GL gl = drawable.getGL();
-
-				// default gl state
-				// FIXME: need to make this configurable and move to renderer
-				gl.glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-				gl.glClearDepth(1.0f);
-
-				if (viewConfig.has(ViewFlag.SMOOTH_LINES)) {
-					gl.glEnable(GL.GL_LINE_SMOOTH);
-					gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST);
-				}
-
-				gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-				
-				// culling is enabled per default, and only disabled when requested
-				gl.glEnable(GL.GL_CULL_FACE);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public final void display(GLAutoDrawable drawable) {
-			drawable.getGL().glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT | GL.GL_STENCIL_BUFFER_BIT);
-		}
-
+/*
 		@Override
 		public final void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
 			try {
@@ -180,22 +152,42 @@ public class DefaultView implements IView {
 			});
 		}
 	};
-
+*/
 	// window listener
 
-	private WindowListener windowListener = new WindowAdapter() {
+	private IWindowListener windowListener = new IWindowListener() {
 		@Override
-		public void windowGainedFocus(WindowEvent e) {
+		public void windowCloseRequest(IWindow window) {
+			dispose();
+			runOnSceneThread(time -> {
+				controller.viewDisposed(DefaultView.this);
+			});
+		}
+		
+		@Override
+		public void windowRefresh(IWindow window) {
+			controller.repaint();
+		}
+		
+		@Override
+		public void windowGainedFocus(IWindow w) {
 			runOnSceneThread(time -> controller.viewGainedFocus(DefaultView.this));
 		}
 
 		@Override
-		public void windowLostFocus(WindowEvent e) {
+		public void windowLostFocus(IWindow w) {
 			runOnSceneThread(time -> controller.viewLostFocus(DefaultView.this));
+		}
+
+		@Override
+		public void framebufferResized(IWindow window, int w, int h) {
+			viewport = new Viewport(0, 0, w, h);
+			runOnSceneThread(time -> controller.viewResized(DefaultView.this));
 		}
 	};
 
 	// key listener
+	/*
 	private class ViewKeyEvent implements IKeyEvent {
 		final int modifiers;
 		final short keySym;
@@ -241,21 +233,22 @@ public class DefaultView implements IView {
 			return isAutoRepeat;
 		}
 	}
+	*/
 
-	private KeyListener keyListener = new KeyListener() {
+	private IKeyListener keyListener = new IKeyListener() {
 		@Override
-		public void keyPressed(KeyEvent e) {
-			runOnSceneThread(time -> controller.keyPressed(new ViewKeyEvent(e)));
+		public void keyPressed(IKeyEvent e) {
+			runOnSceneThread(time -> controller.keyPressed(e));
 		}
 
 		@Override
-		public void keyReleased(KeyEvent e) {
-			runOnSceneThread(time -> controller.keyReleased(new ViewKeyEvent(e)));
+		public void keyReleased(IKeyEvent e) {
+			runOnSceneThread(time -> controller.keyReleased(e));
 		}
 	};
 
 	// mouse listener
-
+/*
 	private class ViewPointerEvent implements IPointerEvent {
 		final int modifiers;
 		final int button;
@@ -320,47 +313,47 @@ public class DefaultView implements IView {
 			return scrollY;
 		}
 	}
-
-	private MouseListener mouseListener = new MouseListener() {
+*/
+	private IPointerListener pointerListener = new IPointerListener() {
 		@Override
-		public void mouseEntered(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerEntered(new ViewPointerEvent(e)));
+		public void pointerEntered(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerEntered(e));
 		}
 
 		@Override
-		public void mouseExited(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerExited(new ViewPointerEvent(e)));
+		public void pointerExited(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerExited(e));
 		}
 
 		@Override
-		public void mousePressed(MouseEvent e) {
+		public void pointerPressed(IPointerEvent e) {
 			window.requestFocus();
-			runOnSceneThread(time -> controller.pointerPressed(new ViewPointerEvent(e)));
+			runOnSceneThread(time -> controller.pointerPressed(e));
 		}
 
 		@Override
-		public void mouseReleased(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerReleased(new ViewPointerEvent(e)));
+		public void pointerReleased(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerReleased(e));
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerClicked(new ViewPointerEvent(e)));
+		public void pointerClicked(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerClicked(e));
 		}
 
 		@Override
-		public void mouseMoved(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerMoved(new ViewPointerEvent(e)));
+		public void pointerMoved(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerMoved(e));
 		}
 
 		@Override
-		public void mouseDragged(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerDragged(new ViewPointerEvent(e)));
+		public void pointerDragged(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerDragged(e));
 		}
 
 		@Override
-		public void mouseWheelMoved(MouseEvent e) {
-			runOnSceneThread(time -> controller.pointerScrolled(new ViewPointerEvent(e)));
+		public void pointerWheelMoved(IPointerEvent e) {
+			runOnSceneThread(time -> controller.pointerScrolled(e));
 		}
 	};
 }

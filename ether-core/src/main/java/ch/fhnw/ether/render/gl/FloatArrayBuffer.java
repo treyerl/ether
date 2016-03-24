@@ -45,7 +45,7 @@ import ch.fhnw.util.BufferUtilities;
  */
 public final class FloatArrayBuffer implements IArrayBuffer {
 	private GLObject vbo;
-	private int      size;
+	private int size;
 
 	public FloatArrayBuffer() {
 	}

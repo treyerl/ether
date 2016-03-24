@@ -98,8 +98,6 @@ public class DefaultRenderManager implements IRenderManager {
 		}
 	}
 
-	
-
 	private final class SceneState {
 		final Map<IView, SceneViewState> views = new IdentityHashMap<>();
 		final List<ILight> lights = new ArrayList<>(Collections.singletonList(ILight.DEFAULT_LIGHT));
@@ -186,7 +184,6 @@ public class DefaultRenderManager implements IRenderManager {
 		// TODO: there's a lot of room for optimization here: don't rebuild
 		// lists that haven't changed etc.... for now we just don't care...
 		IRenderState create(IRenderer renderer) {
-
 			// 1. add meshes and mesh updates to render state
 			final List<IRenderUpdate> updates = new ArrayList<>();
 			if (rebuildMeshes) {
@@ -213,8 +210,9 @@ public class DefaultRenderManager implements IRenderManager {
 					geometryChanged = true;
 				} else {
 					materialChanged = material.getUpdater().test();
-					geometryChanged = geometry.getUpdater().test() || mesh.getUpdater().testAndClear();
+					geometryChanged = geometry.getUpdater().test() | mesh.getUpdater().test();
 				}
+				//mesh.getUpdater().clear();
 
 				if (materialChanged || geometryChanged) {
 					updates.add(new RenderUpdate(state.renderable, mesh, materialChanged, geometryChanged));
@@ -224,8 +222,8 @@ public class DefaultRenderManager implements IRenderManager {
 			});
 
 			// second loop required to update flags
-			materials.forEach(material -> material.getUpdater().clear());
-			geometries.forEach(geometry -> geometry.getUpdater().clear());
+			//materials.forEach(material -> material.getUpdater().clear());
+			//geometries.forEach(geometry -> geometry.getUpdater().clear());
 			
 			// seal collections
 			final List<Renderable> renderRenderables = Collections.unmodifiableList(renderables);
