@@ -31,8 +31,6 @@
 
 package ch.fhnw.ether.video.fx;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 
@@ -41,5 +39,5 @@ public interface IVideoGLFX extends ICustomMaterial {
 	String       mainFrag();
 	String[]     functionsFrag();
 	String[]     functionsVert();
-	void         processFrame(GL3 gl, double playOutTime, IVideoRenderTarget target);
+	void         processFrame(double playOutTime, IVideoRenderTarget target);
 }

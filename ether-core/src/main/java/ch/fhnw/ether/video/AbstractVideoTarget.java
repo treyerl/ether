@@ -31,8 +31,9 @@
 
 package ch.fhnw.ether.video;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import java.nio.ByteBuffer;
+
+import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.AbstractRenderCommand;
@@ -80,33 +81,33 @@ public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame
 		return (IVideoSource)program.getFrameSource();
 	}
 
-	public Texture getSrcTexture(GL3 gl, AbstractVideoFX fx) {
+	public Texture getSrcTexture(AbstractVideoFX fx) {
 		AbstractRenderCommand<?>[] cmds = program.getProgram();
 		for(int i = cmds.length; --i >= 1;)
 			if(cmds[i] == fx)
 				for(int j = i; --j >= 0;)
 					if(cmds[j].isEnabled())
-						return j == 0 ? getFrame().getTexture() : getDstTexture(gl, (AbstractVideoFX)cmds[j]);
+						return j == 0 ? getFrame().getTexture() : getDstTexture((AbstractVideoFX)cmds[j]);
 		return null;
 	}
 
-	public Texture getDstTexture(GL3 gl, AbstractVideoFX fx) {
+	public Texture getDstTexture(AbstractVideoFX fx) {
 		AbstractRenderCommand<?>[] cmds = program.getProgram();
 		IVideoSource               src  = (IVideoSource) cmds[0];
 		if(cmds[cmds.length - 1] == fx || fx.getDstTexture() == null)
-			return createTexture(gl, src);
+			return createTexture(src);
 		return fx.getDstTexture();
 	}
 
-	private Texture createTexture(GL3 gl, IVideoSource src) {
+	private Texture createTexture(IVideoSource src) {
 		Texture result;
-		result = new Texture(new GLObject(gl, Type.TEXTURE), src.getWidth(), src.getHeight());
-		gl.glBindTexture(GL3.GL_TEXTURE_2D, result.getGlObject().getId());
-		gl.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_RGBA8, src.getWidth(), src.getHeight(), 0, GL3.GL_RGBA, GL3.GL_UNSIGNED_BYTE, null);
-		gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-		gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-		gl.glTexParameterf(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT);
-		gl.glTexParameterf(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT);
+		result = new Texture(new GLObject(Type.TEXTURE), src.getWidth(), src.getHeight());
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, result.getGlObject().getId());
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, src.getWidth(), src.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 		return result;
 	}
 

@@ -44,9 +44,9 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
-import ch.fhnw.util.BufferUtilities;
+import org.lwjgl.opengl.GL11;
 
-import com.jogamp.opengl.GL3;
+import ch.fhnw.util.BufferUtilities;
 
 public final class Grey16Frame extends Frame {
 	public float[] originalMinMax = { 0.0f, 1.0f };
@@ -495,7 +495,7 @@ public final class Grey16Frame extends Frame {
 	}
 
 	@Override
-	protected void loadTexture(GL3 gl) {
-		gl.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_RED, width, height, 0, GL3.GL_RED, GL3.GL_UNSIGNED_SHORT, pixels);
+	protected void loadTexture() {
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RED, width, height, 0, GL11.GL_RED, GL11.GL_UNSIGNED_SHORT, pixels);
 	}
 }

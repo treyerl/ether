@@ -37,8 +37,6 @@ import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 import ch.fhnw.util.math.IVec3;
 
-import com.jogamp.opengl.GL3;
-
 public class Vec3FloatUniform extends AbstractUniform<IVec3> {
 	private float[] value;
 	
@@ -64,7 +62,7 @@ public class Vec3FloatUniform extends AbstractUniform<IVec3> {
 	}
 
 	@Override
-	public final void enable(GL3 gl, Program program) {
-		program.setUniformVec3(gl, getShaderIndex(gl, program), value);
+	public final void enable(Program program) {
+		program.setUniformVec3(getShaderIndex(program), value);
 	}
 }

@@ -29,17 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.util.math.geometry;
-
-import java.util.List;
-
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUtessellator;
-import com.jogamp.opengl.glu.GLUtessellatorCallback;
-import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
+package ch.fhnw.util.math.tessellator;
 
 import ch.fhnw.util.IntList;
-import ch.fhnw.util.math.Vec3;
+import ch.fhnw.util.math.tessellator.glu.GLU;
+import ch.fhnw.util.math.tessellator.glu.GLUtessellator;
+import ch.fhnw.util.math.tessellator.glu.GLUtessellatorCallback;
+import ch.fhnw.util.math.tessellator.glu.GLUtessellatorCallbackAdapter;
 
 public final class Triangulation {
 	private static final IntList TRIANGLE = new IntList(new int[] { 0, 1, 2 });
@@ -105,10 +101,6 @@ public final class Triangulation {
 			result[v++] = polygon[j + 2];
 		}
 		return result;
-	}
-
-	public static boolean isConvex(List<Vec3> polygon) {
-		return isConvex(Vec3.toArray(polygon));
 	}
 
 	public static boolean isConvex(float[] polygon) {

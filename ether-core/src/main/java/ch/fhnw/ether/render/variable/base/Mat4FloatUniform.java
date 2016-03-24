@@ -37,8 +37,6 @@ import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 import ch.fhnw.util.math.Mat4;
 
-import com.jogamp.opengl.GL3;
-
 public class Mat4FloatUniform extends AbstractUniform<Mat4> {
 	private float[] value;
 	
@@ -64,7 +62,7 @@ public class Mat4FloatUniform extends AbstractUniform<Mat4> {
 	}
 
 	@Override
-	public final void enable(GL3 gl, Program program) {
-		program.setUniformMat4(gl, getShaderIndex(gl, program), value);
+	public final void enable(Program program) {
+		program.setUniformMat4(getShaderIndex(program), value);
 	}
 }

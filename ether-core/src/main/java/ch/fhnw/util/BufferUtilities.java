@@ -32,26 +32,12 @@
 package ch.fhnw.util;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
+
+import org.lwjgl.BufferUtils;
 
 public class BufferUtilities {
-	public static final FloatBuffer EMPTY_FLOAT_BUFFER = createDirectFloatBuffer(0);
-
-	public static ByteBuffer createDirectByteBuffer(int size) {
-		ByteBuffer result = ByteBuffer.allocateDirect(size);
-		result.order(ByteOrder.nativeOrder());
-		return result;
-	}
-
-	public static IntBuffer createDirectIntBuffer(int size) {
-		return createDirectByteBuffer(4 * size).asIntBuffer();
-	}
-
-	public static FloatBuffer createDirectFloatBuffer(int size) {
-		return createDirectByteBuffer(4 * size).asFloatBuffer();
-	}
+	public static final FloatBuffer EMPTY_FLOAT_BUFFER = BufferUtils.createFloatBuffer(0);
 
 	public static void arraycopy(ByteBuffer src, int srcPos, ByteBuffer dst, int dstPos, int length) {
 		if (src == dst) {

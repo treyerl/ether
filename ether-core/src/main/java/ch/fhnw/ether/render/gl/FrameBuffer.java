@@ -31,7 +31,8 @@
 
 package ch.fhnw.ether.render.gl;
 
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.scene.mesh.material.Texture;
@@ -39,69 +40,66 @@ import ch.fhnw.ether.scene.mesh.material.Texture;
 public class FrameBuffer {
 	private final GLObject fbo;
 
-	public FrameBuffer(GL3 gl) {
-		fbo = new GLObject(gl, Type.FRAMEBUFFER);
+	public FrameBuffer() {
+		fbo = new GLObject(Type.FRAMEBUFFER);
 	}
 	
 	public GLObject getGLObject() {
 		return fbo;
 	}
 		
-	public int checkStatus(GL3 gl) {
-		return gl.glCheckFramebufferStatus(GL3.GL_DRAW_FRAMEBUFFER);
+	// TODO: add isComplete method for easier handling
+	public int checkStatus() {
+		return GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER);
 	}
 	
-	public void bind(GL3 gl) {
-		gl.glBindFramebuffer(GL3.GL_DRAW_FRAMEBUFFER, fbo.getId());
+	public void bind() {
+		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, fbo.getId());
 	}
 	
-	public static void unbind(GL3 gl) {
-		gl.glBindFramebuffer(GL3.GL_DRAW_FRAMEBUFFER, 0);
+	public static void unbind() {
+		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
 	}
 	
-	public void attach(GL3 gl, int attachment, RenderBuffer buffer) {
-		gl.glFramebufferRenderbuffer(GL3.GL_FRAMEBUFFER, attachment, GL3.GL_RENDERBUFFER, buffer.id());
+	public void attach(int attachment, RenderBuffer buffer) {
+		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, attachment, GL30.GL_RENDERBUFFER, buffer.id());
 	}
 
-	public void attach(GL3 gl, int attachment, Texture texture) {
+	public void attach(int attachment, Texture texture) {
 		// XXX: is this really necessary? the general contract should be that no texture is bound here
-		int[] toRestore = new int[1];
+		int toRestore = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 
-		gl.glGetIntegerv(GL3.GL_TEXTURE_BINDING_2D, toRestore, 0);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getGlObject().getId());
 
-		gl.glBindTexture(GL3.GL_TEXTURE_2D, texture.getGlObject().getId());
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture.getGlObject().getId(), 0);
 
-		gl.glFramebufferTexture2D(GL3.GL_DRAW_FRAMEBUFFER, attachment, GL3.GL_TEXTURE_2D, texture.getGlObject().getId(), 0);
-
-		gl.glBindTexture(GL3.GL_TEXTURE_2D, toRestore[0]);			
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, toRestore);			
 	}
 
-	public void detach(GL3 gl, int attachment) {
-		gl.glFramebufferRenderbuffer(GL3.GL_FRAMEBUFFER, attachment, GL3.GL_RENDERBUFFER, 0);
+	public void detach(int attachment) {
+		GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, attachment, GL30.GL_RENDERBUFFER, 0);
 	}
 	
 	public static String toString(int status) {
-		switch(status) {
-		case GL3.GL_INVALID_FRAMEBUFFER_OPERATION:                return "GL_INVALID_FRAMEBUFFER_OPERATION";
-		case GL3.GL_MAX_RENDERBUFFER_SIZE:                        return "GL_MAX_RENDERBUFFER_SIZE";
-		case GL3.GL_FRAMEBUFFER_BINDING:                          return "GL_FRAMEBUFFER_BINDING";
-		case GL3.GL_RENDERBUFFER_BINDING:                         return "GL_RENDERBUFFER_BINDING";
-		case GL3.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE:           return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE";
-		case GL3.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME:           return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME";
-		case GL3.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL:         return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL";
-		case GL3.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE: return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE";
-		//case GL3.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET:    return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET";
-		case GL3.GL_FRAMEBUFFER_COMPLETE:                         return "GL_FRAMEBUFFER_COMPLETE";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:            return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:    return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-		//case GL3.GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT:  return "GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:            return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_FORMATS:               return "GL_FRAMEBUFFER_INCOMPLETE_FORMATS";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:           return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
-		case GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:           return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
-		case GL3.GL_FRAMEBUFFER_UNSUPPORTED:                      return "GL_FRAMEBUFFER_UNSUPPORTED";
-		case GL3.GL_MAX_COLOR_ATTACHMENTS:                        return "GL_MAX_COLOR_ATTACHMENTS";
-		default:                                                  return "unknown:" + status;
+		switch (status) {
+		case GL30.GL_FRAMEBUFFER_COMPLETE:
+			return "GL_FRAMEBUFFER_COMPLETE";
+		case GL30.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+			return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+		case GL30.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+			return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+		case GL30.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+			return "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+		case GL30.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+			return "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+		case GL30.GL_FRAMEBUFFER_UNSUPPORTED:
+			return "GL_FRAMEBUFFER_UNSUPPORTED";
+		case GL30.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+			return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+		case GL30.GL_FRAMEBUFFER_UNDEFINED:
+			return "GL_FRAMEBUFFER_UNDEFINED";
+		default:
+			return "unknown: " + status;
 		}
 	}
 	

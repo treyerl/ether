@@ -41,6 +41,7 @@ import ch.fhnw.util.Pair;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.MathUtilities;
 import ch.fhnw.util.math.Vec3;
+import ch.fhnw.util.math.tessellator.Triangulation;
 
 /**
  * Polygon class based on a list of vertices. Supports concave polygons, except

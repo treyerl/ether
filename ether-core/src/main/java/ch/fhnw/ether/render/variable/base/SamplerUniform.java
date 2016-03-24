@@ -33,8 +33,8 @@ package ch.fhnw.ether.render.variable.base;
 
 import java.util.function.Supplier;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
@@ -69,23 +69,23 @@ public class SamplerUniform extends AbstractUniform<Texture> {
 	}
 
 	@Override
-	public final void enable(GL3 gl, Program program) {
+	public final void enable(Program program) {
 		if (texture == null)
 			return;
 		
-		gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-		gl.glBindTexture(target, texture.getGlObject().getId());
-		program.setUniformSampler(gl, getShaderIndex(gl, program), unit);
-		gl.glActiveTexture(GL.GL_TEXTURE0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0 + unit);
+		GL11.glBindTexture(target, texture.getGlObject().getId());
+		program.setUniformSampler(getShaderIndex(program), unit);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 	}
 
 	@Override
-	public final void disable(GL3 gl, Program program) {
+	public final void disable(Program program) {
 		if (texture == null)
 			return;
 
-		gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-		gl.glBindTexture(target, 0);
-		gl.glActiveTexture(GL.GL_TEXTURE0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0 + unit);
+		GL11.glBindTexture(target, 0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 	}
 }

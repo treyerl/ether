@@ -33,8 +33,6 @@ package ch.fhnw.ether.render.shader;
 
 import java.util.List;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.render.IVertexBuffer;
 import ch.fhnw.ether.render.variable.IShaderArray;
 import ch.fhnw.ether.render.variable.IShaderUniform;
@@ -52,13 +50,13 @@ public interface IShader {
 
 	String id();
 	
-	void update(GL3 gl, Object[] uniformData);
+	void update(Object[] uniformData);
 
-	void enable(GL3 gl);
+	void enable();
 
-	void render(GL3 gl, IVertexBuffer buffer);
+	void render(IVertexBuffer buffer);
 
-	void disable(GL3 gl);
+	void disable();
 
 	List<IShaderUniform<?>> getUniforms();
 

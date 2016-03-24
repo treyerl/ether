@@ -31,18 +31,6 @@
 
 package ch.fhnw.ether.view.gl;
 
-import com.jogamp.nativewindow.util.Point;
-import com.jogamp.newt.event.KeyEvent;
-import com.jogamp.newt.event.KeyListener;
-import com.jogamp.newt.event.MouseEvent;
-import com.jogamp.newt.event.MouseListener;
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.newt.event.WindowEvent;
-import com.jogamp.newt.event.WindowListener;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLEventListener;
-
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEvent;
 import ch.fhnw.ether.controller.event.IKeyEvent;
@@ -64,7 +52,7 @@ public class DefaultView implements IView {
 
 	private final IController controller;
 
-	private NEWTWindow window;
+	private GLFWWindow window;
 
 	private volatile Viewport viewport = new Viewport(0, 0, 1, 1);
 
@@ -74,13 +62,13 @@ public class DefaultView implements IView {
 		this.controller = controller;
 		this.viewConfig = viewConfig;
 
-		window = new NEWTWindow(w, h, title, viewConfig);
+		window = new GLFWWindow(w, h, title, viewConfig);
 		window.getWindow().addGLEventListener(glEventListener);
 		window.getWindow().addWindowListener(windowListener);
 		window.getWindow().addMouseListener(mouseListener);
 		window.getWindow().addKeyListener(keyListener);
 
-		Point p = window.getPosition();
+		Vec2 p = window.getPosition();
 		if (x != -1)
 			p.setX(x);
 		if (y != -1)

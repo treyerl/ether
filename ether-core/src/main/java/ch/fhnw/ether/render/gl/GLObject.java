@@ -34,7 +34,10 @@ package ch.fhnw.ether.render.gl;
 import java.lang.ref.ReferenceQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
@@ -56,7 +59,7 @@ public class GLObject {
 		private static final AtomicInteger REF_COUNT = new AtomicInteger();
 
 		private final Type        type;
-		private final int[]       id;
+		private final int         id;
 		private final IDisposable userData;
 
 		public GLObjectRef(GLObject referent, ReferenceQueue<? super GLObject> q) {
@@ -75,22 +78,21 @@ public class GLObject {
 				if(userData != null)
 					userData.dispose();
 				else {
-					GL3 gl = context.getGL();
 					switch (type) {
 					case TEXTURE:
-						gl.glDeleteTextures(1, id, 0);
+						GL11.glDeleteTextures(id);
 						break;
 					case BUFFER:
-						gl.glDeleteBuffers(1, id, 0);
+						GL15.glDeleteBuffers(id);
 						break;
 					case RENDERBUFFER:
-						gl.glDeleteRenderbuffers(1, id, 0);
+						GL30.glDeleteRenderbuffers(id);
 						break;
 					case FRAMEBUFFER:
-						gl.glDeleteFramebuffers(1, id, 0);
+						GL30.glDeleteFramebuffers(id);
 						break;
 					case PROGRAM:
-						gl.glDeleteProgram(id[0]);
+						GL20.glDeleteProgram(id);
 						break;
 					}
 				}
@@ -106,35 +108,37 @@ public class GLObject {
 	private static final AutoDisposer<GLObject> AUTO_DISPOSER = new AutoDisposer<>(GLObjectRef.class);
 
 	private final Type        type;
-	private final int[]       id = new int[1];
+	private final int         id;
 	private final IDisposable userData;
 
 	public GLObject(Type type, int glName, IDisposable userData) {
 		this.type     = type;
-		this.id[0]    = glName;
+		this.id       = glName;
 		this.userData = userData;
 		AUTO_DISPOSER.add(this);
 	}
 
-	public GLObject(GL3 gl, Type type) {
+	public GLObject(Type type) {
 		this.type     = type;
 		this.userData = null;
 		switch (type) {
 		case TEXTURE:
-			gl.glGenTextures(1, id, 0);
+			id = GL11.glGenTextures();
 			break;
 		case BUFFER:
-			gl.glGenBuffers(1, id, 0);
+			id = GL15.glGenBuffers();
 			break;
 		case RENDERBUFFER:
-			gl.glGenRenderbuffers(1, id, 0);
+			id = GL30.glGenRenderbuffers();
 			break;
 		case FRAMEBUFFER:
-			gl.glGenFramebuffers(1, id, 0);
+			id = GL30.glGenFramebuffers();
 			break;
 		case PROGRAM:
-			id[0] = gl.glCreateProgram();
+			id = GL20.glCreateProgram();
 			break;
+		default:
+			throw new IllegalArgumentException("unknown type: " + type);
 		}
 		AUTO_DISPOSER.add(this);
 	}
@@ -144,7 +148,7 @@ public class GLObject {
 	}
 
 	public int getId() {
-		return id[0];
+		return id;
 	}
 
 	public IDisposable getUserData() {

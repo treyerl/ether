@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.render.gl.FloatUniformBuffer;
 import ch.fhnw.ether.render.variable.builtin.LightUniformBlock;
 import ch.fhnw.ether.scene.attribute.IAttribute;
@@ -54,10 +52,10 @@ public final class LightInfo {
 		return numLights;
 	}
 	
-	public void update(GL3 gl, IViewCameraState matrices, List<ILight> lights) {
-		LightUniformBlock.loadUniforms(gl, uniforms, lights, matrices);
+	public void update(IViewCameraState matrices, List<ILight> lights) {
+		LightUniformBlock.loadUniforms(uniforms, lights, matrices);
 		numLights = lights.size();
-		uniforms.bind(gl);
+		uniforms.bind();
 	}
 
 	public void getAttributes(Map<IAttribute, Supplier<?>> globals) {

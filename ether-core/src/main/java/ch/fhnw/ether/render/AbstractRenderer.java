@@ -37,7 +37,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
 
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.scene.attribute.IAttribute;
@@ -108,7 +108,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		// every render runnable created. otherwise scene-render state will
 		// get out of sync resulting in ugly fails.
 		try (IGLContext ctx = GLContextManager.acquireContext()) {
-			renderState.getRenderUpdates().forEach(update -> update.update(ctx.getGL()));
+			renderState.getRenderUpdates().forEach(update -> update.update());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -119,8 +119,7 @@ public abstract class AbstractRenderer implements IRenderer {
 			IViewCameraState vcs = targetState.getViewCameraState();
 			targetState.getView().getWindow().display(drawable -> {
                 try {
-                	GL3 gl = drawable.getGL().getGL3();
-                    render(gl, targetState, view, vcs);
+                    render(targetState, view, vcs);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -129,7 +128,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		});
 	}
 
-	private void render(GL3 gl, IRenderTargetState renderState, IView view, IViewCameraState vcs) {
+	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
 		try {
 			// XXX: make sure we only render on render thread (e.g. jogl
 			// will do repaints on other threads when resizing windows...)
@@ -149,13 +148,13 @@ public abstract class AbstractRenderer implements IRenderer {
 				return;
 
 			// update views and lights
-			globals.viewInfo.update(gl, vcs);
-			globals.lightInfo.update(gl, vcs, renderState.getLights());
+			globals.viewInfo.update(vcs);
+			globals.lightInfo.update(vcs, renderState.getLights());
 
 			// render everything
-			render(gl, renderState);
+			render(renderState);
 
-			int error = gl.glGetError();
+			int error = GL11.glGetError();
 			if (error != 0)
 				System.err.println("renderer returned with exisiting GL error 0x" + Integer.toHexString(error));
 		} catch (Exception e) {
@@ -163,21 +162,21 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 	}
 	
-	protected abstract void render(GL3 gl, IRenderTargetState state);
+	protected abstract void render(IRenderTargetState state);
 	
-	protected void renderObjects(GL3 gl, IRenderTargetState state, Queue pass) {
+	protected void renderObjects(IRenderTargetState state, Queue pass) {
 		for (Renderable renderable : state.getRenderables()) {
 			if (renderable.getQueue() == pass) {
-				renderable.render(gl);
+				renderable.render();
 			}
 		}
 	}
 
-	protected void renderShadowVolumes(GL3 gl, IRenderTargetState state, Queue pass) {
+	protected void renderShadowVolumes(IRenderTargetState state, Queue pass) {
 		if (shadowVolumes == null) {
 			shadowVolumes = new ShadowVolumes(globals.attributes);
 		}
-		shadowVolumes.render(gl, pass, state.getRenderables(), globals.lightInfo.getNumLights());
+		shadowVolumes.render(pass, state.getRenderables(), globals.lightInfo.getNumLights());
 	}
 	
 	private void runRenderThread() {

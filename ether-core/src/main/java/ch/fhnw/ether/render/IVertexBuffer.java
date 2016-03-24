@@ -31,18 +31,16 @@
 
 package ch.fhnw.ether.render;
 
-import com.jogamp.opengl.GL3;
-
 public interface IVertexBuffer {
 	
 	int getNumVertices();
 
-	void bind(GL3 gl);
+	void bind();
 
-	void unbind(GL3 gl);
+	void unbind();
 
-	void enableAttribute(GL3 gl, int bufferIndex, int shaderIndex);
+	void enableAttribute(int bufferIndex, int shaderIndex);
 
-	void disableAttribute(GL3 gl, int bufferIndex, int shaderIndex);
+	void disableAttribute(int bufferIndex, int shaderIndex);
 
 }

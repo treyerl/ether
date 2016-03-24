@@ -33,7 +33,8 @@ package ch.fhnw.ether.render.shader.builtin;
 
 import java.util.Collection;
 
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL32;
 
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
@@ -71,8 +72,9 @@ public class PointShader extends AbstractShader {
 		addUniform(new ColorUniform(attributes.contains(IMaterial.COLOR) ? null : () -> RGBA.WHITE));
 		addUniform(new FloatUniform(IMaterial.POINT_SIZE, "pointSize", attributes.contains(IMaterial.POINT_SIZE) ? null : () -> 1f));
 
-		addUniform(new StateInject("shader.point_size_program", (gl, p) -> gl.glEnable(GL3.GL_PROGRAM_POINT_SIZE),
-				(gl, p) -> gl.glDisable(GL3.GL_PROGRAM_POINT_SIZE)));
+		addUniform(new StateInject("shader.point_size_program", 
+				p -> GL11.glEnable(GL32.GL_PROGRAM_POINT_SIZE),
+				p -> GL11.glDisable(GL32.GL_PROGRAM_POINT_SIZE)));
 
 		addUniform(new ViewUniformBlock());
 	}

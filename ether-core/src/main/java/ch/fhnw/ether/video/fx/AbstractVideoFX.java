@@ -31,12 +31,14 @@
 
 package ch.fhnw.ether.video.fx;
 
+import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.media.AbstractRenderCommand;
@@ -134,9 +136,9 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			else if(value instanceof IVec4)
 				return new Vec4FloatUniform((ITypedAttribute<IVec4>)this, id());
 			else if(value instanceof Frame)
-				return new SamplerUniform(id(), id(), unit, GL3.GL_TEXTURE_2D);
+				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
 			else if(value instanceof VideoFrame)
-				return new SamplerUniform(id(), id(), unit, GL3.GL_TEXTURE_2D);
+				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
 			else
 				throw new IllegalArgumentException("Unsupported unifrom type:" + value.getClass().getName());
 		}
@@ -187,18 +189,18 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			shader = new FxShader();
 		}
 
-		public void prepare(GL3 gl, AbstractVideoTarget target) throws RenderCommandException {
-			this.srcTexture = target.getSrcTexture(gl, AbstractVideoFX.this);
-			this.dstTexture = target.getDstTexture(gl, AbstractVideoFX.this);
+		public void prepare(AbstractVideoTarget target) throws RenderCommandException {
+			this.srcTexture = target.getSrcTexture(AbstractVideoFX.this);
+			this.dstTexture = target.getDstTexture(AbstractVideoFX.this);
 			if(fbo == null)
-				fbo = new FrameBuffer(gl);
-			fbo.bind(gl);
+				fbo = new FrameBuffer();
+			fbo.bind();
 
 			if(dstTexture != lastDstTexture) {
-				fbo.attach(gl, GL.GL_COLOR_ATTACHMENT0, dstTexture);
+				fbo.attach(GL30.GL_COLOR_ATTACHMENT0, dstTexture);
 				lastDstTexture = dstTexture;
-				int status = fbo.checkStatus(gl);
-				if(status != GL3.GL_FRAMEBUFFER_COMPLETE)
+				int status = fbo.checkStatus();
+				if(status != GL30.GL_FRAMEBUFFER_COMPLETE)
 					throw new RenderCommandException("createFBO:" + FrameBuffer.toString(status));
 			}
 		}
@@ -233,7 +235,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	private   final FxMaterial              material;
 	private   final IMesh                   quad;
 	private   final Renderable              renderable;
-	private   final int[]                   viewport = new int[4];
+	private   final IntBuffer               viewport = BufferUtils.createIntBuffer(4);
 	private   final Uniform<?>[]            uniformsvert;
 	private   final String[]                outIn;
 	private   final Uniform<?>[]            uniformsfrag;
@@ -309,26 +311,26 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		return val1 * w + (1f-w) * val0;
 	}
 
-	public void processFrame(GL3 gl, double playOutTime, IVideoRenderTarget target) {}
+	public void processFrame(double playOutTime, IVideoRenderTarget target) {}
 
 	@Override
 	protected final void run(IVideoRenderTarget target) throws RenderCommandException {
 		if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == GLFX) {
 			try(IGLContext ctx = GLContextManager.acquireContext()) {
-				final GL3 gl = ctx.getGL();
-				processFrame(gl, target.getFrame().playOutTime, target);
-				material.prepare(gl, (AbstractVideoTarget)target);
-				renderable.update(gl, material.getData(), quad.getTransformedGeometryData());
-				material.fbo.bind(gl);
-				gl.glGetIntegeri_v(GL3.GL_VIEWPORT, 0, viewport, 0);
-				gl.glViewport(0, 0, material.dstTexture.getWidth(), material.dstTexture.getHeight());
-				renderable.render(gl);
-				FrameBuffer.unbind(gl);
-				gl.glBindTexture(GL.GL_TEXTURE_2D, material.dstTexture.getGlObject().getId());
-				gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
+				// TODO / XXX: necessary to store / restore viewport info here?
+				processFrame(target.getFrame().playOutTime, target);
+				material.prepare((AbstractVideoTarget)target);
+				renderable.update(material.getData(), quad.getTransformedGeometryData());
+				material.fbo.bind();
+				GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
+				GL11.glViewport(0, 0, material.dstTexture.getWidth(), material.dstTexture.getHeight());
+				renderable.render();
+				FrameBuffer.unbind();
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, material.dstTexture.getGlObject().getId());
+				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 				target.getFrame().setTexture(material.dstTexture);
-				gl.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-				gl.glFinish();
+				GL11.glViewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
+				GL11.glFinish();
 			} catch(RenderCommandException e) {
 				throw e;
 			} catch(Throwable t) {

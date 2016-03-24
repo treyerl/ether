@@ -33,11 +33,6 @@ package ch.fhnw.ether.scene.mesh.material;
 
 import ch.fhnw.ether.image.RGBA8Frame;
 import ch.fhnw.ether.render.gl.GLObject;
-import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.ether.view.gl.GLContextManager;
-import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
-import ch.fhnw.util.IDisposable;
-import ch.fhnw.util.Log;
 
 /**
  * Texture data encapsulation
@@ -45,41 +40,16 @@ import ch.fhnw.util.Log;
  * @author radar
  */
 public class Texture {
-	private static final Log LOG = Log.create();
-
 	public static final Texture TRANSPARENT_1x1 = new RGBA8Frame(1,1).getTexture();
 
 	private GLObject glObject;
 	private int      width;
 	private int      height;
 
-	static final class JOGLTextureWrapper implements IDisposable {
-		private final com.jogamp.opengl.util.texture.Texture texture;
-
-		JOGLTextureWrapper(com.jogamp.opengl.util.texture.Texture texture) {
-			this.texture = texture;
-		}
-
-		@Override
-		public void dispose() {
-			try(IGLContext ctx = GLContextManager.acquireContext()) {
-				texture.destroy(ctx.getGL());
-			} catch(Throwable t) {
-				LOG.severe(t);
-			}
-		}
-	}
-
 	public Texture(GLObject glObject, int width, int height) {
 		this.glObject = glObject;
 		this.width    = width;
 		this.height   = height;
-	}
-
-	public Texture(com.jogamp.opengl.util.texture.Texture texture) {
-		this.glObject = new GLObject(Type.TEXTURE, texture.getTextureObject(), new JOGLTextureWrapper(texture));
-		this.width  = texture.getWidth();
-		this.height = texture.getHeight(); 
 	}
 
 	public int getWidth() {

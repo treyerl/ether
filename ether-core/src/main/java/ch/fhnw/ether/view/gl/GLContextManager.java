@@ -35,26 +35,21 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLCapabilitiesImmutable;
-import com.jogamp.opengl.GLContext;
-import com.jogamp.opengl.GLDrawableFactory;
-import com.jogamp.opengl.GLProfile;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GLCapabilities;
 
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.Config;
 
 public class GLContextManager {
 	public interface IGLContext extends AutoCloseable {
-		GL3 getGL();
+		long getContext();
 	}
 
 	private static final class ExistingContext implements IGLContext {
 		@Override
-		public GL3 getGL() {
-			return GLContext.getCurrentGL().getGL3();
+		public long getContext() {
+			return GLFW.glfwGetCurrentContext();
 		}
 
 		@Override
@@ -63,7 +58,7 @@ public class GLContextManager {
 	}
 
 	private static final class TemporaryContext implements IGLContext {
-		GLContext context;
+		long window;
 
 		TemporaryContext() {
 			GLCapabilitiesImmutable capabilities = getSharedDrawable().getChosenGLCapabilities();
@@ -73,16 +68,16 @@ public class GLContextManager {
 		}
 
 		void makeCurrent() {
-			context.makeCurrent();
+			GLFW.glfwMakeContextCurrent(0);
 		}
 
 		void release() {
-			context.release();
+			GLFW.glfwMakeContextCurrent(window);
 		}
 
 		@Override
-		public GL3 getGL() {
-			return GLContext.getCurrentGL().getGL3();
+		public long getContext() {
+			return GLFW.glfwGetCurrentContext();
 		}
 		
 		@Override

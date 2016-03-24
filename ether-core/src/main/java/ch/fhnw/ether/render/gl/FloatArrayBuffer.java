@@ -31,13 +31,12 @@
 
 package ch.fhnw.ether.render.gl;
 
-import java.nio.Buffer;
+import java.nio.FloatBuffer;
+
+import org.lwjgl.opengl.GL15;
 
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.util.BufferUtilities;
-
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
 
 /**
  * Basic float buffer attribute wrapper.
@@ -51,37 +50,31 @@ public final class FloatArrayBuffer implements IArrayBuffer {
 	public FloatArrayBuffer() {
 	}
 
-	@Override
-	public void load(GL3 gl, Buffer data) {
-		if (vbo == null) {
-			vbo = new GLObject(gl, Type.BUFFER);
-		}
+	public void load(FloatBuffer data) {
+		if (vbo == null)
+			vbo = new GLObject(Type.BUFFER);
 
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo.getId());
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo.getId());
 		if (data != null && data.limit() != 0) {
 			size = data.limit();
 			data.rewind();
-
-			// transfer data to VBO
-			int numBytes = size * 4;
-			gl.glBufferData(GL.GL_ARRAY_BUFFER, numBytes, data, GL.GL_STATIC_DRAW);
+			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
 		} else {
 			size = 0;
-			gl.glBufferData(GL.GL_ARRAY_BUFFER, 0, BufferUtilities.EMPTY_FLOAT_BUFFER, GL.GL_STATIC_DRAW);
+			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, BufferUtilities.EMPTY_FLOAT_BUFFER, GL15.GL_STATIC_DRAW);
 		}
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 	}
 
 	@Override
-	public void clear(GL3 gl) {
-		load(gl, null);
+	public void clear() {
+		load(null);
 	}
 
 	@Override
-	public void bind(GL3 gl) {
-		if (size > 0) {
-			gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo.getId());
-		}
+	public void bind() {
+		if (size > 0)
+			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo.getId());
 	}
 
 	@Override

@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.render.IRenderer.IRenderState;
 import ch.fhnw.ether.render.IRenderer.IRenderTargetState;
@@ -95,8 +93,8 @@ public class DefaultRenderManager implements IRenderManager {
 		}
 		
 		@Override
-		public void update(GL3 gl) {
-			renderable.update(gl, materialData, geometryData);
+		public void update() {
+			renderable.update(materialData, geometryData);
 		}
 	}
 

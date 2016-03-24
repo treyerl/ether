@@ -49,8 +49,9 @@ import java.util.concurrent.Future;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.render.gl.GLObject;
@@ -62,15 +63,17 @@ import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 import ch.fhnw.util.BufferUtilities;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
 public abstract class Frame extends AbstractVideoTarget {
+	private static final Log LOG = Log.create();
 
 	public enum FileFormat {PNG,JPEG}
 
 	public static final byte        B0    = 0;
 	public static final byte        B255  = (byte) 255;
-	private static final ByteBuffer EMPTY = BufferUtilities.createDirectByteBuffer(0);
+	private static final ByteBuffer EMPTY = BufferUtils.createByteBuffer(0);
 
 	public ByteBuffer pixels = EMPTY;
 	public int        width;
@@ -86,7 +89,7 @@ public abstract class Frame extends AbstractVideoTarget {
 
 	protected Frame(int width, int height, byte[] frameBuffer, int pixelSize) {
 		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
-		this.pixels = BufferUtilities.createDirectByteBuffer(frameBuffer.length);
+		this.pixels = BufferUtils.createByteBuffer(frameBuffer.length);
 		this.pixels.put(frameBuffer);
 		this.pixelSize = pixelSize;
 		init(width, height);
@@ -97,7 +100,7 @@ public abstract class Frame extends AbstractVideoTarget {
 		if (frameBuffer.isDirect()) {
 			this.pixels = frameBuffer;
 		} else {
-			this.pixels = BufferUtilities.createDirectByteBuffer(frameBuffer.capacity());
+			this.pixels = BufferUtils.createByteBuffer(frameBuffer.capacity());
 			this.pixels.put(frameBuffer);
 		}
 		this.pixelSize = pixelSize;
@@ -131,7 +134,7 @@ public abstract class Frame extends AbstractVideoTarget {
 		this.height = height;
 		int bufsize = width * height * pixelSize;
 		if (this.pixels.capacity() < bufsize)
-			this.pixels = BufferUtilities.createDirectByteBuffer(bufsize);
+			this.pixels = BufferUtils.createByteBuffer(bufsize);
 	}
 
 	public static Frame create(int width, int height, int pixelSize, ByteBuffer buffer) {
@@ -208,38 +211,31 @@ public abstract class Frame extends AbstractVideoTarget {
 
 	public abstract Frame create(int width, int height);
 
-	public static Frame create(com.jogamp.opengl.util.texture.Texture texture) {
-		return create(new Texture(texture));
-	}
-
 	public static Frame create(Texture texture) {
 		try(IGLContext ctx = GLContextManager.acquireContext()) {
 			Frame result = null;
-			final int[] tmpi   = new int[1];
-			final GL3   gl     = ctx.getGL();
-			int internalFormat;
-			final int target = GL3.GL_TEXTURE_2D;
-			gl.glBindTexture(target, texture.getGlObject().getId());
-			gl.glGetTexLevelParameteriv(target, 0, GL3.GL_TEXTURE_INTERNAL_FORMAT, tmpi, 0);	internalFormat = tmpi[0];
+			final int target = GL11.GL_TEXTURE_2D;
+			GL11.glBindTexture(target, texture.getGlObject().getId());
+			int internalFormat = GL11.glGetTexLevelParameteri(target, 0, GL11.GL_TEXTURE_INTERNAL_FORMAT);
 			switch(internalFormat) {
-			case GL.GL_RGB8:
-				internalFormat = GL.GL_RGB;
+			case GL11.GL_RGB8:
+				internalFormat = GL11.GL_RGB;
 				/* fall-thru */
-			case GL.GL_RGB:
+			case GL11.GL_RGB:
 				result = new RGB8Frame(texture.getWidth(), texture.getHeight());
 				break;
-			case GL.GL_RGBA8:
-				internalFormat = GL.GL_RGBA;
+			case GL11.GL_RGBA8:
+				internalFormat = GL11.GL_RGBA;
 				/* fall-thru */
-			case GL.GL_RGBA:
+			case GL11.GL_RGBA:
 				result = new RGBA8Frame(texture.getWidth(), texture.getHeight());
 				break;
 			default:
 				throw new IllegalArgumentException("Unsupported format:" + internalFormat);
 			}
 			result.pixels.clear();
-			gl.glGetTexImage(target, 0, internalFormat, GL.GL_UNSIGNED_BYTE, result.pixels);
-			gl.glBindTexture(target, 0);
+			GL11.glGetTexImage(target, 0, internalFormat, GL11.GL_UNSIGNED_BYTE, result.pixels);
+			GL11.glBindTexture(target, 0);
 			return result;
 		} catch(Throwable t) {
 			LOG.severe(t);
@@ -475,7 +471,7 @@ public abstract class Frame extends AbstractVideoTarget {
 		ImageIO.write(toBufferedImage(), format.toString(), out);
 	}
 
-	protected abstract void loadTexture(GL3 gl);
+	protected abstract void loadTexture();
 
 	static final ExecutorService POOL       = Executors.newCachedThreadPool();
 	static final int             NUM_CHUNKS = Runtime.getRuntime().availableProcessors(); 
@@ -540,18 +536,17 @@ public abstract class Frame extends AbstractVideoTarget {
 	public synchronized Texture getTexture() {
 		if(texture == null) {
 			try(IGLContext ctx = GLContextManager.acquireContext()) {
-				final GL3        gl     = ctx.getGL();
-				texture                 = new Texture(new GLObject(gl, Type.TEXTURE), width, height);
-				final int        target = GL.GL_TEXTURE_2D;
-				gl.glBindTexture(target, texture.getGlObject().getId());
+				texture = new Texture(new GLObject(Type.TEXTURE), width, height);
+				final int target = GL11.GL_TEXTURE_2D;
+				GL11.glBindTexture(target, texture.getGlObject().getId());
 				pixels.clear();
-				loadTexture(gl);
-				gl.glGenerateMipmap(target);
-				gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT);
-				gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT);
-				gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-				gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR);
-				gl.glFinish();
+				loadTexture();
+				GL30.glGenerateMipmap(target);
+				GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+				GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+				GL11.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+				GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+				GL11.glFinish();
 			} catch(Throwable t) {
 				LOG.warning(t);
 			}

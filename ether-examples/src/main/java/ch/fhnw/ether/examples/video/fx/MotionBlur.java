@@ -31,8 +31,6 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.image.RGB8Frame;
 import ch.fhnw.ether.media.Parameter;
@@ -61,7 +59,7 @@ public class MotionBlur extends AbstractVideoFX implements IVideoFrameFX, IVideo
 	}
 
 	@Override
-	public void processFrame(GL3 gl, double playOutTime, IVideoRenderTarget target) {
+	public void processFrame(double playOutTime, IVideoRenderTarget target) {
 		vbuffer[vbufferIdx] = target.getFrame();
 		vbufferIdx ^= 1;
 		setUniform(PREVIOUS, vbuffer[vbufferIdx]);

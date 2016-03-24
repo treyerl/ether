@@ -34,21 +34,21 @@ package ch.fhnw.ether.render;
 import java.nio.FloatBuffer;
 import java.util.List;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 
 import ch.fhnw.ether.render.gl.FloatArrayBuffer;
 import ch.fhnw.ether.render.gl.IArrayBuffer;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.variable.IShaderArray;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
-import ch.fhnw.util.BufferUtilities;
 
 // TODO: deal with max vbo size & multiple vbos, memory optimization, handle non-float arrays, indexed buffers
 
 public final class VertexBuffer implements IVertexBuffer {
 	private static final ThreadLocal<FloatBuffer> TARGET = 
-			ThreadLocal.withInitial(() -> BufferUtilities.createDirectFloatBuffer(1024 * 1024));
+			ThreadLocal.withInitial(() -> BufferUtils.createFloatBuffer(1024 * 1024));
 
 	private final FloatArrayBuffer buffer = new FloatArrayBuffer();
 
@@ -89,7 +89,7 @@ public final class VertexBuffer implements IVertexBuffer {
 		this.stride = stride;
 	}
 
-	public void update(GL3 gl, float[][] data) {
+	public void update(float[][] data) {
 		float[][] sources = new float[attributeIndices.length][];
 
 		int size = 0;
@@ -100,13 +100,13 @@ public final class VertexBuffer implements IVertexBuffer {
 		}
 		FloatBuffer buffer = TARGET.get();
 		if (buffer.capacity() < size) {
-			buffer = BufferUtilities.createDirectFloatBuffer(2 * size);
+			buffer = BufferUtils.createFloatBuffer(2 * size);
 			TARGET.set(buffer);
 		}
 		buffer.clear();
 		buffer.limit(size);
 		interleave(buffer, sources, sizes);
-		this.buffer.load(gl, buffer);
+		this.buffer.load(buffer);
 	}
 	
 	@Override
@@ -115,29 +115,27 @@ public final class VertexBuffer implements IVertexBuffer {
 	}
 
 	@Override
-	public void bind(GL3 gl) {
-		buffer.bind(gl);
+	public void bind() {
+		buffer.bind();
 	}
 
 	@Override
-	public void unbind(GL3 gl) {
-		IArrayBuffer.unbind(gl);
+	public void unbind() {
+		IArrayBuffer.unbind();
 	}
 
 	@Override
-	public void enableAttribute(GL3 gl, int bufferIndex, int shaderIndex) {
+	public void enableAttribute(int bufferIndex, int shaderIndex) {
 		if (!buffer.isEmpty()) {
-			gl.glEnableVertexAttribArray(shaderIndex);
-			gl.glVertexAttribPointer(shaderIndex, sizes[bufferIndex], GL.GL_FLOAT, false, stride * 4,
-					offsets[bufferIndex] * 4);
+			GL20.glEnableVertexAttribArray(shaderIndex);
+			GL20.glVertexAttribPointer(shaderIndex, sizes[bufferIndex], GL11.GL_FLOAT, false, stride * 4, offsets[bufferIndex] * 4);
 		}
 	}
 
 	@Override
-	public void disableAttribute(GL3 gl, int bufferIndex, int shaderIndex) {
-		if (!buffer.isEmpty()) {
-			gl.glDisableVertexAttribArray(shaderIndex);
-		}
+	public void disableAttribute(int bufferIndex, int shaderIndex) {
+		if (!buffer.isEmpty())
+			GL20.glDisableVertexAttribArray(shaderIndex);
 	}
 
 	@Override

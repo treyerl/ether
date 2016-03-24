@@ -36,8 +36,6 @@ import java.util.function.Supplier;
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 
-import com.jogamp.opengl.GL3;
-
 public class FloatUniform extends AbstractUniform<Float> {
 	private float value;
 	
@@ -63,7 +61,7 @@ public class FloatUniform extends AbstractUniform<Float> {
 	}
 
 	@Override
-	public final void enable(GL3 gl, Program program) {
-		program.setUniform(gl, getShaderIndex(gl, program), value);
+	public final void enable(Program program) {
+		program.setUniform(getShaderIndex(program), value);
 	}
 }

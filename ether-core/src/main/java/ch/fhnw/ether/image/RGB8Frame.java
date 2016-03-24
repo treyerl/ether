@@ -40,8 +40,7 @@ import java.awt.image.DirectColorModel;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.util.BufferUtilities;
 
@@ -551,7 +550,7 @@ public class RGB8Frame extends Frame {
 	}
 
 	@Override
-	protected void loadTexture(GL3 gl) {
-		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL3.GL_RGB, width, height, 0, GL3.GL_RGB, GL3.GL_UNSIGNED_BYTE, pixels);
+	protected void loadTexture() {
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, width, height, 0, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, pixels);
 	}
 }

@@ -31,9 +31,9 @@
 
 package ch.fhnw.ether.render.gl;
 
-import ch.fhnw.ether.render.gl.GLObject.Type;
+import org.lwjgl.opengl.GL30;
 
-import com.jogamp.opengl.GL3;
+import ch.fhnw.ether.render.gl.GLObject.Type;
 
 public class RenderBuffer {
 	private GLObject rbo;
@@ -41,20 +41,20 @@ public class RenderBuffer {
 	public RenderBuffer() {
 	}
 
-	public void setup(GL3 gl, int format, int width, int height) {
-		if (rbo == null) {
-			rbo = new GLObject(gl, Type.RENDERBUFFER);
-		}
-		gl.glBindRenderbuffer(GL3.GL_RENDERBUFFER, rbo.getId());
-		gl.glRenderbufferStorage(GL3.GL_RENDERBUFFER, format, width, height);
-		unbind(gl);
+	public void setup(int format, int width, int height) {
+		if (rbo == null)
+			rbo = new GLObject(Type.RENDERBUFFER);
+
+		GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, rbo.getId());
+		GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, format, width, height);
+		unbind();
 	}
 	
 	int id() {
 		return rbo.getId();
 	}
 
-	public static void unbind(GL3 gl) {
-		gl.glBindFramebuffer(GL3.GL_RENDERBUFFER, 0);
+	public static void unbind() {
+		GL30.glBindFramebuffer(GL30.GL_RENDERBUFFER, 0);
 	}
 }

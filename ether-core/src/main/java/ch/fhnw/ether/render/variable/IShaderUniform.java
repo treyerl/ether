@@ -35,8 +35,6 @@ import java.util.function.Supplier;
 
 import ch.fhnw.ether.render.gl.Program;
 
-import com.jogamp.opengl.GL3;
-
 public interface IShaderUniform<T> extends IShaderVariable<T> {
 	boolean isLinked();
 
@@ -46,7 +44,7 @@ public interface IShaderUniform<T> extends IShaderVariable<T> {
 
 	void update(Object[] data);
 
-	void enable(GL3 gl, Program program);
+	void enable(Program program);
 
-	void disable(GL3 gl, Program program);
+	void disable(Program program);
 }

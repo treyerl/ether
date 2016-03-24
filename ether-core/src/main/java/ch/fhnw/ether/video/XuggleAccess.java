@@ -44,6 +44,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFormat;
 
+import org.lwjgl.BufferUtils;
+
 import com.xuggle.xuggler.Global;
 import com.xuggle.xuggler.IAudioSamples;
 import com.xuggle.xuggler.ICodec;
@@ -63,7 +65,6 @@ import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.ITimebase;
 import ch.fhnw.ether.scene.mesh.material.Texture;
-import ch.fhnw.util.BufferUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.SortedLongMap;
 import ch.fhnw.util.TextUtilities;
@@ -344,7 +345,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 				LOG.warning("could not decode video as RGB24 bit data");
 				return null;
 			}
-			ByteBuffer dstBuffer = BufferUtilities.createDirectByteBuffer(w * h * 3);
+			ByteBuffer dstBuffer = BufferUtils.createByteBuffer(w * h * 3);
 			flip(newPic.getByteBuffer(), dstBuffer, w, h);
 			result = new RGB8Frame(w, h, dstBuffer);
 			if(!(this.audioData.isEmpty())) {

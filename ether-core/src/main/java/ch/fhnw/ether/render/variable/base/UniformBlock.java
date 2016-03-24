@@ -37,8 +37,6 @@ import ch.fhnw.ether.render.IRenderer.RendererAttribute;
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.util.math.Mat3;
 
-import com.jogamp.opengl.GL3;
-
 public class UniformBlock extends AbstractUniform<Integer> {
 	private boolean canBind = true;
 	private boolean isBound = false;
@@ -55,13 +53,13 @@ public class UniformBlock extends AbstractUniform<Integer> {
 	}
 
 	@Override
-	public final void enable(GL3 gl, Program program) {
+	public final void enable(Program program) {
 		if (canBind && !isBound) {
-			int index = program.getUniformBlockIndex(gl, getShaderName());
+			int index = program.getUniformBlockIndex(getShaderName());
 			if (index == -1) {
 				canBind = false;
 			} else {
-				program.bindUniformBlock(gl, index, bindingPoint);
+				program.bindUniformBlock(index, bindingPoint);
 				isBound = true;
 			}
 		}

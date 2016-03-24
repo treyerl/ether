@@ -36,10 +36,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.util.BufferUtilities;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL31;
 
-import com.jogamp.opengl.GL3;
+import ch.fhnw.ether.render.gl.GLObject.Type;
 
 /**
  * Basic uniform buffer object wrapper.
@@ -56,6 +59,7 @@ public final class FloatUniformBuffer {
 	private final int bindingPoint;
 
 	private FloatBuffer buffer;
+	private FloatBuffer block;
 
 	private GLObject ubo;
 
@@ -73,15 +77,14 @@ public final class FloatUniformBuffer {
 		this.bindingPoint = bindingPoint;
 	}
 
-	public void load(GL3 gl, BiConsumer<Integer, FloatBuffer> consumer) {
-		int stride = stride(gl);
+	public void load(BiConsumer<Integer, FloatBuffer> consumer) {
+		int stride = stride();
 
-		if (ubo == null) {
-			ubo = new GLObject(gl, Type.BUFFER);
-		}
+		if (ubo == null)
+			ubo = new GLObject(Type.BUFFER);
 		
 		if (buffer == null)
-			buffer = BufferUtilities.createDirectFloatBuffer(size(stride));
+			buffer = BufferUtils.createFloatBuffer(size(stride));
 
 		buffer.rewind();
 		for (int i = 0; i < blockCount; ++i) {
@@ -89,36 +92,38 @@ public final class FloatUniformBuffer {
 			consumer.accept(i, buffer);
 		}
 		buffer.rewind();
-		gl.glBindBuffer(GL3.GL_UNIFORM_BUFFER, ubo.getId());
-		gl.glBufferData(GL3.GL_UNIFORM_BUFFER, size(stride) * 4, buffer, GL3.GL_STREAM_DRAW);
-		gl.glBindBuffer(GL3.GL_UNIFORM_BUFFER, 0);
+		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo.getId());
+		GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, buffer, GL15.GL_STREAM_DRAW);
+		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
 	}
 
-	public void load(GL3 gl, int blockIndex, Consumer<FloatBuffer> consumer) {
-		int stride = stride(gl);
+	public void load(int blockIndex, Consumer<FloatBuffer> consumer) {
+		int stride = stride();
 
 		if (ubo == null) {
-			ubo = new GLObject(gl, Type.BUFFER);
-			gl.glBufferData(GL3.GL_UNIFORM_BUFFER, size(stride) * 4, null, GL3.GL_STREAM_DRAW);
+			ubo = new GLObject(Type.BUFFER);
+			GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo.getId());
+			GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, size(stride) * 4, null, GL15.GL_STREAM_DRAW);
+			GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
 		}
 
-		if (buffer == null)
-			buffer = BufferUtilities.createDirectFloatBuffer(size(stride));
-
-		buffer.rewind();
-		consumer.accept(buffer);
-		buffer.rewind();
-		gl.glBindBuffer(GL3.GL_UNIFORM_BUFFER, ubo.getId());
-		gl.glBufferSubData(GL3.GL_UNIFORM_BUFFER, blockIndex * stride * 4, blockSize * 4, buffer);
-		gl.glBindBuffer(GL3.GL_UNIFORM_BUFFER, 0);
+		if (block == null)
+			block = BufferUtils.createFloatBuffer(blockSize);
+		
+		block.rewind();
+		consumer.accept(block);
+		block.rewind();
+		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo.getId());
+		GL15.glBufferSubData(GL31.GL_UNIFORM_BUFFER, blockIndex * stride * 4, block);
+		GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
 	}
 
-	public void bind(GL3 gl) {
-		gl.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bindingPoint, ubo.getId());
+	public void bind() {
+		GL30.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, bindingPoint, ubo.getId());
 	}
 
-	public void bind(GL3 gl, int blockIndex) {
-		gl.glBindBufferRange(GL3.GL_UNIFORM_BUFFER, bindingPoint, ubo.getId(), blockIndex * stride(gl) * 4, blockSize * 4);
+	public void bind(int blockIndex) {
+		GL30.glBindBufferRange(GL31.GL_UNIFORM_BUFFER, bindingPoint, ubo.getId(), blockIndex * stride() * 4, blockSize * 4);
 	}
 
 	public int getBindingPoint() {
@@ -129,9 +134,9 @@ public final class FloatUniformBuffer {
 		return BINDING_POINT_COUNTER.getAndIncrement();
 	}
 
-	private int stride(GL3 gl) {
+	private int stride() {
 		if (blockAlignment == 0) {
-			blockAlignment = Math.max(1, GLUtilities.getInteger(gl, GL3.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT) / 4);
+			blockAlignment = Math.max(1, GL11.glGetInteger(GL31.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT) / 4);
 		}
 		int stride = (blockSize + blockAlignment - 1) - (blockSize + blockAlignment - 1) % blockAlignment;
 		return stride;

@@ -31,23 +31,18 @@
 
 package ch.fhnw.ether.render.gl;
 
-import java.nio.Buffer;
-
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL15;
 
 public interface IArrayBuffer {
-	void load(GL3 gl, Buffer data);
+	void clear();
 
-	void clear(GL3 gl);
-
-	void bind(GL3 gl);
+	void bind();
 
 	int size();
 
 	boolean isEmpty();
 
-	static void unbind(GL3 gl) {
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+	static void unbind() {
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 	}
 }

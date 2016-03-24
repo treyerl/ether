@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.scene.attribute.IAttribute;
@@ -60,22 +59,22 @@ public final class Renderable {
 		this.flags = mesh.getFlags();
 	}
 
-	public void update(GL3 gl, Object[] materialData, float[][] geometryData) {
+	public void update(Object[] materialData, float[][] geometryData) {
 		if (materialData != null)
-			shader.update(gl, materialData);
+			shader.update(materialData);
 		if (geometryData != null)
-			buffer.update(gl, geometryData);
+			buffer.update(geometryData);
 	}
 
-	public void render(GL3 gl) {
+	public void render() {
 		boolean disableCulling = containsFlag(Flag.DONT_CULL_FACE);
 		if (disableCulling)
-			gl.glDisable(GL.GL_CULL_FACE);
-		shader.enable(gl);
-		shader.render(gl, buffer);
-		shader.disable(gl);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		shader.enable();
+		shader.render(buffer);
+		shader.disable();
 		if (disableCulling)
-			gl.glEnable(GL.GL_CULL_FACE);
+			GL11.glEnable(GL11.GL_CULL_FACE);
 	}
 	
 	public IMesh.Queue getQueue() {

@@ -33,8 +33,6 @@ package ch.fhnw.ether.examples.video.fx;
 
 import java.nio.ByteBuffer;
 
-import com.jogamp.opengl.GL3;
-
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
@@ -139,7 +137,7 @@ public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVide
 	}
 
 	@Override
-	public void processFrame(GL3 gl, double playOutTime, IVideoRenderTarget target) {
+	public void processFrame(double playOutTime, IVideoRenderTarget target) {
 		setUniform("kernel",      KERNELS[(int) getVal(KERNEL)]);
 		setUniform("greyscale",   Boolean.valueOf(GREYSCALE[(int) getVal(KERNEL)])); 
 	}

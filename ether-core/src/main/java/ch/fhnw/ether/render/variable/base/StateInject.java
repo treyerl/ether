@@ -31,23 +31,21 @@
 
 package ch.fhnw.ether.render.variable.base;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.render.variable.IShaderUniform;
 
-import com.jogamp.opengl.GL3;
+public final class StateInject extends AbstractVariable<Object> implements IShaderUniform<Object> {
+	private final Consumer<Program> enable;
+	private final Consumer<Program> disable;
 
-public final class StateInject extends AbstractVariable<GL3> implements IShaderUniform<GL3> {
-	private final BiConsumer<GL3, Program> enable;
-	private final BiConsumer<GL3, Program> disable;
-
-	public StateInject(String id, BiConsumer<GL3, Program> enable) {
+	public StateInject(String id, Consumer<Program> enable) {
 		this(id, enable, null);
 	}
 
-	public StateInject(String id, BiConsumer<GL3, Program> enable, BiConsumer<GL3, Program> disable) {
+	public StateInject(String id, Consumer<Program> enable, Consumer<Program> disable) {
 		super(id, null);
 		this.enable = enable;
 		this.disable = disable;
@@ -71,19 +69,19 @@ public final class StateInject extends AbstractVariable<GL3> implements IShaderU
 	}
 
 	@Override
-	public void enable(GL3 gl, Program program) {
+	public void enable(Program program) {
 		if (enable != null)
-			enable.accept(gl, program);
+			enable.accept(program);
 	}
 
 	@Override
-	public void disable(GL3 gl, Program program) {
+	public void disable(Program program) {
 		if (disable != null)
-			disable.accept(gl, program);
+			disable.accept(program);
 	}
 
 	@Override
-	protected int resolveShaderIndex(GL3 gl, Program program, String shaderName) {
+	protected int resolveShaderIndex(Program program, String shaderName) {
 		return -1;
 	}
 

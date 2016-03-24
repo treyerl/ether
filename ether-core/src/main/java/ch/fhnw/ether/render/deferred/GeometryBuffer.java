@@ -31,8 +31,11 @@
 
 package ch.fhnw.ether.render.deferred;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL3;
+import java.nio.ByteBuffer;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.render.IRenderer.IRenderTargetState;
 import ch.fhnw.ether.render.gl.FrameBuffer;
@@ -55,57 +58,57 @@ public final class GeometryBuffer {
 
 	}
 	
-	public void update(GL3 gl, IRenderTargetState state) {
+	public void update(IRenderTargetState state) {
 		if (frameBuffer == null)
-			frameBuffer = new FrameBuffer(gl);
+			frameBuffer = new FrameBuffer();
 		
 		Viewport viewport = state.getViewCameraState().getViewport();
 		if (viewport.w != width || viewport.h != height) {
 			width = viewport.w;
 			height = viewport.h;
 			
-			frameBuffer.bind(gl);
+			frameBuffer.bind();
 			
-			colorTexture = new Texture(new GLObject(gl, Type.TEXTURE), width, height);
-			gl.glBindTexture(GL3.GL_TEXTURE_2D, colorTexture.getGlObject().getId());
-			gl.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_RGBA8, width, height, 0, GL3.GL_RGBA, GL3.GL_UNSIGNED_BYTE, null);
-			gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-			gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-			frameBuffer.attach(gl, GL3.GL_COLOR_ATTACHMENT0, colorTexture);
+			colorTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, colorTexture.getGlObject().getId());
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+			frameBuffer.attach(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
 			
-			depthTexture = new Texture(new GLObject(gl, Type.TEXTURE), width, height);
-			gl.glBindTexture(GL3.GL_TEXTURE_2D, depthTexture.getGlObject().getId());
-			gl.glTexImage2D(GL3.GL_TEXTURE_2D, 0, GL3.GL_DEPTH_COMPONENT, width, height, 0, GL3.GL_DEPTH_COMPONENT, GL3.GL_UNSIGNED_INT, null);
-			gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-			gl.glTexParameteri(GL3.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-			frameBuffer.attach(gl, GL3.GL_DEPTH_ATTACHMENT, depthTexture);
+			depthTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthTexture.getGlObject().getId());
+			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, (ByteBuffer)null);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+			frameBuffer.attach(GL30.GL_DEPTH_ATTACHMENT, depthTexture);
 			
-			gl.glBindTexture(GL3.GL_TEXTURE_2D, 0);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			
-			gl.glDrawBuffers(2, new int[] { GL3.GL_COLOR_ATTACHMENT0 }, 0);
+			GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
 
-			int status = frameBuffer.checkStatus(gl);
-			if(status != GL3.GL_FRAMEBUFFER_COMPLETE) {
+			int status = frameBuffer.checkStatus();
+			if(status != GL30.GL_FRAMEBUFFER_COMPLETE) {
 				System.out.println("Status: " + FrameBuffer.toString(status));
 			}
 			
-			FrameBuffer.unbind(gl);
+			FrameBuffer.unbind();
 		}
 	}
 
-	public void enable(GL3 gl) {
-		frameBuffer.bind(gl);
+	public void enable() {
+		frameBuffer.bind();
 	}
 	
-	public void disable(GL3 gl) {
-		FrameBuffer.unbind(gl);
+	public void disable() {
+		FrameBuffer.unbind();
 	}
 	
-	public void blit(GL3 gl) {
+	public void blit() {
 		int object = frameBuffer.getGLObject().getId();
-        gl.glBindFramebuffer(GL3.GL_READ_FRAMEBUFFER, object);
-        gl.glBindFramebuffer(GL3.GL_DRAW_FRAMEBUFFER, 0);
-        gl.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL3.GL_COLOR_BUFFER_BIT | GL3.GL_DEPTH_BUFFER_BIT, GL3.GL_NEAREST);
-        gl.glBindFramebuffer(GL3.GL_FRAMEBUFFER, 0);
+        GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, object);
+        GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, 0);
+        GL30.glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, GL11.GL_NEAREST);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
 	}
 }

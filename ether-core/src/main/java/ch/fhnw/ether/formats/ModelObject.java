@@ -51,7 +51,7 @@ import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Vec2;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
-import ch.fhnw.util.math.geometry.Triangulation;
+import ch.fhnw.util.math.tessellator.Triangulation;
 
 public final class ModelObject {
 	private final URL resource;
