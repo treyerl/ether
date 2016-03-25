@@ -31,9 +31,10 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -73,7 +74,7 @@ public final class TransformExample {
 			scene.add3DObject(mesh);
 	
 			// Add an exit button
-			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
+			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));
 			controller.getUI().addWidget(new Slider(0, 1, "Speed", "Rotation Speed", speed, (slider, view) -> speed = slider.getValue()));
 		});
 

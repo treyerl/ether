@@ -32,6 +32,8 @@ package ch.fhnw.demopolis.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.demopolis.model.Model;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
@@ -142,11 +144,11 @@ public class CameraPath {
 				float dx = 0;
 				float dy = 0;
 				float dz = 0;
-				switch (e.getKeyCode()) {
-				case IKeyEvent.VK_L:
+				switch (e.getKey()) {
+				case GLFW.GLFW_KEY_L:
 					toggleAnimation();
 					break;
-				case IKeyEvent.VK_D:
+				case GLFW.GLFW_KEY_D:
 					// dump paths
 					System.out.println("// intro");
 					for (Vec3 v : introVertices)
@@ -155,22 +157,22 @@ public class CameraPath {
 					for (Vec3 v : loopVertices)
 						System.out.println("new Vec3(" + v.x + ", " + v.y + ", " + v.z + "),");
 					break;
-				case IKeyEvent.VK_RIGHT:
+				case GLFW.GLFW_KEY_RIGHT:
 					dx = KEY_DELTA;
 					break;
-				case IKeyEvent.VK_LEFT:
+				case GLFW.GLFW_KEY_LEFT:
 					dx = -KEY_DELTA;
 					break;
-				case IKeyEvent.VK_UP:
+				case GLFW.GLFW_KEY_UP:
 					dy = KEY_DELTA;
 					break;
-				case IKeyEvent.VK_DOWN:
+				case GLFW.GLFW_KEY_DOWN:
 					dy = -KEY_DELTA;
 					break;
-				case IKeyEvent.VK_SLASH:
+				case GLFW.GLFW_KEY_SLASH:
 					dz = KEY_DELTA;
 					break;
-				case IKeyEvent.VK_PERIOD:
+				case GLFW.GLFW_KEY_PERIOD:
 					dz = -KEY_DELTA;
 					break;
 				default:

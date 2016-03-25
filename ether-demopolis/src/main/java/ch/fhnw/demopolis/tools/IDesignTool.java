@@ -47,5 +47,5 @@ public interface IDesignTool {
 	
 	void exited(IDesignEntity entity);
 	
-	void key(short key);
+	void key(int key);
 }

@@ -34,14 +34,30 @@ package ch.fhnw.ether.controller.event;
 import ch.fhnw.ether.view.IView;
 
 public interface IEvent {
-	int SHIFT_MASK = 1 << 0;
-	int CONTROL_MASK = 1 << 1;
-	int META_MASK = 1 << 2;
-	int ALT_MASK = 1 << 3;
-	int ALT_GRAPH_MASK = 1 << 4;
+	class Event implements IEvent {
+		private final IView view;
+		
+		public Event(IView view) {
+			this.view = view;
+		}
+		
+		@Override
+		public IView getView() {
+			return view;
+		}
+		
+		@Override
+		public int getModifiers() {
+			throw new UnsupportedOperationException();
+		}
+	}
 	
-	int MODIFIER_MASK = SHIFT_MASK | CONTROL_MASK | META_MASK | ALT_MASK | ALT_GRAPH_MASK;
-
+	
+	int MOD_SHIFT = 1;
+	int MOD_CONTROL = 2;
+	int MOD_ALT = 4;
+	int MOD_SUPER = 8;
+	
 	IView getView();
 
 	int getModifiers();
@@ -51,22 +67,18 @@ public interface IEvent {
 	}
 	
 	default boolean isShiftDown() {
-		return (getModifiers() & SHIFT_MASK) != 0;
+		return (getModifiers() & MOD_SHIFT) != 0;
 	}
 
 	default boolean isControlDown() {
-		return (getModifiers() & CONTROL_MASK) != 0;
-	}
-
-	default boolean isMetaDown() {
-		return (getModifiers() & META_MASK) != 0;
+		return (getModifiers() & MOD_CONTROL) != 0;
 	}
 
 	default boolean isAltDown() {
-		return (getModifiers() & ALT_MASK) != 0;
+		return (getModifiers() & MOD_ALT) != 0;
 	}
 
-	default boolean isAltGraphDown() {
-		return (getModifiers() & ALT_GRAPH_MASK) != 0;
+	default boolean isSuperDown() {
+		return (getModifiers() & MOD_SUPER) != 0;
 	}
 }

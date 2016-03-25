@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.demopolis.config.I3DConfig;
 import ch.fhnw.demopolis.model.Model;
 import ch.fhnw.demopolis.model.entities.BuildingBlock;
@@ -41,7 +43,6 @@ import ch.fhnw.demopolis.model.entities.BuildingBlock.BuildingType;
 import ch.fhnw.demopolis.model.entities.IDesignEntity;
 import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
@@ -107,9 +108,9 @@ public final class GenerationTool extends AbstractDesignTool {
 	}
 
 	@Override
-	public void key(short key) {
+	public void key(int key) {
 		super.key(key);
-		if (key == IKeyEvent.VK_SPACE && state == AnimationState.FLY_3D)
+		if (key == GLFW.GLFW_KEY_SPACE && state == AnimationState.FLY_3D)
 			state = AnimationState.FADE_OUT_3D;
 	}
 

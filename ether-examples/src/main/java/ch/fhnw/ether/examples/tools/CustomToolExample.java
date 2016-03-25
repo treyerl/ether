@@ -31,9 +31,10 @@
 
 package ch.fhnw.ether.examples.tools;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.tool.ITool;
 import ch.fhnw.ether.controller.tool.NavigationTool;
 import ch.fhnw.ether.controller.tool.PickTool;
@@ -88,12 +89,12 @@ public final class CustomToolExample {
 			UI ui = controller.getUI();
 			ITool areaTool = new AreaTool(controller);
 			ui.addWidget(new Slider(0, 4, "SLIDER", "Slider", 0.3f, (slider, v) -> System.out.println("Slider " + slider.getValue())));
-			ui.addWidget(new Button(0, 3, "PICK", "Pick Tool (1)", IKeyEvent.VK_1, (button, v) -> controller.setTool(new NavigationTool(controller, new PickTool(controller)))));
-			ui.addWidget(new Button(0, 2, "AREA", "AREA Tool (2)", IKeyEvent.VK_2, (button, v) -> controller.setTool(new NavigationTool(controller, areaTool))));
-			ui.addWidget(new Button(0, 1, "F", "Frame Scene (F)", IKeyEvent.VK_F, (button, v) -> {
+			ui.addWidget(new Button(0, 3, "PICK", "Pick Tool (1)", GLFW.GLFW_KEY_1, (button, v) -> controller.setTool(new NavigationTool(controller, new PickTool(controller)))));
+			ui.addWidget(new Button(0, 2, "AREA", "AREA Tool (2)", GLFW.GLFW_KEY_2, (button, v) -> controller.setTool(new NavigationTool(controller, areaTool))));
+			ui.addWidget(new Button(0, 1, "F", "Frame Scene (F)", GLFW.GLFW_KEY_F, (button, v) -> {
 				new FrameCameraControl(camera, scene.getMeshes()).frame();
 			}));
-			ui.addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));			
+			ui.addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));			
 		});
 	}
 }

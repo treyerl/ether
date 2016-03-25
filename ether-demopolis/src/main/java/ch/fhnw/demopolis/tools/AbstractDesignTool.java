@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.demopolis.config.IUIColors;
 import ch.fhnw.demopolis.model.Asset;
 import ch.fhnw.demopolis.model.Model;
@@ -42,7 +44,6 @@ import ch.fhnw.demopolis.model.entities.IDesignEntity.IButtonInfo;
 import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.ControlPanel.Button;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.material.Texture;
@@ -99,15 +100,15 @@ public abstract class AbstractDesignTool implements IDesignTool {
 	}
 	
 	@Override
-	public void key(short key) {
+	public void key(int key) {
 		switch (key) {
-		case IKeyEvent.VK_O:
+		case GLFW.GLFW_KEY_O:
 			control.setCameraOrtho();
 			break;
-		case IKeyEvent.VK_P:
+		case GLFW.GLFW_KEY_P:
 			control.setCameraPerspective();
 			break;
-		case IKeyEvent.VK_F:
+		case GLFW.GLFW_KEY_F:
 			control.getController().getViews().get(0).getWindow().setFullscreen(true);
 		}
 	}

@@ -36,6 +36,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.event.DefaultEventScheduler;
 import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.controller.event.IEventScheduler.IAnimationAction;
@@ -287,7 +289,7 @@ public class DefaultController implements IController {
 			return;
 
 		// always handle ESC (if not handled by button)
-		if (e.getKeyCode() == IKeyEvent.VK_ESCAPE)
+		if (e.getKey() == GLFW.GLFW_KEY_ESCAPE)
 			System.exit(0);
 
 		// finally, pass on to tool

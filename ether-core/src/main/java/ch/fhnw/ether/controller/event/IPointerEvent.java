@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.controller.event;
 
+import ch.fhnw.ether.view.IView;
+
 /**
  * Pointer (mouse) event, aligned with the underlying windowing framework.
  * 
@@ -40,9 +42,65 @@ package ch.fhnw.ether.controller.event;
  * @author radar
  */
 public interface IPointerEvent extends IEvent {
-	int BUTTON_1 = 1;
-	int BUTTON_2 = 2;
-	int BUTTON_3 = 3;
+	int BUTTON_1 = 0;
+	int BUTTON_2 = 1;
+	int BUTTON_3 = 2;
+	
+	class PointerEvent extends Event implements IPointerEvent {
+		private final int mods;
+		private final int button;
+		private final int clickCount;
+		private final int x;
+		private final int y;
+		private final int scrollX;
+		private final int scrollY;
+		
+		public PointerEvent(IView view, int mods, int button, int clickCount, int x, int y, int scrollX, int scrollY) {
+			super(view);
+			this.mods = mods;
+			this.button = button;
+			this.clickCount = clickCount;
+			this.x = x;
+			this.y = y;
+			this.scrollX = scrollX;
+			this.scrollY = scrollY;
+		}
+		
+		@Override
+		public int getModifiers() {
+			return mods;
+		}
+		
+		@Override
+		public int getButton() {
+			return button;
+		}
+		
+		@Override
+		public int getClickCount() {
+			return clickCount;
+		}
+		
+		@Override
+		public int getX() {
+			return x;
+		}
+		
+		@Override
+		public int getY() {
+			return y;
+		}
+		
+		@Override
+		public float getScrollX() {
+			return scrollX;
+		}
+		
+		@Override
+		public float getScrollY() {
+			return scrollY;
+		}
+	}
 
 	/**
 	 * Returns the button pressed for this event.

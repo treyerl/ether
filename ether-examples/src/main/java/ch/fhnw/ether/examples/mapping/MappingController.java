@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.examples.mapping;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.tool.AbstractTool;
@@ -56,18 +58,18 @@ public class MappingController extends DefaultController {
 
 	@Override
 	public void keyPressed(IKeyEvent e) {
-		switch (e.getKeyCode()) {
-		case IKeyEvent.VK_0:
-		case IKeyEvent.VK_1:
+		switch (e.getKey()) {
+		case GLFW.GLFW_KEY_0:
+		case GLFW.GLFW_KEY_1:
 			setTool(new NavigationTool(this, defaultTool));
 			break;
-		case IKeyEvent.VK_2:
+		case GLFW.GLFW_KEY_2:
 			setTool(new NavigationTool(this, calibrationTool));
 			break;
-		case IKeyEvent.VK_3:
+		case GLFW.GLFW_KEY_3:
 			setTool(new NavigationTool(this, fillTool));
 			break;
-		case IKeyEvent.VK_H:
+		case GLFW.GLFW_KEY_H:
 			printHelp(HELP);
 			break;
 		default:

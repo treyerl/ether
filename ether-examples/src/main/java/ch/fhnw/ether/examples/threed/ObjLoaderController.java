@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.camera.ICamera;
@@ -68,19 +70,19 @@ public class ObjLoaderController extends DefaultController {
 
 	@Override
 	public void keyPressed(IKeyEvent e) {
-		switch (e.getKeyCode()) {
-		case IKeyEvent.VK_1:
-		case IKeyEvent.VK_2:
-		case IKeyEvent.VK_3:
-		case IKeyEvent.VK_4:
-		case IKeyEvent.VK_5:
-		case IKeyEvent.VK_6:
-			Vec3[] params = CAM_PARAMS[e.getKeyCode() - IKeyEvent.VK_1];
+		switch (e.getKey()) {
+		case GLFW.GLFW_KEY_1:
+		case GLFW.GLFW_KEY_2:
+		case GLFW.GLFW_KEY_3:
+		case GLFW.GLFW_KEY_4:
+		case GLFW.GLFW_KEY_5:
+		case GLFW.GLFW_KEY_6:
+			Vec3[] params = CAM_PARAMS[e.getKey() - GLFW.GLFW_KEY_1];
 			ICamera camera = getCamera(getCurrentView());
 			camera.setPosition(params[0]);
 			camera.setUp(params[1]);
 			break;
-		case IKeyEvent.VK_H:
+		case GLFW.GLFW_KEY_H:
 			printHelp(HELP);
 			break;
 		default:

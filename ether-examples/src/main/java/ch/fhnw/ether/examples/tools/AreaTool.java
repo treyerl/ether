@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.examples.tools;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
@@ -82,17 +84,17 @@ public final class AreaTool extends AbstractTool {
 
 	@Override
 	public void keyPressed(IKeyEvent e) {
-		switch (e.getKeyCode()) {
-		case IKeyEvent.VK_UP:
+		switch (e.getKey()) {
+		case GLFW.GLFW_KEY_UP:
 			yOffset += KEY_INCREMENT;
 			break;
-		case IKeyEvent.VK_DOWN:
+		case GLFW.GLFW_KEY_DOWN:
 			yOffset -= KEY_INCREMENT;
 			break;
-		case IKeyEvent.VK_LEFT:
+		case GLFW.GLFW_KEY_LEFT:
 			xOffset -= KEY_INCREMENT;
 			break;
-		case IKeyEvent.VK_RIGHT:
+		case GLFW.GLFW_KEY_RIGHT:
 			xOffset += KEY_INCREMENT;
 			break;
 		}

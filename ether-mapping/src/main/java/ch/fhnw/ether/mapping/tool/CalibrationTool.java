@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
@@ -134,33 +136,33 @@ public final class CalibrationTool extends AbstractTool {
 	@Override
 	public void keyPressed(IKeyEvent e) {
 		IView view = e.getView();
-		switch (e.getKeyCode()) {
-		case IKeyEvent.VK_L:
+		switch (e.getKey()) {
+		case GLFW.GLFW_KEY_L:
 			loadCalibration(view);
 			break;
-		case IKeyEvent.VK_S:
+		case GLFW.GLFW_KEY_S:
 			saveCalibration(view);
 			break;
-		case IKeyEvent.VK_UP:
+		case GLFW.GLFW_KEY_UP:
 			cursorAdjust(view, 0, 1);
 			break;
-		case IKeyEvent.VK_DOWN:
+		case GLFW.GLFW_KEY_DOWN:
 			cursorAdjust(view, 0, -1);
 			break;
-		case IKeyEvent.VK_LEFT:
+		case GLFW.GLFW_KEY_LEFT:
 			cursorAdjust(view, -1, 0);
 			break;
-		case IKeyEvent.VK_RIGHT:
+		case GLFW.GLFW_KEY_RIGHT:
 			cursorAdjust(view, 1, 0);
 			break;
-		case IKeyEvent.VK_C:
+		case GLFW.GLFW_KEY_C:
 			clearCalibration(view);
 			break;
-		case IKeyEvent.VK_H:
+		case GLFW.GLFW_KEY_H:
 			DefaultController.printHelp(HELP);
 			break;
-		case IKeyEvent.VK_BACK_SPACE:
-		case IKeyEvent.VK_DELETE:
+		case GLFW.GLFW_KEY_BACKSPACE:
+		case GLFW.GLFW_KEY_DELETE:
 			deleteCurrent(view);
 			break;
 		}

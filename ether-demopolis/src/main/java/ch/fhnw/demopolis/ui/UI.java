@@ -32,6 +32,8 @@ package ch.fhnw.demopolis.ui;
 import java.io.IOException;
 import java.util.function.Predicate;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.demopolis.model.Model;
 import ch.fhnw.demopolis.model.entities.IDesignEntity;
 import ch.fhnw.demopolis.tools.BuildingHeightTool;
@@ -268,7 +270,7 @@ public class UI {
 			@Override
 			public void keyPressed(IKeyEvent e) {
 				try {
-					if (e.getKeyCode() == IKeyEvent.VK_C) {
+					if (e.getKey() == GLFW.GLFW_KEY_C) {
 						if (pathTool == null) {
 							pathTool = cameraPath.getPathTool();
 							statusPanel.hide(controller);
@@ -283,7 +285,7 @@ public class UI {
 						return;
 					}
 					if (pathTool == null)
-						designTools[currentDesignTool].key(e.getKeyCode());
+						designTools[currentDesignTool].key(e.getKey());
 					else
 						pathTool.keyPressed(e);
 				} catch (Exception ex) {

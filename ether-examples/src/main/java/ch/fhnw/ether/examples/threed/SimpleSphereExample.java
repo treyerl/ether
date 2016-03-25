@@ -31,9 +31,10 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
@@ -112,7 +113,7 @@ public final class SimpleSphereExample {
 				scene.add3DObjects(transparentMeshT, transparentMeshL, transparentMeshP, solidMeshT, solidMeshL, solidMeshP, texturedMeshT);
 
 				// Add an exit button
-				controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
+				controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));
 			} catch(Throwable t) {
 				LOG.severe(t);
 			}

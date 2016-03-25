@@ -74,9 +74,7 @@ public class DefaultView implements IView {
 		// events after setVisible(), and we're still in the view's constructor.
 		// need to see if this doesn't get us into trouble in the long run.
 		// XXX NEEDS FIXING ANYWAY (LWJGL)
-		controller.run(time -> {
-			controller.viewCreated(this);			
-		});
+		runOnSceneThread(t -> controller.viewCreated(this));
 
 		if (x != -1)
 			window.setPosition(x, y);
@@ -129,32 +127,6 @@ public class DefaultView implements IView {
 		controller.run(action);
 	}
 
-	// GLEventListener implementation
-/*
-		@Override
-		public final void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-			try {
-				GL gl = drawable.getGL();
-				height = Math.max(1,  height);
-				gl.glViewport(0, 0, width, height);
-				viewport = new Viewport(0, 0, width, height);
-				runOnSceneThread(time -> controller.viewResized(DefaultView.this));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public final void dispose(GLAutoDrawable drawable) {
-			runOnSceneThread(time -> {
-				controller.viewDisposed(DefaultView.this);
-				window = null;
-			});
-		}
-	};
-*/
-	// window listener
-
 	private IWindowListener windowListener = new IWindowListener() {
 		@Override
 		public void windowCloseRequest(IWindow window) {
@@ -186,55 +158,6 @@ public class DefaultView implements IView {
 		}
 	};
 
-	// key listener
-	/*
-	private class ViewKeyEvent implements IKeyEvent {
-		final int modifiers;
-		final short keySym;
-		final short keyCode;
-		final char keyChar;
-		final boolean isAutoRepeat;
-
-		ViewKeyEvent(KeyEvent e) {
-			modifiers = e.getModifiers() & IEvent.MODIFIER_MASK;
-			keySym = e.getKeySymbol();
-			keyCode = e.getKeyCode();
-			keyChar = e.getKeyChar();
-			isAutoRepeat = e.isAutoRepeat();
-		}
-
-		@Override
-		public IView getView() {
-			return DefaultView.this;
-		}
-
-		@Override
-		public int getModifiers() {
-			return modifiers;
-		}
-
-		@Override
-		public short getKeySym() {
-			return keySym;
-		}
-
-		@Override
-		public short getKeyCode() {
-			return keyCode;
-		}
-
-		@Override
-		public char getKeyChar() {
-			return keyChar;
-		}
-
-		@Override
-		public boolean isAutoRepeat() {
-			return isAutoRepeat;
-		}
-	}
-	*/
-
 	private IKeyListener keyListener = new IKeyListener() {
 		@Override
 		public void keyPressed(IKeyEvent e) {
@@ -247,73 +170,6 @@ public class DefaultView implements IView {
 		}
 	};
 
-	// mouse listener
-/*
-	private class ViewPointerEvent implements IPointerEvent {
-		final int modifiers;
-		final int button;
-		final int clickCount;
-		final int x;
-		final int y;
-		final float scrollX;
-		final float scrollY;
-
-		ViewPointerEvent(MouseEvent e) {
-			modifiers = e.getModifiers() & IEvent.MODIFIER_MASK;
-			button = e.getButton();
-			clickCount = e.getClickCount();
-			x = e.getX();
-			y = getViewport().h - e.getY();
-			if (e.getPointerCount() > 0) {
-				scrollX = e.getRotationScale() * e.getRotation()[0];
-				scrollY = -e.getRotationScale() * e.getRotation()[1];
-			} else {
-				scrollX = 0;
-				scrollY = 0;
-			}
-		}
-
-		@Override
-		public IView getView() {
-			return DefaultView.this;
-		}
-
-		@Override
-		public int getModifiers() {
-			return modifiers;
-		}
-
-		@Override
-		public int getButton() {
-			return button;
-		}
-
-		@Override
-		public int getClickCount() {
-			return clickCount;
-		}
-
-		@Override
-		public int getX() {
-			return x;
-		}
-
-		@Override
-		public int getY() {
-			return y;
-		}
-
-		@Override
-		public float getScrollX() {
-			return scrollX;
-		}
-
-		@Override
-		public float getScrollY() {
-			return scrollY;
-		}
-	}
-*/
 	private IPointerListener pointerListener = new IPointerListener() {
 		@Override
 		public void pointerEntered(IPointerEvent e) {

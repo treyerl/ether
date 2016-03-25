@@ -138,7 +138,7 @@ public class Button extends AbstractWidget {
 
 	@Override
 	public boolean keyPressed(IKeyEvent e) {
-		if (getKey() == e.getKeyCode()) {
+		if (getKey() == e.getKey()) {
 			fire(e.getView());
 			return true;
 		}
