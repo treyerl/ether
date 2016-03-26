@@ -43,9 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.SwingUtilities;
 
 import ch.fhnw.util.net.NetworkUtilities;
 
@@ -56,10 +53,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	private final InetSocketAddress address;
 	private final DatagramSocket socket;
 
-	private final BlockingQueue<DatagramPacket> receiveQueue = new LinkedBlockingQueue<>();
 	private final BlockingQueue<DatagramPacket> sendQueue = new LinkedBlockingQueue<>();
-
-	private final AtomicBoolean awtPending = new AtomicBoolean();
 
 	private final Map<String, SocketAddress> remotePeers = new HashMap<>();
 
@@ -85,22 +79,6 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 			socket.setSendBufferSize(size);
 		}
 
-		final Runnable awtHandler = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (!receiveQueue.isEmpty()) {
-						DatagramPacket packet = receiveQueue.take();
-						ByteBuffer buffer = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
-						process(packet.getSocketAddress(), buffer, OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
-					}
-				} catch (Exception ex) {
-					OSCCommon.handleException(ex, this);
-				}
-				awtPending.set(false);
-			}
-		};
-
 		final Thread receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -109,9 +87,12 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 						byte[] buffer = new byte[socket.getReceiveBufferSize()];
 						DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 						socket.receive(packet);
-						receiveQueue.add(packet);
-						if (!awtPending.getAndSet(true))
-							SwingUtilities.invokeLater(awtHandler);
+						try {
+							ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
+							process(packet.getSocketAddress(), buf, OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
+						} catch (Exception e) {
+							OSCCommon.handleException(e, this);							
+						}
 					} catch (Exception ignored) {
 					}
 				}

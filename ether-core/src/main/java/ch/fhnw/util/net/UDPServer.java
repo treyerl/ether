@@ -35,11 +35,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.SwingUtilities;
 
 public class UDPServer {
 	public interface UDPHandler {
@@ -52,10 +47,6 @@ public class UDPServer {
 	private final InetSocketAddress address;
 	private final DatagramSocket socket;
 	private final UDPHandler handler;
-
-	private final BlockingQueue<DatagramPacket> receiveQueue = new LinkedBlockingQueue<>();
-
-	private final AtomicBoolean awtPending = new AtomicBoolean();
 
 	public UDPServer(int port, UDPHandler handler) throws IOException {
 		address = new InetSocketAddress(NetworkUtilities.getDefaultInterface(), port);
@@ -70,20 +61,6 @@ public class UDPServer {
 			socket.setSendBufferSize(size);
 		}
 
-		final Runnable awtHandler = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (!receiveQueue.isEmpty()) {
-						UDPServer.this.handler.handle(receiveQueue.take());
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				awtPending.set(false);
-			}
-		};
-
 		final Thread receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -92,9 +69,11 @@ public class UDPServer {
 						byte[] buffer = new byte[socket.getReceiveBufferSize()];
 						DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 						socket.receive(packet);
-						receiveQueue.add(packet);
-						if (!awtPending.getAndSet(true))
-							SwingUtilities.invokeLater(awtHandler);
+						try {
+							UDPServer.this.handler.handle(packet);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					} catch (Exception ignored) {
 					}
 				}
