@@ -32,7 +32,6 @@
 package ch.fhnw.ether.image;
 
 import java.awt.Graphics;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -53,20 +52,16 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.scene.mesh.material.Texture;
-import ch.fhnw.ether.video.AbstractVideoTarget;
-import ch.fhnw.ether.video.VideoFrame;
-import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 import ch.fhnw.util.BufferUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
-public abstract class Frame extends AbstractVideoTarget {
+public abstract class Frame {
 	private static final Log LOG = Log.create();
 
 	public enum FileFormat {PNG,JPEG}
@@ -84,12 +79,10 @@ public abstract class Frame extends AbstractVideoTarget {
 	private Texture   texture;
 
 	protected Frame(int pixelSize) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
 		this.pixelSize = pixelSize;
 	}
 
 	protected Frame(int width, int height, byte[] frameBuffer, int pixelSize) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
 		this.pixels = BufferUtils.createByteBuffer(frameBuffer.length);
 		this.pixels.put(frameBuffer);
 		this.pixelSize = pixelSize;
@@ -97,7 +90,6 @@ public abstract class Frame extends AbstractVideoTarget {
 	}
 
 	protected Frame(int width, int height, ByteBuffer frameBuffer, int pixelSize) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
 		if (frameBuffer.isDirect()) {
 			this.pixels = frameBuffer;
 		} else {
@@ -517,21 +509,6 @@ public abstract class Frame extends AbstractVideoTarget {
 
 	public final void position(ByteBuffer pixels, int x, int y) {
 		pixels.position((y * width + x) * pixelSize);
-	}
-
-	@Override
-	public void render() throws RenderCommandException {
-		VideoFrame vf    = getFrame();
-		Frame      frame = vf.getFrame();
-		sleepUntil(vf.playOutTime);
-		synchronized (this) {
-			if(width != frame.width || height != frame.height) {
-				setSubframe(0, 0, ImageScaler.getScaledInstance(frame, width, height, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false));
-			} else {
-				texture = frame.texture;
-				pixels  = frame.pixels;
-			}
-		}
 	}
 
 	public synchronized Texture getTexture() {

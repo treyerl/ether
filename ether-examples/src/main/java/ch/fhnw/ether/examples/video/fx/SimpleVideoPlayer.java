@@ -54,6 +54,7 @@ import ch.fhnw.ether.video.AWTFrameTarget;
 import ch.fhnw.ether.video.ArrayVideoSource;
 import ch.fhnw.ether.video.CameraInfo;
 import ch.fhnw.ether.video.CameraSource;
+import ch.fhnw.ether.video.FrameTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.IVideoSource;
 import ch.fhnw.ether.video.URLVideoSource;
@@ -90,10 +91,11 @@ public class SimpleVideoPlayer {
 
 		if(mask != null) {
 			RGB8Frame maskOut  = new RGB8Frame(((IVideoSource)source).getWidth(), ((IVideoSource)source).getHeight());
-			maskOut.setTimebase(videoOut);
-			maskOut.useProgram(new RenderProgram<>(mask));
+			FrameTarget target = new FrameTarget(maskOut);
+			target.setTimebase(videoOut);
+			target.useProgram(new RenderProgram<>(mask));
 			fxs.add(new ChromaKey(maskOut));
-			maskOut.start();
+			target.start();
 		}
 
 		final RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
