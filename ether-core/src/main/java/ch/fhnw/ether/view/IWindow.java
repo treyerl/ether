@@ -31,12 +31,16 @@
 
 package ch.fhnw.ether.view;
 
-import java.io.File;
-
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
 
 public interface IWindow {
+	enum PointerMode {
+		NORMAL,
+		HIDDEN,
+		DISABLED
+	}
+	
 	interface IWindowListener {
 		void windowCloseRequest(IWindow window);
 
@@ -117,33 +121,13 @@ public interface IWindow {
 	void setFullscreen(boolean enabled);
 
 	/**
-	 * Enable or disable mouse pointer for this window.
+	 * Set pointer mode for this window.
 	 */
-	void setPointerVisible(boolean visible);
-
-	/**
-	 * Confine or unconfine pointer for this window.
-	 */
-	void setPointerConfined(boolean confined);
-
-	/**
-	 * Set pointer icon for this window.
-	 */
-	void setPointerIcon(File pngImage, int hotspotX, int hotspotY);
+	void setPointerMode(PointerMode mode);
 
 	/**
 	 * Warp pointer to x y (in pixel units), in right-handed window coordinates
 	 * (origin bottom left).
 	 */
-	void warpPointer(int x, int y);
-
-	/**
-	 * Convert from pixel to window units.
-	 */
-	int convertFromPixelToWindowUnits(int value);
-
-	/**
-	 * Convert from window to pixel units.
-	 */
-	int convertFromWindowToPixelUnits(int value);
+	void setPointerPosition(float x, float y);
 }

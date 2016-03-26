@@ -31,7 +31,6 @@
 
 package ch.fhnw.ether.view.gl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,12 +45,14 @@ import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.libffi.Closure;
 
 import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
+import ch.fhnw.ether.controller.event.IPointerEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.view.IView;
@@ -65,10 +66,18 @@ import ch.fhnw.ether.view.IWindow;
  * @author radar
  */
 final class GLFWWindow implements IWindow {
+	private static final boolean DBG = false;
+	
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
 	
 	private IView view;
+	private int width;
+	private int height;
 	private long window;
+	private float pointerX = 0;
+	private float pointerY = 0;
+	private int pointerButtons = 0;
+	private int modifiers = 0;
 	private int vao = -1;
 	
 	private final List<Closure.Void> callbacks = new ArrayList<>();
@@ -92,6 +101,8 @@ final class GLFWWindow implements IWindow {
 			NUM_WINDOWS.incrementAndGet();
 		
 		this.view = view;
+		this.width = width;
+		this.height = height;
 		
 		// make sure this comes before setting up window hints due to side effects!
         GLFWWindow shared = GLContextManager.getSharedContextWindow();
@@ -114,6 +125,19 @@ final class GLFWWindow implements IWindow {
         window = GLFW.glfwCreateWindow(width, height, title, MemoryUtil.NULL, shared != null ? shared.window : MemoryUtil.NULL);
         if (window == MemoryUtil.NULL)
             throw new RuntimeException("failed to create window");
+        
+        GLFWWindowSizeCallback sizeCallback = new GLFWWindowSizeCallback() {
+			@Override
+			public void invoke(long window, int width, int height) {
+				if (DBG)
+					System.out.println("window resize: " + view + " " + width + " " + height);
+
+				GLFWWindow.this.width = width;
+				GLFWWindow.this.height = height;
+			}
+		};
+		GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
+		callbacks.add(sizeCallback);
  	}
 	
 	GLFWWindow() {
@@ -125,7 +149,9 @@ final class GLFWWindow implements IWindow {
 		System.out.println("destroy: " + NUM_WINDOWS.get());
 		
 		callbacks.forEach(c -> c.release());
+		callbacks.clear();
 		GLFW.glfwDestroyWindow(window);
+		window = 0;
 		
 		// XXX not sure if this is what we want in all cases, but for now ok.
 		if (NUM_WINDOWS.decrementAndGet() == 0)
@@ -159,6 +185,9 @@ final class GLFWWindow implements IWindow {
 		GLFWWindowCloseCallback closeCallback = new GLFWWindowCloseCallback() {
 			@Override
 			public void invoke(long window) {
+				if (DBG)
+					System.out.println("window close request: " + view);
+				
 				listener.windowCloseRequest(GLFWWindow.this);
 			}
 		};
@@ -166,6 +195,9 @@ final class GLFWWindow implements IWindow {
 		GLFWWindowRefreshCallback refreshCallback = new GLFWWindowRefreshCallback() {
 			@Override
 			public void invoke(long window) {
+				if (DBG)
+					System.out.println("window refresh request: " + view);
+				
 				listener.windowRefresh(GLFWWindow.this);
 			}
 		};
@@ -173,6 +205,9 @@ final class GLFWWindow implements IWindow {
 		GLFWWindowFocusCallback focusCallback = new GLFWWindowFocusCallback() {
 			@Override
 			public void invoke(long window, int focused) {
+				if (DBG)
+					System.out.println("window focus: " + view + " " + focused);
+
 				if (focused > 0)
 					listener.windowGainedFocus(GLFWWindow.this);
 				else
@@ -183,6 +218,9 @@ final class GLFWWindow implements IWindow {
 		GLFWFramebufferSizeCallback sizeCallback = new GLFWFramebufferSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
+				if (DBG)
+					System.out.println("framebuffer resize: " + view + " " + width + " " + height);
+				
 				listener.framebufferResized(GLFWWindow.this, width, height);
 			}
 		};
@@ -201,6 +239,10 @@ final class GLFWWindow implements IWindow {
 		GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
 			@Override
 			public void invoke(long window, int key, int scancode, int action, int mods) {
+				if (DBG)
+					System.out.println("window key: " + view + " " + key + " " + scancode + " " + action + " " + mods);
+				
+				modifiers = mods;
 				if (action == GLFW.GLFW_PRESS)
 					listener.keyPressed(new KeyEvent(view, mods, key, scancode, false));
 				else if (action == GLFW.GLFW_REPEAT)
@@ -218,36 +260,60 @@ final class GLFWWindow implements IWindow {
 		GLFWCursorEnterCallback pointerEnterCallback = new GLFWCursorEnterCallback() {
 			@Override
 			public void invoke(long window, int entered) {
+				if (DBG)
+					System.out.println("window pointer entered: " + view + " " + entered);
+
+				IPointerEvent event = new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, 0, 0);
 				if (entered > 0)
-					listener.pointerEntered(new PointerEvent(view, 0, 0, 0, 0, 0, 0, 0));
+					listener.pointerEntered(event);
 				else 
-					listener.pointerExited(new PointerEvent(view, 0, 0, 0, 0, 0, 0, 0));
+					listener.pointerExited(event);
 			}
 		};
 
 		GLFWCursorPosCallback pointerPositionCallback = new GLFWCursorPosCallback() {
 			@Override
 			public void invoke(long window, double xpos, double ypos) {
-				listener.pointerMoved(new PointerEvent(view, 0, 0, 0, (float)xpos, (float)ypos, 0, 0));
+				if (DBG)
+					System.out.println("window pointer moved: " + view + " " + xpos + " " + ypos);
+				
+				pointerX = (float)xpos;
+				pointerY = (float)(height - ypos);				
+				
+				IPointerEvent event = new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, 0, 0);
+				if (pointerButtons == 0)
+					listener.pointerMoved(event);
+				else
+					listener.pointerDragged(event);
 			}
 		};
 		
 		GLFWMouseButtonCallback pointerButtonCallback = new GLFWMouseButtonCallback() {
 			@Override
 			public void invoke(long window, int button, int action, int mods) {
-				if (action == GLFW.GLFW_PRESS)
-					listener.pointerPressed(new PointerEvent(view, mods, button, 1, 0, 0, 0, 0));
-				else if (action == GLFW.GLFW_REPEAT)
-					listener.pointerPressed(new PointerEvent(view, mods, button, 2, 0, 0, 0, 0));
-				else if (action == GLFW.GLFW_RELEASE)
-					listener.pointerReleased(new PointerEvent(view, mods, button, 0, 0, 0, 0, 0));
+				if (DBG)
+					System.out.println("window pointer button: " + view + " " + button + " " + action + " " + mods);
+
+				modifiers = mods;
+				int mask = 1 << button;
+				IPointerEvent event = new PointerEvent(view, mods, button, 1, pointerX, pointerY, 0, 0);
+				if (action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) {
+					pointerButtons |= mask;
+					listener.pointerPressed(event);
+				} else if (action == GLFW.GLFW_RELEASE) {
+					pointerButtons &= ~mask;
+					listener.pointerReleased(event);
+				}
 			}
 		};
 		
 		GLFWScrollCallback pointerScrollCallback = new GLFWScrollCallback() {			
 			@Override
 			public void invoke(long window, double xoffset, double yoffset) {
-				listener.pointerWheelMoved(new PointerEvent(view, 0, 0, 0, 0, 0, (float)xoffset, (float)yoffset));
+				if (DBG)
+					System.out.println("window pointer scrolled: " + view + " " + xoffset + " " + yoffset);
+	
+				listener.pointerWheelMoved(new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, (float)xoffset, (float)-yoffset));
 			}
 		};
 		
@@ -259,10 +325,6 @@ final class GLFWWindow implements IWindow {
 		callbacks.add(pointerPositionCallback);
 		callbacks.add(pointerButtonCallback);
 		callbacks.add(pointerScrollCallback);
-	}
-
-	public void requestFocus() {
-		// TODO: can this be done with GLFW???
 	}
 
 	@Override
@@ -288,34 +350,36 @@ final class GLFWWindow implements IWindow {
 	public void setSize(int width, int height) {
 		GLFW.glfwSetWindowSize(window, width, height);
 	}
-
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
+	
 	@Override
 	public void setFullscreen(boolean enabled) {
 	}
 
 	@Override
-	public void setPointerVisible(boolean visible) {
+	public void setPointerMode(PointerMode mode) {
+		switch (mode) {
+		case NORMAL:
+			GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+			break;
+		case DISABLED:
+			GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+			break;
+		case HIDDEN:
+			GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+			break;
+		}
 	}
 
 	@Override
-	public void setPointerConfined(boolean confined) {
-	}
-
-	@Override
-	public void setPointerIcon(File pngImage, int hotspotX, int hotspotY) {
-	}
-
-	@Override
-	public void warpPointer(int x, int y) {
-	}
-	
-	@Override
-	public int convertFromPixelToWindowUnits(int value) {
-		return 0;
-	}
-	
-	@Override
-	public int convertFromWindowToPixelUnits(int value) {
-		return 0;
+	public void setPointerPosition(float x, float y) {
+		GLFW.glfwSetCursorPos(window, x, height - y);
 	}
 }

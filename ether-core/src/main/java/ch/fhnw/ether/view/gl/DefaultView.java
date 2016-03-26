@@ -186,7 +186,6 @@ public class DefaultView implements IView {
 
 		@Override
 		public void pointerPressed(IPointerEvent e) {
-			window.requestFocus();
 			runOnSceneThread(time -> controller.pointerPressed(e));
 		}
 

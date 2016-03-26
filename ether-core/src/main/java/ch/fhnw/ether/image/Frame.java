@@ -73,6 +73,7 @@ public abstract class Frame extends AbstractVideoTarget {
 
 	public static final byte        B0    = 0;
 	public static final byte        B255  = (byte) 255;
+
 	private static final ByteBuffer EMPTY = BufferUtils.createByteBuffer(0);
 
 	public ByteBuffer pixels = EMPTY;

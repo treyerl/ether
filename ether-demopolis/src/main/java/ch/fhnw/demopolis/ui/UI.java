@@ -54,6 +54,7 @@ import ch.fhnw.ether.controller.tool.AbstractTool;
 import ch.fhnw.ether.controller.tool.ITool;
 import ch.fhnw.ether.controller.tool.NavigationTool;
 import ch.fhnw.ether.scene.IScene;
+import ch.fhnw.ether.view.IWindow.PointerMode;
 import ch.fhnw.util.AutoDisposer;
 
 public class UI {
@@ -166,13 +167,13 @@ public class UI {
 		
 		@Override
 		public void startAnimation() {
-			controller.getCurrentView().getWindow().setPointerVisible(false);
+			controller.getCurrentView().getWindow().setPointerMode(PointerMode.HIDDEN);
 			cameraPath.startAnimation();
 		}
 		
 		@Override
 		public void stopAnimation() {
-			controller.getCurrentView().getWindow().setPointerVisible(true);
+			controller.getCurrentView().getWindow().setPointerMode(PointerMode.NORMAL);
 			cameraPath.stopAnimation();
 		}
 		
