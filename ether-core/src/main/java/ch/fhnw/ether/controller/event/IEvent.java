@@ -36,19 +36,21 @@ import ch.fhnw.ether.view.IView;
 public interface IEvent {
 	class Event implements IEvent {
 		private final IView view;
+		private final int modifiers;
 		
-		public Event(IView view) {
+		public Event(IView view, int modifiers) {
 			this.view = view;
+			this.modifiers = modifiers;
 		}
 		
 		@Override
-		public IView getView() {
+		public final IView getView() {
 			return view;
 		}
 		
 		@Override
-		public int getModifiers() {
-			throw new UnsupportedOperationException();
+		public final int getModifiers() {
+			return modifiers;
 		}
 	}
 	

@@ -36,8 +36,8 @@ import ch.fhnw.ether.view.IView;
 /**
  * Pointer (mouse) event, aligned with the underlying windowing framework.
  * 
- * Main difference to AWT or NEWT is the right handed coordinate system used,
- * i.e. (0, 0) refers to the bottom-left corner of the client window.
+ * Main difference to other frameworks is the right handed coordinate system
+ * used, i.e. (0, 0) refers to the bottom-left corner of the client window.
  * 
  * @author radar
  */
@@ -46,8 +46,7 @@ public interface IPointerEvent extends IEvent {
 	int BUTTON_2 = 1;
 	int BUTTON_3 = 2;
 	
-	class PointerEvent extends Event implements IPointerEvent {
-		private final int mods;
+	final class PointerEvent extends Event implements IPointerEvent {
 		private final int button;
 		private final int clickCount;
 		private final float x;
@@ -56,19 +55,13 @@ public interface IPointerEvent extends IEvent {
 		private final float scrollY;
 		
 		public PointerEvent(IView view, int mods, int button, int clickCount, float x, float y, float scrollX, float scrollY) {
-			super(view);
-			this.mods = mods;
+			super(view, mods);
 			this.button = button;
 			this.clickCount = clickCount;
 			this.x = x;
 			this.y = y;
 			this.scrollX = scrollX;
 			this.scrollY = scrollY;
-		}
-		
-		@Override
-		public int getModifiers() {
-			return mods;
 		}
 		
 		@Override

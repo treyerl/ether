@@ -40,22 +40,15 @@ import ch.fhnw.ether.view.IView;
  */
 public interface IKeyEvent extends IEvent {
 	class KeyEvent extends Event implements IKeyEvent {
-		private final int mods;
 		private final int key;
 		private final int scanCode;
 		private final boolean repeated;
 		
 		public KeyEvent(IView view, int mods, int key, int scanCode, boolean repeated) {
-			super(view);
-			this.mods = mods;
+			super(view, mods);
 			this.key = key;
 			this.scanCode = scanCode;
 			this.repeated = repeated;
-		}
-		
-		@Override
-		public int getModifiers() {
-			return mods;
 		}
 		
 		@Override
