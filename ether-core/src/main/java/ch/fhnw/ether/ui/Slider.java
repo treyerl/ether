@@ -73,8 +73,8 @@ public class Slider extends AbstractWidget {
 
 	@Override
 	public boolean hit(IPointerEvent e) {
-		int x = e.getX();
-		int y = e.getY();
+		float x = e.getX();
+		float y = e.getY();
 		UI ui = getUI();
 		float bx = ui.getX() + getX() * (SLIDER_GAP + SLIDER_WIDTH);
 		float by = ui.getY() + getY() * (SLIDER_GAP + SLIDER_HEIGHT);

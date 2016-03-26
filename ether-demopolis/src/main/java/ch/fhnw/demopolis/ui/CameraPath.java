@@ -279,7 +279,7 @@ public class CameraPath {
 		});
 	}
 	
-	private void pickVertex(int x, int y, IViewCameraState vcs) {
+	private void pickVertex(float x, float y, IViewCameraState vcs) {
 		for (int i = 0; i < introVertices.size(); ++i) {
 			Vec3 v = introVertices.get(i);
 			if (PickUtilities.pickPoints(PickMode.POINT, x, y, 0, 0, vcs, v.toArray()) < Float.POSITIVE_INFINITY) {

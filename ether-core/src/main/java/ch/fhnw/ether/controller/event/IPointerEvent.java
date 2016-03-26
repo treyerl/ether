@@ -50,12 +50,12 @@ public interface IPointerEvent extends IEvent {
 		private final int mods;
 		private final int button;
 		private final int clickCount;
-		private final int x;
-		private final int y;
-		private final int scrollX;
-		private final int scrollY;
+		private final float x;
+		private final float y;
+		private final float scrollX;
+		private final float scrollY;
 		
-		public PointerEvent(IView view, int mods, int button, int clickCount, int x, int y, int scrollX, int scrollY) {
+		public PointerEvent(IView view, int mods, int button, int clickCount, float x, float y, float scrollX, float scrollY) {
 			super(view);
 			this.mods = mods;
 			this.button = button;
@@ -82,12 +82,12 @@ public interface IPointerEvent extends IEvent {
 		}
 		
 		@Override
-		public int getX() {
+		public float getX() {
 			return x;
 		}
 		
 		@Override
-		public int getY() {
+		public float getY() {
 			return y;
 		}
 		
@@ -115,12 +115,12 @@ public interface IPointerEvent extends IEvent {
 	/**
 	 * Returns the pointer's x coordinate.
 	 */
-	int getX();
+	float getX();
 
 	/**
 	 * Returns the pointer's y coordinate.
 	 */
-	int getY();
+	float getY();
 	
 	/**
 	 * Returns scroll amount in x direction.

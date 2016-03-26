@@ -55,7 +55,7 @@ public final class PickUtilities {
 
 	private static final float PICK_DISTANCE = 10;
 
-	public static Map<Float, I3DObject> pickFromScene(PickMode mode, int x, int y, int w, int h, IView view) {
+	public static Map<Float, I3DObject> pickFromScene(PickMode mode, float x, float y, float w, float h, IView view) {
 		IViewCameraState vcs = view.getController().getRenderManager().getViewCameraState(view);
 		final Map<Float, I3DObject> pickables = new TreeMap<>();
 		for (I3DObject object : view.getController().getScene().get3DObjects()) {
@@ -66,7 +66,7 @@ public final class PickUtilities {
 		return pickables;
 	}
 	
-	public static float pickObject(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, I3DObject object) {
+	public static float pickObject(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, I3DObject object) {
 		BoundingBox b = object.getBounds();
 		
 		if (b == null)
@@ -97,7 +97,7 @@ public final class PickUtilities {
 		return Float.POSITIVE_INFINITY;
 	}
 
-	public static float pickBoundingBox(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, BoundingBox bounds) {
+	public static float pickBoundingBox(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, BoundingBox bounds) {
 		BoundingBox b = new BoundingBox();
 		float xmin = bounds.getMinX();
 		float xmax = bounds.getMaxX();
@@ -121,7 +121,7 @@ public final class PickUtilities {
 		return Float.POSITIVE_INFINITY;
 	}
 
-	public static float pickPoints(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, float[] v) {
+	public static float pickPoints(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, float[] v) {
 		v = ProjectionUtilities.projectToScreen(vcs, v);
 
 		float zMin = Float.POSITIVE_INFINITY;
@@ -133,7 +133,7 @@ public final class PickUtilities {
 		return zMin;
 	}
 
-	public static float pickLines(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, float[] v) {
+	public static float pickLines(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, float[] v) {
 		v = ProjectionUtilities.projectToScreen(vcs, v);
 
 		float zMin = Float.POSITIVE_INFINITY;
@@ -147,7 +147,7 @@ public final class PickUtilities {
 		return zMin;
 	}
 
-	public static float pickLineStripOrLoop(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, float[] v, boolean loop) {
+	public static float pickLineStripOrLoop(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, float[] v, boolean loop) {
 		v = ProjectionUtilities.projectToScreen(vcs, v);
 
 		float zMin = Float.POSITIVE_INFINITY;
@@ -163,7 +163,7 @@ public final class PickUtilities {
 		return zMin;
 	}
 	
-	public static float pickTriangles(PickMode mode, int x, int y, int w, int h, IViewCameraState vcs, float[] v) {
+	public static float pickTriangles(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, float[] v) {
 		v = ProjectionUtilities.projectToScreen(vcs, v);
 
 		float zMin = Float.POSITIVE_INFINITY;

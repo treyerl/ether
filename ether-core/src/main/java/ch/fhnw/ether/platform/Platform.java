@@ -32,7 +32,7 @@
 package ch.fhnw.ether.platform;
 
 public final class Platform {
-	private static final IPlatform PLATFORM = new LWJGLPlatform();
+	private static final IPlatform PLATFORM = new GLFWPlatform();
 	
 	public static IPlatform get() {
 		return PLATFORM;

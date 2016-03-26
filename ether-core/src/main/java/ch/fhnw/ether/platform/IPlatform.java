@@ -32,9 +32,24 @@
 package ch.fhnw.ether.platform;
 
 public interface IPlatform {
+	/**
+	 * Initialize platform. Call this before doing anything else.
+	 */
 	void init();
-	
+
+	/**
+	 * Run platform. Does not return.
+	 */
 	void run();
-	
+
+	/**
+	 * Exit platform. Closes all windows and releases all resources.
+	 */
 	void exit();
+
+	/**
+	 * Execute task on main thread. Typically used for opening / closing
+	 * windows, etc.
+	 */
+	void runOnMainThread(Runnable runnable);
 }

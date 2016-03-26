@@ -104,8 +104,8 @@ public final class AreaTool extends AbstractTool {
 
 	@Override
 	public void pointerPressed(IPointerEvent e) {
-		int x = e.getX();
-		int y = e.getY();
+		float x = e.getX();
+		float y = e.getY();
 		IViewCameraState vcs = getController().getRenderManager().getViewCameraState(e.getView());
 		float d = PickUtilities.pickObject(PickMode.POINT, x, y, 0, 0, vcs, mesh);
 		if (d < Float.POSITIVE_INFINITY)

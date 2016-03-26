@@ -146,19 +146,19 @@ public final class ProjectionUtilities {
 		return new Vec3(result.x / result.w, result.y / result.w, result.z / result.w);
 	}
 
-	public static int deviceToScreenX(IView view, float x) {
-		return (int) ((1.0 + x) / 2.0 * view.getViewport().w);
+	public static float deviceToScreenX(IView view, float x) {
+		return (1.0f + x) / 2.0f * view.getViewport().w;
 	}
 
-	public static int deviceToScreenY(IView view, float y) {
-		return (int) ((1.0 + y) / 2.0 * view.getViewport().h);
+	public static float deviceToScreenY(IView view, float y) {
+		return (1.0f + y) / 2.0f * view.getViewport().h;
 	}
 
-	public static float screenToDeviceX(IView view, int x) {
+	public static float screenToDeviceX(IView view, float x) {
 		return 2f * x / view.getViewport().w - 1f;
 	}
 
-	public static float screenToDeviceY(IView view, int y) {
+	public static float screenToDeviceY(IView view, float y) {
 		return 2f * y / view.getViewport().h - 1f;
 	}
 

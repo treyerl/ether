@@ -34,6 +34,7 @@ package ch.fhnw.ether.view.gl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
@@ -52,6 +53,7 @@ import org.lwjgl.system.libffi.Closure;
 
 import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.Config;
 import ch.fhnw.ether.view.IView.ViewType;
@@ -63,6 +65,8 @@ import ch.fhnw.ether.view.IWindow;
  * @author radar
  */
 final class GLFWWindow implements IWindow {
+	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
+	
 	private IView view;
 	private long window;
 	private int vao = -1;
@@ -84,6 +88,9 @@ final class GLFWWindow implements IWindow {
 	 *            The configuration.
 	 */
 	public GLFWWindow(IView view, int width, int height, String title, Config config) {
+		if (view != null)
+			NUM_WINDOWS.incrementAndGet();
+		
 		this.view = view;
 		
 		// make sure this comes before setting up window hints due to side effects!
@@ -115,8 +122,14 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void destroy() {
+		System.out.println("destroy: " + NUM_WINDOWS.get());
+		
 		callbacks.forEach(c -> c.release());
 		GLFW.glfwDestroyWindow(window);
+		
+		// XXX not sure if this is what we want in all cases, but for now ok.
+		if (NUM_WINDOWS.decrementAndGet() == 0)
+			Platform.get().exit();
 	}
 	
 	@Override
@@ -215,7 +228,7 @@ final class GLFWWindow implements IWindow {
 		GLFWCursorPosCallback pointerPositionCallback = new GLFWCursorPosCallback() {
 			@Override
 			public void invoke(long window, double xpos, double ypos) {
-				listener.pointerMoved(new PointerEvent(view, 0, 0, 0, (int)xpos, (int)ypos, 0, 0));
+				listener.pointerMoved(new PointerEvent(view, 0, 0, 0, (float)xpos, (float)ypos, 0, 0));
 			}
 		};
 		
@@ -234,7 +247,7 @@ final class GLFWWindow implements IWindow {
 		GLFWScrollCallback pointerScrollCallback = new GLFWScrollCallback() {			
 			@Override
 			public void invoke(long window, double xoffset, double yoffset) {
-				listener.pointerWheelMoved(new PointerEvent(view, 0, 0, 0, 0, 0, (int)xoffset, (int)yoffset));
+				listener.pointerWheelMoved(new PointerEvent(view, 0, 0, 0, 0, 0, (float)xoffset, (float)yoffset));
 			}
 		};
 		

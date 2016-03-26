@@ -160,7 +160,7 @@ public interface IController {
 	void kill(IAnimationAction action);
 
 	/**
-	 * Run an action on model thread once. This is a shorthand for
+	 * Run an action on scene thread once. This is a shorthand for
 	 * getScheduler().run(). Thread-safe.
 	 * 
 	 * @param action
@@ -169,7 +169,7 @@ public interface IController {
 	void run(IAction action);
 
 	/**
-	 * Run an action on model thread once, with given delay. This is a shorthand
+	 * Run an action on scene thread once, with given delay. This is a shorthand
 	 * for getScheduler().run(). Thread-safe.
 	 * 
 	 * @param delay

@@ -35,6 +35,7 @@ import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.ether.view.IWindow.IKeyListener;
@@ -54,7 +55,7 @@ public class DefaultView implements IView {
 
 	private final IController controller;
 
-	private GLFWWindow window;
+	private volatile GLFWWindow window;
 
 	private volatile Viewport viewport = new Viewport(0, 0, 1, 1);
 
@@ -64,28 +65,27 @@ public class DefaultView implements IView {
 		this.controller = controller;
 		this.viewConfig = viewConfig;
 
-		window = new GLFWWindow(this, 16, 16, title, viewConfig);
-
-		window.setWindowListener(windowListener);
-		window.setKeyListener(keyListener);
-		window.setPointerListener(pointerListener);
-
-		// note: the order here is quite important. the view starts sending
-		// events after setVisible(), and we're still in the view's constructor.
-		// need to see if this doesn't get us into trouble in the long run.
-		// XXX NEEDS FIXING ANYWAY (LWJGL)
+		Platform.get().runOnMainThread(() -> {
+			window = new GLFWWindow(this, 16, 16, title, viewConfig);
+	
+			window.setWindowListener(windowListener);
+			window.setKeyListener(keyListener);
+			window.setPointerListener(pointerListener);
+	
+			if (x != -1)
+				window.setPosition(x, y);
+			window.setSize(w, h);
+			window.setVisible(true);
+		});
 		runOnSceneThread(t -> controller.viewCreated(this));
-
-		if (x != -1)
-			window.setPosition(x, y);
-		window.setSize(w, h);
-		window.setVisible(true);
 	}
 
 	@Override
 	public void dispose() {
-		window.destroy();
-		window = null;
+		Platform.get().runOnMainThread(() -> {
+			window.destroy();
+			window = null;
+		});
 	}
 
 	@Override
@@ -124,7 +124,10 @@ public class DefaultView implements IView {
 	}
 
 	private void runOnSceneThread(IAction action) {
-		controller.run(action);
+		if (controller.isSceneThread())
+			action.run(controller.getScheduler().getTime());
+		else
+			controller.run(action);
 	}
 
 	private IWindowListener windowListener = new IWindowListener() {

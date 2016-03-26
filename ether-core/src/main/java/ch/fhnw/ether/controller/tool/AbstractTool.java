@@ -107,7 +107,7 @@ public abstract class AbstractTool implements ITool {
 	}
 
 	// FIXME: get rid of this or move to PickUtil
-	public static boolean snap2D(int mx, int my, int x, int y) {
+	public static boolean snap2D(float mx, float my, float x, float y) {
 		return (mx >= x - SNAP_SIZE) && (mx <= x + SNAP_SIZE) && (my >= y - SNAP_SIZE) && (my < y + SNAP_SIZE);
 	}
 }

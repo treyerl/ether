@@ -54,9 +54,10 @@ public final class SimpleCubeExample {
 		
 		// Create controller
 		IController controller = new DefaultController();
-		// Create view
-		IView view = new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Cube");
 		controller.run(time -> {
+			// Create view
+			IView view = new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Cube");
+
 			// Add UI
 			//controller.setUI(new UI(controller));
 			

@@ -311,14 +311,14 @@ public class DefaultController implements IController {
 
 	@Override
 	public void pointerEntered(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer entered " + e.getView());
+		if (DBG)
+			System.out.println("pointer entered " + e.getView());
 	}
 
 	@Override
 	public void pointerExited(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer exited " + e.getView());
+		if (DBG)
+			System.out.println("pointer exited " + e.getView());
 	}
 
 	@Override
@@ -348,8 +348,8 @@ public class DefaultController implements IController {
 
 	@Override
 	public void pointerClicked(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer clicked " + e.getView());
+		if (DBG)
+			System.out.println("pointer clicked " + e.getView());
 		
 		tool.pointerClicked(e);
 	}
@@ -358,8 +358,8 @@ public class DefaultController implements IController {
 
 	@Override
 	public void pointerMoved(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer moved " + e.getView());
+		if (DBG)
+			System.out.println("pointer moved " + e.getView());
 
 		if (ui != null)
 			ui.pointerMoved(e);
@@ -368,8 +368,8 @@ public class DefaultController implements IController {
 
 	@Override
 	public void pointerDragged(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer dragged " + e.getView());
+		if (DBG)
+			System.out.println("pointer dragged " + e.getView());
 
 		// ui has precedence over everything else
 		if (ui != null && ui.pointerDragged(e))
@@ -382,8 +382,8 @@ public class DefaultController implements IController {
 
 	@Override
 	public void pointerScrolled(IPointerEvent e) {
-		// if (DBG)
-		// System.out.println("pointer scrolled " + e.getView());
+		if (DBG)
+			System.out.println("pointer scrolled " + e.getView());
 
 		tool.pointerScrolled(e);
 	}

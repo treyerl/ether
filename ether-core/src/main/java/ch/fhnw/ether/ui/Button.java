@@ -104,8 +104,8 @@ public class Button extends AbstractWidget {
 
 	@Override
 	public boolean hit(IPointerEvent e) {
-		int x = e.getX();
-		int y = e.getY();
+		float x = e.getX();
+		float y = e.getY();
 		UI ui = getUI();
 		float bx = ui.getX() + getX() * (BUTTON_GAP + BUTTON_WIDTH);
 		float by = ui.getY() + getY() * (BUTTON_GAP + BUTTON_HEIGHT);

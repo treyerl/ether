@@ -55,8 +55,8 @@ public class NavigationTool extends AbstractTool {
 	public static final RGBA GRID_COLOR = RGBA.GRAY;
 
 	private int button;
-	private int mouseX;
-	private int mouseY;
+	private float mouseX;
+	private float mouseY;
 	
 	private ITool fallbackTool = ITool.NULL_TOOL;
 

@@ -171,8 +171,8 @@ public final class CalibrationTool extends AbstractTool {
 	@Override
 	public void pointerPressed(IPointerEvent e) {
 		IView view = e.getView();
-		int mx = e.getX();
-		int my = e.getY();
+		float mx = e.getX();
+		float my = e.getY();
 		CalibrationContext context = getContext(view);
 
 		// reset first
@@ -180,8 +180,8 @@ public final class CalibrationTool extends AbstractTool {
 
 		// first, try to hit calibration point
 		for (int i = 0; i < context.projectedVertices.size(); ++i) {
-			int x = ProjectionUtilities.deviceToScreenX(view, context.projectedVertices.get(i).x);
-			int y = ProjectionUtilities.deviceToScreenY(view, context.projectedVertices.get(i).y);
+			float x = ProjectionUtilities.deviceToScreenX(view, context.projectedVertices.get(i).x);
+			float y = ProjectionUtilities.deviceToScreenY(view, context.projectedVertices.get(i).y);
 			if (snap2D(mx, my, x, y)) {
 				// we got a point to move!
 				context.currentSelection = i;
@@ -217,8 +217,8 @@ public final class CalibrationTool extends AbstractTool {
 	@Override
 	public void pointerDragged(IPointerEvent e) {
 		IView view = e.getView();
-		int mx = e.getX();
-		int my = e.getY();
+		float mx = e.getX();
+		float my = e.getY();
 		CalibrationContext context = getContext(view);
 
 		if (context.currentSelection != -1) {

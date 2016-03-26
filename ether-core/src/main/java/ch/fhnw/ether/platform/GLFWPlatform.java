@@ -31,13 +31,19 @@
 
 package ch.fhnw.ether.platform;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-final class LWJGLPlatform implements IPlatform {
+// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
+final class GLFWPlatform implements IPlatform {
 	private final GLFWErrorCallback errorCallback;
 	
-	public LWJGLPlatform() {
+	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	
+	public GLFWPlatform() {
 		errorCallback = GLFWErrorCallback.createPrint(System.err);
 	}
 
@@ -54,6 +60,14 @@ final class LWJGLPlatform implements IPlatform {
 		try {
 	        while (true) {
 	            GLFW.glfwWaitEvents();
+	            Runnable runnable;
+	            while ((runnable = queue.poll()) != null) {
+	            	try {
+	            		runnable.run();
+	            	} catch (Exception e) {
+	            		e.printStackTrace();
+	            	}
+	            }
 	        }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -66,5 +80,11 @@ final class LWJGLPlatform implements IPlatform {
 		errorCallback.release();
 		GLFW.glfwTerminate();
 		System.exit(0);
+	}
+	
+	@Override
+	public void runOnMainThread(Runnable runnable) {
+		queue.offer(runnable);
+		GLFW.glfwPostEmptyEvent();
 	}
 }

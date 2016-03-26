@@ -46,6 +46,7 @@ import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
+import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 
@@ -120,11 +121,14 @@ public abstract class AbstractRenderer implements IRenderer {
 		// render all views
 		renderState.getRenderStates().forEach(targetState -> {
 			IView view = targetState.getView();
+			IWindow window = view.getWindow();
+			if (window == null)
+				return;
 			IViewCameraState vcs = targetState.getViewCameraState();
             try {
-    			view.getWindow().makeCurrent(true);
+    			window.makeCurrent(true);
     			render(targetState, view, vcs);
-    			view.getWindow().makeCurrent(false);
+    			window.makeCurrent(false);
 				checkGLError("rendering");
             } catch (Exception e) {
                 e.printStackTrace();
