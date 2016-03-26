@@ -29,56 +29,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.examples.threed;
+package ch.fhnw.ether.platform;
 
-import ch.fhnw.ether.controller.DefaultController;
-import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.scene.DefaultScene;
-import ch.fhnw.ether.scene.IScene;
-import ch.fhnw.ether.scene.camera.Camera;
-import ch.fhnw.ether.scene.camera.ICamera;
-import ch.fhnw.ether.scene.mesh.MeshUtilities;
-import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.gl.DefaultView;
-import ch.fhnw.util.math.Vec3;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 
-public final class SimpleCubeExample {
-	public static void main(String[] args) {
-		new SimpleCubeExample();
+final class LWJGLPlatform implements IPlatform {
+	private final GLFWErrorCallback errorCallback;
+	
+	public LWJGLPlatform() {
+		errorCallback = GLFWErrorCallback.createPrint(System.err);
 	}
 
-	public SimpleCubeExample() {
-		// Init platform
-		Platform.get().init();
-		
-		// Create controller
-		IController controller = new DefaultController();
-		// Create view
-		IView view = new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Cube");
-		controller.run(time -> {
-			// Add UI
-			//controller.setUI(new UI(controller));
-			
+	@Override
+	public void init() {
+        GLFW.glfwSetErrorCallback(errorCallback);
+ 
+        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
+            throw new IllegalStateException("unable to initialize glfw");		
+	}
 	
-			// Create scene
-			IScene scene = new DefaultScene(controller);
-			controller.setScene(scene);
+	@Override
+	public void run() {
+		try {
+	        while (true) {
+	            GLFW.glfwWaitEvents();
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        exit();
+	}
 	
-			// Create and add camera
-			ICamera camera = new Camera(new Vec3(0, -5, 5), Vec3.ZERO);
-			scene.add3DObject(camera);
-			controller.setCamera(view, camera);
-			
-			// Add cube
-			scene.add3DObject(MeshUtilities.createCube());
-			//scene.add3DObject(MeshUtilities.createDisk(6));
-			//scene.add3DObject(MeshUtilities.createCylinder(6, true));
-			
-			// Add an exit button
-			//controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", IKeyEvent.VK_ESCAPE, (button, v) -> System.exit(0)));
-		});
-		
-		Platform.get().run();
+	@Override
+	public void exit() {
+		errorCallback.release();
+		GLFW.glfwTerminate();
+		System.exit(0);
 	}
 }

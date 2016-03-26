@@ -38,7 +38,6 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -69,19 +68,6 @@ final class GLFWWindow implements IWindow {
 	private int vao = -1;
 	
 	private final List<Closure.Void> callbacks = new ArrayList<>();
-
-	// TODO: move this to "platform class"
-	private static GLFWErrorCallback errorCallback;
-
-	static {
-        // Setup an error callback. The default implementation
-        // will print the error message in System.err.
-        GLFW.glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
- 
-        // Initialize GLFW. Most GLFW functions will not work before doing this.
-        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
-            throw new IllegalStateException("unable to initialize glfw");
-	}
 	
 	/**
 	 * Creates window.
