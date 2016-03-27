@@ -34,6 +34,7 @@ package ch.fhnw.ether.video;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
+import ch.fhnw.ether.image.AWTFrameSupport;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
@@ -46,7 +47,7 @@ public class FrameAccess implements IDisposable {
 	private         Frame          frame;
 
 	FrameAccess(URLVideoSource src) throws IOException {
-		this.frame    = Frame.create(src.getURL());
+		this.frame    = AWTFrameSupport.readFrame(src.getURL());
 		this.src      = src;
 		this.numPlays = 0;
 	}

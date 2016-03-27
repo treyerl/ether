@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.platform;
 
+import ch.fhnw.ether.image.IImageSupport;
+
 public interface IPlatform {
 	/**
 	 * Initialize platform. Call this before doing anything else.
@@ -52,4 +54,9 @@ public interface IPlatform {
 	 * windows, etc.
 	 */
 	void runOnMainThread(Runnable runnable);
+	
+	/**
+	 * Get platform-dependent image support (image reading / writing / scaling).
+	 */
+	IImageSupport getImageSupport();
 }

@@ -29,69 +29,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.platform;
+package ch.fhnw.ether.image;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-
-import ch.fhnw.ether.image.IImageSupport;
-
-// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
-final class GLFWPlatform implements IPlatform {
-	private final GLFWErrorCallback errorCallback;
+public abstract class AbstractImage implements IImage {
+	private final int width;
+	private final int height;
+	private final int numComponents;
+	private final ComponentType componentType;
+	private final AlphaMode alphaMode;
 	
-	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	
-	public GLFWPlatform() {
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
-	}
-
-	@Override
-	public void init() {
-        GLFW.glfwSetErrorCallback(errorCallback);
- 
-        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
-            throw new IllegalStateException("unable to initialize glfw");		
+	protected AbstractImage(int width, int height, int numComponents, ComponentType componentType, AlphaMode alphaMode) {
+		this.width = width;
+		this.height = height;
+		this.numComponents = numComponents;
+		this.componentType = componentType;
+		this.alphaMode = alphaMode;
 	}
 	
 	@Override
-	public void run() {
-		try {
-	        while (true) {
-	            GLFW.glfwWaitEvents();
-	            Runnable runnable;
-	            while ((runnable = queue.poll()) != null) {
-	            	try {
-	            		runnable.run();
-	            	} catch (Exception e) {
-	            		e.printStackTrace();
-	            	}
-	            }
-	        }
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        exit();
+	public final int getWidth() {
+		return width;
 	}
 	
 	@Override
-	public void exit() {
-		errorCallback.release();
-		GLFW.glfwTerminate();
-		System.exit(0);
+	public final int getHeight() {
+		return height;
 	}
 	
 	@Override
-	public void runOnMainThread(Runnable runnable) {
-		queue.offer(runnable);
-		GLFW.glfwPostEmptyEvent();
+	public final int getNumComponents() {
+		return numComponents;
 	}
 	
 	@Override
-	public IImageSupport getImageSupport() {
-		return null;
+	public final ComponentType getComponentType() {
+		return componentType;
+	}
+	
+	@Override
+	public final AlphaMode getAlphaMode() {
+		return alphaMode;
 	}
 }

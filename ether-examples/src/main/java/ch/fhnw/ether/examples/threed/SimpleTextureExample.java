@@ -34,7 +34,7 @@ package ch.fhnw.ether.examples.threed;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler;
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.AWTFrameSupport;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -62,7 +62,7 @@ public final class SimpleTextureExample {
 
 		
 		try {
-			IMaterial m = new ColorMapMaterial(RGBA.WHITE, Frame.create(SimpleTextureExample.class.getResource("assets/fhnw_logo.jpg")).getTexture(), true);
+			IMaterial m = new ColorMapMaterial(RGBA.WHITE, AWTFrameSupport.readFrame(SimpleTextureExample.class.getResource("assets/fhnw_logo.jpg")).getTexture(), true);
 			IGeometry g = DefaultGeometry.createVCM(vertices, colors, texCoords);
 			return new DefaultMesh(Primitive.TRIANGLES, m, g);
 		} catch (Exception e) {

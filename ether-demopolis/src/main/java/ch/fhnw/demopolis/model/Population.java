@@ -39,7 +39,7 @@ import ch.fhnw.demopolis.config.IPopulationAssets;
 import ch.fhnw.demopolis.render.MaskMaterial;
 import ch.fhnw.demopolis.render.PolisMaterial;
 import ch.fhnw.ether.formats.obj.ObjReader;
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.AWTFrameSupport;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -212,7 +212,7 @@ public class Population {
 	}
 	
 	private static IMesh getFlatMesh(String asset, float h) throws IOException {
-		Texture texture = Frame.create(Asset.get(asset)).getTexture();
+		Texture texture = AWTFrameSupport.readFrame(Asset.get(asset)).getTexture();
 		float aspect = (float)texture.getWidth() / (float)texture.getHeight();
 		float w = 0.5f * h * aspect;
 		float[] v = new float[] { 

@@ -29,69 +29,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.platform;
+package ch.fhnw.ether.image;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-
-import ch.fhnw.ether.image.IImageSupport;
-
-// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
-final class GLFWPlatform implements IPlatform {
-	private final GLFWErrorCallback errorCallback;
-	
-	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	
-	public GLFWPlatform() {
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
+public interface IImageSupport {
+	enum FileFormat {
+		PNG, JPEG
 	}
 
-	@Override
-	public void init() {
-        GLFW.glfwSetErrorCallback(errorCallback);
- 
-        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
-            throw new IllegalStateException("unable to initialize glfw");		
+	Frame read(InputStream in) throws IOException;
+
+	default Frame read(File file) throws IOException {
+		return read(new FileInputStream(file));
 	}
-	
-	@Override
-	public void run() {
-		try {
-	        while (true) {
-	            GLFW.glfwWaitEvents();
-	            Runnable runnable;
-	            while ((runnable = queue.poll()) != null) {
-	            	try {
-	            		runnable.run();
-	            	} catch (Exception e) {
-	            		e.printStackTrace();
-	            	}
-	            }
-	        }
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-        exit();
+
+	default Frame read(URL url) throws IOException {
+		return read(url.openStream());
 	}
-	
-	@Override
-	public void exit() {
-		errorCallback.release();
-		GLFW.glfwTerminate();
-		System.exit(0);
+
+	void write(Frame frame, OutputStream out, FileFormat format) throws IOException;
+
+	default void writeFrame(Frame frame, File file, FileFormat format) throws IOException {
+		write(frame, new FileOutputStream(file), format);
 	}
-	
-	@Override
-	public void runOnMainThread(Runnable runnable) {
-		queue.offer(runnable);
-		GLFW.glfwPostEmptyEvent();
-	}
-	
-	@Override
-	public IImageSupport getImageSupport() {
-		return null;
-	}
+
+	Frame scale(Frame frame, int width, int height);
 }

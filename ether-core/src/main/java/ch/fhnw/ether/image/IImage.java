@@ -29,69 +29,76 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.platform;
+package ch.fhnw.ether.image;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.nio.ByteBuffer;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
+import ch.fhnw.ether.scene.mesh.material.Texture;
 
-import ch.fhnw.ether.image.IImageSupport;
-
-// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
-final class GLFWPlatform implements IPlatform {
-	private final GLFWErrorCallback errorCallback;
+public interface IImage {
 	
-	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	
-	public GLFWPlatform() {
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
-	}
-
-	@Override
-	public void init() {
-        GLFW.glfwSetErrorCallback(errorCallback);
- 
-        if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
-            throw new IllegalStateException("unable to initialize glfw");		
-	}
-	
-	@Override
-	public void run() {
-		try {
-	        while (true) {
-	            GLFW.glfwWaitEvents();
-	            Runnable runnable;
-	            while ((runnable = queue.poll()) != null) {
-	            	try {
-	            		runnable.run();
-	            	} catch (Exception e) {
-	            		e.printStackTrace();
-	            	}
-	            }
-	        }
-		} catch (Exception e) {
-			e.printStackTrace();
+	enum ComponentType {
+		BYTE(8),
+		FLOAT(32);
+		
+		private final int size;
+		
+		ComponentType(int size) {
+			this.size = size;
 		}
-        exit();
+		
+		public int getSize() {
+			return size;
+		}
 	}
 	
-	@Override
-	public void exit() {
-		errorCallback.release();
-		GLFW.glfwTerminate();
-		System.exit(0);
+	enum AlphaMode {
+		NO_ALPHA,
+		POST_MULTIPLIED,
+		PRE_MULTIPLIED
 	}
+
+	void clear();
 	
-	@Override
-	public void runOnMainThread(Runnable runnable) {
-		queue.offer(runnable);
-		GLFW.glfwPostEmptyEvent();
-	}
+	IImage copy();
+
+	IImage alloc();
+
+	int getWidth();
 	
-	@Override
-	public IImageSupport getImageSupport() {
-		return null;
-	}
+	int getHeight();
+	
+	int getNumComponents();
+	
+	ComponentType getComponentType();
+	
+	AlphaMode getAlphaMode();
+	
+	int getPixel(int x, int y);
+	
+	void setPixel(int x, int y, int pixel);
+	
+	byte[] getPixel(int x, int y, byte[] dst);
+
+	void setPixel(int x, int y, byte[] src);
+	
+	float[] getPixel(int x, int y, float[] dst);
+	
+	void setPixel(int x, int y, float[] src);
+	
+	byte getComponentInt32(int x, int y, int component);
+	
+	void setComponentInt32(int x, int y, int component, byte value);
+	
+	float getComponentFloat(int x, int y, int component);
+	
+	void setComponentFloat(int x, int y, int component, float value);
+	
+	IImage getSubframe(int x, int y, int width, int height);
+
+	void setSubframe(int x, int y, IImage frame);
+	
+	ByteBuffer getPixels();
+
+	Texture getTexture();
 }

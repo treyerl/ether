@@ -224,10 +224,10 @@ public class RGB8Frame extends Frame {
 		val &= m;
 		if (shift > 0)
 			val >>= shift;
-				else
-					val <<= shift;
-				val |= val >> size;
-				return (byte) val;
+		else
+			val <<= shift;
+		val |= val >> size;
+		return (byte) val;
 	}
 
 	@Override

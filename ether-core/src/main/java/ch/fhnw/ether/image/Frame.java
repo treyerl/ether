@@ -31,22 +31,13 @@
 
 package ch.fhnw.ether.image;
 
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -130,78 +121,6 @@ public abstract class Frame {
 			this.pixels = BufferUtils.createByteBuffer(bufsize);
 	}
 
-	public static Frame create(int width, int height, int pixelSize, ByteBuffer buffer) {
-		switch (pixelSize) {
-		case 2:
-			return new Grey16Frame(width, height, buffer);
-		case 3:
-			return new RGB8Frame(width, height, buffer);
-		case 4:
-			return new RGBA8Frame(width, height, buffer);
-		default:
-			throw new IllegalArgumentException("Can't create frame wiht pixelSize=" + pixelSize);
-		}
-	}
-
-	public static Frame create(int width, int height, int pixelSize, byte[] pixelsData) {
-		return create(width, height, pixelSize, ByteBuffer.wrap(pixelsData));
-	}
-
-	public static Frame create(BufferedImage img) {
-		return create(img, 0);
-	}
-
-	public static Frame create(BufferedImage img, int flags) {
-		Frame result = null;
-		switch (img.getType()) {
-		case BufferedImage.TYPE_BYTE_BINARY:
-		case BufferedImage.TYPE_CUSTOM:
-			if (img.getColorModel().getNumColorComponents() == 1)
-				result = new Grey16Frame(img.getWidth(), img.getHeight());
-			else {
-				if (img.getColorModel().hasAlpha())
-					result = new RGBA8Frame(img.getWidth(), img.getHeight());
-				else
-					result = new RGB8Frame(img.getWidth(), img.getHeight());
-			}
-			break;
-		case BufferedImage.TYPE_4BYTE_ABGR:
-		case BufferedImage.TYPE_INT_ARGB:
-		case BufferedImage.TYPE_4BYTE_ABGR_PRE:
-		case BufferedImage.TYPE_INT_ARGB_PRE:
-		case BufferedImage.TYPE_BYTE_INDEXED:
-			result = new RGBA8Frame(img.getWidth(), img.getHeight());
-			break;
-		case BufferedImage.TYPE_USHORT_555_RGB:
-		case BufferedImage.TYPE_USHORT_565_RGB:
-		case BufferedImage.TYPE_INT_RGB:
-		case BufferedImage.TYPE_3BYTE_BGR:
-			result = new RGB8Frame(img.getWidth(), img.getHeight());
-			break;
-		case BufferedImage.TYPE_BYTE_GRAY:
-		case BufferedImage.TYPE_USHORT_GRAY:
-			result = new Grey16Frame(img.getWidth(), img.getHeight());
-			break;
-		default:
-			throw new RuntimeException("Unsupported image type " + img.getType());
-		}
-
-		result.setPixels(0, 0, img.getWidth(), img.getHeight(), img, flags);
-		return result;
-	}
-
-	public static Frame create(File file) throws IOException {
-		return create(ImageIO.read(file));
-	}
-
-	public static Frame create(URL url) throws IOException {
-		return create(ImageIO.read(url));
-	}
-
-	public static Frame create(InputStream in) throws IOException {
-		return create(ImageIO.read(in));
-	}
-
 	public abstract Frame create(int width, int height);
 
 	public static Frame create(Texture texture) {
@@ -234,26 +153,6 @@ public abstract class Frame {
 			LOG.severe(t);
 			return null;
 		}
-	}
-
-
-	public static Frame toBufferedImage(Icon icon) {
-		BufferedImage img = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics g = img.getGraphics();
-		icon.paintIcon(null, g, 0, 0);
-		g.dispose();
-		return Frame.create(img);
-	}
-
-	public static Frame toBufferedImage(java.awt.Image image, int targetType) {
-		BufferedImage result = new BufferedImage(image.getWidth(ImageScaler.AWT_OBSERVER), image.getHeight(ImageScaler.AWT_OBSERVER), targetType);
-		if (image instanceof BufferedImage)
-			return Frame.create(ImageScaler.copy((BufferedImage) image, result));
-
-		Graphics g = result.getGraphics();
-		g.drawImage(image, 0, 0, ImageScaler.AWT_OBSERVER);
-		g.dispose();
-		return Frame.create(result);
 	}
 
 	public final void setPixels(int x, int y, int width, int height, BufferedImage img) {
@@ -454,14 +353,6 @@ public abstract class Frame {
 
 	protected static float linearInterpolate(float low, float high, float weight) {
 		return low + ((high - low) * weight);
-	}
-
-	public void write(File file, FileFormat format) throws IOException {
-		ImageIO.write(toBufferedImage(), format.toString(), file);
-	}
-
-	public void write(OutputStream out, FileFormat format) throws IOException {
-		ImageIO.write(toBufferedImage(), format.toString(), out);
 	}
 
 	protected abstract void loadTexture();

@@ -40,7 +40,6 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.ImageObserver;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.Arrays;
@@ -49,19 +48,12 @@ public final class ImageScaler {
 	public static final int NORMALIZE = 1;
 	public static final int DETECT_NO_DATA = 2;
 
-	public static ImageObserver AWT_OBSERVER = new ImageObserver() {
-		@Override
-		public boolean imageUpdate(java.awt.Image img, int infoflags, int x, int y, int width, int height) {
-			return (infoflags & (ALLBITS | ERROR | ABORT)) == 0;
-		}
-	};
-
 	public static BufferedImage toType(BufferedImage src, int type) {
 		if (src.getType() == type)
 			return src;
 		BufferedImage result = new BufferedImage(src.getWidth(), src.getHeight(), type);
 		Graphics g = result.getGraphics();
-		g.drawImage(src, 0, 0, AWT_OBSERVER);
+		g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
 		g.dispose();
 		return result;
 	}
@@ -88,7 +80,7 @@ public final class ImageScaler {
 	 * @return a scaled version of the original {@code BufferedImage}
 	 */
 	public static Frame getScaledInstance(Frame img, int targetWidth, int targetHeight, Object hint, boolean higherQuality) {
-		return Frame.create(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, 0x00808080));
+		return AWTFrameSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, 0x00808080));
 	}
 
 	/**
@@ -139,7 +131,7 @@ public final class ImageScaler {
 	 * @return a scaled version of the original {@code BufferedImage}
 	 */
 	public static Frame getScaledInstance(Frame img, int targetWidth, int targetHeight, Object hint, boolean higherQuality, int blendARGB) {
-		return Frame.create(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, blendARGB));
+		return AWTFrameSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, blendARGB));
 	}
 	
 	/**
@@ -224,7 +216,7 @@ public final class ImageScaler {
 	}
 
 	public static Frame getScaledLimitedInstance(Frame src, float scaleW, float scaleH, int maxDim, Object hint, boolean higherQuality) {
-		return Frame.create(getScaledLimitedInstance(src.toBufferedImage(), scaleW, scaleH, maxDim, hint, higherQuality));
+		return AWTFrameSupport.createFrame(getScaledLimitedInstance(src.toBufferedImage(), scaleW, scaleH, maxDim, hint, higherQuality));
 	}
 	
 	public static BufferedImage getScaledLimitedInstance(BufferedImage src, float scaleW, float scaleH, int maxDim, Object hint, boolean higherQuality) {
@@ -386,11 +378,11 @@ public final class ImageScaler {
 								raster.setDataElements(0, 0, w, h, tmp);
 							}
 						}
-						g.drawImage(src, 0, 0, ImageScaler.AWT_OBSERVER);
+						g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
 					}
 					break;
 				default:
-					g.drawImage(src, 0, 0, ImageScaler.AWT_OBSERVER);
+					g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
 					break;
 				}
 			} catch (Throwable t) {
