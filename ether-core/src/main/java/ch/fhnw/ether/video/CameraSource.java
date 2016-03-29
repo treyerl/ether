@@ -41,7 +41,7 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
@@ -100,7 +100,7 @@ public class CameraSource extends AbstractFrameSource implements IVideoSource, I
 	protected void run(IRenderTarget<?> target) throws RenderCommandException {
 		if(!(cam.isOpen())) return;
 		try {
-			((IVideoRenderTarget)target).setFrame(this, new VideoFrame(AWTFrameSupport.createFrame(imgQ.take())));
+			((IVideoRenderTarget)target).setFrame(this, new VideoFrame(AWTImageSupport.createFrame(imgQ.take())));
 		} catch(Throwable t) {
 			throw new RenderCommandException(t);
 		}

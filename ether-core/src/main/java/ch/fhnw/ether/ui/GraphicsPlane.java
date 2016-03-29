@@ -37,7 +37,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
@@ -153,7 +153,7 @@ public class GraphicsPlane {
 	
 	public void update() {
 		if (updater.testAndClear())
-			material.setColorMap(AWTFrameSupport.createFrame(image).getTexture());
+			material.setColorMap(AWTImageSupport.createFrame(image).getTexture());
 	}
 
 	private void updateRequest() {

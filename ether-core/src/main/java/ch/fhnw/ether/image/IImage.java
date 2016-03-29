@@ -74,7 +74,6 @@ public interface IImage {
 	}
 	
 	enum AlphaMode {
-		NO_ALPHA,
 		POST_MULTIPLIED,
 		PRE_MULTIPLIED
 	}
@@ -83,7 +82,11 @@ public interface IImage {
 	
 	IImage copy();
 
-	IImage alloc();
+	IImage allocate();
+	
+	IImage allocate(int width, int height);
+	
+	IImage convert(ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode);
 
 	int getWidth();
 	
@@ -95,10 +98,6 @@ public interface IImage {
 		
 	AlphaMode getAlphaMode();
 	
-	int getPixel(int x, int y);
-	
-	void setPixel(int x, int y, int pixel);
-	
 	byte[] getPixel(int x, int y, byte[] dst);
 
 	void setPixel(int x, int y, byte[] src);
@@ -107,17 +106,17 @@ public interface IImage {
 	
 	void setPixel(int x, int y, float[] src);
 	
-	byte getComponentInt32(int x, int y, int component);
+	byte getComponentByte(int x, int y, int component);
 	
-	void setComponentInt32(int x, int y, int component, byte value);
+	void setComponentByte(int x, int y, int component, byte value);
 	
 	float getComponentFloat(int x, int y, int component);
 	
 	void setComponentFloat(int x, int y, int component, float value);
 	
-	IImage getSubframe(int x, int y, int width, int height);
+	IImage getSubImage(int x, int y, int width, int height);
 
-	void setSubframe(int x, int y, IImage frame);
+	void setSubImage(int x, int y, IImage frame);
 	
 	ByteBuffer getPixels();
 
@@ -126,6 +125,12 @@ public interface IImage {
 	Texture getTexture();
 
 	static IImage create(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode, ByteBuffer pixels) {
-		return null;
+		switch (componentType) {
+		case BYTE:
+			return new ByteImage(width, height, componentFormat, alphaMode, pixels);
+		case FLOAT:
+			return new FloatImage(width, height, componentFormat, alphaMode, pixels);
+		}
+		throw new IllegalArgumentException();
 	}
 }

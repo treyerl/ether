@@ -44,11 +44,36 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 
-public final class AWTFrameSupport {
-	public enum FileFormat {
-		PNG, JPEG
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
+
+public final class AWTImageSupport implements IImageSupport {
+
+	@Override
+	public IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+		return null;
 	}
 
+	@Override
+	public void write(IImage image, OutputStream out, FileFormat format) throws IOException {
+	}
+
+	@Override
+	public IImage scale(IImage image, int width, int height) {
+		return null;
+	}
+
+	@Override
+	public Object toPlatform(IImage image) {
+		return null;
+	}
+
+	@Override
+	public IImage fromPlatform(Object image) {
+		return null;
+	}
+	
 	public static ImageObserver AWT_OBSERVER = new ImageObserver() {
 		@Override
 		public boolean imageUpdate(java.awt.Image img, int infoflags, int x, int y, int width, int height) {
@@ -104,19 +129,19 @@ public final class AWTFrameSupport {
 		Graphics g = img.getGraphics();
 		icon.paintIcon(null, g, 0, 0);
 		g.dispose();
-		return AWTFrameSupport.createFrame(img);
+		return AWTImageSupport.createFrame(img);
 	}
 
 	public static Frame createFrame(Image image, int targetType) {
-		BufferedImage result = new BufferedImage(image.getWidth(AWTFrameSupport.AWT_OBSERVER),
-				image.getHeight(AWTFrameSupport.AWT_OBSERVER), targetType);
+		BufferedImage result = new BufferedImage(image.getWidth(AWTImageSupport.AWT_OBSERVER),
+				image.getHeight(AWTImageSupport.AWT_OBSERVER), targetType);
 		if (image instanceof BufferedImage)
-			return AWTFrameSupport.createFrame(ImageScaler.copy((BufferedImage) image, result));
+			return AWTImageSupport.createFrame(ImageScaler.copy((BufferedImage) image, result));
 
 		Graphics g = result.getGraphics();
-		g.drawImage(image, 0, 0, AWTFrameSupport.AWT_OBSERVER);
+		g.drawImage(image, 0, 0, AWTImageSupport.AWT_OBSERVER);
 		g.dispose();
-		return AWTFrameSupport.createFrame(result);
+		return AWTImageSupport.createFrame(result);
 	}
 
 	public static Frame readFrame(File file) throws IOException {

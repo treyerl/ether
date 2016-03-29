@@ -125,7 +125,7 @@ public final class FloatFrame extends Frame {
 		if (img.getType() != BufferedImage.TYPE_USHORT_GRAY) {
 			BufferedImage tmp = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
 			Graphics g = tmp.getGraphics();
-			g.drawImage(img, x, y, x + w, y + h, x, y, x + w, y + h, AWTFrameSupport.AWT_OBSERVER);
+			g.drawImage(img, x, y, x + w, y + h, x, y, x + w, y + h, AWTImageSupport.AWT_OBSERVER);
 			g.dispose();
 			img = tmp;
 		}

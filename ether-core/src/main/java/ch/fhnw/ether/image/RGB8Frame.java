@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.util.BufferUtilities;
 

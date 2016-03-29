@@ -51,6 +51,7 @@ public final class STBImageSupport implements IImageSupport {
 	@Override
 	public IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
 		// TODO: HDR support (stb read as float)
+		// TODO: Pre-multiplied alpha support
 		int numComponentsRequested = componentFormat != null ? componentFormat.getNumComponents() : 0;
 		byte[] bytes = getBytesFromInputStream(in);
 		ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length);
@@ -60,18 +61,31 @@ public final class STBImageSupport implements IImageSupport {
 		IntBuffer height = BufferUtils.createIntBuffer(1);
 		IntBuffer numComponents = BufferUtils.createIntBuffer(1);
 		
+		STBImage.stbi_set_flip_vertically_on_load(1);
 		ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
+		if (pixels == null)
+			throw new IllegalArgumentException("can't load image: " + STBImage.stbi_failure_reason());
 		
 		if (componentFormat == null)
 			componentFormat = ComponentFormat.get(numComponents.get(0));
 		
+		if (componentType == null)
+			componentType = ComponentType.BYTE;
+		else if (componentType == ComponentType.FLOAT)
+			throw new UnsupportedOperationException("float types unsupported");
+		
+		if (alphaMode == null)
+			alphaMode = AlphaMode.POST_MULTIPLIED;
+		else if (alphaMode != AlphaMode.POST_MULTIPLIED)
+			throw new UnsupportedOperationException("premultiplied alpha unsupported");
+		
 		IImage image = IImage.create(width.get(0), height.get(0), componentFormat, componentType, alphaMode, pixels);
 
+		pixels.rewind();
 		STBImage.stbi_image_free(pixels);
 		
 		return image;
 	}
-	
 
 	@Override
 	public void write(IImage frame, OutputStream out, FileFormat format) throws IOException {
@@ -80,7 +94,6 @@ public final class STBImageSupport implements IImageSupport {
 
 	@Override
 	public IImage scale(IImage image, int width, int height) {
-		
 		ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * image.getNumBytesPerPixel());
 		
 		switch (image.getComponentType()) {

@@ -36,7 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.image.ImageScaler;
 import ch.fhnw.ether.media.AbstractFrameSource;
@@ -113,7 +113,7 @@ public class PreviewTarget extends AbstractVideoTarget {
 		frame = vframe.getFrame();
 		
 		if(frame != null) {
-			g.drawImage(ImageScaler.getScaledInstance(frame.toBufferedImage(), prvWidth, prvHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false), x, 0, AWTFrameSupport.AWT_OBSERVER);
+			g.drawImage(ImageScaler.getScaledInstance(frame.toBufferedImage(), prvWidth, prvHeight, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false), x, 0, AWTImageSupport.AWT_OBSERVER);
 			x += prvWidth + BORDER;
 		}
 		
@@ -136,7 +136,7 @@ public class PreviewTarget extends AbstractVideoTarget {
 	
 	public Frame getPreview() {
 		if(previewf == null)
-			previewf = AWTFrameSupport.createFrame(preview);
+			previewf = AWTImageSupport.createFrame(preview);
 		return previewf;
 	}	
 }

@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.image.Frame;
 
 public final class TextureLoader {
@@ -48,7 +48,7 @@ public final class TextureLoader {
 		Frame frame = frameCache.get(path);
 		if (frame == null) {
 			try {
-				frame = AWTFrameSupport.readFrame(new File(path));
+				frame = AWTImageSupport.readFrame(new File(path));
 				frameCache.put(path, frame);
 			} catch (Exception e) {
 				System.err.println("can't load texture: " + path);

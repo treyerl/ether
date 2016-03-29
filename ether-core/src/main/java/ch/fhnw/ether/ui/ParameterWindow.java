@@ -65,7 +65,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.fhnw.ether.audio.IAudioSource;
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.image.Frame;
 import ch.fhnw.ether.media.AbstractFrame;
 import ch.fhnw.ether.media.AbstractFrameSource;
@@ -152,7 +152,7 @@ public class ParameterWindow {
 									setPreferredSize(new Dimension(w, h));
 									pack(SourceInfoUI.this);
 								}
-								g.drawImage(preview.toBufferedImage(), 0, 0, w, h, AWTFrameSupport.AWT_OBSERVER);
+								g.drawImage(preview.toBufferedImage(), 0, 0, w, h, AWTImageSupport.AWT_OBSERVER);
 							}
 						}
 					};

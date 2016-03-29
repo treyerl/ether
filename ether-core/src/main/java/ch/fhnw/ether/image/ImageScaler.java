@@ -53,7 +53,7 @@ public final class ImageScaler {
 			return src;
 		BufferedImage result = new BufferedImage(src.getWidth(), src.getHeight(), type);
 		Graphics g = result.getGraphics();
-		g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
+		g.drawImage(src, 0, 0, AWTImageSupport.AWT_OBSERVER);
 		g.dispose();
 		return result;
 	}
@@ -80,7 +80,7 @@ public final class ImageScaler {
 	 * @return a scaled version of the original {@code BufferedImage}
 	 */
 	public static Frame getScaledInstance(Frame img, int targetWidth, int targetHeight, Object hint, boolean higherQuality) {
-		return AWTFrameSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, 0x00808080));
+		return AWTImageSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, 0x00808080));
 	}
 
 	/**
@@ -131,7 +131,7 @@ public final class ImageScaler {
 	 * @return a scaled version of the original {@code BufferedImage}
 	 */
 	public static Frame getScaledInstance(Frame img, int targetWidth, int targetHeight, Object hint, boolean higherQuality, int blendARGB) {
-		return AWTFrameSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, blendARGB));
+		return AWTImageSupport.createFrame(getScaledInstance(img.toBufferedImage(), targetWidth, targetHeight, hint, higherQuality, blendARGB));
 	}
 	
 	/**
@@ -216,7 +216,7 @@ public final class ImageScaler {
 	}
 
 	public static Frame getScaledLimitedInstance(Frame src, float scaleW, float scaleH, int maxDim, Object hint, boolean higherQuality) {
-		return AWTFrameSupport.createFrame(getScaledLimitedInstance(src.toBufferedImage(), scaleW, scaleH, maxDim, hint, higherQuality));
+		return AWTImageSupport.createFrame(getScaledLimitedInstance(src.toBufferedImage(), scaleW, scaleH, maxDim, hint, higherQuality));
 	}
 	
 	public static BufferedImage getScaledLimitedInstance(BufferedImage src, float scaleW, float scaleH, int maxDim, Object hint, boolean higherQuality) {
@@ -378,11 +378,11 @@ public final class ImageScaler {
 								raster.setDataElements(0, 0, w, h, tmp);
 							}
 						}
-						g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
+						g.drawImage(src, 0, 0, AWTImageSupport.AWT_OBSERVER);
 					}
 					break;
 				default:
-					g.drawImage(src, 0, 0, AWTFrameSupport.AWT_OBSERVER);
+					g.drawImage(src, 0, 0, AWTImageSupport.AWT_OBSERVER);
 					break;
 				}
 			} catch (Throwable t) {

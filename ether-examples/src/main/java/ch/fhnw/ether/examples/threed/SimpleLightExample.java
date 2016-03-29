@@ -39,7 +39,7 @@ import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.formats.obj.ObjReader;
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.render.forward.ForwardRenderer;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
@@ -188,7 +188,7 @@ public final class SimpleLightExample {
 				IMaterial solidMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.WHITE, 10, 1, 1f);
 				IMaterial lineMaterial = new LineMaterial(new RGBA(1, 1, 1, 0.2f));
 
-				Texture   t = AWTFrameSupport.readFrame(SimpleLightExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
+				Texture   t = AWTImageSupport.readFrame(SimpleLightExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
 				IMaterial textureMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.RED, 10, 1, 1f, t);
 
 				IMesh solidMeshT = new DefaultMesh(Primitive.TRIANGLES, solidMaterial, DefaultGeometry.createVN(s.getTriangles(), s.getNormals()));

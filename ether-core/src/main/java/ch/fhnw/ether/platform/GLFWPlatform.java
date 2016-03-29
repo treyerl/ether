@@ -38,12 +38,16 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import ch.fhnw.ether.image.IImageSupport;
+import ch.fhnw.ether.image.STBImageSupport;
 
 // XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
 final class GLFWPlatform implements IPlatform {
+	
 	private final GLFWErrorCallback errorCallback;
 	
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+	
+	private final IImageSupport imageSupport = new STBImageSupport();
 	
 	public GLFWPlatform() {
 		errorCallback = GLFWErrorCallback.createPrint(System.err);
@@ -92,6 +96,6 @@ final class GLFWPlatform implements IPlatform {
 	
 	@Override
 	public IImageSupport getImageSupport() {
-		return null;
+		return imageSupport;
 	}
 }

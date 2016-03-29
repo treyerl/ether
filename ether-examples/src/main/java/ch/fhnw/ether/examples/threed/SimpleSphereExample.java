@@ -35,7 +35,7 @@ import org.lwjgl.glfw.GLFW;
 
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.image.AWTFrameSupport;
+import ch.fhnw.ether.image.AWTImageSupport;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -106,7 +106,7 @@ public final class SimpleSphereExample {
 				solidMeshL.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 				solidMeshP.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 
-				Texture t = AWTFrameSupport.readFrame(SimpleSphereExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
+				Texture t = AWTImageSupport.readFrame(SimpleSphereExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
 				IMesh texturedMeshT = new DefaultMesh(Primitive.TRIANGLES, new ColorMapMaterial(t), DefaultGeometry.createVM(sphere.getTriangles(), sphere.getTexCoords()), Queue.DEPTH);
 				texturedMeshT.setPosition(Vec3.ZERO);
 
