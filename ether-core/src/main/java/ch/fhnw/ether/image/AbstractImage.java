@@ -34,14 +34,14 @@ package ch.fhnw.ether.image;
 public abstract class AbstractImage implements IImage {
 	private final int width;
 	private final int height;
-	private final int numComponents;
+	private final ComponentFormat componentFormat;
 	private final ComponentType componentType;
 	private final AlphaMode alphaMode;
 	
-	protected AbstractImage(int width, int height, int numComponents, ComponentType componentType, AlphaMode alphaMode) {
+	protected AbstractImage(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
 		this.width = width;
 		this.height = height;
-		this.numComponents = numComponents;
+		this.componentFormat = componentFormat;
 		this.componentType = componentType;
 		this.alphaMode = alphaMode;
 	}
@@ -57,8 +57,8 @@ public abstract class AbstractImage implements IImage {
 	}
 	
 	@Override
-	public final int getNumComponents() {
-		return numComponents;
+	public final ComponentFormat getComponentFormat() {
+		return componentFormat;
 	}
 	
 	@Override

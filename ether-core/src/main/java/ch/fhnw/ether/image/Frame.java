@@ -364,10 +364,10 @@ public abstract class Frame {
 		private final int            from;
 		private final int            to;
 		private final ByteBuffer     pixels;
-		private final ILineProcessor processor;
+		private final IRowProcessor processor;
 		private final int            lineLength;
 
-		Chunk(Frame frame, int from, int to, ILineProcessor processor) {
+		Chunk(Frame frame, int from, int to, IRowProcessor processor) {
 			this.from       = from;
 			this.to         = to;
 			this.pixels     = frame.pixels.duplicate();
@@ -384,7 +384,7 @@ public abstract class Frame {
 		}
 	}
 
-	public final void processLines(ILineProcessor processor) {
+	public final void processLines(IRowProcessor processor) {
 		List<Future<?>> result = new ArrayList<>(NUM_CHUNKS + 1);
 		int inc  = Math.max(32, height / NUM_CHUNKS);
 		for(int from = 0; from < height; from += inc)

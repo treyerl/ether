@@ -33,9 +33,9 @@ package ch.fhnw.ether.image;
 
 import java.nio.ByteBuffer;
 
-public interface ILineProcessor {
+public interface IRowProcessor {
 	/**
-	 * Called sequentially per line.
+	 * Called sequentially per image row.
 	 * 
 	 * @param pixels Pixel buffer to operate on. Position is already set for the line.
 	 * @param line The line index to operate on.

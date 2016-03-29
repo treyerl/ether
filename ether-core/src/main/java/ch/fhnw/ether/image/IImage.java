@@ -37,13 +37,34 @@ import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public interface IImage {
 	
+	enum ComponentFormat {
+		G(1),
+		GA(2),
+		RGB(3),
+		RGBA(4);
+		
+		private final int numComponents;
+		
+		private ComponentFormat(int numComponents) {
+			this.numComponents = numComponents;
+		}
+		
+		public int getNumComponents() {
+			return numComponents;
+		}
+		
+		public static ComponentFormat get(int numComponents) {
+			return ComponentFormat.values()[numComponents - 1];
+		}
+	}
+	
 	enum ComponentType {
 		BYTE(8),
 		FLOAT(32);
 		
 		private final int size;
 		
-		ComponentType(int size) {
+		private ComponentType(int size) {
 			this.size = size;
 		}
 		
@@ -68,10 +89,10 @@ public interface IImage {
 	
 	int getHeight();
 	
-	int getNumComponents();
+	ComponentFormat getComponentFormat();
 	
 	ComponentType getComponentType();
-	
+		
 	AlphaMode getAlphaMode();
 	
 	int getPixel(int x, int y);
@@ -100,5 +121,11 @@ public interface IImage {
 	
 	ByteBuffer getPixels();
 
+	int getNumBytesPerPixel();
+
 	Texture getTexture();
+
+	static IImage create(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode, ByteBuffer pixels) {
+		return null;
+	}
 }

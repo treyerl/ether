@@ -39,26 +39,46 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
+
 public interface IImageSupport {
 	enum FileFormat {
 		PNG, JPEG
 	}
 
-	Frame read(InputStream in) throws IOException;
+	IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException;
 
-	default Frame read(File file) throws IOException {
-		return read(new FileInputStream(file));
+	default IImage read(InputStream in) throws IOException {
+		return read(in, null, null, null);
+	}
+	
+	default IImage read(File file, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+		return read(new FileInputStream(file), componentFormat, componentType, alphaMode);
 	}
 
-	default Frame read(URL url) throws IOException {
-		return read(url.openStream());
+	default IImage read(File file) throws IOException {
+		return read(new FileInputStream(file), null, null, null);
 	}
 
-	void write(Frame frame, OutputStream out, FileFormat format) throws IOException;
-
-	default void writeFrame(Frame frame, File file, FileFormat format) throws IOException {
-		write(frame, new FileOutputStream(file), format);
+	default IImage read(URL url, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+		return read(url.openStream(), componentFormat, componentType, alphaMode);
 	}
 
-	Frame scale(Frame frame, int width, int height);
+	default IImage read(URL url) throws IOException {
+		return read(url.openStream(), null, null, null);
+	}
+
+	void write(IImage image, OutputStream out, FileFormat format) throws IOException;
+
+	default void writeIImage(IImage image, File file, FileFormat format) throws IOException {
+		write(image, new FileOutputStream(file), format);
+	}
+
+	IImage scale(IImage image, int width, int height);
+	
+	Object toPlatform(IImage image);
+	
+	IImage fromPlatform(Object image);
 }
