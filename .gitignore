@@ -21,3 +21,5 @@ build/
 log/
 target/
 
+# JVM Crash Dumps
+hs_err*.log

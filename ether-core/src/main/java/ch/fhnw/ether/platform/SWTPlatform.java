@@ -34,6 +34,7 @@ package ch.fhnw.ether.platform;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.eclipse.swt.widgets.Display;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -41,8 +42,7 @@ import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.image.STBImageSupport;
 import ch.fhnw.ether.view.gl.GLContextManager;
 
-// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
-final class GLFWPlatform implements IPlatform {
+final class SWTPlatform implements IPlatform {
 
 	private final GLFWErrorCallback errorCallback;
 
@@ -50,12 +50,14 @@ final class GLFWPlatform implements IPlatform {
 
 	private final IImageSupport imageSupport = new STBImageSupport();
 
-	public GLFWPlatform() {
+	public SWTPlatform() {
 		errorCallback = GLFWErrorCallback.createPrint(System.err);
 	}
 
 	@Override
 	public void init() {
+		Display.getDefault();
+		
 		GLFW.glfwSetErrorCallback(errorCallback);
 
 		if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
@@ -68,7 +70,8 @@ final class GLFWPlatform implements IPlatform {
 	public void run() {
 		try {
 			while (true) {
-				GLFW.glfwWaitEvents();
+				if (!Display.getDefault().readAndDispatch())
+					Display.getDefault().sleep();
 				Runnable runnable;
 				while ((runnable = queue.poll()) != null) {
 					try {
@@ -87,14 +90,16 @@ final class GLFWPlatform implements IPlatform {
 	@Override
 	public void exit() {
 		errorCallback.release();
-		GLFW.glfwTerminate();
+		// XXX we get a segfault here if we call glfwTerminate...
+		// GLFW.glfwTerminate();
+		Display.getDefault().dispose();
 		System.exit(0);
 	}
 
 	@Override
 	public void runOnMainThread(Runnable runnable) {
 		queue.offer(runnable);
-		GLFW.glfwPostEmptyEvent();
+		Display.getDefault().wake();
 	}
 
 	@Override

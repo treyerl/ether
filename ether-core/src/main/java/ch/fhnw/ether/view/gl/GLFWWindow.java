@@ -146,8 +146,6 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void destroy() {
-		System.out.println("destroy: " + NUM_WINDOWS.get());
-		
 		callbacks.forEach(c -> c.release());
 		callbacks.clear();
 		GLFW.glfwDestroyWindow(window);

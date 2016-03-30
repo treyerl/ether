@@ -96,21 +96,22 @@ public class GLContextManager {
 			contexts.add(context);			
 		}		
 	}
-	
 
 	private static final IGLContext VOID_CONTEXT = new ExistingContext();
 
-	private static final ContextPool CONTEXTS;
+	private static ContextPool contexts;
 	
-	private static final GLFWWindow SHARED_CONTEXT;
+	private static GLFWWindow sharedContext;
 
-	static {
-		CONTEXTS = new ContextPool();
-		SHARED_CONTEXT = CONTEXTS.contexts.peek().window;
-		for (int i = 0; i < NUM_CONTEXTS - 1; ++i)
-			CONTEXTS.contexts.add(new TemporaryContext());
+	public static void init() {
+		if (contexts == null) {
+			contexts = new ContextPool();
+			sharedContext = contexts.contexts.peek().window;
+			for (int i = 0; i < NUM_CONTEXTS - 1; ++i)
+				contexts.contexts.add(new TemporaryContext());
+		}
 	}
-
+	
 	public static IGLContext acquireContext() {
 		return acquireContext(true);
 	}
@@ -118,16 +119,15 @@ public class GLContextManager {
 	public static IGLContext acquireContext(boolean wait) {
 		if (GLFW.glfwGetCurrentContext() != 0)
 			return VOID_CONTEXT;
-
-		return CONTEXTS.acquireContext(wait);
+		return contexts.acquireContext(wait);
 	}
 
 	public static void releaseContext(IGLContext context) {
 		if (context instanceof TemporaryContext)
-			CONTEXTS.releaseContext((TemporaryContext)context);
+			contexts.releaseContext((TemporaryContext)context);
 	}
 
 	public static GLFWWindow getSharedContextWindow() {
-		return SHARED_CONTEXT;
+		return sharedContext;
 	}
 }

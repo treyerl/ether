@@ -1,3 +1,5 @@
+rootProject.name = 'ether'
+
 include 'ether-core'
 include 'ether-mapping'
 include 'ether-examples'
