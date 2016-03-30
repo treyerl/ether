@@ -356,7 +356,7 @@ public final class MeshUtilities {
 						}
 					}
 				}
-			}			
+			}
 			result.add(new DefaultMesh(first.getType(), material, new DefaultGeometry(attributes, data), first.getQueue(), first.getFlags()));
 			set.removeAll(same);
 		}

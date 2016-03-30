@@ -33,6 +33,7 @@ package ch.fhnw.ether.examples.threed;
 
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -59,6 +60,9 @@ public final class CustomGeometryExample {
 
 	// Setup the whole thing
 	public CustomGeometryExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
@@ -72,5 +76,7 @@ public final class CustomGeometryExample {
 			scene.add3DObject(makeColoredTriangle(0));
 			scene.add3DObject(makeColoredTriangle(1));
 		});
+		
+		Platform.get().run();
 	}
 }

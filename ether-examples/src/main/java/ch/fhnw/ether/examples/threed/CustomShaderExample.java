@@ -33,6 +33,7 @@ package ch.fhnw.ether.examples.threed;
 
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
 import ch.fhnw.ether.render.variable.base.FloatUniform;
@@ -101,7 +102,7 @@ public final class CustomShaderExample {
 	}
 
 	private static IMesh makeColoredTriangle() {
-		float[] vertices = { 0, 0, 0, 0, 0, 0.5f, 0.5f, 0, 0.5f };
+		float[] vertices = { 0, 0, 0, 0.5f, 0, 0.5f, 0, 0, 0.5f };
 		float[] colors = { 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1 };
 
 		DefaultGeometry g = DefaultGeometry.createVC(vertices, colors);
@@ -112,6 +113,9 @@ public final class CustomShaderExample {
 
 	// Setup the whole thing
 	public CustomShaderExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
@@ -128,5 +132,7 @@ public final class CustomShaderExample {
 		controller.animate((time, interval) -> {
 			((ExampleCustomMaterial) mesh.getMaterial()).setRedGain((float) Math.sin(time) + 1);
 		});
+		
+		Platform.get().run();
 	}
 }

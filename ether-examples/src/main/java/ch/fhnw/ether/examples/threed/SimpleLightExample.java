@@ -59,8 +59,6 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.scene.mesh.material.ShadedMaterial;
 import ch.fhnw.ether.scene.mesh.material.Texture;
-import ch.fhnw.ether.ui.Button;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.Log;
@@ -102,6 +100,9 @@ public final class SimpleLightExample {
 	private IMesh lightMesh;
 
 	public SimpleLightExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		controller = new DefaultController(new ForwardRenderer()) {
 			@Override
@@ -146,16 +147,12 @@ public final class SimpleLightExample {
 				default:
 					super.keyPressed(e);
 				}
-				getUI().setMessage("light position: " + lightMesh.getPosition());
 				light.setPosition(lightMesh.getPosition());
 			}
 		};
 
 		controller.run(time -> {
 			try {
-				// Add UI
-				controller.setUI(new UI(controller));
-
 				// Create view
 				new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Sphere");
 
@@ -181,14 +178,11 @@ public final class SimpleLightExample {
 				IMesh ground = MeshUtilities.createGroundPlane(1000);
 				scene.add3DObject(ground);
 
-				// Add an exit button
-				controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));
-
 				// Add geometry
 				IMaterial solidMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.WHITE, 10, 1, 1f);
 				IMaterial lineMaterial = new LineMaterial(new RGBA(1, 1, 1, 0.2f));
 
-				Texture   t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
+				Texture   t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg")).getTexture();
 				IMaterial textureMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.RED, 10, 1, 1f, t);
 
 				IMesh solidMeshT = new DefaultMesh(Primitive.TRIANGLES, solidMaterial, DefaultGeometry.createVN(s.getTriangles(), s.getNormals()));
@@ -209,7 +203,7 @@ public final class SimpleLightExample {
 				IMesh solidBunnyT = null;
 				if (ADD_BUNNY) {
 					try {
-						List<IMesh> meshes = new ObjReader(getClass().getResource("assets/bunny_original.obj")).getMeshes();
+						List<IMesh> meshes = new ObjReader(getClass().getResource("/models/bunny_original.obj")).getMeshes();
 						solidBunnyT = new DefaultMesh(Primitive.TRIANGLES, solidMaterial, meshes.get(0).getGeometry());
 						solidBunnyT.setTransform(Mat4.trs(2, 0, 0, 90, 0, 0, 4, 4, 4));
 						scene.add3DObject(solidBunnyT);
@@ -221,5 +215,7 @@ public final class SimpleLightExample {
 				LOG.severe(t);
 			}
 		});
+		
+		Platform.get().run();
 	}
 }

@@ -53,7 +53,6 @@ import ch.fhnw.ether.render.IRenderer;
 import ch.fhnw.ether.render.forward.ForwardRenderer;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.camera.ICamera;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 
 /**
@@ -74,7 +73,6 @@ public class DefaultController implements IController {
 	private IScene scene;
 
 	private final ArrayList<IView> views = new ArrayList<>();
-	private UI ui;
 
 	private IView currentView;
 	private ITool tool;
@@ -160,16 +158,6 @@ public class DefaultController implements IController {
 		this.tool = tool;
 		this.tool.activate();
 		this.tool.refresh(getCurrentView());
-	}
-
-	@Override
-	public final UI getUI() {
-		return ui;
-	}
-	
-	@Override
-	public void setUI(UI ui) {
-		this.ui = ui;
 	}
 
 	@Override
@@ -284,10 +272,6 @@ public class DefaultController implements IController {
 
 		setCurrentView(e.getView());
 
-		// ui has precedence over everything else
-		if (ui != null && ui.keyPressed(e))
-			return;
-
 		// always handle ESC (if not handled by button)
 		if (e.getKey() == GLFW.GLFW_KEY_ESCAPE)
 			System.exit(0);
@@ -328,10 +312,6 @@ public class DefaultController implements IController {
 
 		setCurrentView(e.getView());
 
-		// ui has precedence over everything else
-		if (ui != null && ui.pointerPressed(e))
-			return;
-
 		tool.pointerPressed(e);
 	}
 
@@ -339,9 +319,6 @@ public class DefaultController implements IController {
 	public void pointerReleased(IPointerEvent e) {
 		if (DBG)
 			System.out.println("pointer released " + e.getView());
-
-		if (ui != null && ui.pointerReleased(e))
-			return;
 
 		tool.pointerReleased(e);
 	}
@@ -361,8 +338,6 @@ public class DefaultController implements IController {
 		if (DBG)
 			System.out.println("pointer moved " + e.getView());
 
-		if (ui != null)
-			ui.pointerMoved(e);
 		tool.pointerMoved(e);
 	}
 
@@ -370,10 +345,6 @@ public class DefaultController implements IController {
 	public void pointerDragged(IPointerEvent e) {
 		if (DBG)
 			System.out.println("pointer dragged " + e.getView());
-
-		// ui has precedence over everything else
-		if (ui != null && ui.pointerDragged(e))
-			return;
 
 		tool.pointerDragged(e);
 	}

@@ -58,15 +58,11 @@ public final class ShaderBuilder {
 		final Map<IAttribute, Pair<Integer, Supplier<?>>> attributes = new HashMap<>();
 
 		void provide(IAttribute attribute, Pair<Integer, Supplier<?>> link) {
-			if (attribute == null)
-				return;
 			if (attributes.put(attribute, link) != null)
 				throw new IllegalArgumentException("duplicate attribute: " + attribute);
 		}
 		
 		void require(IAttribute attribute) {
-			if (attribute == null)
-				return;
 			if (attributes.put(attribute, null) != null)
 				throw new IllegalArgumentException("duplicate attribute: " + attribute);			
 		}

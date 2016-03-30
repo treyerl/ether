@@ -31,17 +31,13 @@
 
 package ch.fhnw.ether.examples.threed;
 
-import org.lwjgl.glfw.GLFW;
-
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
-import ch.fhnw.ether.ui.Button;
-import ch.fhnw.ether.ui.Slider;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.math.Mat4;
@@ -57,12 +53,12 @@ public final class TransformExample {
 	}
 
 	public TransformExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
-			// Add UI
-			controller.setUI(new UI(controller));
-
 			// Create view
 			new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Transform Example");
 	
@@ -71,11 +67,7 @@ public final class TransformExample {
 			controller.setScene(scene);
 	
 			mesh = MeshUtilities.createCube();
-			scene.add3DObject(mesh);
-	
-			// Add an exit button
-			controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));
-			controller.getUI().addWidget(new Slider(0, 1, "Speed", "Rotation Speed", speed, (slider, view) -> speed = slider.getValue()));
+			scene.add3DObject(mesh);	
 		});
 
 		controller.animate((time, interval) -> {
@@ -84,5 +76,7 @@ public final class TransformExample {
             Mat4 transform = Mat4.multiply(Mat4.rotate(angle, Vec3.Z), Mat4.translate(1, 1, 1));
             mesh.setTransform(transform);
         });
+		
+		Platform.get().run();
 	}
 }

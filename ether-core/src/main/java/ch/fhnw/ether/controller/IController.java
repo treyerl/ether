@@ -41,7 +41,6 @@ import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.render.IRenderManager;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.camera.ICamera;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 
 /**
@@ -119,20 +118,6 @@ public interface IController {
 	 *            the tool to be set as current tool
 	 */
 	void setTool(ITool tool);
-
-	/**
-	 * Get the UI.
-	 *
-	 * @return the ui
-	 */
-	UI getUI();
-
-	/**
-	 * Set the UI (by default, no UI is set)
-	 *
-	 * @return the ui
-	 */
-	void setUI(UI ui);
 
 	/**
 	 * Get the renderer.

@@ -38,6 +38,7 @@ import java.util.List;
 
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.formats.obj.ObjReader;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.light.DirectionalLight;
@@ -55,9 +56,10 @@ public class ObjLoaderExample {
 	}
 
 	public ObjLoaderExample() {
+		Platform.get().init();
 		IController controller = new ObjLoaderController();
 		controller.run(time -> {
-			new DefaultView(controller, 0, 10, 512, 512, IView.INTERACTIVE_VIEW, "Obj View");
+			new DefaultView(controller, 100, 100, 512, 512, IView.INTERACTIVE_VIEW, "Obj View");
 	
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
@@ -78,5 +80,6 @@ public class ObjLoaderExample {
 				e.printStackTrace();
 			}
 		});
+		Platform.get().run();
 	}
 }

@@ -31,8 +31,6 @@
 
 package ch.fhnw.ether.examples.threed;
 
-import org.lwjgl.glfw.GLFW;
-
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.platform.Platform;
@@ -48,8 +46,6 @@ import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.scene.mesh.material.PointMaterial;
 import ch.fhnw.ether.scene.mesh.material.Texture;
-import ch.fhnw.ether.ui.Button;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.Log;
@@ -66,13 +62,13 @@ public final class SimpleSphereExample {
 	}
 
 	public SimpleSphereExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
 			try {
-				// Add UI
-				controller.setUI(new UI(controller));
-
 				// Create view
 				new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Simple Sphere");
 
@@ -106,17 +102,16 @@ public final class SimpleSphereExample {
 				solidMeshL.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 				solidMeshP.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 
-				Texture t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("assets/earth_nasa.jpg")).getTexture();
+				Texture t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg")).getTexture();
 				IMesh texturedMeshT = new DefaultMesh(Primitive.TRIANGLES, new ColorMapMaterial(t), DefaultGeometry.createVM(sphere.getTriangles(), sphere.getTexCoords()), Queue.DEPTH);
 				texturedMeshT.setPosition(Vec3.ZERO);
 
 				scene.add3DObjects(transparentMeshT, transparentMeshL, transparentMeshP, solidMeshT, solidMeshL, solidMeshP, texturedMeshT);
-
-				// Add an exit button
-				controller.getUI().addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));
 			} catch(Throwable t) {
 				LOG.severe(t);
 			}
 		});
+		
+		Platform.get().run();
 	}
 }

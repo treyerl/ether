@@ -36,7 +36,6 @@ import org.lwjgl.glfw.GLFW;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.scene.camera.ICamera;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.util.math.Vec3;
 
 public class ObjLoaderController extends DefaultController {
@@ -62,10 +61,6 @@ public class ObjLoaderController extends DefaultController {
 	};
 
 	public ObjLoaderController() {
-		run((time) ->  {
-			setUI(new UI(this));
-			getUI().setMessage("Use 0-6 on keyboard to set camera");
-		});
 	}
 
 	@Override

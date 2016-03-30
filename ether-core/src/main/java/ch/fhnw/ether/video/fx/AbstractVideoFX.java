@@ -185,7 +185,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		private Texture           lastDstTexture;
 
 		protected FxMaterial(IMaterialAttribute<?>[] attrs) {
-			super(attrs, new IGeometryAttribute[] {IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY});
+			super(attrs, require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY));
 			shader = new FxShader();
 		}
 

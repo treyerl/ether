@@ -35,6 +35,7 @@ import java.util.Arrays;
 
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
+import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.UpdateRequest;
 
 public abstract class AbstractMaterial implements IMaterial {
@@ -52,8 +53,8 @@ public abstract class AbstractMaterial implements IMaterial {
 	 * Note: providedAttributes & requiredAttributes are allowed to contain null elements.
 	 */
 	protected AbstractMaterial(IMaterialAttribute<?>[] providedAttributes, IGeometryAttribute[] requiredAttributes) {
-		this.providedAttributes = providedAttributes;
-		this.geometryAttributes = requiredAttributes;
+		this.providedAttributes = ArrayUtilities.remove(providedAttributes, null);
+		this.geometryAttributes = ArrayUtilities.remove(requiredAttributes, null);
 	}
 
 	@Override

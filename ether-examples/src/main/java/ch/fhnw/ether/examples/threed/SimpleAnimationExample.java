@@ -34,6 +34,7 @@ package ch.fhnw.ether.examples.threed;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -55,7 +56,7 @@ public final class SimpleAnimationExample {
 	}
 
 	private static IMesh makeColoredTriangle() {
-		float[] vertices = { 0, 0, 0, 0, 0, 0.5f, 0.5f, 0, 0.5f };
+		float[] vertices = { 0, 0, 0, 0.5f, 0, 0.5f, 0, 0, 0.5f };
 		float[] colors = { 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1 };
 
 		DefaultGeometry g = DefaultGeometry.createVC(vertices, colors);
@@ -64,6 +65,9 @@ public final class SimpleAnimationExample {
 	}
 
 	public SimpleAnimationExample() {
+		// Init platform
+		Platform.get().init();
+		
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
@@ -102,5 +106,7 @@ public final class SimpleAnimationExample {
 				});
 			}
 		});
+		
+		Platform.get().run();
 	}
 }
