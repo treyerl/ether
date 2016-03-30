@@ -31,7 +31,7 @@
 
 package ch.fhnw.ether.video.fx;
 
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 
 public interface IVideoFrameFX {

@@ -41,8 +41,8 @@ import org.jcodec.common.NIOUtils;
 import org.jcodec.common.SeekableByteChannel;
 import org.jcodec.common.model.Picture8Bit;
 
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.RGB8Frame;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.RGB8Frame;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.Log;
 

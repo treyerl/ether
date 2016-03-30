@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.image.awt;
 
 import java.awt.Color;
 import java.awt.Graphics;

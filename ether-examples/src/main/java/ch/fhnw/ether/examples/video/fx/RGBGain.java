@@ -31,8 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.RGBA8Frame;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.RGBA8Frame;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;

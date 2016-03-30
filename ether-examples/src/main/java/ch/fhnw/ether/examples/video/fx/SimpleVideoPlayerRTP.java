@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JComboBox;
 
-import ch.fhnw.ether.image.RGB8Frame;
+import ch.fhnw.ether.image.awt.RGB8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderProgram;

@@ -37,9 +37,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
-import ch.fhnw.ether.image.IImage.AlphaMode;
-import ch.fhnw.ether.image.IImage.ComponentFormat;
-import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.BufferUtilities;
 
 public final class FloatImage extends AbstractImage {

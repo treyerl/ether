@@ -64,7 +64,7 @@ public final class STBImageSupport implements IImageSupport {
 		STBImage.stbi_set_flip_vertically_on_load(1);
 		ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
 		if (pixels == null)
-			throw new IllegalArgumentException("can't load image: " + STBImage.stbi_failure_reason());
+			throw new IOException("can't load image: " + STBImage.stbi_failure_reason());
 		
 		if (componentFormat == null)
 			componentFormat = ComponentFormat.get(numComponents.get(0));
@@ -113,7 +113,7 @@ public final class STBImageSupport implements IImageSupport {
 	}
 	
 	@Override
-	public IImage fromPlatform(Object image) {
+	public IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
 		throw new UnsupportedOperationException();
 	}
 	

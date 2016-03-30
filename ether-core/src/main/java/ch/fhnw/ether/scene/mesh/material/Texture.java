@@ -31,7 +31,7 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
-import ch.fhnw.ether.image.RGBA8Frame;
+import ch.fhnw.ether.image.awt.RGBA8Frame;
 import ch.fhnw.ether.render.gl.GLObject;
 
 /**

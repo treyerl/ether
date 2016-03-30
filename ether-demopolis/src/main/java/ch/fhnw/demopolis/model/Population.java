@@ -39,7 +39,7 @@ import ch.fhnw.demopolis.config.IPopulationAssets;
 import ch.fhnw.demopolis.render.MaskMaterial;
 import ch.fhnw.demopolis.render.PolisMaterial;
 import ch.fhnw.ether.formats.obj.ObjReader;
-import ch.fhnw.ether.image.AWTImageSupport;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;

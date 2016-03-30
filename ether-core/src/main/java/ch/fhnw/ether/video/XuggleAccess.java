@@ -59,8 +59,8 @@ import com.xuggle.xuggler.IVideoPicture;
 import com.xuggle.xuggler.IVideoResampler;
 
 import ch.fhnw.ether.audio.AudioUtilities;
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.RGB8Frame;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.RGB8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.ITimebase;

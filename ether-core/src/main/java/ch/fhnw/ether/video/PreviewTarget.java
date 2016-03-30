@@ -36,9 +36,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-import ch.fhnw.ether.image.AWTImageSupport;
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.ImageScaler;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.ImageScaler;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;

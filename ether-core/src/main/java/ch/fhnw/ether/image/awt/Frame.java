@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.image.awt;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -43,6 +43,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import ch.fhnw.ether.image.IRowProcessor;
 import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.scene.mesh.material.Texture;

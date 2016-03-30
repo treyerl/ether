@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.image;
 
+import ch.fhnw.ether.image.awt.Frame;
+
 public interface IFrameProcessor {
 	void process(Frame frame, int frameIdx);
 }

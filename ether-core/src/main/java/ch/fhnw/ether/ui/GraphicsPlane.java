@@ -37,7 +37,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import ch.fhnw.ether.image.AWTImageSupport;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;

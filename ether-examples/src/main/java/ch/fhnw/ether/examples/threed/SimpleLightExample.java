@@ -39,7 +39,7 @@ import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.formats.obj.ObjReader;
-import ch.fhnw.ether.image.AWTImageSupport;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.ether.render.forward.ForwardRenderer;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;

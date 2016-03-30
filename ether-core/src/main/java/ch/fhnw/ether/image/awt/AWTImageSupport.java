@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.image.awt;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -44,9 +44,11 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 
+import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.ether.image.IImageSupport;
 
 public final class AWTImageSupport implements IImageSupport {
 
@@ -70,7 +72,7 @@ public final class AWTImageSupport implements IImageSupport {
 	}
 
 	@Override
-	public IImage fromPlatform(Object image) {
+	public IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
 		return null;
 	}
 	

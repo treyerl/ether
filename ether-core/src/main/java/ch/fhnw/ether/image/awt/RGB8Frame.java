@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.image.awt;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -41,7 +41,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.util.BufferUtilities;
 

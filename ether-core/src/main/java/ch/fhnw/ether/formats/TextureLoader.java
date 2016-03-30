@@ -35,8 +35,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.fhnw.ether.image.AWTImageSupport;
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
+import ch.fhnw.ether.image.awt.Frame;
 
 public final class TextureLoader {
 	private TextureLoader() {

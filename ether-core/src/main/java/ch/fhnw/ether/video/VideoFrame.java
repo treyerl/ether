@@ -33,7 +33,7 @@ package ch.fhnw.ether.video;
 
 import java.util.concurrent.BlockingQueue;
 
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractFrame;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 

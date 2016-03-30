@@ -31,7 +31,7 @@
 
 package ch.fhnw.ether.formats;
 
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
 

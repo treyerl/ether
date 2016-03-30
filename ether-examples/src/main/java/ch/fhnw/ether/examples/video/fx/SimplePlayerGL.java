@@ -45,7 +45,7 @@ import ch.fhnw.ether.audio.JavaSoundTarget;
 import ch.fhnw.ether.audio.fx.AudioGain;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.image.RGB8Frame;
+import ch.fhnw.ether.image.awt.RGB8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;

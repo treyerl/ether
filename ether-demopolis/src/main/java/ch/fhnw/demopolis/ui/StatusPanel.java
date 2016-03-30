@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import ch.fhnw.demopolis.config.IUIColors;
 import ch.fhnw.demopolis.model.Asset;
-import ch.fhnw.ether.image.AWTImageSupport;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.util.color.RGB;
 
 public class StatusPanel extends Panel {

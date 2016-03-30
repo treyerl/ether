@@ -44,7 +44,7 @@ import ch.fhnw.demopolis.model.entities.IDesignEntity.IButtonInfo;
 import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.ControlPanel.Button;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
-import ch.fhnw.ether.image.AWTImageSupport;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;

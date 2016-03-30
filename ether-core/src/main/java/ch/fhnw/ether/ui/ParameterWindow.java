@@ -65,8 +65,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import ch.fhnw.ether.audio.IAudioSource;
-import ch.fhnw.ether.image.AWTImageSupport;
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.AWTImageSupport;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractFrame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.AbstractRenderCommand;

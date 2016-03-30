@@ -33,7 +33,7 @@ package ch.fhnw.ether.examples.video.fx;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;

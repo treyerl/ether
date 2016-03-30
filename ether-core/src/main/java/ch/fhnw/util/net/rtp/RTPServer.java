@@ -39,8 +39,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.ImageScaler;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.ImageScaler;
 import ch.fhnw.util.Log;
 
 public class RTPServer extends Thread {

@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.fhnw.ether.examples.raytracing.util.IntersectResult;
-import ch.fhnw.ether.image.Frame;
-import ch.fhnw.ether.image.RGBA8Frame;
+import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.awt.RGBA8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;

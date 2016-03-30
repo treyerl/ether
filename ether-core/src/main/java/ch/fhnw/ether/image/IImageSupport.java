@@ -80,5 +80,5 @@ public interface IImageSupport {
 	
 	Object toPlatform(IImage image);
 	
-	IImage fromPlatform(Object image);
+	IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode);
 }

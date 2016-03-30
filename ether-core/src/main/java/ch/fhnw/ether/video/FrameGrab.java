@@ -64,7 +64,7 @@ import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
 import org.jcodec.scale.ColorUtil;
 import org.jcodec.scale.Transform8Bit;
 
-import ch.fhnw.ether.image.Frame;
+import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.util.Log;
 
 /**
