@@ -37,6 +37,21 @@ import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public interface IImage {
 	
+	enum ComponentType {
+		BYTE(8),
+		FLOAT(32);
+		
+		private final int size;
+		
+		private ComponentType(int size) {
+			this.size = size;
+		}
+		
+		public int getSize() {
+			return size;
+		}
+	}
+
 	enum ComponentFormat {
 		G(1),
 		GA(2),
@@ -58,21 +73,6 @@ public interface IImage {
 		}
 	}
 	
-	enum ComponentType {
-		BYTE(8),
-		FLOAT(32);
-		
-		private final int size;
-		
-		private ComponentType(int size) {
-			this.size = size;
-		}
-		
-		public int getSize() {
-			return size;
-		}
-	}
-	
 	enum AlphaMode {
 		POST_MULTIPLIED,
 		PRE_MULTIPLIED
@@ -86,16 +86,14 @@ public interface IImage {
 	
 	IImage allocate(int width, int height);
 	
-	IImage convert(ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode);
-
 	int getWidth();
 	
 	int getHeight();
 	
+	ComponentType getComponentType();
+	
 	ComponentFormat getComponentFormat();
 	
-	ComponentType getComponentType();
-		
 	AlphaMode getAlphaMode();
 	
 	byte[] getPixel(int x, int y, byte[] dst);
@@ -123,8 +121,12 @@ public interface IImage {
 	int getNumBytesPerPixel();
 
 	Texture getTexture();
+	
+	static IImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		return create(width, height, componentType, componentFormat, alphaMode, null);
+	}
 
-	static IImage create(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode, ByteBuffer pixels) {
+	static IImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		switch (componentType) {
 		case BYTE:
 			return new ByteImage(width, height, componentFormat, alphaMode, pixels);
@@ -132,5 +134,14 @@ public interface IImage {
 			return new FloatImage(width, height, componentFormat, alphaMode, pixels);
 		}
 		throw new IllegalArgumentException();
+	}
+	
+	static IImage convert(IImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
+			return image;
+		
+		IImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode);
+		
+		return result;
 	}
 }

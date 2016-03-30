@@ -52,22 +52,22 @@ public abstract class AbstractImage implements IImage {
 
 	private final int width;
 	private final int height;
-	private final ComponentFormat componentFormat;
 	private final ComponentType componentType;
+	private final ComponentFormat componentFormat;
 	private final AlphaMode alphaMode;
 	private final int numBytesPerPixel;
 	private final ByteBuffer pixels;
 	private final AtomicReference<Texture> texture = new AtomicReference<>();
 	
-	protected AbstractImage(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
-		this(width, height, componentFormat, componentType, alphaMode, null);
+	protected AbstractImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		this(width, height, componentType, componentFormat, alphaMode, null);
 	}
 
-	protected AbstractImage(int width, int height, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode, ByteBuffer pixels) {
+	protected AbstractImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		this.width = width;
 		this.height = height;
-		this.componentFormat = componentFormat;
 		this.componentType = componentType;
+		this.componentFormat = componentFormat;
 		this.alphaMode = alphaMode;
 		this.numBytesPerPixel = componentFormat.getNumComponents() * componentType.getSize();
 		this.pixels = BufferUtils.createByteBuffer(width * height * numBytesPerPixel);
@@ -91,13 +91,13 @@ public abstract class AbstractImage implements IImage {
 	}
 	
 	@Override
-	public final ComponentFormat getComponentFormat() {
-		return componentFormat;
+	public final ComponentType getComponentType() {
+		return componentType;
 	}
 	
 	@Override
-	public final ComponentType getComponentType() {
-		return componentType;
+	public final ComponentFormat getComponentFormat() {
+		return componentFormat;
 	}
 	
 	@Override
@@ -122,7 +122,7 @@ public abstract class AbstractImage implements IImage {
 
 	@Override
 	public final void setSubImage(int x, int y, IImage image) {
-		image = image.convert(getComponentFormat(), getComponentType(), getAlphaMode());
+		image = IImage.convert(image, getComponentType(), getComponentFormat(), getAlphaMode());
 		if (x + image.getWidth() > getWidth())
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + image.getHeight() > getHeight())

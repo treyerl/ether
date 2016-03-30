@@ -43,7 +43,7 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
-import ch.fhnw.ether.image.IRowProcessor;
+import ch.fhnw.ether.image.ILineProcessor;
 import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.scene.mesh.material.Texture;
@@ -365,10 +365,10 @@ public abstract class Frame {
 		private final int            from;
 		private final int            to;
 		private final ByteBuffer     pixels;
-		private final IRowProcessor processor;
+		private final ILineProcessor processor;
 		private final int            lineLength;
 
-		Chunk(Frame frame, int from, int to, IRowProcessor processor) {
+		Chunk(Frame frame, int from, int to, ILineProcessor processor) {
 			this.from       = from;
 			this.to         = to;
 			this.pixels     = frame.pixels.duplicate();
@@ -385,7 +385,7 @@ public abstract class Frame {
 		}
 	}
 
-	public final void processLines(IRowProcessor processor) {
+	public final void processLines(ILineProcessor processor) {
 		List<Future<?>> result = new ArrayList<>(NUM_CHUNKS + 1);
 		int inc  = Math.max(32, height / NUM_CHUNKS);
 		for(int from = 0; from < height; from += inc)

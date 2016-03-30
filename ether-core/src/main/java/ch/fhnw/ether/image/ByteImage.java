@@ -42,13 +42,12 @@ import ch.fhnw.util.BufferUtilities;
 public final class ByteImage extends AbstractImage {
 	
 	public ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		super(width, height, componentFormat, ComponentType.BYTE, alphaMode);
+		super(width, height, ComponentType.BYTE, componentFormat, alphaMode);
 	}
 
 	public ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
-		super(width, height, componentFormat, ComponentType.BYTE, alphaMode, pixels);
+		super(width, height, ComponentType.BYTE, componentFormat, alphaMode, pixels);
 	}
-	
 	
 	@Override
 	public IImage copy() {
@@ -67,11 +66,6 @@ public final class ByteImage extends AbstractImage {
 		return new ByteImage(width, height, getComponentFormat(), getAlphaMode());
 	}
 	
-	@Override
-	public IImage convert(ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
-		return null;
-	}
-
 	@Override
 	public byte[] getPixel(int x, int y, byte[] dst) {
 		int pos = pos(x, y);

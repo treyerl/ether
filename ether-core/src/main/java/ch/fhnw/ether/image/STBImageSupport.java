@@ -79,7 +79,7 @@ public final class STBImageSupport implements IImageSupport {
 		else if (alphaMode != AlphaMode.POST_MULTIPLIED)
 			throw new UnsupportedOperationException("premultiplied alpha unsupported");
 		
-		IImage image = IImage.create(width.get(0), height.get(0), componentFormat, componentType, alphaMode, pixels);
+		IImage image = IImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
 
 		pixels.rewind();
 		STBImage.stbi_image_free(pixels);
@@ -104,7 +104,7 @@ public final class STBImageSupport implements IImageSupport {
 			STBImageResize.stbir_resize_uint8(image.getPixels(), image.getWidth(), image.getHeight(), 0, pixels, width, height, 0, image.getComponentFormat().getNumComponents());
 			break;
 		}
-		return IImage.create(width, height, image.getComponentFormat(), image.getComponentType(), image.getAlphaMode(), pixels);
+		return IImage.create(width, height, image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), pixels);
 	}
 	
 	@Override
