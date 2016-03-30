@@ -35,25 +35,26 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.fhnw.ether.image.awt.AWTImageSupport;
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IImage;
+import ch.fhnw.ether.platform.Platform;
 
+// XXX where should we cache images / textures??? also, images are mutable, so we need to be careful (e.g. cache a copy)
 public final class TextureLoader {
 	private TextureLoader() {
 	}
 
-	private static final Map<String, Frame> frameCache = new HashMap<>();
+	private static final Map<String, IImage> IMAGE_CACHE = new HashMap<>();
 
-	public static Frame loadTexture(String path) {
-		Frame frame = frameCache.get(path);
-		if (frame == null) {
+	public static IImage loadTexture(String path) {
+		IImage image = IMAGE_CACHE.get(path);
+		if (image == null) {
 			try {
-				frame = AWTImageSupport.readFrame(new File(path));
-				frameCache.put(path, frame);
+				image = Platform.get().getImageSupport().read(new File(path));
+				IMAGE_CACHE.put(path, image);
 			} catch (Exception e) {
-				System.err.println("can't load texture: " + path);
+				System.err.println("can't load texture image: " + path);
 			}
 		}
-		return frame;
+		return image;
 	}
 }

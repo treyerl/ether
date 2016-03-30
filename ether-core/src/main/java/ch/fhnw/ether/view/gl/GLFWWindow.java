@@ -71,12 +71,18 @@ final class GLFWWindow implements IWindow {
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
 	
 	private IView view;
-	private int width;
-	private int height;
+	private int windowWidth;
+	private int windowHeight;
+	
+	private int framebufferWidth;
+	private int framebufferHeight;
+	
 	private long window;
+	
 	private float pointerX = 0;
 	private float pointerY = 0;
 	private int pointerButtons = 0;
+	private boolean pointerDragged = false;
 	private int modifiers = 0;
 	private int vao = -1;
 	
@@ -101,8 +107,8 @@ final class GLFWWindow implements IWindow {
 			NUM_WINDOWS.incrementAndGet();
 		
 		this.view = view;
-		this.width = width;
-		this.height = height;
+		this.windowWidth = width;
+		this.windowHeight = height;
 		
 		// make sure this comes before setting up window hints due to side effects!
         GLFWWindow shared = GLContextManager.getSharedContextWindow();
@@ -115,8 +121,6 @@ final class GLFWWindow implements IWindow {
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);		
-
-        //GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
         
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, interactive ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
@@ -132,12 +136,16 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("window resize: " + view + " " + width + " " + height);
 
-				GLFWWindow.this.width = width;
-				GLFWWindow.this.height = height;
+				GLFWWindow.this.windowWidth = width;
+				GLFWWindow.this.windowHeight = height;
 			}
 		};
 		GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
 		callbacks.add(sizeCallback);
+		
+		makeCurrent(true);
+		GLFW.glfwSwapInterval(1);
+		makeCurrent(false);
  	}
 	
 	GLFWWindow() {
@@ -219,6 +227,8 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("framebuffer resize: " + view + " " + width + " " + height);
 				
+				framebufferWidth = width;
+				framebufferHeight = height;
 				listener.framebufferResized(GLFWWindow.this, width, height);
 			}
 		};
@@ -275,14 +285,19 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("window pointer moved: " + view + " " + xpos + " " + ypos);
 				
-				pointerX = (float)xpos;
-				pointerY = (float)(height - ypos);				
+				float sx = (float)framebufferWidth / (float)windowWidth;
+				float sy = (float)framebufferHeight / (float)windowHeight;
+				
+				pointerX = sx * (float)xpos;
+				pointerY = sy * (float)(windowHeight - ypos);				
 				
 				IPointerEvent event = new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, 0, 0);
-				if (pointerButtons == 0)
+				if (pointerButtons == 0) {
 					listener.pointerMoved(event);
-				else
+				} else {
+					pointerDragged = true;
 					listener.pointerDragged(event);
+				}
 			}
 		};
 		
@@ -301,6 +316,11 @@ final class GLFWWindow implements IWindow {
 				} else if (action == GLFW.GLFW_RELEASE) {
 					pointerButtons &= ~mask;
 					listener.pointerReleased(event);
+				}
+				if (pointerButtons == 0) {
+					if (!pointerDragged)
+						listener.pointerClicked(event);
+					pointerDragged = false;
 				}
 			}
 		};
@@ -350,11 +370,11 @@ final class GLFWWindow implements IWindow {
 	}
 	
 	public int getWidth() {
-		return width;
+		return windowWidth;
 	}
 	
 	public int getHeight() {
-		return height;
+		return windowHeight;
 	}
 	
 	@Override
@@ -378,6 +398,6 @@ final class GLFWWindow implements IWindow {
 
 	@Override
 	public void setPointerPosition(float x, float y) {
-		GLFW.glfwSetCursorPos(window, x, height - y);
+		GLFW.glfwSetCursorPos(window, x, windowHeight - y);
 	}
 }

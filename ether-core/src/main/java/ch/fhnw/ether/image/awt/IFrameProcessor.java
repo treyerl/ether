@@ -29,9 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
-
-import ch.fhnw.ether.image.awt.Frame;
+package ch.fhnw.ether.image.awt;
 
 public interface IFrameProcessor {
 	void process(Frame frame, int frameIdx);

@@ -39,14 +39,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.media.ITimebase;
 import ch.fhnw.ether.media.RenderCommandException;
-import ch.fhnw.ether.ui.UI;
 import ch.fhnw.util.Pair;
 
 public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 
 	private static final long START_TIME = System.nanoTime();
 
-	private final IController controller;
+	//private final IController controller;
 	private final Runnable runnable;
 
 	private final double interval;
@@ -62,7 +61,7 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 	private AtomicBoolean running = new AtomicBoolean(true);
 
 	public DefaultEventScheduler(IController controller, Runnable runnable, float fps) {
-		this.controller = controller;
+		//this.controller = controller;
 		this.runnable = runnable;
 		this.interval = 1 / fps;
 		this.sceneThread = new Thread(this::runSceneThread, "scenethread");
@@ -151,9 +150,9 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 			}
 
 			// XXX / FIXME: special hook for ui update (this should go into the regular animation loop)
-			UI ui = controller.getUI();
-			if (ui != null && ui.update())
-				repaint.set(true);
+//			UI ui = controller.getUI();
+//			if (ui != null && ui.update())
+//				repaint.set(true);
 
 			if (repaint.getAndSet(false)) {
 				try {
@@ -167,7 +166,7 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 			double remaining = interval - elapsed;
 			if (remaining > 0) {
 				try {
-					// System.out.println("sleep for " + remaining);
+					//System.out.println("sleep for " + remaining);
 					Thread.sleep((long) (remaining * 1000));
 				} catch (Exception e) {
 				}

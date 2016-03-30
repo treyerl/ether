@@ -38,6 +38,7 @@ import ch.fhnw.demopolis.ui.UI;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
@@ -47,6 +48,8 @@ public class Demopolis {
 	
 	public static void main(String[] args) {
 		System.out.println("Good morning, Dr. Chandra. This is Hal. I am ready for my first lesson.");
+		
+		Platform.get().init();
 			
 		boolean alexanderplatzOnly = false;
 		boolean fullscreen = false;
@@ -71,6 +74,8 @@ public class Demopolis {
 			t.start();
 
 			new Demopolis(alexanderplatzOnly, fullscreen);
+			
+			Platform.get().run();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -93,7 +98,7 @@ public class Demopolis {
 
 		controller.run(time -> {
 			//final IView view = new DefaultView(controller, 0, 10, 1920, 1080, IView.RENDER_VIEW, "Enabling DEMO:POLIS");
-			final IView view = new DefaultView(controller, 0, 10, 960, 540, IView.RENDER_VIEW, "Enabling DEMO:POLIS");	
+			final IView view = new DefaultView(controller, 0, 600, 960, 540, IView.INTERACTIVE_VIEW, "Enabling DEMO:POLIS");	
 			controller.setScene(new DefaultScene(controller));
 			
 			try {

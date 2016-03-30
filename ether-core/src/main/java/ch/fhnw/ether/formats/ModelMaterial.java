@@ -31,7 +31,7 @@
 
 package ch.fhnw.ether.formats;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
 
@@ -41,7 +41,7 @@ public final class ModelMaterial {
 	private RGB    diffuseColor;
 	private RGB    specularColor;
 	private float  shininess;
-	private Frame  texture;
+	private IImage  textureImage;
 	private String texturePath;
 	private String textureFile;
 
@@ -90,7 +90,7 @@ public final class ModelMaterial {
 	}
 
 	public Texture getTexture() {
-		return texture != null ? texture.getTexture() : null;
+		return textureImage != null ? textureImage.getTexture() : null;
 	}
 	
 	public String getTexturePath() {
@@ -102,13 +102,13 @@ public final class ModelMaterial {
 	}
 
 	public void setTexture(String texturePath, String textureFile) {
-		this.texture = TextureLoader.loadTexture(texturePath + textureFile);
+		this.textureImage = TextureLoader.loadTexture(texturePath + textureFile);
 		this.texturePath = texturePath;
 		this.textureFile = textureFile;
 	}
 	
-	public void setTexture(Frame texture) {
-		this.texture = texture;
+	public void setTexture(IImage textureImage) {
+		this.textureImage = textureImage;
 		this.texturePath = "";
 		this.textureFile = "";
 	}

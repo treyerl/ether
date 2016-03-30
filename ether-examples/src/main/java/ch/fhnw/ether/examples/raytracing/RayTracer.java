@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.fhnw.ether.examples.raytracing.util.IntersectResult;
-import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.image.awt.RGBA8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
@@ -121,7 +120,7 @@ public class RayTracer extends AbstractFrameSource implements IVideoSource {
 				pixels.put((byte)0);
 				pixels.put((byte)0);
 				pixels.put((byte)0);
-				pixels.put(Frame.B255);
+				pixels.put((byte)255);
 				return;
 			}
 		}

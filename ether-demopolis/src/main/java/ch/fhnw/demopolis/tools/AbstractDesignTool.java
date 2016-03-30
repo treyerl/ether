@@ -44,7 +44,7 @@ import ch.fhnw.demopolis.model.entities.IDesignEntity.IButtonInfo;
 import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.ControlPanel.Button;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
-import ch.fhnw.ether.image.awt.AWTImageSupport;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
@@ -68,7 +68,7 @@ public abstract class AbstractDesignTool implements IDesignTool {
 		this.model = model;
 		this.scene = scene;
 		this.control = control;
-		this.texture = texture != null ? AWTImageSupport.readFrame(Asset.get(texture)).getTexture() : null;
+		this.texture = texture != null ? Platform.get().getImageSupport().read(Asset.get(texture)).getTexture() : null;
 		this.buttons = new Button[10];
 	}
 	
@@ -131,7 +131,7 @@ public abstract class AbstractDesignTool implements IDesignTool {
 	}
 
 	protected void addMeshes() {
-		getScene().add3DObjects(IDesignEntity.getMeshes(getDesignEntities()));		
+		getScene().add3DObjects(IDesignEntity.getMeshes(getDesignEntities()));
 	}
 	
 	protected void removeMeshes() {

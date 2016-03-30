@@ -212,7 +212,7 @@ public class DefaultRenderManager implements IRenderManager {
 					materialChanged = material.getUpdater().test();
 					geometryChanged = geometry.getUpdater().test() | mesh.getUpdater().test();
 				}
-				//mesh.getUpdater().clear();
+				mesh.getUpdater().clear();
 
 				if (materialChanged || geometryChanged) {
 					updates.add(new RenderUpdate(state.renderable, mesh, materialChanged, geometryChanged));
@@ -222,8 +222,8 @@ public class DefaultRenderManager implements IRenderManager {
 			});
 
 			// second loop required to update flags
-			//materials.forEach(material -> material.getUpdater().clear());
-			//geometries.forEach(geometry -> geometry.getUpdater().clear());
+			materials.forEach(material -> material.getUpdater().clear());
+			geometries.forEach(geometry -> geometry.getUpdater().clear());
 			
 			// seal collections
 			final List<Renderable> renderRenderables = Collections.unmodifiableList(renderables);
@@ -268,7 +268,6 @@ public class DefaultRenderManager implements IRenderManager {
 			
 			// seal collections
 			final List<IRenderTargetState> renderTargets = Collections.unmodifiableList(targets);
-
 
 			// 4. hey, we're done!
 			rebuildMeshes = false;

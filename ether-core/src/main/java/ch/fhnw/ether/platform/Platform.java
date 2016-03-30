@@ -32,7 +32,7 @@
 package ch.fhnw.ether.platform;
 
 public final class Platform {
-	private static final boolean USE_SWT = true;
+	private static final boolean USE_SWT = false;
 	
 	private static final IPlatform PLATFORM = USE_SWT ? new SWTPlatform() : new GLFWPlatform();
 	
