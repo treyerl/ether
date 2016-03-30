@@ -41,16 +41,18 @@ import ch.fhnw.util.UpdateRequest;
 public abstract class AbstractMaterial implements IMaterial {
 	protected static final IAttribute[] NO_ATTRIBUTES = {};
 	protected static final Object[] NO_DATA = {};
-	
+
 	private final IMaterialAttribute<?>[] providedAttributes;
 	private final IGeometryAttribute[] geometryAttributes;
 
 	private final UpdateRequest update = new UpdateRequest();
-	
+
 	private String name = "material";
-	
+
 	/**
-	 * Note: providedAttributes & requiredAttributes are allowed to contain null elements.
+	 * Note: providedAttributes & requiredAttributes are allowed to contain null
+	 * elements. These are removed from the lists. However it is important that
+	 * this is considered when providing the actual attribute data.
 	 */
 	protected AbstractMaterial(IMaterialAttribute<?>[] providedAttributes, IGeometryAttribute[] requiredAttributes) {
 		this.providedAttributes = ArrayUtilities.remove(providedAttributes, null);
@@ -61,13 +63,13 @@ public abstract class AbstractMaterial implements IMaterial {
 	public final String getName() {
 		return name;
 	}
-	
+
 	@Override
 	public final void setName(String name) {
 		this.name = name;
 		updateRequest();
 	}
-	
+
 	@Override
 	public final IMaterialAttribute<?>[] getProvidedAttributes() {
 		return providedAttributes;
@@ -77,7 +79,7 @@ public abstract class AbstractMaterial implements IMaterial {
 	public final IGeometryAttribute[] getRequiredAttributes() {
 		return geometryAttributes;
 	}
-	
+
 	@Override
 	public abstract Object[] getData();
 
@@ -85,7 +87,7 @@ public abstract class AbstractMaterial implements IMaterial {
 	public final UpdateRequest getUpdater() {
 		return update;
 	}
-	
+
 	@Override
 	public final boolean equals(Object obj) {
 		if (this == obj)
@@ -93,19 +95,20 @@ public abstract class AbstractMaterial implements IMaterial {
 		if (!(obj instanceof AbstractMaterial))
 			return false;
 		AbstractMaterial m = (AbstractMaterial) obj;
-		return name.equals(m.name) && Arrays.equals(providedAttributes, m.providedAttributes) && Arrays.equals(geometryAttributes, m.geometryAttributes) && Arrays.equals(getData(), m.getData());
+		return name.equals(m.name) && Arrays.equals(providedAttributes, m.providedAttributes)
+				&& Arrays.equals(geometryAttributes, m.geometryAttributes) && Arrays.equals(getData(), m.getData());
 	}
-	
+
 	@Override
 	public final int hashCode() {
 		return name.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;
 	}
-	
+
 	protected static IMaterialAttribute<?>[] provide(IMaterialAttribute<?>... attributes) {
 		return attributes;
 	}
@@ -113,11 +116,11 @@ public abstract class AbstractMaterial implements IMaterial {
 	protected static IGeometryAttribute[] require(IGeometryAttribute... attributes) {
 		return attributes;
 	}
-	
+
 	protected static Object[] data(Object... data) {
 		return data;
 	}
-	
+
 	protected final void updateRequest() {
 		update.request();
 	}
