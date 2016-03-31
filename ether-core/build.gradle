@@ -3,7 +3,8 @@ description = """ether-core"""
 project.ext.swtVersion = "4.5.2"
 project.ext.swtArtifactName = "org.eclipse.swt.${swtWindowingLibrary}.${swtPlatform}.${swtArch}"
 
-project.ext.lwjglVersion = "3.0.0b"
+//project.ext.lwjglVersion = "3.0.0b"
+project.ext.lwjglVersion = "3.0.0-SNAPSHOT"
 
 dependencies {
     compile "org.eclipse.swt:$swtArtifactName:$swtVersion"

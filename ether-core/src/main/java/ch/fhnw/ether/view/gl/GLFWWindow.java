@@ -86,7 +86,7 @@ final class GLFWWindow implements IWindow {
 	private int modifiers = 0;
 	private int vao = -1;
 	
-	private final List<Closure.Void> callbacks = new ArrayList<>();
+	private final List<Closure.V> callbacks = new ArrayList<>();
 	
 	/**
 	 * Creates window.
@@ -154,7 +154,7 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void destroy() {
-		callbacks.forEach(c -> c.release());
+		callbacks.forEach(c -> c.free());
 		callbacks.clear();
 		GLFW.glfwDestroyWindow(window);
 		window = 0;

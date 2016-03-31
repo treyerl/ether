@@ -89,7 +89,7 @@ final class SWTPlatform implements IPlatform {
 
 	@Override
 	public void exit() {
-		errorCallback.release();
+		errorCallback.free();
 		// XXX we get a segfault here if we call glfwTerminate...
 		// GLFW.glfwTerminate();
 		Display.getDefault().dispose();

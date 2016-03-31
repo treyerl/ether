@@ -86,7 +86,7 @@ final class GLFWPlatform implements IPlatform {
 
 	@Override
 	public void exit() {
-		errorCallback.release();
+		errorCallback.free();
 		GLFW.glfwTerminate();
 		System.exit(0);
 	}
