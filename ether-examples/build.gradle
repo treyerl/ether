@@ -1,6 +1,6 @@
 description = """ether-examples"""
 
 dependencies {
-    compile project(':ether-core')
-    compile project(':ether-mapping')
+    compile project(":ether-core")
+    compile project(":ether-mapping")
 }

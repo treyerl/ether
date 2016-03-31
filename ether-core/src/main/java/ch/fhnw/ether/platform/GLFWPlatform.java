@@ -57,7 +57,7 @@ final class GLFWPlatform implements IPlatform {
 	@Override
 	public void init() {
 		GLFW.glfwSetErrorCallback(errorCallback);
-
+		
 		if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
 			throw new IllegalStateException("unable to initialize glfw");
 		

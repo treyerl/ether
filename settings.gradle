@@ -1,4 +1,4 @@
-rootProject.name = 'ether'
+//rootProject.name = 'ether'
 
 include 'ether-core'
 include 'ether-mapping'

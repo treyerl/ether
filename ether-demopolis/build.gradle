@@ -1,6 +1,12 @@
 description = """ether-demopolis"""
 
+apply plugin: 'application'
+
+applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+
+mainClassName = "ch.fhnw.demopolis.main.Demopolis"
+
 dependencies {
-    compile project(':ether-core')
-    compile 'org.glassfish:javax.json:1.0.4'
+    compile project(":ether-core")
+    compile "org.glassfish:javax.json:1.0.4"
 }
