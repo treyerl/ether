@@ -47,9 +47,12 @@ public class FrameBuffer {
 	public GLObject getGLObject() {
 		return fbo;
 	}
+	
+	public boolean isComplete() {
+		return getStatus() == GL30.GL_FRAMEBUFFER_COMPLETE;
+	}
 		
-	// TODO: add isComplete method for easier handling
-	public int checkStatus() {
+	public int getStatus() {
 		return GL30.glCheckFramebufferStatus(GL30.GL_DRAW_FRAMEBUFFER);
 	}
 	
@@ -66,7 +69,7 @@ public class FrameBuffer {
 	}
 
 	public void attach(int attachment, Texture texture) {
-		// XXX: is this really necessary? the general contract should be that no texture is bound here
+		// XXX is this really necessary? the general contract should be that no texture is bound here
 		int toRestore = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getGlObject().getId());
@@ -103,5 +106,5 @@ public class FrameBuffer {
 		}
 	}
 	
-	// to add: clear & blit
+	// TODO to add: clear & blit
 }

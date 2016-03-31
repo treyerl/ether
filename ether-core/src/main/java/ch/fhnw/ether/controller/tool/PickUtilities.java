@@ -48,9 +48,7 @@ import ch.fhnw.util.math.geometry.GeometryUtilities;
 public final class PickUtilities {
 	public enum PickMode {
 		POINT,
-		// TODO: not implemented yet
-		// INSIDE, 
-		// INTERSECT
+		// TODO: INSIDE & INTERSECT
 	}
 
 	private static final float PICK_DISTANCE = 10;

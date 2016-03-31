@@ -41,7 +41,6 @@ import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.image.STBImageSupport;
 import ch.fhnw.ether.view.gl.GLContextManager;
 
-// XXX: deal with situation where no windows exist (e.g. wait events returns immediately...)
 final class GLFWPlatform implements IPlatform {
 
 	private final GLFWErrorCallback errorCallback;

@@ -87,9 +87,8 @@ public final class GeometryBuffer {
 			
 			GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
 
-			int status = frameBuffer.checkStatus();
-			if(status != GL30.GL_FRAMEBUFFER_COMPLETE) {
-				System.out.println("Status: " + FrameBuffer.toString(status));
+			if(!frameBuffer.isComplete()) {
+				System.out.println("Status: " + FrameBuffer.toString(frameBuffer.getStatus()));
 			}
 			
 			FrameBuffer.unbind();

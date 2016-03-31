@@ -42,10 +42,8 @@ import ch.fhnw.util.math.geometry.BoundingBox;
 public final class BerlinScenario implements IScenario {
 	private static final Vec3 AP_MIN = new Vec3(-155, -340, -10);
 	private static final Vec3 AP_MAX = new Vec3(945, 780, 200);
-	//private static final Vec3 AP_RF_MIN = new Vec3(-400, -720, -10);
-	//private static final Vec3 AP_RF_MAX = new Vec3(600, 770, 200);
-	private static final Vec3 AP_RF_MIN = new Vec3(-800, -1440, -10);
-	private static final Vec3 AP_RF_MAX = new Vec3(1200, 1540, 200);
+	private static final Vec3 AP_RF_MIN = new Vec3(-400, -720, -10);
+	private static final Vec3 AP_RF_MAX = new Vec3(600, 770, 200);
 	
 	private static final String STATIC_GROUND = "berlin3d/ground_static.obj";
 	private static final String STATIC_WATER = "berlin3d/water_static.obj";

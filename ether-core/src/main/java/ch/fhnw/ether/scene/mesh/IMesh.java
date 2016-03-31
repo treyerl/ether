@@ -51,7 +51,6 @@ public interface IMesh extends I3DObject {
 		DEPTH, TRANSPARENCY, OVERLAY, DEVICE_SPACE_OVERLAY, SCREEN_SPACE_OVERLAY
 	}
 
-	// TODO: should this be here or in material?
 	enum Flag {
 		DONT_CULL_FACE,
 		DONT_CAST_SHADOW

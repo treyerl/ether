@@ -102,7 +102,7 @@ public final class Program {
 				new GLSLReader(LIBRARY_BASE, LIBRARY_PATH, url, code, out);
 			}
 
-			// XXX / TODO: use GLObject here for auto disposal in case not used anymore
+			// FIXME: use GLObject here for auto disposal in case not used anymore
 			shaderObject = GL20.glCreateShader(type.glType);
 
 			GL20.glShaderSource(shaderObject, code.toString());

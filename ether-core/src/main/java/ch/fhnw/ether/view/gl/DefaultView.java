@@ -79,6 +79,7 @@ public class DefaultView implements IView {
 				window.setPosition(x, y);
 			window.setVisible(true);
 		});
+		
 		runOnSceneThread(t -> controller.viewCreated(this));
 	}
 

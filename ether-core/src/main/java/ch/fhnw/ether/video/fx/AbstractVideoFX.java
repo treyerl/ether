@@ -199,9 +199,8 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			if(dstTexture != lastDstTexture) {
 				fbo.attach(GL30.GL_COLOR_ATTACHMENT0, dstTexture);
 				lastDstTexture = dstTexture;
-				int status = fbo.checkStatus();
-				if(status != GL30.GL_FRAMEBUFFER_COMPLETE)
-					throw new RenderCommandException("createFBO:" + FrameBuffer.toString(status));
+				if(!fbo.isComplete())
+					throw new RenderCommandException("createFBO:" + FrameBuffer.toString(fbo.getStatus()));
 			}
 		}
 
@@ -317,7 +316,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	protected final void run(IVideoRenderTarget target) throws RenderCommandException {
 		if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == GLFX) {
 			try(IGLContext ctx = GLContextManager.acquireContext()) {
-				// TODO / XXX: necessary to store / restore viewport info here?
+				// XXX really necessary to store / restore viewport info here?
 				processFrame(target.getFrame().playOutTime, target);
 				material.prepare((AbstractVideoTarget)target);
 				renderable.update(material.getData(), quad.getTransformedGeometryData());

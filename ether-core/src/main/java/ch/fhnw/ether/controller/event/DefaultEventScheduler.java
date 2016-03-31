@@ -149,11 +149,6 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 				}
 			}
 
-			// XXX / FIXME: special hook for ui update (this should go into the regular animation loop)
-//			UI ui = controller.getUI();
-//			if (ui != null && ui.update())
-//				repaint.set(true);
-
 			if (repaint.getAndSet(false)) {
 				try {
 					runnable.run();

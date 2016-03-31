@@ -48,11 +48,7 @@ import ch.fhnw.util.math.geometry.BoundingBox;
 import ch.fhnw.util.net.osc.OSCHandler;
 import ch.fhnw.util.net.osc.OSCServer;
 
-// TODO: DEFUNCT - need to get rid of AWT and use ether.Platform instead
-
-// TODO: would be nice if we could use NEWT gestures here 
-// TODO: add support for multiple interactive views
-// TODO: check whether a cursor is actually within one of our views
+// TODO DEFUNCT - need to get rid of AWT and use ether.Platform instead
 
 /**
  * TUIO multitouch implementation. NOTE: totally untested.

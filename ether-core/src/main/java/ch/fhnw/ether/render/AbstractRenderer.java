@@ -143,12 +143,6 @@ public abstract class AbstractRenderer implements IRenderer {
 	}
 
 	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
-		// XXX: make sure we only render on render thread (e.g. jogl
-		// will do repaints on other threads when resizing windows...)
-		if (!isRenderThread()) {
-			return;
-		}
-
 		// default gl state
 		// FIXME: need to make this configurable and move to renderer
 		GL11.glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
@@ -207,7 +201,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 	}
 
-	private boolean isRenderThread() {
-		return Thread.currentThread().equals(renderThread);
-	}
+//	protected boolean isRenderThread() {
+//		return Thread.currentThread().equals(renderThread);
+//	}
 }

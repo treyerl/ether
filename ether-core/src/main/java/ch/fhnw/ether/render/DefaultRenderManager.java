@@ -179,10 +179,8 @@ public class DefaultRenderManager implements IRenderManager {
 		 * get out of sync resulting in undefined overall state.
 		 * 
 		 * @param renderer
-		 * @return
+		 * @return render state to be submitted to renderer
 		 */
-		// TODO: there's a lot of room for optimization here: don't rebuild
-		// lists that haven't changed etc.... for now we just don't care...
 		IRenderState create(IRenderer renderer) {
 			// 1. add meshes and mesh updates to render state
 			final List<IRenderUpdate> updates = new ArrayList<>();
