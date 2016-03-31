@@ -72,9 +72,11 @@ public class DefaultView implements IView {
 			window.setKeyListener(keyListener);
 			window.setPointerListener(pointerListener);
 	
+			// Note: we open the window initially at a smaller size, and then
+			// resize in order to trigger the window listener.
+			window.setSize(w, h);
 			if (x != -1)
 				window.setPosition(x, y);
-			window.setSize(w, h);
 			window.setVisible(true);
 		});
 		runOnSceneThread(t -> controller.viewCreated(this));

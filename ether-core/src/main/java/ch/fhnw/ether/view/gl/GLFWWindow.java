@@ -103,6 +103,9 @@ final class GLFWWindow implements IWindow {
 	 *            The configuration.
 	 */
 	public GLFWWindow(IView view, int width, int height, String title, Config config) {
+		if (DBG)
+			System.out.println("window create: " + width + " " + height + " " + title);
+
 		if (view != null)
 			NUM_WINDOWS.incrementAndGet();
 		
@@ -146,6 +149,10 @@ final class GLFWWindow implements IWindow {
 		makeCurrent(true);
 		GLFW.glfwSwapInterval(1);
 		makeCurrent(false);
+		
+		if (DBG)
+			System.out.println("window created.");
+		
  	}
 	
 	GLFWWindow() {
