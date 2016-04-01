@@ -250,7 +250,7 @@ public class DefaultController implements IController {
 	@Override
 	public void viewResized(IView view) {
 		if (DBG)
-			System.out.println("view changed " + view);
+			System.out.println("view resized " + view);
 
 		getCamera(view).getUpdater().request();
 		tool.refresh(view);
@@ -371,6 +371,7 @@ public class DefaultController implements IController {
 	private void setCurrentView(IView view) {
 		if (DBG)
 			System.out.println("set current view " + view);
+
 		if (currentView != view) {
 			currentView = view;
 			if (currentView != null)
