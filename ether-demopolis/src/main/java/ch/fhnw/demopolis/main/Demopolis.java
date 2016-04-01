@@ -98,7 +98,7 @@ public class Demopolis {
 
 		controller.run(time -> {
 			//final IView view = new DefaultView(controller, 0, 10, 1920, 1080, IView.RENDER_VIEW, "Enabling DEMO:POLIS");
-			final IView view = new DefaultView(controller, 0, 600, 960, 540, IView.INTERACTIVE_VIEW, "Enabling DEMO:POLIS");	
+			final IView view = new DefaultView(controller, 100, 100, 960, 540, IView.INTERACTIVE_VIEW, "Enabling DEMO:POLIS");	
 			controller.setScene(new DefaultScene(controller));
 			
 			try {

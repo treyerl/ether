@@ -54,6 +54,7 @@ import ch.fhnw.ether.controller.tool.AbstractTool;
 import ch.fhnw.ether.controller.tool.ITool;
 import ch.fhnw.ether.controller.tool.NavigationTool;
 import ch.fhnw.ether.scene.IScene;
+import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IWindow.PointerMode;
 import ch.fhnw.util.AutoDisposer;
 
@@ -215,6 +216,11 @@ public class UI {
 		controlPanel.show(controller);
 		
 		navigationTool = new NavigationTool(controller, new AbstractTool(controller) {
+			@Override
+			public void refresh(IView view) {
+				viewControl.refresh(view);
+			}
+			
 			@Override
 			public void pointerClicked(IPointerEvent e) {
 				try {

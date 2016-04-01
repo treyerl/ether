@@ -60,6 +60,12 @@ public class ViewControl {
 		controller.getScene().add3DObjects(cameraOrtho, cameraPerspective, light);
 		setCameraOrtho();
 	}
+	
+	public void refresh(IView view) {
+		BoundingBox b = model.getScenario().getBounds();
+		float width = view.getViewport().getAspect() * Math.max(b.getExtentX(), b.getExtentY());
+		cameraOrtho.setFov(-width);
+	}
 
 	public void setCameraOrtho() {
 		controller.setCamera(controller.getViews().get(0), cameraOrtho);

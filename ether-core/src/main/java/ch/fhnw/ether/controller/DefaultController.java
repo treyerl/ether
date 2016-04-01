@@ -157,7 +157,9 @@ public class DefaultController implements IController {
 		this.tool.deactivate();
 		this.tool = tool;
 		this.tool.activate();
-		this.tool.refresh(getCurrentView());
+		IView view = getCurrentView();
+		if (view != null)
+			this.tool.refresh(view);
 	}
 
 	@Override
