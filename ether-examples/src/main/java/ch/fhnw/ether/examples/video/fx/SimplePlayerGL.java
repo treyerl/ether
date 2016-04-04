@@ -37,7 +37,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.JComboBox;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.IAudioSource;
@@ -50,6 +53,7 @@ import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.media.Sync;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -120,15 +124,23 @@ public class SimplePlayerGL {
 			try {
 				RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
 
-				final JComboBox<AbstractVideoFX> fxsUI = new JComboBox<>();
-				for(AbstractVideoFX fx : fxs)
-					fxsUI.addItem(fx);
-				fxsUI.addActionListener(e->{
-					int newIdx = fxsUI.getSelectedIndex();
-					video.replace(fxs.get(current.get()), fxs.get(newIdx));
-					current.set(newIdx);
-				});
-				new ParameterWindow(fxsUI, video);
+				new ParameterWindow(parent->{
+					Combo fxsUI = new Combo(parent, SWT.READ_ONLY);
+					for(AbstractVideoFX fx : fxs)
+						fxsUI.add(fx.toString());
+					fxsUI.setLayoutData(ParameterWindow.hfill());
+					fxsUI.select(0);
+					fxsUI.addSelectionListener(new SelectionListener() {
+						@Override public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {
+							int newIdx = fxsUI.getSelectionIndex();
+							video.replace(fxs.get(current.get()), fxs.get(newIdx));
+							current.set(newIdx);
+						}
+					});
+				}, video);
 				videoOut.useProgram(video);
 
 				if(source instanceof IAudioSource) {
@@ -148,6 +160,8 @@ public class SimplePlayerGL {
 	}
 
 	public static void main(String[] args) throws RenderCommandException {
+		Platform.get().init();
+		
 		AbstractFrameSource source;
 		try {
 			try {
@@ -161,5 +175,7 @@ public class SimplePlayerGL {
 		IVideoSource mask = null; 
 		try {mask = new ArrayVideoSource(new URLVideoSource(new File(args[1]).toURI().toURL(), 1), Sync.ASYNC);} catch(Throwable t) {}
 		new SimplePlayerGL(source, mask);
+		
+		Platform.get().run();
 	}
 }

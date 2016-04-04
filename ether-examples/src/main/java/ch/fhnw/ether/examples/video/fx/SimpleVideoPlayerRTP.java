@@ -37,13 +37,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.JComboBox;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
 
 import ch.fhnw.ether.image.awt.RGB8Frame;
 import ch.fhnw.ether.media.AbstractFrameSource;
-import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.media.Sync;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.ether.video.ArrayVideoSource;
 import ch.fhnw.ether.video.CameraInfo;
@@ -58,6 +61,8 @@ import ch.fhnw.util.net.rtp.RTPFrameTarget;
 
 public class SimpleVideoPlayerRTP {
 	public static void main(String[] args) throws Exception {
+		Platform.get().init();
+		
 		AbstractFrameSource source;
 		try {
 			try {
@@ -95,20 +100,29 @@ public class SimpleVideoPlayerRTP {
 
 		final RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
 
-		final JComboBox<AbstractVideoFX> fxsUI = new JComboBox<>();
-		for(AbstractVideoFX fx : fxs)
-			fxsUI.addItem(fx);
-		fxsUI.addActionListener(e->{
-			int newIdx = fxsUI.getSelectedIndex();
-			video.replace(fxs.get(current.get()), fxs.get(newIdx));
-			current.set(newIdx);
-		});
-		new ParameterWindow(fxsUI, video);
+		new ParameterWindow(parent->{
+			Combo fxsUI = new Combo(parent, SWT.READ_ONLY);
+			for(AbstractVideoFX fx : fxs)
+				fxsUI.add(fx.toString());
+			fxsUI.setLayoutData(ParameterWindow.hfill());
+			fxsUI.select(0);
+			fxsUI.addSelectionListener(new SelectionListener() {
+				@Override public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					int newIdx = fxsUI.getSelectionIndex();
+					video.replace(fxs.get(current.get()), fxs.get(newIdx));
+					current.set(newIdx);
+				}
+			}
+			);
+		}, video);
 
 		videoOut.useProgram(video);
 		videoOut.start();
 
-		videoOut.sleepUntil(IScheduler.NOT_RENDERING);
+		Platform.get().init();
 	}
 
 }
