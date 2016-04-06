@@ -33,17 +33,18 @@ package ch.fhnw.ether.video;
 
 import java.util.concurrent.BlockingQueue;
 
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractFrame;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public class VideoFrame extends AbstractFrame {
 	private final FrameAccess            framea;
-	private       Frame                  frame;
+	private       IHostImage             frame;
 	private       Texture                texture;
 	private final BlockingQueue<float[]> audioData;
 
-	public VideoFrame(Frame frame) {
+	public VideoFrame(IHostImage frame) {
 		this(new FrameAccess(frame), null);
 	}
 
@@ -57,7 +58,7 @@ public class VideoFrame extends AbstractFrame {
 		this.audioData = audioData;
 	}
 
-	public synchronized Frame getFrame() {
+	public synchronized IHostImage getFrame() {
 		if(frame == null) {
 			if(texture != null) {
 				frame = Frame.create(texture);

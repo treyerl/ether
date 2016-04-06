@@ -31,7 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -56,13 +57,16 @@ public class Posterize extends AbstractVideoFX implements IVideoFrameFX, IVideoG
 	}
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
 		final int m = 0xFF << (int)getVal(MASK);
 
-		if(frame.pixelSize == 4) {
-			frame.processLines((pixels, j)->{
+		if(numComponents == 4) {
+			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
-				for(int i = 0; i < frame.width; i++) {
+				for(int i = 0; i < image.getWidth(); i++) {
 					pixels.put((byte)(pixels.get(idx++) & m));
 					pixels.put((byte)(pixels.get(idx++) & m));
 					pixels.put((byte)(pixels.get(idx++) & m));
@@ -71,9 +75,9 @@ public class Posterize extends AbstractVideoFX implements IVideoFrameFX, IVideoG
 				}
 			});
 		} else {
-			frame.processLines((pixels, j)->{
+			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
-				for(int i = 0; i < frame.width; i++) {
+				for(int i = 0; i < image.getWidth(); i++) {
 					pixels.put((byte)(pixels.get(idx++) & m));
 					pixels.put((byte)(pixels.get(idx++) & m));
 					pixels.put((byte)(pixels.get(idx++) & m));

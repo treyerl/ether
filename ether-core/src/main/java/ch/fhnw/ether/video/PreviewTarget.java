@@ -43,6 +43,7 @@ import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
+// XXX defunct because of AWT dependency
 public class PreviewTarget extends AbstractVideoTarget {
 	private static final int BORDER = 2;
 

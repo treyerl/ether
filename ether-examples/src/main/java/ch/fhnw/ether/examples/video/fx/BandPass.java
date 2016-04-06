@@ -35,7 +35,8 @@ import java.util.Arrays;
 
 import org.jtransforms.fft.FloatFFT_2D;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -58,28 +59,34 @@ public class BandPass extends AbstractVideoFX implements IVideoFrameFX {
 
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
-		if(rows != frame.height || cols != frame.width) {
-			rows = frame.height;
-			cols = frame.width;
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
+		if(rows != image.getHeight() || cols != image.getWidth()) {
+			rows = image.getHeight();
+			cols = image.getWidth();
 			r    = new float[rows][cols*2]; 
 			g    = new float[rows][cols*2]; 
 			b    = new float[rows][cols*2]; 
 			fft  = new FloatFFT_2D(rows, cols);
 		}
 
-		frame.processLines((pixels, j)->{
+		ImageProcessor.processLines(image, (pixels, j)->{
 			final float[] rj = r[j];
 			final float[] gj = g[j];
 			final float[] bj = b[j];
-			for(int i = frame.width; --i >= 0;) {
+			for(int i = image.getWidth(); --i >= 0;) {
 				rj[i*2+0] = toFloat(pixels.get()); 
 				rj[i*2+1] = 0f;
 				gj[i*2+0] = toFloat(pixels.get()); 
 				gj[i*2+1] = 0f;
 				bj[i*2+0] = toFloat(pixels.get()); 
 				bj[i*2+1] = 0f;
-				if(frame.pixelSize == 4) pixels.get();
+				if(numComponents == 4) pixels.get();
 			}
 		});
 
@@ -103,11 +110,11 @@ public class BandPass extends AbstractVideoFX implements IVideoFrameFX {
 		fft.complexInverse(g, true);
 		fft.complexInverse(b, true);
 
-		frame.processLines((pixels, j)->{
+		ImageProcessor.processLines(image, (pixels, j)->{
 			final float[] rj = r[j];
 			final float[] gj = g[j];
 			final float[] bj = b[j];
-			for(int i = frame.width; --i >= 0;) {
+			for(int i = image.getWidth(); --i >= 0;) {
 				float re = rj[i*2+0];
 				float im = rj[i*2+1];
 				pixels.put(toByte(Math.hypot(re, im)));
@@ -117,7 +124,7 @@ public class BandPass extends AbstractVideoFX implements IVideoFrameFX {
 				re = bj[i*2+0];
 				im = bj[i*2+1];
 				pixels.put(toByte(Math.hypot(re, im)));
-				if(frame.pixelSize == 4) pixels.get();
+				if(numComponents == 4) pixels.get();
 			}
 		});
 	}

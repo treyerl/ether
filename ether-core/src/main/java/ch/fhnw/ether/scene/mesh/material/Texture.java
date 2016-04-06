@@ -31,9 +31,10 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
-import ch.fhnw.ether.image.ByteImage;
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.render.gl.GLObject;
 
 /**
@@ -42,7 +43,7 @@ import ch.fhnw.ether.render.gl.GLObject;
  * @author radar
  */
 public class Texture {
-	public static final Texture TRANSPARENT_1x1 = new ByteImage(1, 1, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED).getTexture();
+	public static final Texture TRANSPARENT_1x1 = IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED).getTexture();
 
 	private GLObject glObject;
 	private int      width;

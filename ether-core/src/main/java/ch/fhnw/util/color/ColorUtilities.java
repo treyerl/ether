@@ -44,7 +44,11 @@ public final class ColorUtilities {
 	public static final float YR = 1.0f;
 	public static final float ZR = 0.825211f;
 
-	public static float[] getLUVfromRGB(final ByteBuffer pixels, final float[] result, int pixelSize) {
+	public static float[] getLUVfromRGB(final ByteBuffer pixels, final float[] result, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
 			// http://www.brucelindbloom.com
@@ -121,14 +125,18 @@ public final class ColorUtilities {
 			 * luv[0] = (int) (2.55*L + .5); luv[1] = (int) (u + .5); luv[2] =
 			 * (int) (v + .5);
 			 */
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 		}
 
 		return result;
 	}
 
-	public static float[] getHSBfromRGB(final ByteBuffer pixels, final float[] result, int pixelSize) {
+	public static float[] getHSBfromRGB(final ByteBuffer pixels, final float[] result, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
 			float hue;
@@ -167,13 +175,17 @@ public final class ColorUtilities {
 			result[idx++] = hue;
 			result[idx++] = saturation;
 			result[idx++] = brightness;
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 		}
 		return result;
 	}
 
-	public static void putRGBfromHSB(final ByteBuffer pixels, final float[] hsb, int pixelSize) {
+	public static void putRGBfromHSB(final ByteBuffer pixels, final float[] hsb, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = hsb.length / 3; --i >= 0;) {
 			int r = 0, g = 0, b = 0;
@@ -221,13 +233,17 @@ public final class ColorUtilities {
 			pixels.put((byte) r);
 			pixels.put((byte) g);
 			pixels.put((byte) b);
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
 		}
 	}
 
-	public static float[] getYPbPrfromRGB(final ByteBuffer pixels, final float[] result, int pixelSize) {
+	public static float[] getYPbPrfromRGB(final ByteBuffer pixels, final float[] result, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
 			final float r = AbstractVideoFX.toFloat(pixels.get());
@@ -236,14 +252,18 @@ public final class ColorUtilities {
 			result[idx + 0] = 0.299f * r + 0.587f * g + 0.114f * b;
 			result[idx + 1] = -0.168736f * r - 0.331264f * g + 0.5f      * b;
 			result[idx + 2] =  0.5f      * r - 0.418688f * g - 0.081312f * b;
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
 		}
 		return result;
 	}
 
-	public static void putRGBfromYPbPr(final ByteBuffer pixels, final float[] yPbPr, int pixelSize) {
+	public static void putRGBfromYPbPr(final ByteBuffer pixels, final float[] yPbPr, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = yPbPr.length / 3; --i >= 0;) {
 			final float r = yPbPr[idx]                            + 1.402f    * yPbPr[idx+2];
@@ -252,13 +272,17 @@ public final class ColorUtilities {
 			pixels.put(AbstractVideoFX.toByte(r));
 			pixels.put(AbstractVideoFX.toByte(g));
 			pixels.put(AbstractVideoFX.toByte(b));
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
 		}
 	}
 
-	public static float[] getYUVfromRGB(final ByteBuffer pixels, final float[] result, int pixelSize) {
+	public static float[] getYUVfromRGB(final ByteBuffer pixels, final float[] result, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+		
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
 			final float r = AbstractVideoFX.toFloat(pixels.get());
@@ -267,14 +291,18 @@ public final class ColorUtilities {
 			result[idx + 0] = 0.299f * r + 0.587f * g + 0.114f * b;
 			result[idx + 1] = 0.492f * (b - result[idx]);
 			result[idx + 2] = 0.877f * (r - result[idx]);
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
 		}
 		return result;
 	}
 
-	public static void putRGBfromYUV(final ByteBuffer pixels, final float[] yuv, int pixelSize) {
+	public static void putRGBfromYUV(final ByteBuffer pixels, final float[] yuv, int numComponents) {
+		// TODO: implement G and GA
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("#" + numComponents + " components unsupported");
+
 		int idx = 0;
 		for (int i = yuv.length / 3; --i >= 0;) {
 			final float r = yuv[idx] + 1.14f  * yuv[idx + 2];
@@ -283,7 +311,7 @@ public final class ColorUtilities {
 			pixels.put(AbstractVideoFX.toByte(r));
 			pixels.put(AbstractVideoFX.toByte(g));
 			pixels.put(AbstractVideoFX.toByte(b));
-			if (pixelSize == 4)
+			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
 		}

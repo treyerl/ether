@@ -33,7 +33,8 @@ package ch.fhnw.ether.examples.video.fx;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -48,14 +49,15 @@ public class ChromaKey extends AbstractVideoFX implements IVideoFrameFX, IVideoG
 	private static final Parameter S_MIN  = new Parameter("sMin",  "Saturation Minimum", 0, 1,    0.1f);
 	private static final Parameter B_MIN  = new Parameter("bMin",  "Brightness Minimum", 0, 1,    0.1f);
 
-	private final Frame mask;
+	private final IHostImage mask;
 
-	public ChromaKey(Frame mask) {
+	public ChromaKey(IHostImage mask) {
 		super(
 				NO_UNIFORMS,
 				NO_INOUT,
 				uniforms("mask", mask),			
 				HUE, RANGE, S_MIN, B_MIN);
+		ensureRGB8OrRGBA8(mask);
 		this.mask = mask;
 	}
 
@@ -85,8 +87,11 @@ public class ChromaKey extends AbstractVideoFX implements IVideoFrameFX, IVideoG
 		};
 	}
 
+	// XXX RGBA support?
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+
 		final float hue   = getVal(HUE);
 		final float range = getVal(RANGE);
 		final float sMin  = getVal(S_MIN);
@@ -94,23 +99,23 @@ public class ChromaKey extends AbstractVideoFX implements IVideoFrameFX, IVideoG
 		final float hh    = wrap(hue + range);
 		final float hl    = wrap(hue - range);
 
-		frame.processLines((pixels, j)->{
-			final float[] hsb = new float[frame.width * 3];
+		ImageProcessor.processLines(image, (pixels, j)->{
+			final float[] hsb = new float[image.getWidth() * 3];
 			final int     pos = pixels.position();
-			ByteBuffer    mask = this.mask.pixels.asReadOnlyBuffer();
+			ByteBuffer    mask = this.mask.getPixels().asReadOnlyBuffer();
 			mask.position(pos);
-			ColorUtilities.getHSBfromRGB(mask, hsb, this.mask.pixelSize);
+			ColorUtilities.getHSBfromRGB(mask, hsb, this.mask.getComponentFormat().getNumComponents());
 			pixels.position(pos);
-			for(int i = 0; i < frame.width; i++) {
+			for(int i = 0; i < image.getWidth(); i++) {
 				int idx = i * 3;
 				if(hsb[idx+1] > sMin && hsb[idx+2] > bMin && hsb[idx+0] > hl && hsb[idx+0] < hh) {
 					pixels.get();
 					pixels.get();
 					pixels.get();
 				} else {
-					pixels.put(toByte(this.mask.getFloatComponent(i, j, 0)));
-					pixels.put(toByte(this.mask.getFloatComponent(i, j, 1)));
-					pixels.put(toByte(this.mask.getFloatComponent(i, j, 2)));
+					pixels.put(toByte(this.mask.getComponentFloat(i, j, 0)));
+					pixels.put(toByte(this.mask.getComponentFloat(i, j, 1)));
+					pixels.put(toByte(this.mask.getComponentFloat(i, j, 2)));
 				}
 			}
 		});

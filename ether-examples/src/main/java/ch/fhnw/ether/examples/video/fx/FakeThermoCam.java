@@ -31,7 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoFrameFX;
@@ -52,20 +53,23 @@ public class FakeThermoCam extends AbstractVideoFX implements IVideoFrameFX, IVi
 	}
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
-		frame.processLines((pixels, j)->{
-			float[] hsb = new float[frame.width * 3];
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
+		ImageProcessor.processLines(image, (pixels, j)->{
+			float[] hsb = new float[image.getWidth() * 3];
 			int pos = pixels.position();
-			for(int i = 0; i < frame.width; i++) {
+			for(int i = 0; i < image.getHeight(); i++) {
 				float v = toFloat(pixels.get()) + toFloat(pixels.get()) + toFloat(pixels.get());
 				hsb[i*3+0] = v / 3f;
 				hsb[i*3+1] = 1f;
 				hsb[i*3+2] = 1f;
-				if(frame.pixelSize == 4) 
+				if(numComponents == 4) 
 					pixels.get();
 			}
 			pixels.position(pos);
-			ColorUtilities.putRGBfromHSB(pixels, hsb, frame.pixelSize);
+			ColorUtilities.putRGBfromHSB(pixels, hsb, numComponents);
 		});
 	}
 }

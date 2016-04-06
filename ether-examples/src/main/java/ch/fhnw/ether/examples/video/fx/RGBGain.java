@@ -31,8 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
-import ch.fhnw.ether.image.awt.RGBA8Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -54,18 +54,21 @@ public class RGBGain extends AbstractVideoFX implements IVideoFrameFX, IVideoGLF
 	}
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
 		final float rs = getVal(RED);
 		final float gs = getVal(GREEN);
 		final float bs = getVal(BLUE);
 
-		frame.processLines((pixels, j)->{
+		ImageProcessor.processLines(image, (pixels, j)->{
 			int idx = pixels.position();
-			for(int i = 0; i < frame.width; i++) {
+			for(int i = 0; i < image.getWidth(); i++) {
 				pixels.put(toByte(toFloat(pixels.get(idx++)) * rs));
 				pixels.put(toByte(toFloat(pixels.get(idx++)) * gs));
 				pixels.put(toByte(toFloat(pixels.get(idx++)) * bs));
-				if(frame instanceof RGBA8Frame) {					
+				if(numComponents == 4) {					
 					pixels.get();
 					idx++;
 				}

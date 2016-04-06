@@ -31,9 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import java.nio.ByteBuffer;
-
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -145,45 +144,48 @@ public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVide
 	private float[][] outFrame = new float[1][1];
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
-		if(frame.height != outFrame.length || frame.width != outFrame[0].length * 3)
-			outFrame = new float[frame.height][frame.width * 3];
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
+		if(image.getHeight() != outFrame.length || image.getWidth() != outFrame[0].length * 3)
+			outFrame = new float[image.getHeight()][image.getWidth() * 3];
 
 		Mat3    kernel    = KERNELS[(int) getVal(KERNEL)];
 		boolean greyscale = GREYSCALE[(int) getVal(KERNEL)]; 
 
-		for(int j = frame.height - 1; --j >= 1;) {
+		for(int j = image.getHeight() - 1; --j >= 1;) {
 			int idx = 0;
 			if(greyscale) {
-				for(int i = 1; i< frame.width - 1; i++) {
-					float val = convolve(frame, i, j, kernel, 0) + convolve(frame, i, j, kernel, 1) + convolve(frame, i, j, kernel, 2); 
+				for(int i = 1; i< image.getWidth() - 1; i++) {
+					float val = convolve(image, i, j, kernel, 0) + convolve(image, i, j, kernel, 1) + convolve(image, i, j, kernel, 2); 
 					outFrame[j][idx++] = val; 
 					outFrame[j][idx++] = val; 
 					outFrame[j][idx++] = val; 
 				}
 			} else {
-				for(int i = 1; i< frame.width - 1; i++) {
-					outFrame[j][idx++] = convolve(frame, i, j, kernel, 0); 
-					outFrame[j][idx++] = convolve(frame, i, j, kernel, 1); 
-					outFrame[j][idx++] = convolve(frame, i, j, kernel, 2); 
+				for(int i = 1; i< image.getWidth() - 1; i++) {
+					outFrame[j][idx++] = convolve(image, i, j, kernel, 0); 
+					outFrame[j][idx++] = convolve(image, i, j, kernel, 1); 
+					outFrame[j][idx++] = convolve(image, i, j, kernel, 2); 
 				}
 			}
 		}
 
-		if(frame.pixelSize == 4) {
-			frame.processLines((pixels, j) -> {
+		if(numComponents == 4) {
+			ImageProcessor.processLines(image, (pixels, j) -> {
 				int idx = 0;
-				for(int i = frame.width; --i >= 0;) {
+				for(int i = image.getWidth(); --i >= 0;) {
 					pixels.put(toByte(outFrame[j][idx++]));
 					pixels.put(toByte(outFrame[j][idx++]));
 					pixels.put(toByte(outFrame[j][idx++]));
-					pixels.put(Frame.B255);
+					pixels.put((byte)255);
 				}
 			});
 		} else {
-			frame.processLines((ByteBuffer pixels, int j) -> {
+			ImageProcessor.processLines(image, (pixels, j) -> {
 				int idx = 0;
-				for(int i = frame.width; --i >= 0;) {
+				for(int i = image.getWidth(); --i >= 0;) {
 					pixels.put(toByte(outFrame[j][idx++]));
 					pixels.put(toByte(outFrame[j][idx++]));
 					pixels.put(toByte(outFrame[j][idx++]));
@@ -192,18 +194,18 @@ public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVide
 		}
 	}
 
-	private float convolve(Frame frame, int x, int y, Mat3 kernel, int c) {
+	private float convolve(IHostImage image, int x, int y, Mat3 kernel, int c) {
 		return
-				frame.getFloatComponent(x-1, y-1, c) * kernel.m00 +
-				frame.getFloatComponent(x-1, y,   c) * kernel.m10 +
-				frame.getFloatComponent(x-1, y+1, c) * kernel.m20 +
+				image.getComponentFloat(x-1, y-1, c) * kernel.m00 +
+				image.getComponentFloat(x-1, y,   c) * kernel.m10 +
+				image.getComponentFloat(x-1, y+1, c) * kernel.m20 +
 
-				frame.getFloatComponent(x,   y-1, c) * kernel.m01 +
-				frame.getFloatComponent(x,   y,   c) * kernel.m11 +
-				frame.getFloatComponent(x,   y+1, c) * kernel.m21 +
+				image.getComponentFloat(x,   y-1, c) * kernel.m01 +
+				image.getComponentFloat(x,   y,   c) * kernel.m11 +
+				image.getComponentFloat(x,   y+1, c) * kernel.m21 +
 
-				frame.getFloatComponent(x+1, y-1, c) * kernel.m02 +
-				frame.getFloatComponent(x+1, y,   c) * kernel.m12 +
-				frame.getFloatComponent(x+1, y+1, c) * kernel.m22;
+				image.getComponentFloat(x+1, y-1, c) * kernel.m02 +
+				image.getComponentFloat(x+1, y,   c) * kernel.m12 +
+				image.getComponentFloat(x+1, y+1, c) * kernel.m22;
 	}
 }

@@ -41,13 +41,13 @@ import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamEvent;
 import com.github.sarxos.webcam.WebcamListener;
 
-import ch.fhnw.ether.image.awt.AWTImageSupport;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.Log;
 
+// XXX currently defunct because of AWT dependencies
 public class CameraSource extends AbstractFrameSource implements IVideoSource, IDisposable, WebcamListener {
 	private static final Log LOG = Log.create();
 
@@ -100,7 +100,8 @@ public class CameraSource extends AbstractFrameSource implements IVideoSource, I
 	protected void run(IRenderTarget<?> target) throws RenderCommandException {
 		if(!(cam.isOpen())) return;
 		try {
-			((IVideoRenderTarget)target).setFrame(this, new VideoFrame(AWTImageSupport.createFrame(imgQ.take())));
+			// XXX will not work with lwjgl
+			// ((IVideoRenderTarget)target).setFrame(this, new VideoFrame(AWTImageSupport.createFrame(imgQ.take())));
 		} catch(Throwable t) {
 			throw new RenderCommandException(t);
 		}

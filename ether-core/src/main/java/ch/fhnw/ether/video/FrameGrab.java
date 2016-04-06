@@ -64,7 +64,7 @@ import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
 import org.jcodec.scale.ColorUtil;
 import org.jcodec.scale.Transform8Bit;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.util.Log;
 
 /**
@@ -356,7 +356,7 @@ public class FrameGrab {
 		}
 	}
 
-	public void grabAndSet(Picture8Bit src, Frame frame, BlockingQueue<float[]> audioData) {
+	public void grabAndSet(Picture8Bit src, IHostImage frame, BlockingQueue<float[]> audioData) {
 		if (src.getColor() != ColorSpace.RGB) {
 			Picture8Bit   rgb       = Picture8Bit.create(src.getWidth(), src.getHeight(), ColorSpace.RGB, src.getCrop());
 			Transform8Bit transform = ColorUtil.getTransform8Bit(src.getColor(), rgb.getColor());
@@ -364,15 +364,16 @@ public class FrameGrab {
 			src = rgb;
 		}
 
-		final ByteBuffer pixels  = frame.pixels;
-		final byte[]     srcData = src.getPlaneData(0);
-		final int        line    = frame.width * frame.pixelSize;
+		final int        numComponents = frame.getComponentFormat().getNumComponents();
+		final ByteBuffer pixels        = frame.getPixels();
+		final byte[]     srcData       = src.getPlaneData(0);
+		final int        line          = frame.getWidth() * numComponents;
 
 		pixels.clear();
-		if(frame.pixelSize == 4) {
-			for(int j = frame.height; --j >= 0;) {
+		if(numComponents == 4) {
+			for(int j = frame.getHeight(); --j >= 0;) {
 				int idx = j * line;
-				for (int i = frame.width; --i >= 0;) {
+				for (int i = frame.getWidth(); --i >= 0;) {
 					pixels.put((byte) (srcData[idx+2] + 128));
 					pixels.put((byte) (srcData[idx+1] + 128));
 					pixels.put((byte) (srcData[idx+0] + 128));
@@ -381,9 +382,9 @@ public class FrameGrab {
 				}
 			}
 		} else {
-			for(int j = frame.height; --j >= 0;) {
+			for(int j = frame.getHeight(); --j >= 0;) {
 				int idx = j * line;
-				for (int i = frame.width; --i >= 0;) {
+				for (int i = frame.getWidth(); --i >= 0;) {
 					pixels.put((byte) (srcData[idx+2] + 128));
 					pixels.put((byte) (srcData[idx+1] + 128));
 					pixels.put((byte) (srcData[idx+0] + 128));

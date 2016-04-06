@@ -34,49 +34,49 @@ package ch.fhnw.ether.video;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
-import ch.fhnw.ether.image.awt.AWTImageSupport;
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.IDisposable;
 
 public class FrameAccess implements IDisposable {
-	protected final URLVideoSource src;
+	private   final URLVideoSource src;
+	private         IHostImage     image;
 	protected int                  numPlays;
-	private         Frame          frame;
 
 	FrameAccess(URLVideoSource src) throws IOException {
-		this.frame    = AWTImageSupport.readFrame(src.getURL());
+		this.image    = Platform.get().getImageSupport().read(src.getURL());
 		this.src      = src;
 		this.numPlays = 0;
 	}
 
-	FrameAccess(Frame frame) {
-		this.frame    = frame;
+	FrameAccess(IHostImage frame) {
+		this.image    = frame;
 		this.src      = null;
 		this.numPlays = 0;
 	}
 
 	protected FrameAccess(URLVideoSource src, int numPlays) {
-		this.frame    = null;
+		this.image    = null;
 		this.src      = src;
 		this.numPlays = numPlays;
 	}
 
-	protected Frame getFrame(BlockingQueue<float[]> audioData) {
-		return frame;
+	protected IHostImage getFrame(BlockingQueue<float[]> audioData) {
+		return image;
 	}
 	
 	public Texture getTexture(BlockingQueue<float[]> audioData) {
-		return frame.getTexture();
+		return image.getTexture();
 	}
 
 	protected int getWidth() {
-		return frame.width;
+		return image.getWidth();
 	}
 	protected int getHeight() {
-		return frame.height;
+		return image.getHeight();
 	}
 	
 	protected float getFrameRate() {
@@ -115,7 +115,7 @@ public class FrameAccess implements IDisposable {
 	
 	@Override
 	public void dispose() {
-		frame = null; // help GC
+		image = null; // help GC
 	}
 	
 	public void rewind() throws IOException {}

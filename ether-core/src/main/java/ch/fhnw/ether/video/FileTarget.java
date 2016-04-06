@@ -33,25 +33,25 @@ package ch.fhnw.ether.video;
 
 import java.io.File;
 
-import javax.imageio.ImageIO;
-
+import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.util.TextUtilities;
 
 public class FileTarget extends AbstractVideoTarget {
-	private final String name;
-	private final String extU;
-	private final String extL;
 	private final File   path;
+	private final String name;
+	private final String ext;
 	private       long   count;
 
 	public FileTarget(File file) {
 		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
-		this.path = file.getParentFile();
-		this.name = TextUtilities.getFileNameWithoutExtension(file);
-		this.extU = TextUtilities.getFileExtensionWithoutDot(file.getName()).toUpperCase();
-		this.extL = TextUtilities.getFileExtensionWithoutDot(file.getName()).toLowerCase();
+		path = file.getParentFile();
+		name = TextUtilities.getFileNameWithoutExtension(file);
+		ext = TextUtilities.getFileExtensionWithoutDot(file.getName()).toLowerCase();
+		if (!ext.equals("png") || !ext.equals("jpg"))
+			throw new IllegalArgumentException("only png and jpg supported");
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class FileTarget extends AbstractVideoTarget {
 		}
 		sleepUntil(getFrame().playOutTime);
 		try {
-			ImageIO.write(getFrame().getFrame().toBufferedImage(), extU, new File(path, name + "_" + count + "." + extL));
+			Platform.get().getImageSupport().writeIImage(getFrame().getFrame(), new File(path, name + "_" + count + "." + ext), ext.equals("png") ? IImageSupport.FileFormat.PNG : IImageSupport.FileFormat.JPEG);
 		} catch (Throwable e) {
 			throw new RenderCommandException(e);
 		}

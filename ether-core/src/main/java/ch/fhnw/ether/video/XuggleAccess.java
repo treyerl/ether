@@ -59,8 +59,10 @@ import com.xuggle.xuggler.IVideoPicture;
 import com.xuggle.xuggler.IVideoResampler;
 
 import ch.fhnw.ether.audio.AudioUtilities;
-import ch.fhnw.ether.image.awt.Frame;
-import ch.fhnw.ether.image.awt.RGB8Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.ITimebase;
@@ -220,7 +222,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 
 	@Override
 	public String toString() {
-		return src.getURL() + " (d=" + getDuration() + " fr=" + getFrameRate() + " fc=" + getFrameCount() + " w=" + getWidth() + " h=" + getHeight() + ")";
+		return getSource().getURL() + " (d=" + getDuration() + " fr=" + getFrameRate() + " fc=" + getFrameCount() + " w=" + getWidth() + " h=" + getHeight() + ")";
 	}
 
 	@Override
@@ -326,8 +328,8 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 
 	IVideoPicture tmpPicture;
 	@Override
-	protected Frame getFrame(BlockingQueue<float[]> audioData) {
-		Frame result = null;
+	protected IHostImage getFrame(BlockingQueue<float[]> audioData) {
+		IHostImage result = null;
 		try {
 			final int w = getWidth();
 			final int h = getHeight();
@@ -347,7 +349,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 			}
 			ByteBuffer dstBuffer = BufferUtils.createByteBuffer(w * h * 3);
 			flip(newPic.getByteBuffer(), dstBuffer, w, h);
-			result = new RGB8Frame(w, h, dstBuffer);
+			result = IHostImage.create(w, h, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED, dstBuffer);
 			if(!(this.audioData.isEmpty())) {
 				while(audioData.size() > (2  * this.audioData.size()) + 128)
 					audioData.take();

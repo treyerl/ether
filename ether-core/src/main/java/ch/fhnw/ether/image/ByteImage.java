@@ -39,13 +39,13 @@ import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.util.BufferUtilities;
 
-public final class ByteImage extends AbstractHostImage {
+final class ByteImage extends AbstractHostImage {
 	
-	public ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
+	ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode);
 	}
 
-	public ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
+	ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode, pixels);
 	}
 	

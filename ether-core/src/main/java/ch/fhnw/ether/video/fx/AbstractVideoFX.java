@@ -40,6 +40,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.Parameter;
@@ -88,6 +90,7 @@ import ch.fhnw.util.math.IVec4;
 import ch.fhnw.util.math.Mat3;
 import ch.fhnw.util.math.Mat4;
 
+// XXX IHostImage vs IGPUImage handling
 public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRenderTarget> {
 	private static final Log LOG = Log.create();
 	
@@ -110,7 +113,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				return "int";
 			else if(value instanceof Boolean)
 				return "bool";
-			else if(value instanceof Frame || value instanceof VideoFrame)
+			else if(value instanceof IHostImage || value instanceof VideoFrame)
 				return "sampler2D";
 			return TextUtilities.getShortClassName(value).toLowerCase();
 		}
@@ -135,9 +138,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				return new Vec3FloatUniform((ITypedAttribute<IVec3>)this, id());
 			else if(value instanceof IVec4)
 				return new Vec4FloatUniform((ITypedAttribute<IVec4>)this, id());
-			else if(value instanceof Frame)
-				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
-			else if(value instanceof VideoFrame)
+			else if(value instanceof IHostImage || value instanceof VideoFrame)
 				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
 			else
 				throw new IllegalArgumentException("Unsupported unifrom type:" + value.getClass().getName());
@@ -149,8 +150,8 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		}
 
 		public Object get() {
-			if(value instanceof Frame)
-				return ((Frame)value).getTexture();
+			if(value instanceof IHostImage)
+				return ((IHostImage)value).getTexture();
 			else if(value instanceof VideoFrame)
 				return ((VideoFrame)value).getTexture();
 			return value;
@@ -413,6 +414,14 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		for(int i = 0; i < result.length; i++)
 			result[i] = new Uniform<>(uniforms[i*2].toString(), uniforms[i*2+1]);
 		return result;
+	}
+	
+	protected static final void ensureRGB8OrRGBA8(IHostImage image) {
+		int numComponents = image.getComponentFormat().getNumComponents();
+		if (image.getComponentType() != ComponentType.BYTE) 
+			throw new IllegalArgumentException("unsupported " + image.getComponentType() + "-component type");
+		if (numComponents != 3 || numComponents != 4)
+			throw new IllegalArgumentException("unsupported " + numComponents + "-component format");
 	}
 	
 	private String getVertexCode() {

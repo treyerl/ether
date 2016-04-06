@@ -48,7 +48,10 @@ import ch.fhnw.ether.audio.JavaSoundTarget;
 import ch.fhnw.ether.audio.fx.AudioGain;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.image.awt.RGB8Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
@@ -99,7 +102,7 @@ public class SimplePlayerGL {
 				new FakeThermoCam());
 
 		if(mask != null) {
-			RGB8Frame maskOut  = new RGB8Frame(mask.getWidth(), mask.getHeight());
+			IHostImage maskOut  = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 			FrameTarget target = new FrameTarget(maskOut);
 			target.setTimebase(videoOut);
 			target.useProgram(new RenderProgram<>(mask));

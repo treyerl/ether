@@ -31,7 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -58,16 +59,19 @@ public class FadeToColor extends AbstractVideoFX implements IVideoFrameFX, IVide
 	}
 	
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
 		final float fade  = getVal(FADE);
 		final float red   = getVal(RED);
 		final float green = getVal(GREEN);
 		final float blue  = getVal(BLUE);
 
-		if(frame.pixelSize == 4) {
-			frame.processLines((pixels, j)->{
+		if(numComponents == 4) {
+			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
-				for(int i = 0; i < frame.width; i++) {
+				for(int i = 0; i < image.getWidth(); i++) {
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), red,   fade)));
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), green, fade)));
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), blue,  fade)));
@@ -76,9 +80,9 @@ public class FadeToColor extends AbstractVideoFX implements IVideoFrameFX, IVide
 				}
 			});
 		} else {
-			frame.processLines((pixels, j)->{
+			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
-				for(int i = 0; i < frame.width; i++) {
+				for(int i = 0; i < image.getWidth(); i++) {
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), red,   fade)));
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), green, fade)));
 					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), blue,  fade)));

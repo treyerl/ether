@@ -70,6 +70,8 @@ public abstract class AbstractHostImage implements IHostImage {
 		this.componentFormat = componentFormat;
 		this.alphaMode = alphaMode;
 		this.numBytesPerPixel = componentFormat.getNumComponents() * componentType.getSize();
+		
+		// XXX should we really copy the buffer here, or just check & assign?
 		this.pixels = BufferUtils.createByteBuffer(width * height * numBytesPerPixel);
 		if (pixels != null)
 			this.pixels.put(pixels);

@@ -37,6 +37,7 @@ import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
+// XXX review this
 public class ColorMapMaterialTarget extends AbstractVideoTarget {
 	private final ColorMapMaterial material;
 	private final IController      controller;

@@ -31,34 +31,32 @@
 
 package ch.fhnw.ether.video;
 
-import java.awt.RenderingHints;
-
-import ch.fhnw.ether.image.awt.Frame;
-import ch.fhnw.ether.image.awt.ImageScaler;
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
+// TODO: rename to ImageTarget
 public class FrameTarget extends AbstractVideoTarget {
-	private final Frame frame;
+	private final IHostImage image;
 
-	public FrameTarget(Frame frame) {
+	public FrameTarget(IHostImage image) {
 		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
-		this.frame = frame;
+		this.image = image;
 	}
 
 	@Override
 	public void render() throws RenderCommandException {
-		VideoFrame vf = getFrame();
-		Frame vframe = vf.getFrame();
-		sleepUntil(vf.playOutTime);
+		VideoFrame videoFrame = getFrame();
+		IHostImage videoImage = videoFrame.getFrame();
+		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
-			if (frame.width != vframe.width || frame.height != vframe.height) {
-				frame.setSubframe(0, 0, ImageScaler.getScaledInstance(vframe, frame.width, frame.height, RenderingHints.VALUE_INTERPOLATION_BILINEAR, false));
+			if (image.getWidth() != videoImage.getWidth() || image.getHeight() != videoImage.getHeight()) {
+				IHostImage scaled = Platform.get().getImageSupport().scale(videoImage, image.getWidth(), image.getHeight());
+				image.setSubImage(0, 0, scaled);
 			} else {
 				// XXX check this (original code was just assigning internally
-				frame.setSubframe(0, 0, vframe);
-				//texture = vframe.texture;
-				//pixels = vframe.pixels;
+				image.setSubImage(0, 0, videoImage);
 			}
 		}
 	}

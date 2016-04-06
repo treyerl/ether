@@ -51,18 +51,18 @@ import ch.fhnw.util.TextUtilities;
 public class URLVideoSource extends AbstractFrameSource implements IAudioSource, IVideoSource {
 	private static final boolean USE_JCODEC = false;
 
-	private  int                         width;
-	private  int                         height;
-	private  float                       frameRate;
-	private  long                        frameCount;
-	private  float                       sampleRate;
-	private  int                         numChannels;
-	private  double                      length;
-	private  double                      start;
-	protected URL                        url;
+	private int                          width;
+	private int                          height;
+	private float                        frameRate;
+	private long                         frameCount;
+	private float                        sampleRate;
+	private int                          numChannels;
+	private double                       length;
+	private double                       start;
+	private URL                          url;
 	private final FrameAccess            frameAccess;
 	private final BlockingQueue<float[]> audioData = new LinkedBlockingQueue<>();
-	long                                 samples;
+	private long                         samples;
 	private final AtomicBoolean          startup   = new AtomicBoolean(true);
 
 	public URLVideoSource(URL url) throws IOException {

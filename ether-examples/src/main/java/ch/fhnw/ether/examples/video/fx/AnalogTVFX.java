@@ -31,7 +31,8 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
@@ -60,25 +61,30 @@ public class AnalogTVFX extends AbstractVideoFX implements IVideoFrameFX {
 	}
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
-		final  float  y  = getVal(Y);
-		final  float  a  = getVal(A);
-		final  float  p  = getVal(P);
-		final  int    c  = ((int)getVal(C)) * 3;
-		final  double ha = getVal(HA);
-		final  double hf = getVal(HF);
-		final  float  hd = getVal(HD);
-		final  double hp = getVal(HP);
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		ensureRGB8OrRGBA8(image);
+		final int numComponents = image.getComponentFormat().getNumComponents();
+
+		final float  y  = getVal(Y);
+		final float  a  = getVal(A);
+		final float  p  = getVal(P);
+		final int    c  = ((int)getVal(C)) * 3;
+		final double ha = getVal(HA);
+		final double hf = getVal(HF);
+		final float  hd = getVal(HD);
+		final double hp = getVal(HP);
+		
+		
 		if(vOff < 0) vOff = 0;
-		vOff             += (int)getVal(V);
+		vOff += (int)getVal(V);
 
-		if(yuvFrame.length != frame.height + VBLANK || yuvFrame[0].length != frame.width * 3)
-			yuvFrame = new float[frame.height + VBLANK][frame.width * 3];
+		if(yuvFrame.length != image.getHeight() + VBLANK || yuvFrame[0].length != image.getWidth() * 3)
+			yuvFrame = new float[image.getHeight() + VBLANK][image.getWidth() * 3];
 
-		frame.processLines((pixels, j)->{
+		ImageProcessor.processLines(image, (pixels, j)->{
 			final float[] yuv  = yuvFrame[j];
 			final int     hoff = 3 * (int)((Math.sin(lineCount++ / hf) + 1.0) * ha + hp * j);      
-			ColorUtilities.getYUVfromRGB(pixels, yuv, frame.pixelSize);
+			ColorUtilities.getYUVfromRGB(pixels, yuv, numComponents);
 			for(int i = 3; i < yuv.length; i += 3) {
 				final int    idxY   = (i + hoff) % yuv.length;
 				final int    idxC   = (idxY + c) % yuv.length;
@@ -90,9 +96,9 @@ public class AnalogTVFX extends AbstractVideoFX implements IVideoFrameFX {
 			}
 		});
 
-		frame.processLines((pixels, j)->{
+		ImageProcessor.processLines(image, (pixels, j)->{
 			final float[] yuv  = yuvFrame[(j+vOff) % yuvFrame.length];
-			ColorUtilities.putRGBfromYUV(pixels, yuv, frame.pixelSize);
+			ColorUtilities.putRGBfromYUV(pixels, yuv, numComponents);
 		});
 	}
 }

@@ -31,8 +31,13 @@
 
 package ch.fhnw.ether.examples.video.fx;
 
-import ch.fhnw.ether.image.awt.Frame;
-import ch.fhnw.ether.image.awt.RGB8Frame;
+import java.nio.ByteBuffer;
+
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.VideoFrame;
@@ -43,7 +48,7 @@ import ch.fhnw.ether.video.fx.IVideoGLFX;
 public class MotionBlur extends AbstractVideoFX implements IVideoFrameFX, IVideoGLFX {
 	private static final Parameter DECAY = new Parameter("decay", "Decay", 0.01f, 1f, 1f);
 
-	private static final VideoFrame DUMMY_FRAME = new VideoFrame(new RGB8Frame(1,1));
+	private static final VideoFrame DUMMY_FRAME = new VideoFrame(IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED));
 	private static final String     PREVIOUS    = "previous";
 	
 	private float[][]    buffer     = new float[1][1];
@@ -71,17 +76,19 @@ public class MotionBlur extends AbstractVideoFX implements IVideoFrameFX, IVideo
 	}
 
 	@Override
-	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final Frame frame) {
-		if(buffer[0].length != frame.width *3 || buffer.length != frame.height)
-			buffer  = new float[frame.height][frame.width * 3];
+	public void processFrame(final double playOutTime, final IVideoRenderTarget target, final IHostImage image) {
+		// XXX RGBA support?
+		
+		if(buffer[0].length != image.getWidth() * 3 || buffer.length != image.getHeight())
+			buffer  = new float[image.getHeight()][image.getWidth() * 3];
 
 		float decay = getVal(DECAY);
 
-		frame.processLines((pixels, j) -> {
+		ImageProcessor.processLines(image, (pixels, j) -> {
 			int           idx     = 0;
 			final float[] bufferJ = buffer[j];
-			for(int i = frame.width; --i >= 0;) {
-				frame.position(pixels, i, j);
+			for(int i = image.getWidth(); --i >= 0;) {
+				position(pixels, image, i, j);
 
 				float r = toFloat(pixels.get());
 				float g = toFloat(pixels.get());
@@ -93,12 +100,16 @@ public class MotionBlur extends AbstractVideoFX implements IVideoFrameFX, IVideo
 
 				idx -= 2;
 
-				frame.position(pixels, i, j);					
+				position(pixels, image, i, j);					
 				pixels.put(toByte(bufferJ[idx++]));
 				pixels.put(toByte(bufferJ[idx++]));
 				pixels.put(toByte(bufferJ[idx++]));
 
 			}
 		});
+	}
+	
+	private static void position(ByteBuffer pixels, IHostImage image, int x, int y) {
+		pixels.position((y * image.getWidth() + x) * image.getNumBytesPerPixel());
 	}
 }
