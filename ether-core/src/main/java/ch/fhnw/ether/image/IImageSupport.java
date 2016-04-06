@@ -48,25 +48,25 @@ public interface IImageSupport {
 		PNG, JPEG
 	}
 
-	IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException;
+	IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException;
 
-	default IImage read(InputStream in) throws IOException {
+	default IHostImage read(InputStream in) throws IOException {
 		return read(in, null, null, null);
 	}
 	
-	default IImage read(File file, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	default IHostImage read(File file, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
 		return read(new FileInputStream(file), componentFormat, componentType, alphaMode);
 	}
 
-	default IImage read(File file) throws IOException {
+	default IHostImage read(File file) throws IOException {
 		return read(new FileInputStream(file), null, null, null);
 	}
 
-	default IImage read(URL url, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	default IHostImage read(URL url, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
 		return read(url.openStream(), componentFormat, componentType, alphaMode);
 	}
 
-	default IImage read(URL url) throws IOException {
+	default IHostImage read(URL url) throws IOException {
 		return read(url.openStream(), null, null, null);
 	}
 
@@ -76,9 +76,5 @@ public interface IImageSupport {
 		write(image, new FileOutputStream(file), format);
 	}
 
-	IImage scale(IImage image, int width, int height);
-	
-	Object toPlatform(IImage image);
-	
-	IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode);
+	IHostImage scale(IHostImage image, int width, int height);
 }

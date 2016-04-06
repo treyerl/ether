@@ -31,17 +31,17 @@
 
 package ch.fhnw.ether.formats;
 
-import ch.fhnw.ether.image.IImage;
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
 
 public final class ModelMaterial {
 	private final String name;
-	private RGB    ambientColor;
-	private RGB    diffuseColor;
-	private RGB    specularColor;
-	private float  shininess;
-	private IImage  textureImage;
+	private RGB ambientColor;
+	private RGB diffuseColor;
+	private RGB specularColor;
+	private float shininess;
+	private IHostImage textureImage;
 	private String texturePath;
 	private String textureFile;
 
@@ -107,7 +107,7 @@ public final class ModelMaterial {
 		this.textureFile = textureFile;
 	}
 	
-	public void setTexture(IImage textureImage) {
+	public void setTexture(IHostImage textureImage) {
 		this.textureImage = textureImage;
 		this.texturePath = "";
 		this.textureFile = "";

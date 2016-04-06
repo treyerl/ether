@@ -31,60 +31,8 @@
 
 package ch.fhnw.ether.image;
 
-/**
- * IImage is the opaque base type of all images. Besides size and format we
- * don't know anything about the image.
- * 
- * @author radar
- *
- */
-public interface IImage {
+public interface IGPUImage extends IImage {
+	
+	long getGPUHandle();
 
-	enum ComponentType {
-		BYTE(8), FLOAT(32);
-
-		private final int size;
-
-		private ComponentType(int size) {
-			this.size = size;
-		}
-
-		public int getSize() {
-			return size;
-		}
-	}
-
-	enum ComponentFormat {
-		G(1), GA(2), RGB(3), RGBA(4);
-
-		private final int numComponents;
-
-		private ComponentFormat(int numComponents) {
-			this.numComponents = numComponents;
-		}
-
-		public int getNumComponents() {
-			return numComponents;
-		}
-
-		public static ComponentFormat get(int numComponents) {
-			return ComponentFormat.values()[numComponents - 1];
-		}
-	}
-
-	enum AlphaMode {
-		POST_MULTIPLIED, PRE_MULTIPLIED
-	}
-
-	int getWidth();
-
-	int getHeight();
-
-	ComponentType getComponentType();
-
-	ComponentFormat getComponentFormat();
-
-	AlphaMode getAlphaMode();
-
-	int getNumBytesPerPixel();
 }

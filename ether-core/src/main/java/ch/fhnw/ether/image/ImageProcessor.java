@@ -53,7 +53,7 @@ public final class ImageProcessor {
 		private final ILineProcessor processor;
 		private final int lineLength;
 
-		Chunk(IImage image, int from, int to, ILineProcessor processor) {
+		Chunk(IHostImage image, int from, int to, ILineProcessor processor) {
 			this.from = from;
 			this.to = to;
 			this.pixels = image.getPixels().duplicate();
@@ -70,7 +70,7 @@ public final class ImageProcessor {
 		}
 	}
 
-	public static void processLines(IImage image, ILineProcessor processor) {
+	public static void processLines(IHostImage image, ILineProcessor processor) {
 		List<Future<?>> result = new ArrayList<>(NUM_CHUNKS + 1);
 		int inc = Math.max(32, image.getHeight() / NUM_CHUNKS);
 		for (int from = 0; from < image.getHeight(); from += inc)

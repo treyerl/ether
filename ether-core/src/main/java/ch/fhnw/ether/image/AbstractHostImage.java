@@ -47,7 +47,7 @@ import ch.fhnw.util.BufferUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
-public abstract class AbstractImage implements IImage {
+public abstract class AbstractHostImage implements IHostImage {
 	private static final Log LOG = Log.create();
 
 	private final int width;
@@ -59,11 +59,11 @@ public abstract class AbstractImage implements IImage {
 	private final ByteBuffer pixels;
 	private final AtomicReference<Texture> texture = new AtomicReference<>();
 	
-	protected AbstractImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+	protected AbstractHostImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		this(width, height, componentType, componentFormat, alphaMode, null);
 	}
 
-	protected AbstractImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
+	protected AbstractHostImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		this.width = width;
 		this.height = height;
 		this.componentType = componentType;
@@ -106,8 +106,8 @@ public abstract class AbstractImage implements IImage {
 	}
 	
 	@Override
-	public final IImage getSubImage(int x, int y, int width, int height) {
-		IImage image = allocate(width, height);
+	public final IHostImage getSubImage(int x, int y, int width, int height) {
+		IHostImage image = allocate(width, height);
 		if (x + width > getWidth())
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + height > getHeight())
@@ -121,8 +121,8 @@ public abstract class AbstractImage implements IImage {
 	}
 
 	@Override
-	public final void setSubImage(int x, int y, IImage image) {
-		image = IImage.convert(image, getComponentType(), getComponentFormat(), getAlphaMode());
+	public final void setSubImage(int x, int y, IHostImage image) {
+		image = IHostImage.convert(image, getComponentType(), getComponentFormat(), getAlphaMode());
 		if (x + image.getWidth() > getWidth())
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + image.getHeight() > getHeight())
@@ -168,14 +168,14 @@ public abstract class AbstractImage implements IImage {
 	}	
 	
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 		return width << 18 | height << 2 | getNumBytesPerPixel();
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof IImage) {
-			IImage other = (IImage) obj;
+	public final boolean equals(Object obj) {
+		if (obj instanceof IHostImage) {
+			IHostImage other = (IHostImage) obj;
 			getPixels().rewind();
 			other.getPixels().rewind();
 			return getWidth() == other.getWidth() && 
@@ -190,7 +190,7 @@ public abstract class AbstractImage implements IImage {
 
 	@Override
 	public String toString() {
-		return TextUtilities.getShortClassName(this) + ":" + width + "x" + height;
+		return TextUtilities.getShortClassName(this) + ": " + width + " x " + height + " " + getComponentType() + " " + getComponentFormat() + " " + getAlphaMode();
 	}
 	
 	protected final int pos(int x, int y) {

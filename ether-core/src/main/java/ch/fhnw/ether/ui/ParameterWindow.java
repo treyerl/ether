@@ -346,6 +346,7 @@ public class ParameterWindow {
 
 				Menu menu   = new Menu(parent);
 				addMenuItem(menu, SWT.CHECK, "Enabled", cmd.isEnabled(), new SelectionAdapter() {
+					@Override
 					public void widgetSelected(SelectionEvent e) {
 						cmd.setEnable(((MenuItem)e.getSource()).getSelection());
 						setEnablded(result, cmd.isEnabled());
@@ -353,8 +354,20 @@ public class ParameterWindow {
 				});
 
 				if(params.length > 0) {
-					addMenuItem(menu, SWT.NONE, "Reset", false, new SelectionAdapter() {public void widgetSelected(SelectionEvent e) {for(ParamUI p : uis) p.reset();}});
-					addMenuItem(menu, SWT.NONE, "Zero",  false, new SelectionAdapter() {public void widgetSelected(SelectionEvent e) {for(ParamUI p : uis) p.zero();}});
+					addMenuItem(menu, SWT.NONE, "Reset", false, new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							for (ParamUI p : uis)
+								p.reset();
+						}
+					});
+					addMenuItem(menu, SWT.NONE, "Zero", false, new SelectionAdapter() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							for (ParamUI p : uis)
+								p.zero();
+						}
+					});
 				}
 
 				result.setMenu(menu);

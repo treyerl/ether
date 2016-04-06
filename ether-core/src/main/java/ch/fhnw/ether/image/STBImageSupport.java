@@ -49,7 +49,7 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 public final class STBImageSupport implements IImageSupport {
 
 	@Override
-	public IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	public IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
 		// TODO: HDR support (stb read as float)
 		// TODO: Pre-multiplied alpha support
 		int numComponentsRequested = componentFormat != null ? componentFormat.getNumComponents() : 0;
@@ -79,7 +79,7 @@ public final class STBImageSupport implements IImageSupport {
 		else if (alphaMode != AlphaMode.POST_MULTIPLIED)
 			throw new UnsupportedOperationException("premultiplied alpha unsupported");
 		
-		IImage image = IImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
+		IHostImage image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
 
 		pixels.rewind();
 		STBImage.stbi_image_free(pixels);
@@ -93,7 +93,7 @@ public final class STBImageSupport implements IImageSupport {
 	}
 
 	@Override
-	public IImage scale(IImage image, int width, int height) {
+	public IHostImage scale(IHostImage image, int width, int height) {
 		ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * image.getNumBytesPerPixel());
 		
 		switch (image.getComponentType()) {
@@ -104,17 +104,7 @@ public final class STBImageSupport implements IImageSupport {
 			STBImageResize.stbir_resize_uint8(image.getPixels(), image.getWidth(), image.getHeight(), 0, pixels, width, height, 0, image.getComponentFormat().getNumComponents());
 			break;
 		}
-		return IImage.create(width, height, image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), pixels);
-	}
-	
-	@Override
-	public Object toPlatform(IImage image) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
-		throw new UnsupportedOperationException();
+		return IHostImage.create(width, height, image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), pixels);
 	}
 	
 	private static byte[] getBytesFromInputStream(InputStream in) throws IOException {

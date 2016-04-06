@@ -39,7 +39,7 @@ import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.util.BufferUtilities;
 
-public final class ByteImage extends AbstractImage {
+public final class ByteImage extends AbstractHostImage {
 	
 	public ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode);
@@ -50,19 +50,19 @@ public final class ByteImage extends AbstractImage {
 	}
 	
 	@Override
-	public IImage copy() {
-		IImage image = allocate();
+	public IHostImage copy() {
+		IHostImage image = allocate();
 		BufferUtilities.arraycopy(getPixels(), 0, image.getPixels(), 0, getPixels().capacity());
 		return image;
 	}
 
 	@Override
-	public IImage allocate() {
+	public IHostImage allocate() {
 		return new ByteImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode());
 	}
 	
 	@Override
-	public IImage allocate(int width, int height) {
+	public IHostImage allocate(int width, int height) {
 		return new ByteImage(width, height, getComponentFormat(), getAlphaMode());
 	}
 	

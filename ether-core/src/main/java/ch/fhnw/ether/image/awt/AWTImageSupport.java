@@ -44,6 +44,7 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
@@ -53,7 +54,7 @@ import ch.fhnw.ether.image.IImageSupport;
 public final class AWTImageSupport implements IImageSupport {
 
 	@Override
-	public IImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	public IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
 		return null;
 	}
 
@@ -62,20 +63,10 @@ public final class AWTImageSupport implements IImageSupport {
 	}
 
 	@Override
-	public IImage scale(IImage image, int width, int height) {
+	public IHostImage scale(IHostImage image, int width, int height) {
 		return null;
 	}
 
-	@Override
-	public Object toPlatform(IImage image) {
-		return null;
-	}
-
-	@Override
-	public IImage fromPlatform(Object image, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) {
-		return null;
-	}
-	
 	public static ImageObserver AWT_OBSERVER = new ImageObserver() {
 		@Override
 		public boolean imageUpdate(java.awt.Image img, int infoflags, int x, int y, int width, int height) {
