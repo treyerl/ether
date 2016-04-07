@@ -64,7 +64,7 @@ public class FileTarget extends AbstractVideoTarget {
 		}
 		sleepUntil(getFrame().playOutTime);
 		try {
-			Platform.get().getImageSupport().writeIImage(getFrame().getFrame(), new File(path, name + "_" + count + "." + ext), ext.equals("png") ? IImageSupport.FileFormat.PNG : IImageSupport.FileFormat.JPEG);
+			Platform.get().getImageSupport().writeIImage(getFrame().getHostImage(), new File(path, name + "_" + count + "." + ext), ext.equals("png") ? IImageSupport.FileFormat.PNG : IImageSupport.FileFormat.JPEG);
 		} catch (Throwable e) {
 			throw new RenderCommandException(e);
 		}

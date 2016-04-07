@@ -57,7 +57,7 @@ public class VideoFrame extends AbstractFrame {
 		this.audioData = audioData;
 	}
 
-	public synchronized IHostImage getFrame() {
+	public synchronized IHostImage getHostImage() {
 		if(hostImage == null) {
 			if(gpuImage != null) {
 				hostImage = gpuImage.createHostImage();
@@ -68,7 +68,7 @@ public class VideoFrame extends AbstractFrame {
 		return hostImage;
 	}
 
-	public synchronized IGPUImage getTexture() {
+	public synchronized IGPUImage getGPUImage() {
 		if(gpuImage == null) {
 			if(hostImage != null) {
 				setTexture(hostImage.createGPUImage());

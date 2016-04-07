@@ -327,8 +327,9 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	}
 
 	IVideoPicture tmpPicture;
+	
 	@Override
-	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
+	public IHostImage getHostImage(BlockingQueue<float[]> audioData) {
 		IHostImage result = null;
 		try {
 			final int w = getWidth();
@@ -362,6 +363,11 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 		}
 		return result;
 	}
+	
+	@Override
+	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
+		return getHostImage(audioData).createGPUImage();
+	}
 
 	private void flip(ByteBuffer src, ByteBuffer dst, int width, int height) {
 		dst.clear();
@@ -381,11 +387,6 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	@Override
 	public boolean isKeyframe() {
 		return isKeyframe;
-	}
-
-	@Override
-	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
-		return getGPUImage(audioData);
 	}
 
 	@Override

@@ -48,7 +48,7 @@ public class FrameTarget extends AbstractVideoTarget {
 	@Override
 	public void render() throws RenderCommandException {
 		VideoFrame videoFrame = getFrame();
-		IHostImage videoImage = videoFrame.getFrame();
+		IHostImage videoImage = videoFrame.getHostImage();
 		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
 			if (image.getWidth() != videoImage.getWidth() || image.getHeight() != videoImage.getHeight()) {

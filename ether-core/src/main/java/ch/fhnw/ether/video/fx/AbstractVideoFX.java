@@ -150,7 +150,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			if(value instanceof IHostImage)
 				return value;
 			else if(value instanceof VideoFrame)
-				return ((VideoFrame)value).getTexture();
+				return ((VideoFrame)value).getGPUImage();
 			return value;
 		}
 	}
@@ -332,7 +332,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			}
 		} else if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == CPUFX) {
 			VideoFrame frame = target.getFrame();
-			((IVideoCPUFX)this).processFrame(frame.playOutTime, target, frame.getFrame());
+			((IVideoCPUFX)this).processFrame(frame.playOutTime, target, frame.getHostImage());
 		}
 	}
 

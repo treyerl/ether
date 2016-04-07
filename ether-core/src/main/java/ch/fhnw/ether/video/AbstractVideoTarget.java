@@ -84,7 +84,7 @@ public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame
 			if(cmds[i] == fx)
 				for(int j = i; --j >= 0;)
 					if(cmds[j].isEnabled())
-						return j == 0 ? getFrame().getTexture() : getDstTexture((AbstractVideoFX)cmds[j]);
+						return j == 0 ? getFrame().getGPUImage() : getDstTexture((AbstractVideoFX)cmds[j]);
 		return null;
 	}
 

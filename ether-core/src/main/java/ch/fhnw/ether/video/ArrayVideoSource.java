@@ -60,7 +60,7 @@ public class ArrayVideoSource extends AbstractFrameSource implements IVideoSourc
 		public void render() throws RenderCommandException {
 			synchronized (ArrayVideoSource.this) {
 				VideoFrame frame = getFrame();
-				frame.getFrame();
+				frame.getHostImage();
 				frames.add(frame);
 			}
 		}

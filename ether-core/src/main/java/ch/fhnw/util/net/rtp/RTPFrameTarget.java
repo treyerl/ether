@@ -46,7 +46,7 @@ public class RTPFrameTarget extends AbstractVideoTarget {
 	@Override
 	public void render() {
 		VideoFrame frame = getFrame();
-		server.setImage(frame.getFrame());
+		server.setImage(frame.getHostImage());
 		sleepUntil(frame.playOutTime);		
 	}	
 }

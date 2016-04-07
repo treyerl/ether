@@ -51,7 +51,7 @@ public class ColorMapMaterialTarget extends AbstractVideoTarget {
 	@Override
 	public void render() throws RenderCommandException {
 		VideoFrame frame = getFrame();
-		IGPUImage texture = frame.getTexture();
+		IGPUImage texture = frame.getGPUImage();
 		sleepUntil(frame.playOutTime);
 		controller.run(time->{
 			material.setColorMap(texture);

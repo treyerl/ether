@@ -65,13 +65,13 @@ public class FrameAccess implements IDisposable {
 		this.numPlays  = numPlays;
 	}
 
-	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
+	public IHostImage getHostImage(BlockingQueue<float[]> audioData) {
 		return hostImage;
 	}
 	
 	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
 		if (gpuImage == null)
-			gpuImage = hostImage.createGPUImage();
+			gpuImage = getHostImage(audioData).createGPUImage();
 		return gpuImage;
 	}
 

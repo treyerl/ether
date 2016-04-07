@@ -148,7 +148,7 @@ public final class JCodecAccess extends FrameAccess {
 	}
 
 	@Override
-	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
+	public IHostImage getHostImage(BlockingQueue<float[]> audioData) {
 		IHostImage result = IHostImage.create(getWidth(), getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 		grab.grabAndSet(currentPicture, result, audioData);
 		return result;
@@ -156,7 +156,7 @@ public final class JCodecAccess extends FrameAccess {
 
 	@Override
 	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
-		return getGPUImage(audioData);
+		return getHostImage(audioData).createGPUImage();
 	}
 
 	@Override
