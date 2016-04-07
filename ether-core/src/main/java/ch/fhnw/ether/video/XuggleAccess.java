@@ -59,6 +59,7 @@ import com.xuggle.xuggler.IVideoPicture;
 import com.xuggle.xuggler.IVideoResampler;
 
 import ch.fhnw.ether.audio.AudioUtilities;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
@@ -66,7 +67,6 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.ITimebase;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.SortedLongMap;
 import ch.fhnw.util.TextUtilities;
@@ -328,7 +328,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 
 	IVideoPicture tmpPicture;
 	@Override
-	protected IHostImage getFrame(BlockingQueue<float[]> audioData) {
+	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
 		IHostImage result = null;
 		try {
 			final int w = getWidth();
@@ -384,8 +384,8 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	}
 
 	@Override
-	public Texture getTexture(BlockingQueue<float[]> audioData) {
-		return getFrame(audioData).getTexture();
+	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
+		return getGPUImage(audioData);
 	}
 
 	@Override

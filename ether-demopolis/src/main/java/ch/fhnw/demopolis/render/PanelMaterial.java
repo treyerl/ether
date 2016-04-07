@@ -30,6 +30,7 @@
 package ch.fhnw.demopolis.render;
 
 import ch.fhnw.demopolis.model.Asset;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
 import ch.fhnw.ether.render.variable.builtin.ColorArray;
@@ -42,7 +43,6 @@ import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.AbstractMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public final class PanelMaterial extends AbstractMaterial implements ICustomMaterial {
 	private static class PanelShader extends AbstractShader {
@@ -59,19 +59,19 @@ public final class PanelMaterial extends AbstractMaterial implements ICustomMate
 	}
 
 	private final IShader shader = new PanelShader();
-	private Texture texture;
+	private IGPUImage texture;
 
-	public PanelMaterial(Texture texture) {
+	public PanelMaterial(IGPUImage texture) {
 		super(provide(IMaterial.COLOR_MAP), 
 			  require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_ARRAY, IGeometry.COLOR_MAP_ARRAY));
 		this.texture = texture;
 	}
 
-	public Texture getTexture() {
+	public IGPUImage getTexture() {
 		return texture;
 	}
 
-	public void setTexture(Texture texture) {
+	public void setTexture(IGPUImage texture) {
 		this.texture = texture;
 		updateRequest();
 	}

@@ -54,7 +54,7 @@ import ch.fhnw.ether.image.IImageSupport;
 public final class AWTImageSupport implements IImageSupport {
 
 	@Override
-	public IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	public IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return null;
 	}
 

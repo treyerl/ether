@@ -34,6 +34,6 @@ package ch.fhnw.ether.video.fx;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 
-public interface IVideoFrameFX {
+public interface IVideoCPUFX {
 	void processFrame(double playOutTime, IVideoRenderTarget target, IHostImage image);
 }

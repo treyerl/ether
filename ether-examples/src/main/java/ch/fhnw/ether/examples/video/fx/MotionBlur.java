@@ -42,10 +42,10 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.VideoFrame;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 
-public class MotionBlur extends AbstractVideoFX implements IVideoFrameFX, IVideoGLFX {
+public class MotionBlur extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter DECAY = new Parameter("decay", "Decay", 0.01f, 1f, 1f);
 
 	private static final VideoFrame DUMMY_FRAME = new VideoFrame(IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED));

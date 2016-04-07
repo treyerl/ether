@@ -31,6 +31,7 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.util.color.RGB;
 
@@ -44,7 +45,7 @@ public final class ShadedMaterial extends AbstractMaterial {
 	private float strength;
 	private float alpha;
 
-	private final Texture colorMap;
+	private final IGPUImage colorMap;
 
 	public ShadedMaterial(RGB diffuse) {
 		this(RGB.BLACK, RGB.WHITE, diffuse, RGB.BLACK, 0, 0, 1);
@@ -58,7 +59,7 @@ public final class ShadedMaterial extends AbstractMaterial {
 		this(emission, ambient, diffuse, specular, shininess, strength, alpha, null);
 	}
 
-	public ShadedMaterial(RGB emission, RGB ambient, RGB diffuse, RGB specular, float shininess, float strength, float alpha, Texture colorMap) {
+	public ShadedMaterial(RGB emission, RGB ambient, RGB diffuse, RGB specular, float shininess, float strength, float alpha, IGPUImage colorMap) {
 		super(provide(IMaterial.EMISSION, IMaterial.AMBIENT, IMaterial.DIFFUSE, IMaterial.SPECULAR,
 					   IMaterial.SHININESS, IMaterial.STRENGTH, IMaterial.ALPHA, colorMap != null ? IMaterial.COLOR_MAP : null),
 			  require(IGeometry.POSITION_ARRAY, IGeometry.NORMAL_ARRAY, colorMap != null ? IGeometry.COLOR_MAP_ARRAY : null));
@@ -136,7 +137,7 @@ public final class ShadedMaterial extends AbstractMaterial {
 		updateRequest();
 	}
 
-	public final Texture getColorMap() {
+	public final IGPUImage getColorMap() {
 		return colorMap;
 	}
 

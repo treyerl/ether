@@ -31,6 +31,7 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.scene.attribute.AbstractAttribute;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
@@ -54,7 +55,7 @@ public interface IMaterial extends IUpdateTracker {
 	MaterialAttribute<IVec4> COLOR = new MaterialAttribute<>("builtin.material.color");
 
 	// texture maps
-	MaterialAttribute<Texture> COLOR_MAP = new MaterialAttribute<>("builtin.material.color_map");
+	MaterialAttribute<IGPUImage> COLOR_MAP = new MaterialAttribute<>("builtin.material.color_map");
 
 	// triangles only: normals & shading
 	MaterialAttribute<IVec3> EMISSION = new MaterialAttribute<>("builtin.material.shading.emission");

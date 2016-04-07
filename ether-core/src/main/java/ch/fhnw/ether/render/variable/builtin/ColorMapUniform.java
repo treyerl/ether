@@ -35,9 +35,9 @@ import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.render.variable.base.SamplerUniform;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public final class ColorMapUniform extends SamplerUniform {
 	private static final String DEFAULT_SHADER_NAME = "colorMap";
@@ -54,15 +54,15 @@ public final class ColorMapUniform extends SamplerUniform {
 		this(shaderName, unit, null);
 	}
 
-	public ColorMapUniform(Supplier<Texture> supplier) {
+	public ColorMapUniform(Supplier<IGPUImage> supplier) {
 		this(DEFAULT_SHADER_NAME, supplier);
 	}
 
-	public ColorMapUniform(String shaderName, Supplier<Texture> supplier) {
+	public ColorMapUniform(String shaderName, Supplier<IGPUImage> supplier) {
 		super(IMaterial.COLOR_MAP, shaderName, 0, GL11.GL_TEXTURE_2D, supplier);
 	}
 	
-	public ColorMapUniform(String shaderName, int unit, Supplier<Texture> supplier) {
+	public ColorMapUniform(String shaderName, int unit, Supplier<IGPUImage> supplier) {
 		super(IMaterial.COLOR_MAP, shaderName, unit, GL11.GL_TEXTURE_2D, supplier);
 	}
 }

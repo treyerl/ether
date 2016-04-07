@@ -39,14 +39,14 @@ public class RTPFrameTarget extends AbstractVideoTarget {
 	private final RTPServer server;
 	
 	public RTPFrameTarget(int port) throws Exception {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, true);
+		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, true);
 		server = new RTPServer(port);
 	}
 
 	@Override
 	public void render() {
 		VideoFrame frame = getFrame();
-		server.setFrame(frame.getFrame());
+		server.setImage(frame.getFrame());
 		sleepUntil(frame.playOutTime);		
 	}	
 }

@@ -40,9 +40,9 @@ import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 
-public class BandPass extends AbstractVideoFX implements IVideoFrameFX {
+public class BandPass extends AbstractVideoFX implements IVideoCPUFX {
 	private static final Parameter LOW  = new Parameter("low",  "low cutoff frequency",  0, 1, 0);
 	private static final Parameter HIGH = new Parameter("high", "high cutoff frequency", 0, 1, 1);
 

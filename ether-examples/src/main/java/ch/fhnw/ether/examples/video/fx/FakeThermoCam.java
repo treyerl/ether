@@ -35,11 +35,11 @@ import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 import ch.fhnw.util.color.ColorUtilities;
 
-public class FakeThermoCam extends AbstractVideoFX implements IVideoFrameFX, IVideoGLFX {
+public class FakeThermoCam extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	@Override
 	public String mainFrag() {
 		return "result = hsb2rgb((result.r + result.g + result.b) / 3., 1., 1., 1.)";

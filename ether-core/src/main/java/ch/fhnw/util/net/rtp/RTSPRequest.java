@@ -49,6 +49,7 @@ import ch.fhnw.util.net.NetworkUtilities;
 
 public class RTSPRequest implements Runnable {
 	private final static Log LOG = Log.create();
+
 	final static int MJPEG_TIMEBASE = 90000;
 
 	final static String CRLF = "\r\n";
@@ -92,7 +93,7 @@ public class RTSPRequest implements Runnable {
 		this.label         = socket.toString();
 		this.socketRTSP    = socket;
 		this.localRTSPport = socket.getLocalPort();
-		RTPServer.log(this+"New client connection");
+		LOG.info(this + "New client connection");
 
 		socket.setSendBufferSize(128 * 1024);
 		socket.setTcpNoDelay(true);
@@ -120,12 +121,12 @@ public class RTSPRequest implements Runnable {
 					//Parse RTSP Request
 					//------------------------------------
 					REQType reqType = null;
-					RTPServer.log(this + "Received from Client:");
+					LOG.info(this + "Received from Client:");
 					for(;;) {
 						//parse request line and extract the request_type:
 						String line = readLine(in);
 						if(line == null) break msg_loop;
-						RTPServer.log(line);
+						LOG.info(line);
 						if(line.length() == 0) {
 							if(reqType == null) continue;
 							break;
@@ -230,8 +231,8 @@ public class RTSPRequest implements Runnable {
 			out.write(msg.getBytes());
 			out.flush();
 		}
-		RTPServer.log(this + "Sent to Client:");
-		RTPServer.log(msg);
+		LOG.info(this + "Sent to Client:");
+		LOG.info(msg);
 	}
 
 	void send(int channel, byte[] data) throws IOException {
@@ -262,7 +263,7 @@ public class RTSPRequest implements Runnable {
 				"a=mimetype:string;\"video/MJPEG\"" + CRLF;
 
 		String header = 
-				"Content-Base: " +RTPServer.contentBase(socketRTSP.getInetAddress(), localRTSPport)+ CRLF +
+				"Content-Base: " +RTPServer.getContentBase(socketRTSP.getInetAddress(), localRTSPport)+ CRLF +
 				"Content-Type: " + "application/sdp" + CRLF +
 				"Content-Length: " + content.length() + CRLF + CRLF;
 

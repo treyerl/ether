@@ -33,10 +33,6 @@ package ch.fhnw.ether.image;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL33;
-
 import ch.fhnw.util.BufferUtilities;
 
 final class ByteImage extends AbstractHostImage {
@@ -114,37 +110,5 @@ final class ByteImage extends AbstractHostImage {
 	@Override
 	public void setComponentFloat(int x, int y, int component, float value) {
 		setComponentByte(x, y, component, (byte)(value * 255f));
-	}
-
-	@Override
-	protected void loadTexture() {
-		int internalFormat = 0;
-		int format = 0;
-		switch (getComponentFormat()) {
-		case G:
-			internalFormat = GL11.GL_RED;
-			format = GL11.GL_RED;
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_RED);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_RED);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
-			break;
-		case GA:
-			internalFormat = GL30.GL_RG;
-			format = GL30.GL_RG;
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_RED);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_RED);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_GREEN);
-			break;
-		case RGB:
-			internalFormat = GL11.GL_RGB;
-			format = GL11.GL_RGB;
-			break;
-		case RGBA:
-			internalFormat = GL11.GL_RGBA;
-			format = GL11.GL_RGBA;
-			break;
-		}
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, internalFormat, getWidth(), getHeight(), 0, format, GL11.GL_UNSIGNED_BYTE, getPixels());
 	}
 }

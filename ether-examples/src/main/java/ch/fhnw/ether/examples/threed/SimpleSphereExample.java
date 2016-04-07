@@ -33,6 +33,7 @@ package ch.fhnw.ether.examples.threed;
 
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
@@ -45,7 +46,6 @@ import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.scene.mesh.material.PointMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.Log;
@@ -102,7 +102,7 @@ public final class SimpleSphereExample {
 				solidMeshL.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 				solidMeshP.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 
-				Texture t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg")).getTexture();
+				IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
 				IMesh texturedMeshT = new DefaultMesh(Primitive.TRIANGLES, new ColorMapMaterial(t), DefaultGeometry.createVM(sphere.getTriangles(), sphere.getTexCoords()), Queue.DEPTH);
 				texturedMeshT.setPosition(Vec3.ZERO);
 

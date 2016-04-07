@@ -36,24 +36,24 @@ import java.util.function.Supplier;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 
-public class SamplerUniform extends AbstractUniform<Texture> {
+public class SamplerUniform extends AbstractUniform<IGPUImage> {
 	private final int unit;
 	private final int target;
-	private Texture   texture;
+	private IGPUImage sampler;
 	
-	public SamplerUniform(ITypedAttribute<Texture> attribute, String shaderName, int unit, int target) {
+	public SamplerUniform(ITypedAttribute<IGPUImage> attribute, String shaderName, int unit, int target) {
 		this(attribute.id(), shaderName, unit, target, null);
 	}
 
-	public SamplerUniform(ITypedAttribute<Texture> attribute, String shaderName, int unit, int target, Supplier<Texture> supplier) {
+	public SamplerUniform(ITypedAttribute<IGPUImage> attribute, String shaderName, int unit, int target, Supplier<IGPUImage> supplier) {
 		this(attribute.id(), shaderName, unit, target, supplier);
 	}
 
-	public SamplerUniform(String id, String shaderName, int unit, int target, Supplier<Texture> supplier) {
+	public SamplerUniform(String id, String shaderName, int unit, int target, Supplier<IGPUImage> supplier) {
 		super(id, shaderName, supplier);
 		this.unit = unit;
 		this.target = target;
@@ -65,23 +65,23 @@ public class SamplerUniform extends AbstractUniform<Texture> {
 
 	@Override
 	public final void update(Object[] data) {
-		texture = fetch(data);
+		sampler = fetch(data);
 	}
 
 	@Override
 	public final void enable(Program program) {
-		if (texture == null)
+		if (sampler == null)
 			return;
 		
 		GL13.glActiveTexture(GL13.GL_TEXTURE0 + unit);
-		GL11.glBindTexture(target, texture.getGlObject().getId());
+		GL11.glBindTexture(target, (int)sampler.getGPUHandle());
 		program.setUniformSampler(getShaderIndex(program), unit);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 	}
 
 	@Override
 	public final void disable(Program program) {
-		if (texture == null)
+		if (sampler == null)
 			return;
 
 		GL13.glActiveTexture(GL13.GL_TEXTURE0 + unit);

@@ -34,15 +34,14 @@ package ch.fhnw.ether.video.fx;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.ComponentType;
-import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;
@@ -75,7 +74,6 @@ import ch.fhnw.ether.scene.mesh.material.AbstractMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.video.AbstractVideoTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.VideoFrame;
@@ -90,13 +88,12 @@ import ch.fhnw.util.math.IVec4;
 import ch.fhnw.util.math.Mat3;
 import ch.fhnw.util.math.Mat4;
 
-// XXX IHostImage vs IGPUImage handling
 public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRenderTarget> {
 	private static final Log LOG = Log.create();
 	
 	public static final Class<?>     GLFX        = IVideoGLFX.class;
-	public static final Class<?>     FRAMEFX     = IVideoFrameFX.class;
-	public static final Class<?>[]   FX_CLASSES  = {GLFX, FRAMEFX};
+	public static final Class<?>     CPUFX     = IVideoCPUFX.class;
+	public static final Class<?>[]   FX_CLASSES  = {GLFX, CPUFX};
 	public static final Uniform<?>[] NO_UNIFORMS = new Uniform<?>[0];
 	public static final String[]     NO_INOUT    = ClassUtilities.EMPTY_StringA;
 
@@ -138,7 +135,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				return new Vec3FloatUniform((ITypedAttribute<IVec3>)this, id());
 			else if(value instanceof IVec4)
 				return new Vec4FloatUniform((ITypedAttribute<IVec4>)this, id());
-			else if(value instanceof IHostImage || value instanceof VideoFrame)
+			else if(value instanceof IGPUImage || value instanceof VideoFrame)
 				return new SamplerUniform(id(), id(), unit, GL11.GL_TEXTURE_2D);
 			else
 				throw new IllegalArgumentException("Unsupported unifrom type:" + value.getClass().getName());
@@ -151,7 +148,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 
 		public Object get() {
 			if(value instanceof IHostImage)
-				return ((IHostImage)value).getTexture();
+				return value;
 			else if(value instanceof VideoFrame)
 				return ((VideoFrame)value).getTexture();
 			return value;
@@ -179,11 +176,11 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	}
 
 	class FxMaterial extends AbstractMaterial implements ICustomMaterial {
-		private final IShader     shader;
-		private FrameBuffer       fbo;
-		private Texture           srcTexture;
-		private Texture           dstTexture;
-		private Texture           lastDstTexture;
+		private final IShader shader;
+		private FrameBuffer   fbo;
+		private IGPUImage     srcTexture;
+		private IGPUImage     dstTexture;
+		private IGPUImage     lastDstTexture;
 
 		protected FxMaterial(IMaterialAttribute<?>[] attrs) {
 			super(attrs, require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY));
@@ -228,9 +225,6 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 
 	public static final Uniform<?>[] EMPTY_UniformA = new Uniform<?>[0];
 
-	protected long                          frame;
-	protected Class<? extends Frame>[]      frameTypes;
-	protected Set<Class<? extends Frame>>   preferredTypes;
 	private   String                        name = getClass().getName();
 	private   final FxMaterial              material;
 	private   final IMesh                   quad;
@@ -267,7 +261,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			this.material   = new FxMaterial(attrs);
 			this.quad       = new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVM(MeshUtilities.DEFAULT_QUAD_TRIANGLES, MeshUtilities.DEFAULT_QUAD_TEX_COORDS));
 			this.renderable = new Renderable(quad, null);
-		} else if(this instanceof IVideoFrameFX) {
+		} else if(this instanceof IVideoCPUFX) {
 			this.uniformsvert = null;
 			this.outIn        = null;
 			this.uniformsfrag = null;
@@ -326,7 +320,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				GL11.glViewport(0, 0, material.dstTexture.getWidth(), material.dstTexture.getHeight());
 				renderable.render();
 				FrameBuffer.unbind();
-				GL11.glBindTexture(GL11.GL_TEXTURE_2D, material.dstTexture.getGlObject().getId());
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)material.dstTexture.getGPUHandle());
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 				target.getFrame().setTexture(material.dstTexture);
 				GL11.glViewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
@@ -336,13 +330,13 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			} catch(Throwable t) {
 				throw new RenderCommandException(t);
 			}
-		} else if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == FRAMEFX) {
+		} else if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == CPUFX) {
 			VideoFrame frame = target.getFrame();
-			((IVideoFrameFX)this).processFrame(frame.playOutTime, target, frame.getFrame());
+			((IVideoCPUFX)this).processFrame(frame.playOutTime, target, frame.getFrame());
 		}
 	}
 
-	public Texture getDstTexture() {
+	public IGPUImage getDstTexture() {
 		return material.dstTexture;
 	}
 

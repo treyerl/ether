@@ -36,10 +36,10 @@ import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 
-public class Posterize extends AbstractVideoFX implements IVideoFrameFX, IVideoGLFX {
+public class Posterize extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter MASK = new Parameter("mask", "Bit Mask", 0, 7, 0);
 
 	public Posterize() {

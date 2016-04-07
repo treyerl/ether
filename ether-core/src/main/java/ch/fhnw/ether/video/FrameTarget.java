@@ -41,7 +41,7 @@ public class FrameTarget extends AbstractVideoTarget {
 	private final IHostImage image;
 
 	public FrameTarget(IHostImage image) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
+		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, false);
 		this.image = image;
 	}
 

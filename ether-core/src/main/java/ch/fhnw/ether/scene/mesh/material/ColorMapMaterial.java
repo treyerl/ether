@@ -31,47 +31,48 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.util.color.RGBA;
 
 public final class ColorMapMaterial extends AbstractMaterial {
 
-	private RGBA    color;
-	private Texture colorMap;
+	private RGBA color;
+	private IGPUImage colorMap;
 
 	public ColorMapMaterial() {
-		this(Texture.TRANSPARENT_1x1);
+		this(IGPUImage.TRANSPARENT_1x1);
 	}
-	
-	public ColorMapMaterial(Texture colorMap) {
+
+	public ColorMapMaterial(IGPUImage colorMap) {
 		this(RGBA.WHITE, colorMap);
 	}
 
-	public ColorMapMaterial(RGBA color, Texture colorMap) {
+	public ColorMapMaterial(RGBA color, IGPUImage colorMap) {
 		this(color, colorMap, false);
 	}
 
-	public ColorMapMaterial(RGBA color, Texture colorMap, boolean perVertexColor) {
-		super(provide(IMaterial.COLOR, IMaterial.COLOR_MAP),
-			  require(IGeometry.POSITION_ARRAY, perVertexColor ? IGeometry.COLOR_ARRAY : null, IGeometry.COLOR_MAP_ARRAY));		
-			  
+	public ColorMapMaterial(RGBA color, IGPUImage colorMap, boolean perVertexColor) {
+		super(provide(IMaterial.COLOR, IMaterial.COLOR_MAP), require(IGeometry.POSITION_ARRAY,
+				perVertexColor ? IGeometry.COLOR_ARRAY : null, IGeometry.COLOR_MAP_ARRAY));
+
 		this.color = color;
 		this.colorMap = colorMap;
 	}
-	
+
 	public RGBA getColor() {
 		return color;
 	}
-	
+
 	public void setColor(RGBA color) {
 		this.color = color;
 	}
 
-	public Texture getColorMap() {
+	public IGPUImage getColorMap() {
 		return colorMap;
 	}
 
-	public void setColorMap(Texture colorMap) {
+	public void setColorMap(IGPUImage colorMap) {
 		this.colorMap = colorMap;
 		updateRequest();
 	}
@@ -84,9 +85,5 @@ public final class ColorMapMaterial extends AbstractMaterial {
 	@Override
 	public String toString() {
 		return super.toString() + "[" + color + ", " + colorMap + "]";
-	}
-
-	public Texture getTexture() {
-		return colorMap;
 	}
 }

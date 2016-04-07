@@ -33,8 +33,6 @@ package ch.fhnw.ether.image;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.ether.scene.mesh.material.Texture;
-
 public interface IHostImage extends IImage {
 
 	void clear();
@@ -66,8 +64,14 @@ public interface IHostImage extends IImage {
 	void setSubImage(int x, int y, IHostImage frame);
 	
 	ByteBuffer getPixels();
-
-	Texture getTexture();
+	
+	default IGPUImage createGPUImage() {
+		return IGPUImage.create(this);
+	}
+	
+	static IHostImage create(IGPUImage image) {
+		return image.createHostImage();
+	}
 	
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		return create(width, height, componentType, componentFormat, alphaMode, null);
@@ -83,12 +87,14 @@ public interface IHostImage extends IImage {
 		throw new IllegalArgumentException();
 	}
 	
+	// XXX to be implemented
 	static IHostImage convert(IHostImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
-			return image;
-		
-		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode);
-		
-		return result;
+		throw new UnsupportedOperationException();
+//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
+//			return image;
+//		
+//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode);
+//		
+//		return result;
 	}
 }

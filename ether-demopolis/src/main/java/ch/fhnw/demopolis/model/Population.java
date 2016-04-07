@@ -39,6 +39,7 @@ import ch.fhnw.demopolis.config.IPopulationAssets;
 import ch.fhnw.demopolis.render.MaskMaterial;
 import ch.fhnw.demopolis.render.PolisMaterial;
 import ch.fhnw.ether.formats.obj.ObjReader;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
@@ -47,7 +48,6 @@ import ch.fhnw.ether.scene.mesh.IMesh.Flag;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
 import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.MathUtilities;
@@ -212,7 +212,7 @@ public class Population {
 	}
 	
 	private static IMesh getFlatMesh(String asset, float h) throws IOException {
-		Texture texture = Platform.get().getImageSupport().read(Asset.get(asset)).getTexture();
+		IGPUImage texture = Platform.get().getImageSupport().readGPU(Asset.get(asset));
 		float aspect = (float)texture.getWidth() / (float)texture.getHeight();
 		float w = 0.5f * h * aspect;
 		float[] v = new float[] { 

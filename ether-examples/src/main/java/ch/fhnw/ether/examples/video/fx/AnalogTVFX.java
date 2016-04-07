@@ -36,10 +36,10 @@ import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.util.color.ColorUtilities;
 
-public class AnalogTVFX extends AbstractVideoFX implements IVideoFrameFX {
+public class AnalogTVFX extends AbstractVideoFX implements IVideoCPUFX {
 	private static final int VBLANK = 32;
 
 	private static final Parameter Y  = new Parameter("y",  "Y Gain",        0, 4, 1);

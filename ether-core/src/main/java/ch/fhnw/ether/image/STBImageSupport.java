@@ -49,7 +49,7 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 public final class STBImageSupport implements IImageSupport {
 
 	@Override
-	public IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
+	public IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		// TODO: HDR support (stb read as float)
 		// TODO: Pre-multiplied alpha support
 		int numComponentsRequested = componentFormat != null ? componentFormat.getNumComponents() : 0;
@@ -86,6 +86,8 @@ public final class STBImageSupport implements IImageSupport {
 		
 		return image;
 	}
+	
+	// TODO: implement readGPU as fast path (no buffer copying required)
 
 	@Override
 	public void write(IImage frame, OutputStream out, FileFormat format) throws IOException {

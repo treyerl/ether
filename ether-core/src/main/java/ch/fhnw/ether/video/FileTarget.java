@@ -46,7 +46,7 @@ public class FileTarget extends AbstractVideoTarget {
 	private       long   count;
 
 	public FileTarget(File file) {
-		super(Thread.MIN_PRIORITY, AbstractVideoFX.FRAMEFX, false);
+		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, false);
 		path = file.getParentFile();
 		name = TextUtilities.getFileNameWithoutExtension(file);
 		ext = TextUtilities.getFileExtensionWithoutDot(file.getName()).toLowerCase();

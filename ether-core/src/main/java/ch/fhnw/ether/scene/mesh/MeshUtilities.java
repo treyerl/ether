@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.scene.mesh.IMesh.Flag;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
@@ -47,7 +48,6 @@ import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.ShadedMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.FloatList;
 import ch.fhnw.util.color.RGB;
@@ -269,8 +269,8 @@ public final class MeshUtilities {
 		return new DefaultMesh(Primitive.TRIANGLES, material, g, Flag.DONT_CAST_SHADOW);
 	}
 
-	public static IMesh createScreenRectangle(float x0, float y0, float x1, float y1, RGBA color, Texture texture) {
-		IMaterial material = texture == null ? new ColorMaterial(color) : new ColorMapMaterial(color, texture);
+	public static IMesh createScreenRectangle(float x0, float y0, float x1, float y1, RGBA color, IGPUImage colorMap) {
+		IMaterial material = colorMap == null ? new ColorMaterial(color) : new ColorMapMaterial(color, colorMap);
 		float[] vertices = { x0, y0, 0, x1, y0, 0, x1, y1, 0, x0, y0, 0, x1, y1, 0, x0, y1, 0 };
 		return new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVNM(vertices, DEFAULT_QUAD_NORMALS, DEFAULT_QUAD_TEX_COORDS), Queue.SCREEN_SPACE_OVERLAY);
 	}

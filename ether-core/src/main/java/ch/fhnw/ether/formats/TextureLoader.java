@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.platform.Platform;
 
 // XXX where should we cache images / textures??? also, images are mutable, so we need to be careful (e.g. cache a copy)
@@ -43,13 +43,13 @@ public final class TextureLoader {
 	private TextureLoader() {
 	}
 
-	private static final Map<String, IHostImage> IMAGE_CACHE = new HashMap<>();
+	private static final Map<String, IGPUImage> IMAGE_CACHE = new HashMap<>();
 
-	public static IHostImage loadTexture(String path) {
-		IHostImage image = IMAGE_CACHE.get(path);
+	public static IGPUImage loadTexture(String path) {
+		IGPUImage image = IMAGE_CACHE.get(path);
 		if (image == null) {
 			try {
-				image = Platform.get().getImageSupport().read(new File(path));
+				image = Platform.get().getImageSupport().readGPU(new File(path));
 				IMAGE_CACHE.put(path, image);
 			} catch (Exception e) {
 				System.err.println("can't load texture image: " + path);

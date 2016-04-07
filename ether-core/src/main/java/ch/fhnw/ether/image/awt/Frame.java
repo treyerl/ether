@@ -45,8 +45,8 @@ import org.lwjgl.opengl.GL30;
 
 import ch.fhnw.ether.image.ILineProcessor;
 import ch.fhnw.ether.render.gl.GLObject;
+import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.view.gl.GLContextManager;
 import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 import ch.fhnw.util.BufferUtilities;

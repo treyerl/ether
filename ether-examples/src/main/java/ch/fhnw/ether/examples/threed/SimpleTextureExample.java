@@ -34,6 +34,7 @@ package ch.fhnw.ether.examples.threed;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
@@ -44,7 +45,6 @@ import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.color.RGBA;
@@ -62,8 +62,8 @@ public final class SimpleTextureExample {
 		float[] texCoords = { 0, 0, 1, 1, 0, 1 };
 		
 		try {
-			Texture texture = Platform.get().getImageSupport().read(SimpleTextureExample.class.getResource("/textures/fhnw_logo.jpg")).getTexture();
-			IMaterial m = new ColorMapMaterial(RGBA.WHITE, texture, true);
+			IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleTextureExample.class.getResource("/textures/fhnw_logo.jpg"));
+			IMaterial m = new ColorMapMaterial(RGBA.WHITE, t, true);
 			IGeometry g = DefaultGeometry.createVCM(vertices, colors, texCoords);
 			return new DefaultMesh(Primitive.TRIANGLES, m, g);
 		} catch (Exception e) {

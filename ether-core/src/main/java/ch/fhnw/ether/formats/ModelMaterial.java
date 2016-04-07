@@ -31,8 +31,7 @@
 
 package ch.fhnw.ether.formats;
 
-import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.scene.mesh.material.Texture;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.util.color.RGB;
 
 public final class ModelMaterial {
@@ -41,7 +40,7 @@ public final class ModelMaterial {
 	private RGB diffuseColor;
 	private RGB specularColor;
 	private float shininess;
-	private IHostImage textureImage;
+	private IGPUImage texture;
 	private String texturePath;
 	private String textureFile;
 
@@ -89,8 +88,8 @@ public final class ModelMaterial {
 		shininess = s;
 	}
 
-	public Texture getTexture() {
-		return textureImage != null ? textureImage.getTexture() : null;
+	public IGPUImage getTexture() {
+		return texture;
 	}
 	
 	public String getTexturePath() {
@@ -102,13 +101,13 @@ public final class ModelMaterial {
 	}
 
 	public void setTexture(String texturePath, String textureFile) {
-		this.textureImage = TextureLoader.loadTexture(texturePath + textureFile);
+		this.texture = TextureLoader.loadTexture(texturePath + textureFile);
 		this.texturePath = texturePath;
 		this.textureFile = textureFile;
 	}
 	
-	public void setTexture(IHostImage textureImage) {
-		this.textureImage = textureImage;
+	public void setTexture(IGPUImage texture) {
+		this.texture = texture;
 		this.texturePath = "";
 		this.textureFile = "";
 	}

@@ -33,7 +33,6 @@ package ch.fhnw.util.net.rtp;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -43,6 +42,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.Timer;
 
+import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.NetworkUtilities;
@@ -93,7 +93,7 @@ public class RTPSession implements ActionListener {
 
 		//update RTSP state
 		state = State.READY;
-		RTPServer.log(this+"New RTSP state: READY");
+		LOG.info(this + "New RTSP state: READY");
 
 		if(req.get("Transport:").contains("client_port=")) {
 			//init RTP and RTCP sockets
@@ -137,7 +137,7 @@ public class RTPSession implements ActionListener {
 			timer.start();
 			//update state
 			state = State.PLAYING;
-			RTPServer.log(this + "New RTSP state: PLAYING");
+			LOG.info(this + "New RTSP state: PLAYING");
 		}
 	}
 
@@ -164,7 +164,7 @@ public class RTPSession implements ActionListener {
 						socketRTCP.receive(dp);   // Blocking
 						rtpcQ.put(new RTCPpacket(dp.getData(), dp.getLength()));
 					}
-					RTPServer.log(this+rtpcQ.take().toString());
+					LOG.info(this+rtpcQ.take().toString());
 				} catch (Throwable t) {
 					LOG.severe(t);
 				}
@@ -193,10 +193,10 @@ public class RTPSession implements ActionListener {
 
 		try {
 			//get next frame to send from the video, as well as its size
-			BufferedImage buf = server.getImage();
+			IHostImage image = server.getImage();
 
 			//Builds an RTPpackets object containing the frame
-			RTPmjpg mjpg = new RTPmjpg(buf, imagenb, imagenb*(RTSPRequest.MJPEG_TIMEBASE/FRAMERATE));
+			RTPmjpg mjpg = new RTPmjpg(image, imagenb, imagenb*(RTSPRequest.MJPEG_TIMEBASE/FRAMERATE));
 			if(socketRTP == null) mjpg.setMTU(63 * 1024);
 			List<RTPpacket> rtp_packets = mjpg.createPackets();
 			for(RTPpacket rtp_packet : rtp_packets) {
@@ -208,7 +208,7 @@ public class RTPSession implements ActionListener {
 					lastReq.send(clientRTPport, rtp_packet.getPacket());
 				}
 			}
-			//RTPServer.log(this + "Sent frame #" + imagenb + " as "+rtp_packets.size()+" packets to " + (socketRTP == null ? " channel " : clientIP + ":") + clientRTPport); 
+			//LOG.info(this + "Sent frame #" + imagenb + " as "+rtp_packets.size()+" packets to " + (socketRTP == null ? " channel " : clientIP + ":") + clientRTPport); 
 		}
 		catch(Throwable t) {
 			LOG.severe(t);
@@ -226,7 +226,7 @@ public class RTPSession implements ActionListener {
 			timer.stop();
 			//update state
 			state = State.READY;
-			RTPServer.log(this + "New RTSP state: READY");
+			LOG.info(this + "New RTSP state: READY");
 		}
 	}
 

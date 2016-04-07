@@ -31,20 +31,17 @@
 
 package ch.fhnw.ether.video;
 
-import java.nio.ByteBuffer;
-
-import org.lwjgl.opengl.GL11;
-
+import ch.fhnw.ether.image.IGPUImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
-import ch.fhnw.ether.render.gl.GLObject;
-import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 
 public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame, IVideoRenderTarget> implements IVideoRenderTarget, IScheduler {
@@ -63,16 +60,16 @@ public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame
 		for(int i = 1; i < cmds.length; i++) {
 			if(!(cmds[i] instanceof AbstractVideoFX))
 				throw new ClassCastException("Command '" + cmds[i] + "' not sublcass of " + AbstractVideoFX.class.getName());
-			if(cmds[i] instanceof IVideoFrameFX)
+			if(cmds[i] instanceof IVideoCPUFX)
 				numFrameFx++;
 			if(cmds[i] instanceof IVideoGLFX)
 				numGlFx++;
 		}
 		if(numGlFx == cmds.length - 1 && preferredType == AbstractVideoFX.GLFX) {}
-		else if(numFrameFx == cmds.length - 1 && preferredType == AbstractVideoFX.FRAMEFX) {}
+		else if(numFrameFx == cmds.length - 1 && preferredType == AbstractVideoFX.CPUFX) {}
 		else if(numGlFx == 0 && numFrameFx == 0) {}
 		else
-			throw new IllegalArgumentException("All commands must implement either " + IVideoGLFX.class.getName() + " or " + IVideoFrameFX.class.getName());
+			throw new IllegalArgumentException("All commands must implement either " + IVideoGLFX.class.getName() + " or " + IVideoCPUFX.class.getName());
 		super.useProgram(program);
 	}
 
@@ -81,7 +78,7 @@ public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame
 		return (IVideoSource)program.getFrameSource();
 	}
 
-	public Texture getSrcTexture(AbstractVideoFX fx) {
+	public IGPUImage getSrcTexture(AbstractVideoFX fx) {
 		AbstractRenderCommand<?>[] cmds = program.getProgram();
 		for(int i = cmds.length; --i >= 1;)
 			if(cmds[i] == fx)
@@ -91,24 +88,12 @@ public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame
 		return null;
 	}
 
-	public Texture getDstTexture(AbstractVideoFX fx) {
+	public IGPUImage getDstTexture(AbstractVideoFX fx) {
 		AbstractRenderCommand<?>[] cmds = program.getProgram();
 		IVideoSource               src  = (IVideoSource) cmds[0];
 		if(cmds[cmds.length - 1] == fx || fx.getDstTexture() == null)
-			return createTexture(src);
+			return IGPUImage.create(src.getWidth(), src.getHeight(), ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
 		return fx.getDstTexture();
-	}
-
-	private Texture createTexture(IVideoSource src) {
-		Texture result;
-		result = new Texture(new GLObject(Type.TEXTURE), src.getWidth(), src.getHeight());
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, result.getGlObject().getId());
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, src.getWidth(), src.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-		GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-		return result;
 	}
 
 	public Class<?> runAs() {

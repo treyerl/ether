@@ -31,16 +31,16 @@
 
 package ch.fhnw.util.net.rtp;
 
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ch.fhnw.ether.image.awt.Frame;
-import ch.fhnw.ether.image.awt.ImageScaler;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.Log;
 
 public class RTPServer extends Thread {
@@ -49,7 +49,9 @@ public class RTPServer extends Thread {
 	private final Map<Integer, RTPSession>  sessions = new ConcurrentHashMap<>();
 	private final Map<String,  RTSPRequest> channels = new ConcurrentHashMap<>();
 		
-	private final AtomicReference<BufferedImage> currentImage = new AtomicReference<>(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB));
+	private final AtomicReference<IHostImage> currentImage = new AtomicReference<>(
+			IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED)
+	);
 	
 	private final int port;
 
@@ -68,7 +70,7 @@ public class RTPServer extends Thread {
 	@Override
 	public void run() {
 		try(ServerSocket listenSocket = new ServerSocket(port)) {
-			System.out.println("# RTSPServer running " +contentBase(InetAddress.getLocalHost(), port));
+			System.out.println("# RTSPServer running " +getContentBase(InetAddress.getLocalHost(), port));
 			for(;;)
 				new RTSPRequest(this, listenSocket.accept());
 		} catch (Exception e) {
@@ -80,36 +82,32 @@ public class RTPServer extends Thread {
 		return sessions.get(Integer.valueOf(req.getSessionKey()));
 	}
 
-	public void addChannel(String key, RTSPRequest channel) {
-		channels.put(key, channel);
-	}
-
-	public RTSPRequest getChannel(String key) {
-		return channels.get(key);
-	}
-	
-	static String contentBase(InetAddress addr, int port) {
-		return "rtsp://" + addr.getHostName() + ":" + port + "/video.mjpg";
-	}
-
 	public void addSession(int sessionKey, RTPSession session) {
 		sessions.put(sessionKey, session);
 	}
 	
-	static void log(String msg) {
-		System.out.println(msg);
+	public RTSPRequest getChannel(String key) {
+		return channels.get(key);
 	}
 	
+	public void addChannel(String key, RTSPRequest channel) {
+		channels.put(key, channel);
+	}
+
+	public static String getContentBase(InetAddress addr, int port) {
+		return "rtsp://" + addr.getHostName() + ":" + port + "/video.mjpg";
+	}
+
 	public static void main(String args[]) {
 		new RTPServer(Integer.parseInt(args[0])).run();
 	}
 
-	public void setFrame(Frame frame) {
-		currentImage.set(ImageScaler.getScaledInstance(frame.toBufferedImage(), frame.width, frame.height, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR, false));
+	public IHostImage getImage() {
+		return currentImage.get();
 	}
 
-	public BufferedImage getImage() {
-		return currentImage.get();
+	public void setImage(IHostImage image) {
+		currentImage.set(image);
 	}
 
 	public void closeSession(int sessionKey) {

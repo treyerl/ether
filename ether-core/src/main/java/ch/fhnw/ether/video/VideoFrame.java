@@ -33,15 +33,14 @@ package ch.fhnw.ether.video;
 
 import java.util.concurrent.BlockingQueue;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.awt.Frame;
 import ch.fhnw.ether.media.AbstractFrame;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public class VideoFrame extends AbstractFrame {
 	private final FrameAccess            framea;
-	private       IHostImage             frame;
-	private       Texture                texture;
+	private       IHostImage             hostImage;
+	private       IGPUImage              gpuImage;
 	private final BlockingQueue<float[]> audioData;
 
 	public VideoFrame(IHostImage frame) {
@@ -59,29 +58,29 @@ public class VideoFrame extends AbstractFrame {
 	}
 
 	public synchronized IHostImage getFrame() {
-		if(frame == null) {
-			if(texture != null) {
-				frame = Frame.create(texture);
+		if(hostImage == null) {
+			if(gpuImage != null) {
+				hostImage = gpuImage.createHostImage();
 			} else {
-				frame = framea.getFrame(audioData);
+				hostImage = framea.getHostImage(audioData);
 			}
 		}
-		return frame;
+		return hostImage;
 	}
 
-	public synchronized Texture getTexture() {
-		if(texture == null) {
-			if(frame != null) {
-				setTexture(frame.getTexture());
+	public synchronized IGPUImage getTexture() {
+		if(gpuImage == null) {
+			if(hostImage != null) {
+				setTexture(hostImage.createGPUImage());
 			} else {
-				setTexture(framea.getTexture(audioData));
+				setTexture(framea.getGPUImage(audioData));
 			}
 		}
-		return texture;
+		return gpuImage;
 	}
 
-	public void setTexture(Texture texture) {
-		this.texture = texture;
+	public void setTexture(IGPUImage texture) {
+		this.gpuImage = texture;
 	}
 
 	public boolean isKeyframe() {

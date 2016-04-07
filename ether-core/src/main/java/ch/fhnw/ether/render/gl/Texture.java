@@ -29,13 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.scene.mesh.material;
+package ch.fhnw.ether.render.gl;
 
-import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
-import ch.fhnw.ether.image.IImage.ComponentFormat;
-import ch.fhnw.ether.image.IImage.ComponentType;
-import ch.fhnw.ether.render.gl.GLObject;
+// XXX REVISE - purely use for GL purposes
 
 /**
  * Texture data encapsulation
@@ -43,8 +39,6 @@ import ch.fhnw.ether.render.gl.GLObject;
  * @author radar
  */
 public class Texture {
-	public static final Texture TRANSPARENT_1x1 = IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED).getTexture();
-
 	private GLObject glObject;
 	private int      width;
 	private int      height;

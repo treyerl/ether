@@ -34,8 +34,8 @@ package ch.fhnw.ether.render.gl;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 
 public class FrameBuffer {
 	private final GLObject fbo;
@@ -71,11 +71,16 @@ public class FrameBuffer {
 	public void attach(int attachment, Texture texture) {
 		// XXX is this really necessary? the general contract should be that no texture is bound here
 		int toRestore = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
-
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getGlObject().getId());
-
 		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, texture.getGlObject().getId(), 0);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, toRestore);			
+	}
 
+	public void attach(int attachment, IGPUImage image) {
+		// XXX is this really necessary? the general contract should be that no texture is bound here
+		int toRestore = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)image.getGPUHandle());
+		GL30.glFramebufferTexture2D(GL30.GL_DRAW_FRAMEBUFFER, attachment, GL11.GL_TEXTURE_2D, (int)image.getGPUHandle(), 0);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, toRestore);			
 	}
 

@@ -34,6 +34,7 @@ import java.util.List;
 import ch.fhnw.demopolis.config.IUIColors;
 import ch.fhnw.demopolis.render.PanelMaterial;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
@@ -41,7 +42,6 @@ import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Mat4;
@@ -73,7 +73,7 @@ public class Panel {
 	private final Position position;
 	private boolean visible;
 
-	public Panel(Texture texture, Position position) {
+	public Panel(IGPUImage texture, Position position) {
 		this.mesh = new DefaultMesh(Primitive.TRIANGLES, new PanelMaterial(texture), createPanelGeometry(), Queue.SCREEN_SPACE_OVERLAY);
 		this.position = position;
 		setButtonColor(0, COLOR_TITLE);
@@ -107,11 +107,11 @@ public class Panel {
 		return position;
 	}
 
-	Texture getTexture() {
+	IGPUImage getTexture() {
 		return ((PanelMaterial) mesh.getMaterial()).getTexture();
 	}
 
-	void setTexture(Texture texture) {
+	void setTexture(IGPUImage texture) {
 		((PanelMaterial) mesh.getMaterial()).setTexture(texture);
 	}
 

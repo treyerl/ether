@@ -36,11 +36,11 @@ import ch.fhnw.ether.image.ImageProcessor;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
-import ch.fhnw.ether.video.fx.IVideoFrameFX;
+import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 import ch.fhnw.util.math.Mat3;
 
-public class Convolution extends AbstractVideoFX implements IVideoFrameFX, IVideoGLFX {
+public class Convolution extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter KERNEL = new Parameter("kernel_sel", "Effect", 0, 
 			"Identity", 
 			"Edge Detection1", 

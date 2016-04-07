@@ -44,7 +44,7 @@ public class StatusPanel extends Panel {
 	public static final RGB COLOR_LEVEL_OPEN = IUIColors.GRAY_A;
 
 	public StatusPanel(String path, Position position) throws IOException {
-		super(Platform.get().getImageSupport().read(Asset.get(path)).getTexture(), position);
+		super(Platform.get().getImageSupport().readGPU(Asset.get(path)), position);
 	}
 
 	public void setLevel(int level) {

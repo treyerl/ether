@@ -41,11 +41,11 @@ import org.jcodec.common.NIOUtils;
 import org.jcodec.common.SeekableByteChannel;
 import org.jcodec.common.model.Picture8Bit;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.Log;
 
 public final class JCodecAccess extends FrameAccess {
@@ -148,15 +148,15 @@ public final class JCodecAccess extends FrameAccess {
 	}
 
 	@Override
-	protected IHostImage getFrame(BlockingQueue<float[]> audioData) {
+	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
 		IHostImage result = IHostImage.create(getWidth(), getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 		grab.grabAndSet(currentPicture, result, audioData);
 		return result;
 	}
 
 	@Override
-	public Texture getTexture(BlockingQueue<float[]> audioData) {
-		return getFrame(audioData).getTexture();
+	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
+		return getGPUImage(audioData);
 	}
 
 	@Override

@@ -43,6 +43,10 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.ByteList;
 import ch.fhnw.util.Log;
@@ -253,12 +257,15 @@ public class RTPmjpg {
 	private final int           timestamp;
 	private int                 mtu = 1450;
 	
-	public RTPmjpg(BufferedImage img, int seqNb, int timestamp) {
+	public RTPmjpg(IHostImage img, int seqNb, int timestamp) {
 		quant          = DEFAULT_JPEG_QUANT;
 		type           = DEFAULT_JPEG_TYPE;
 		width          = -1;
 		height         = -1;
-		this.img       = img;
+		
+		// XXX CURRENTLY DEFUNCT... can't use BufferedImage
+		// this.img       = img;
+		this.img = null;
 		this.seqNb     = seqNb;
 		this.timestamp = timestamp;
 	}
@@ -715,10 +722,12 @@ public class RTPmjpg {
 	// for testing
 	public static void main(String[] args) throws IOException {
 		LOG.setLevels(Log.ALL);
-		BufferedImage img = new BufferedImage(500, 300, BufferedImage.TYPE_INT_RGB);
-		for(int y = img.getHeight(); --y >= 0;)
-			for(int x = img.getWidth(); --x >= 0;)
-				img.setRGB(x, y, (int) (Math.random() * Integer.MAX_VALUE));
+		IHostImage img = IHostImage.create(500,  300, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+		for(int y = img.getHeight(); --y >= 0;) {
+			for(int x = img.getWidth(); --x >= 0;) {
+				img.setPixel(x, y, new byte[] { (byte)(Math.random() * 255), (byte)(Math.random() * 255), (byte)(Math.random() * 255) });
+			}
+		}
 		for(RTPpacket p : new RTPmjpg(img, 1000, 2000).createPackets())
 			System.out.println(p);
 	}

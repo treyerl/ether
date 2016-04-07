@@ -34,49 +34,52 @@ package ch.fhnw.ether.video;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.util.IDisposable;
 
 public class FrameAccess implements IDisposable {
 	private   final URLVideoSource src;
-	private         IHostImage     image;
+	private         IHostImage     hostImage;
+	private         IGPUImage      gpuImage;
 	protected int                  numPlays;
 
 	FrameAccess(URLVideoSource src) throws IOException {
-		this.image    = Platform.get().getImageSupport().read(src.getURL());
-		this.src      = src;
-		this.numPlays = 0;
+		this.hostImage = Platform.get().getImageSupport().readHost(src.getURL());
+		this.src       = src;
+		this.numPlays  = 0;
 	}
 
 	FrameAccess(IHostImage frame) {
-		this.image    = frame;
-		this.src      = null;
-		this.numPlays = 0;
+		this.hostImage = frame;
+		this.src       = null;
+		this.numPlays  = 0;
 	}
 
 	protected FrameAccess(URLVideoSource src, int numPlays) {
-		this.image    = null;
-		this.src      = src;
-		this.numPlays = numPlays;
+		this.hostImage = null;
+		this.src       = src;
+		this.numPlays  = numPlays;
 	}
 
-	protected IHostImage getFrame(BlockingQueue<float[]> audioData) {
-		return image;
+	protected IHostImage getHostImage(BlockingQueue<float[]> audioData) {
+		return hostImage;
 	}
 	
-	public Texture getTexture(BlockingQueue<float[]> audioData) {
-		return image.getTexture();
+	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
+		if (gpuImage == null)
+			gpuImage = hostImage.createGPUImage();
+		return gpuImage;
 	}
 
 	protected int getWidth() {
-		return image.getWidth();
+		return hostImage.getWidth();
 	}
 	protected int getHeight() {
-		return image.getHeight();
+		return hostImage.getHeight();
 	}
 	
 	protected float getFrameRate() {
@@ -107,7 +110,9 @@ public class FrameAccess implements IDisposable {
 		return src;
 	}
 
-	public boolean decodeFrame() {return true;}
+	public boolean decodeFrame() {
+		return true;
+	}
 
 	public boolean isKeyframe() {
 		return true;
@@ -115,7 +120,9 @@ public class FrameAccess implements IDisposable {
 	
 	@Override
 	public void dispose() {
-		image = null; // help GC
+		// help GC
+		hostImage = null; 
+		gpuImage  = null;
 	}
 	
 	public void rewind() throws IOException {}

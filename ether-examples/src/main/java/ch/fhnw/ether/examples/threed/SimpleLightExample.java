@@ -39,6 +39,7 @@ import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.formats.obj.ObjReader;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.render.forward.ForwardRenderer;
 import ch.fhnw.ether.scene.DefaultScene;
@@ -58,7 +59,6 @@ import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.scene.mesh.material.ShadedMaterial;
-import ch.fhnw.ether.scene.mesh.material.Texture;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.Log;
@@ -182,7 +182,7 @@ public final class SimpleLightExample {
 				IMaterial solidMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.WHITE, 10, 1, 1f);
 				IMaterial lineMaterial = new LineMaterial(new RGBA(1, 1, 1, 0.2f));
 
-				Texture   t = Platform.get().getImageSupport().read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg")).getTexture();
+				IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
 				IMaterial textureMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.RED, 10, 1, 1f, t);
 
 				IMesh solidMeshT = new DefaultMesh(Primitive.TRIANGLES, solidMaterial, DefaultGeometry.createVN(s.getTriangles(), s.getNormals()));

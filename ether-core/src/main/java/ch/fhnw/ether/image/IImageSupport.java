@@ -48,26 +48,50 @@ public interface IImageSupport {
 		PNG, JPEG
 	}
 
-	IHostImage read(InputStream in, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException;
+	IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException;
 
-	default IHostImage read(InputStream in) throws IOException {
-		return read(in, null, null, null);
+	default IHostImage readHost(InputStream in) throws IOException {
+		return readHost(in, null, null, null);
 	}
 	
-	default IHostImage read(File file, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
-		return read(new FileInputStream(file), componentFormat, componentType, alphaMode);
+	default IHostImage readHost(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return readHost(new FileInputStream(file), componentType, componentFormat, alphaMode);
 	}
 
-	default IHostImage read(File file) throws IOException {
-		return read(new FileInputStream(file), null, null, null);
+	default IHostImage readHost(File file) throws IOException {
+		return readHost(new FileInputStream(file), null, null, null);
 	}
 
-	default IHostImage read(URL url, ComponentFormat componentFormat, ComponentType componentType, AlphaMode alphaMode) throws IOException {
-		return read(url.openStream(), componentFormat, componentType, alphaMode);
+	default IHostImage readHost(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return readHost(url.openStream(), componentType, componentFormat, alphaMode);
 	}
 
-	default IHostImage read(URL url) throws IOException {
-		return read(url.openStream(), null, null, null);
+	default IHostImage readHost(URL url) throws IOException {
+		return readHost(url.openStream(), null, null, null);
+	}
+
+	default IGPUImage readGPU(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return readHost(in, componentType, componentFormat, alphaMode).createGPUImage();
+	}
+
+	default IGPUImage readGPU(InputStream in) throws IOException {
+		return readGPU(in, null, null, null);
+	}
+	
+	default IGPUImage readGPU(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return readGPU(new FileInputStream(file), componentType, componentFormat, alphaMode);
+	}
+
+	default IGPUImage readGPU(File file) throws IOException {
+		return readGPU(new FileInputStream(file), null, null, null);
+	}
+
+	default IGPUImage readGPU(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return readGPU(url.openStream(), componentType, componentFormat, alphaMode);
+	}
+
+	default IGPUImage readGPU(URL url) throws IOException {
+		return readGPU(url.openStream(), null, null, null);
 	}
 
 	void write(IImage image, OutputStream out, FileFormat format) throws IOException;

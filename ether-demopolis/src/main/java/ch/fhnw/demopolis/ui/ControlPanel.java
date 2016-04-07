@@ -32,7 +32,7 @@ package ch.fhnw.demopolis.ui;
 import java.io.IOException;
 
 import ch.fhnw.ether.controller.event.IPointerEvent;
-import ch.fhnw.ether.scene.mesh.material.Texture;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.util.color.RGB;
 
 public class ControlPanel extends Panel {
@@ -64,7 +64,7 @@ public class ControlPanel extends Panel {
 		super(null, position);
 	}
 	
-	public void setButtons(Texture texture, Button[] buttons) {
+	public void setButtons(IGPUImage texture, Button[] buttons) {
 		setTexture(texture);
 		this.buttons = buttons;
 		for (int i = 1; i < buttons.length; ++i) {

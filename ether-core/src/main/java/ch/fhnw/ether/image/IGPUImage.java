@@ -31,8 +31,24 @@
 
 package ch.fhnw.ether.image;
 
+import java.nio.ByteBuffer;
+
 public interface IGPUImage extends IImage {
+	public static final IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
 	
 	long getGPUHandle();
+	
+	IHostImage createHostImage();
+	
+	static IGPUImage create(IHostImage image) {
+		return create(image.getWidth(), image.getHeight(), image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), image.getPixels());
+	}
 
+	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		return create(width, height, componentType, componentFormat, alphaMode, null);
+	}
+
+	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
+		return new GLGPUImage(width, height, componentType, componentFormat, alphaMode, pixels);
+	}
 }
