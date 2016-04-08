@@ -40,6 +40,8 @@ import java.util.function.Supplier;
 import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.forward.ShadowVolumes;
+import ch.fhnw.ether.render.gl.GLContextManager;
+import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -47,8 +49,6 @@ import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
 import ch.fhnw.ether.view.IWindow;
-import ch.fhnw.ether.view.gl.GLContextManager;
-import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 
 public abstract class AbstractRenderer implements IRenderer {
 	

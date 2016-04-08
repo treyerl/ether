@@ -29,14 +29,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.view.gl;
+package ch.fhnw.ether.render.gl;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.lwjgl.glfw.GLFW;
 
+import ch.fhnw.ether.view.GLFWWindow;
+import ch.fhnw.ether.view.IView;
+
+// decide whether we should really use ExistingContext or be strict 
+// that there is no current context when a temporary one is requested. 
+// (problem is: this could lead to nested contexts and corresponding state issues.
 public class GLContextManager {
+	private static final boolean DBG = true;
+
 	private static final int NUM_CONTEXTS = 4;
 
 	public interface IGLContext extends AutoCloseable {
@@ -45,44 +53,50 @@ public class GLContextManager {
 	private static final class ExistingContext implements IGLContext {
 		@Override
 		public void close() throws Exception {
-		}		
+			if (DBG)
+				GLError.checkWithMessage("gl error (temporary void context release)");
+		}
 	}
 
 	private static final class TemporaryContext implements IGLContext {
 		GLFWWindow window;
 
 		TemporaryContext() {
-			window = new GLFWWindow();
+			window = new GLFWWindow(null, 16, 16, "", IView.RENDER_VIEW);
 		}
 
 		void acquire() {
 			window.makeCurrent(true);
+			if (DBG)
+				GLError.checkWithMessage("gl error (temporary real context acquire)");
 		}
 
 		void release() {
+			if (DBG)
+				GLError.checkWithMessage("gl error (temporary real context release)");
 			window.makeCurrent(false);
 		}
 
 		@Override
 		public void close() throws Exception {
 			releaseContext(this);
-		}		
+		}
 	}
 
 	private static class ContextPool {
 		final BlockingQueue<TemporaryContext> contexts = new LinkedBlockingQueue<>();
-		
+
 		public ContextPool() {
 			contexts.add(new TemporaryContext());
 		}
-		
+
 		TemporaryContext acquireContext(boolean wait) {
 			TemporaryContext context = null;
 			if (wait) {
 				try {
 					context = contexts.take();
 				} catch (InterruptedException e) {
-				}				
+				}
 			} else {
 				context = contexts.poll();
 			}
@@ -90,17 +104,17 @@ public class GLContextManager {
 				context.acquire();
 			return context;
 		}
-		
+
 		void releaseContext(TemporaryContext context) {
 			context.release();
-			contexts.add(context);			
-		}		
+			contexts.add(context);
+		}
 	}
 
 	private static final IGLContext VOID_CONTEXT = new ExistingContext();
 
 	private static ContextPool contexts;
-	
+
 	private static GLFWWindow sharedContext;
 
 	public static void init() {
@@ -111,20 +125,21 @@ public class GLContextManager {
 				contexts.contexts.add(new TemporaryContext());
 		}
 	}
-	
+
 	public static IGLContext acquireContext() {
 		return acquireContext(true);
 	}
 
 	public static IGLContext acquireContext(boolean wait) {
-		if (GLFW.glfwGetCurrentContext() != 0)
+		if (GLFW.glfwGetCurrentContext() != 0) {
 			return VOID_CONTEXT;
+		}
 		return contexts.acquireContext(wait);
 	}
 
 	public static void releaseContext(IGLContext context) {
 		if (context instanceof TemporaryContext)
-			contexts.releaseContext((TemporaryContext)context);
+			contexts.releaseContext((TemporaryContext) context);
 	}
 
 	public static GLFWWindow getSharedContextWindow() {

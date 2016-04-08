@@ -29,54 +29,64 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.examples.threed;
+package ch.fhnw.ether.render.gl;
 
-import ch.fhnw.ether.controller.DefaultController;
-import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.scene.DefaultScene;
-import ch.fhnw.ether.scene.IScene;
-import ch.fhnw.ether.scene.mesh.DefaultMesh;
-import ch.fhnw.ether.scene.mesh.IMesh;
-import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
-import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
-import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
-import ch.fhnw.ether.view.DefaultView;
-import ch.fhnw.ether.view.IView;
-import ch.fhnw.util.color.RGBA;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
-public final class CustomGeometryExample {
-	public static void main(String[] args) {
-		new CustomGeometryExample();
+import ch.fhnw.util.Log;
+
+/**
+ * Basic OpenGL error checking.
+ *
+ * @author radar
+ */
+public final class GLError {
+	private static final Log LOG = Log.create();
+
+	private GLError() {
+	}
+	
+	public static boolean check() {
+		return GL11.glGetError() != GL11.GL_NO_ERROR;
 	}
 
-	private static IMesh makeColoredTriangle(float off) {
-		float[] vertices = { off + 0, 0, off + 0, 0, off + 0, 0.5f, off + 0.5f, 0, 0.5f };
-		float[] colors = { 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1 };
-
-		DefaultGeometry g = DefaultGeometry.createVC(vertices, colors);
-		return new DefaultMesh(Primitive.TRIANGLES, new ColorMaterial(RGBA.WHITE, true), g, IMesh.Queue.DEPTH);
+	public static boolean checkWithMessage(String message) {
+		int error = GL11.glGetError();
+		if (error == GL11.GL_NO_ERROR)
+			return false;
+		
+		LOG.severe(message + ": " + getErrorString(error));
+		return true;
 	}
-
-	// Setup the whole thing
-	public CustomGeometryExample() {
-		// Init platform
-		Platform.get().init();
-		
-		// Create controller
-		IController controller = new DefaultController();
-		controller.run(time -> {
-			// Create view
-			new DefaultView(controller, 100, 100, 500, 500, IView.INTERACTIVE_VIEW, "Test");
-
-			// Create scene and add triangle
-			IScene scene = new DefaultScene(controller);
-			controller.setScene(scene);
-
-			scene.add3DObject(makeColoredTriangle(0));
-			scene.add3DObject(makeColoredTriangle(1));
-		});
-		
-		Platform.get().run();
+	
+	public static void checkWithException(String message) {
+		int error = GL11.glGetError();
+		if (error == GL11.GL_NO_ERROR)
+			return;
+		throw new RuntimeException(message + ": " + getErrorString(error));
+	}
+	
+	public static String getErrorString(int error) {
+		switch (error) {
+		case GL11.GL_NO_ERROR:
+			return "GL_NO_ERROR";
+		case GL11.GL_INVALID_ENUM:
+			return "GL_INVALID_ENUM";
+		case GL11.GL_INVALID_VALUE:
+			return "GL_INVALID_VALUE";
+		case GL11.GL_INVALID_OPERATION:
+			return "GL_INVALID_OPERATION";
+		case GL30.GL_INVALID_FRAMEBUFFER_OPERATION:
+			return "GL_INVALID_FRAMEBUFFER_OPERATION";
+		case GL11.GL_OUT_OF_MEMORY:
+			return "GL_OUT_OF_MEMORY";
+		case GL11.GL_STACK_UNDERFLOW:
+			return "GL_STACK_UNDERFLOW";
+		case GL11.GL_STACK_OVERFLOW:
+			return ": GL_STACK_OVERFLOW";
+		default:
+			return "UNKNOWN ERROR";
+		}
 	}
 }

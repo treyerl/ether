@@ -36,6 +36,6 @@ public interface IRenderTarget<F extends AbstractFrame> extends ITimebase {
 	void    setFrame(AbstractFrameSource src, F frame);
 	F       getFrame();
 	long    getTotalElapsedFrames();
-	long    getRealtiveElapsedFrames();
+	long    getRelativeElapsedFrames();
 	boolean isRendering();
 }

@@ -43,8 +43,8 @@ import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
 import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
+import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Mat4;
 

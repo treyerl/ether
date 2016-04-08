@@ -32,7 +32,7 @@
 package ch.fhnw.ether.examples.mapping;
 
 import ch.fhnw.ether.controller.IController;
-import ch.fhnw.ether.view.gl.DefaultView;
+import ch.fhnw.ether.view.DefaultView;
 
 public class MappingView extends DefaultView {
 	/**

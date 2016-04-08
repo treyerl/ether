@@ -71,15 +71,15 @@ public class VideoFrame extends AbstractFrame {
 	public synchronized IGPUImage getGPUImage() {
 		if(gpuImage == null) {
 			if(hostImage != null) {
-				setTexture(hostImage.createGPUImage());
+				setGPUImage(hostImage.createGPUImage());
 			} else {
-				setTexture(framea.getGPUImage(audioData));
+				setGPUImage(framea.getGPUImage(audioData));
 			}
 		}
 		return gpuImage;
 	}
 
-	public void setTexture(IGPUImage texture) {
+	public void setGPUImage(IGPUImage texture) {
 		this.gpuImage = texture;
 	}
 

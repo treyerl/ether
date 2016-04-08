@@ -55,7 +55,7 @@ public class FrameTarget extends AbstractVideoTarget {
 				IHostImage scaled = Platform.get().getImageSupport().scale(videoImage, image.getWidth(), image.getHeight());
 				image.setSubImage(0, 0, scaled);
 			} else {
-				// XXX check this (original code was just assigning internally
+				// XXX check this (original code was just assigning internally)
 				image.setSubImage(0, 0, videoImage);
 			}
 		}

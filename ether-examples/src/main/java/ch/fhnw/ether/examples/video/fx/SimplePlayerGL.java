@@ -76,9 +76,9 @@ import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.IVideoSource;
 import ch.fhnw.ether.video.URLVideoSource;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
+import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView.Config;
 import ch.fhnw.ether.view.IView.ViewType;
-import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.math.Mat4;
@@ -102,7 +102,7 @@ public class SimplePlayerGL {
 				new FakeThermoCam());
 
 		if(mask != null) {
-			IHostImage maskOut  = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+			IHostImage maskOut = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 			FrameTarget target = new FrameTarget(maskOut);
 			target.setTimebase(videoOut);
 			target.useProgram(new RenderProgram<>(mask));
@@ -125,7 +125,8 @@ public class SimplePlayerGL {
 			scene.add3DObject(mesh);
 
 			try {
-				RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
+				//RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
+				RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source);
 
 				new ParameterWindow(parent->{
 					Combo fxsUI = new Combo(parent, SWT.READ_ONLY);
@@ -173,10 +174,16 @@ public class SimplePlayerGL {
 				source = new URLVideoSource(new File(args[0]).toURI().toURL());
 			}
 		} catch(Throwable t) {
+			// XXX this is currently defunct due to AWT
 			source =  CameraSource.create(CameraInfo.getInfos()[0]);
 		}
+		
 		IVideoSource mask = null; 
-		try {mask = new ArrayVideoSource(new URLVideoSource(new File(args[1]).toURI().toURL(), 1), Sync.ASYNC);} catch(Throwable t) {}
+		try {
+			mask = new ArrayVideoSource(new URLVideoSource(new File(args[1]).toURI().toURL(), 1), Sync.ASYNC);
+		} catch (Throwable t) {
+		}
+		
 		new SimplePlayerGL(source, mask);
 		
 		Platform.get().run();

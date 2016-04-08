@@ -40,7 +40,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.image.STBImageSupport;
-import ch.fhnw.ether.view.gl.GLContextManager;
+import ch.fhnw.ether.render.gl.GLContextManager;
 
 final class SWTPlatform implements IPlatform {
 

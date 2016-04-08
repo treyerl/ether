@@ -160,7 +160,7 @@ public class ParameterWindow {
 						frameTimeUI.setText(FMT.format(frame.playOutTime));
 					}
 				}
-				relativeFramesUI.setText(Long.toString(target.getRealtiveElapsedFrames()));
+				relativeFramesUI.setText(Long.toString(target.getRelativeElapsedFrames()));
 				totalFramesUI.setText(Long.toString(target.getTotalElapsedFrames()));
 			}
 		}

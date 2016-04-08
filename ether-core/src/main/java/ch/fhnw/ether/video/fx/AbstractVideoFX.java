@@ -47,6 +47,8 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.render.Renderable;
 import ch.fhnw.ether.render.gl.FrameBuffer;
+import ch.fhnw.ether.render.gl.GLContextManager;
+import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
 import ch.fhnw.ether.render.variable.IShaderUniform;
@@ -77,8 +79,6 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
 import ch.fhnw.ether.video.AbstractVideoTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.VideoFrame;
-import ch.fhnw.ether.view.gl.GLContextManager;
-import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
@@ -92,7 +92,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	private static final Log LOG = Log.create();
 	
 	public static final Class<?>     GLFX        = IVideoGLFX.class;
-	public static final Class<?>     CPUFX     = IVideoCPUFX.class;
+	public static final Class<?>     CPUFX       = IVideoCPUFX.class;
 	public static final Class<?>[]   FX_CLASSES  = {GLFX, CPUFX};
 	public static final Uniform<?>[] NO_UNIFORMS = new Uniform<?>[0];
 	public static final String[]     NO_INOUT    = ClassUtilities.EMPTY_StringA;
@@ -322,7 +322,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 				FrameBuffer.unbind();
 				GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)material.dstTexture.getGPUHandle());
 				GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-				target.getFrame().setTexture(material.dstTexture);
+				target.getFrame().setGPUImage(material.dstTexture);
 				GL11.glViewport(viewport.get(0), viewport.get(1), viewport.get(2), viewport.get(3));
 				GL11.glFinish();
 			} catch(RenderCommandException e) {

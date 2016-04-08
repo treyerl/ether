@@ -49,9 +49,9 @@ import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.AbstractMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
+import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewType;
-import ch.fhnw.ether.view.gl.DefaultView;
 
 public final class CustomShaderExample {
 	public static final class ExampleCustomMaterial extends AbstractMaterial implements ICustomMaterial {

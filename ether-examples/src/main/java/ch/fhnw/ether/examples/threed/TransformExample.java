@@ -38,8 +38,8 @@ import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
+import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 

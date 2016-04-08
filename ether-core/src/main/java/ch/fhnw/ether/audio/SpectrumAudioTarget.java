@@ -174,7 +174,7 @@ public class SpectrumAudioTarget implements IAudioRenderTarget {
 	}
 	
 	@Override
-	public final long getRealtiveElapsedFrames() {
+	public final long getRelativeElapsedFrames() {
 		return relFrames;
 	}
 	

@@ -38,10 +38,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
+import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.render.gl.GLObject;
+import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.render.gl.GLObject.Type;
-import ch.fhnw.ether.view.gl.GLContextManager;
-import ch.fhnw.ether.view.gl.GLContextManager.IGLContext;
 
 // TODO: add explicit dispose
 public final class GLGPUImage extends AbstractImage implements IGPUImage {
@@ -92,7 +92,7 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 			GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 			GL11.glFinish();
 		} catch (Throwable t) {
-			LOG.warning(t);
+			LOG.severe(t);
 		}
 	}
 	

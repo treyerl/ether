@@ -40,8 +40,8 @@ import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
+import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.gl.DefaultView;
 import ch.fhnw.util.AutoDisposer;
 
 public class Demopolis {

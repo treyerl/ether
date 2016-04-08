@@ -29,15 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.view.gl;
+package ch.fhnw.ether.view;
 
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
 import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.view.IView;
-import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.ether.view.IWindow.IKeyListener;
 import ch.fhnw.ether.view.IWindow.IPointerListener;
 import ch.fhnw.ether.view.IWindow.IWindowListener;

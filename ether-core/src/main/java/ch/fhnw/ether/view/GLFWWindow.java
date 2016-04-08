@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.view.gl;
+package ch.fhnw.ether.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,17 +55,16 @@ import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
 import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.view.IView;
+import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IView.Config;
 import ch.fhnw.ether.view.IView.ViewType;
-import ch.fhnw.ether.view.IWindow;
 
 /**
  * GLFW window class.
  *
  * @author radar
  */
-final class GLFWWindow implements IWindow {
+public final class GLFWWindow implements IWindow {
 	private static final boolean DBG = false;
 	
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
@@ -154,10 +153,6 @@ final class GLFWWindow implements IWindow {
 			System.out.println("window created.");
 		
  	}
-	
-	GLFWWindow() {
-		this(null, 16, 16, "", IView.RENDER_VIEW);
-	}
 	
 	@Override
 	public void destroy() {

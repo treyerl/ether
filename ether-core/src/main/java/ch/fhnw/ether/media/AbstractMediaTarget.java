@@ -208,7 +208,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 	public final void setFrame(AbstractFrameSource src, F frame) {
 		this.frame.set(frame);
 		long length = src.getLengthInFrames();
-		if(length > 0 && getRealtiveElapsedFrames() >= length)
+		if(length > 0 && getRelativeElapsedFrames() >= length)
 			relFrames = 0;
 		incFrameCount();
 	}
@@ -265,7 +265,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 	}
 
 	@Override
-	public final long getRealtiveElapsedFrames() {
+	public final long getRelativeElapsedFrames() {
 		return relFrames;
 	}
 
