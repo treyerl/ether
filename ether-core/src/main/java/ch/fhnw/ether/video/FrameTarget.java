@@ -33,7 +33,6 @@ package ch.fhnw.ether.video;
 
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.RenderCommandException;
-import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
 // TODO: rename to ImageTarget
@@ -52,7 +51,7 @@ public class FrameTarget extends AbstractVideoTarget {
 		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
 			if (image.getWidth() != videoImage.getWidth() || image.getHeight() != videoImage.getHeight()) {
-				IHostImage scaled = Platform.get().getImageSupport().scale(videoImage, image.getWidth(), image.getHeight());
+				IHostImage scaled = IHostImage.resize(videoImage, image.getWidth(), image.getHeight());
 				image.setSubImage(0, 0, scaled);
 			} else {
 				// XXX check this (original code was just assigning internally)

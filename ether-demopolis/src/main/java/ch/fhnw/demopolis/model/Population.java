@@ -40,7 +40,6 @@ import ch.fhnw.demopolis.render.MaskMaterial;
 import ch.fhnw.demopolis.render.PolisMaterial;
 import ch.fhnw.ether.formats.obj.ObjReader;
 import ch.fhnw.ether.image.IGPUImage;
-import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -212,7 +211,7 @@ public class Population {
 	}
 	
 	private static IMesh getFlatMesh(String asset, float h) throws IOException {
-		IGPUImage texture = Platform.get().getImageSupport().readGPU(Asset.get(asset));
+		IGPUImage texture = IGPUImage.read(Asset.get(asset));
 		float aspect = (float)texture.getWidth() / (float)texture.getHeight();
 		float w = 0.5f * h * aspect;
 		float[] v = new float[] { 

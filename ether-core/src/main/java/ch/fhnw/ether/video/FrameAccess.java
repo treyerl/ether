@@ -38,7 +38,6 @@ import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IScheduler;
-import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.IDisposable;
 
 public class FrameAccess implements IDisposable {
@@ -48,7 +47,7 @@ public class FrameAccess implements IDisposable {
 	protected int                  numPlays;
 
 	FrameAccess(URLVideoSource src) throws IOException {
-		this.hostImage = Platform.get().getImageSupport().readHost(src.getURL());
+		this.hostImage = IHostImage.read(src.getURL());
 		this.src       = src;
 		this.numPlays  = 0;
 	}

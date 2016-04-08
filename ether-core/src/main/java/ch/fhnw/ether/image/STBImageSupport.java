@@ -115,7 +115,10 @@ public final class STBImageSupport implements IImageSupport {
 	}
 
 	@Override
-	public IHostImage scale(IHostImage image, int width, int height) {
+	public IHostImage resize(IHostImage image, int width, int height) {
+		if (image.getWidth() == width && image.getHeight() == height)
+			return image;
+		
 		ByteBuffer pixels = BufferUtils.createByteBuffer(width * height * image.getNumBytesPerPixel());
 		
 		switch (image.getComponentType()) {

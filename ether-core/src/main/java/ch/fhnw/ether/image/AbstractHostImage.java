@@ -120,4 +120,45 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	protected final int pos(int x, int y) {
 		return (y * getWidth() + x) * getNumBytesPerPixel();		
 	}
+
+	static IHostImage convert(IHostImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		throw new UnsupportedOperationException();
+//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
+//			return image;
+//		
+//		boolean convertType = false;
+//		boolean convertFormat = false;
+//		boolean convertAlpha = false;
+//		
+//		if (componentType == null)
+//			componentType = image.getComponentType();
+//		else if (componentType != image.getComponentType())
+//			convertType = true;
+//		
+//		if (componentFormat == null)
+//			componentFormat = image.getComponentFormat();
+//		else if (componentFormat != image.getComponentFormat())
+//			convertFormat = true;
+//		
+//		if (alphaMode == null)
+//			alphaMode = image.getAlphaMode();
+//		else if (alphaMode != image.getAlphaMode())
+//			convertAlpha = true;
+//		
+//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode, null);
+//		
+//		
+//		
+//		return result;
+	}
+
+	public static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
+		switch (componentType) {
+		case BYTE:
+			return new ByteImage(width, height, componentFormat, alphaMode, pixels);
+		case FLOAT:
+			return new FloatImage(width, height, componentFormat, alphaMode, pixels);
+		}
+		throw new IllegalArgumentException();
+	}
 }

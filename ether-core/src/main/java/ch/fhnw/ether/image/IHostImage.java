@@ -31,7 +31,14 @@
 
 package ch.fhnw.ether.image;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
+
+import ch.fhnw.ether.platform.Platform;
 
 public interface IHostImage extends IImage {
 
@@ -86,23 +93,38 @@ public interface IHostImage extends IImage {
 	}
 
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
-		switch (componentType) {
-		case BYTE:
-			return new ByteImage(width, height, componentFormat, alphaMode, pixels);
-		case FLOAT:
-			return new FloatImage(width, height, componentFormat, alphaMode, pixels);
-		}
-		throw new IllegalArgumentException();
+		return AbstractHostImage.create(width, height, componentType, componentFormat, alphaMode, pixels);
 	}
 	
-	// XXX to be implemented
 	static IHostImage convert(IHostImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		throw new UnsupportedOperationException();
-//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
-//			return image;
-//		
-//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode);
-//		
-//		return result;
+		return AbstractHostImage.convert(image, componentType, componentFormat, alphaMode);
+	}
+	
+	static IHostImage resize(IHostImage image, int width, int height) {
+		return Platform.get().getImageSupport().resize(image, width, height);
+	}
+	
+	static IHostImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return Platform.get().getImageSupport().readHost(in, componentType, componentFormat, alphaMode);
+	}
+	
+	static IHostImage read(InputStream in) throws IOException {
+		return read(in, null, null, null);
+	}
+	
+	static IHostImage read(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return read(new FileInputStream(file), componentType, componentFormat, alphaMode);
+	}
+
+	static IHostImage read(File file) throws IOException {
+		return read(new FileInputStream(file), null, null, null);
+	}
+
+	static IHostImage read(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return read(url.openStream(), componentType, componentFormat, alphaMode);
+	}
+
+	static IHostImage read(URL url) throws IOException {
+		return read(url.openStream(), null, null, null);
 	}
 }

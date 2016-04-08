@@ -62,7 +62,7 @@ public final class SimpleTextureExample {
 		float[] texCoords = { 0, 0, 1, 1, 0, 1 };
 		
 		try {
-			IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleTextureExample.class.getResource("/textures/fhnw_logo.jpg"));
+			IGPUImage t = IGPUImage.read(SimpleTextureExample.class.getResource("/textures/fhnw_logo.jpg"));
 			IMaterial m = new ColorMapMaterial(RGBA.WHITE, t, true);
 			IGeometry g = DefaultGeometry.createVCM(vertices, colors, texCoords);
 			return new DefaultMesh(Primitive.TRIANGLES, m, g);

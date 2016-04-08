@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import ch.fhnw.demopolis.config.IUIColors;
 import ch.fhnw.demopolis.model.Asset;
-import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.util.color.RGB;
 
 public class StatusPanel extends Panel {
@@ -44,7 +44,7 @@ public class StatusPanel extends Panel {
 	public static final RGB COLOR_LEVEL_OPEN = IUIColors.GRAY_A;
 
 	public StatusPanel(String path, Position position) throws IOException {
-		super(Platform.get().getImageSupport().readGPU(Asset.get(path)), position);
+		super(IGPUImage.read(Asset.get(path)), position);
 	}
 
 	public void setLevel(int level) {

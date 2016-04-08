@@ -31,7 +31,14 @@
 
 package ch.fhnw.ether.image;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
+
+import ch.fhnw.ether.platform.Platform;
 
 public interface IGPUImage extends IImage {
 	public static final IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
@@ -58,5 +65,29 @@ public interface IGPUImage extends IImage {
 
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		return new GLGPUImage(width, height, componentType, componentFormat, alphaMode, pixels);
+	}
+
+	static IGPUImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return Platform.get().getImageSupport().readGPU(in, componentType, componentFormat, alphaMode);
+	}
+
+	static IGPUImage read(InputStream in) throws IOException {
+		return read(in, null, null, null);
+	}
+	
+	static IGPUImage read(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return read(new FileInputStream(file), componentType, componentFormat, alphaMode);
+	}
+
+	static IGPUImage read(File file) throws IOException {
+		return read(new FileInputStream(file), null, null, null);
+	}
+
+	static IGPUImage read(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return read(url.openStream(), componentType, componentFormat, alphaMode);
+	}
+
+	static IGPUImage read(URL url) throws IOException {
+		return read(url.openStream(), null, null, null);
 	}
 }

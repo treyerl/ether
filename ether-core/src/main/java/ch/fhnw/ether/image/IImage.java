@@ -31,6 +31,14 @@
 
 package ch.fhnw.ether.image;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import ch.fhnw.ether.image.IImageSupport.FileFormat;
+import ch.fhnw.ether.platform.Platform;
+
 /**
  * IImage is the opaque base type of all images. Besides size and format we
  * don't know anything about the image.
@@ -87,4 +95,12 @@ public interface IImage {
 	AlphaMode getAlphaMode();
 
 	int getNumBytesPerPixel();
+	
+	static void write(IImage image, OutputStream out, FileFormat format) throws IOException {
+		Platform.get().getImageSupport().write(image, out, format);
+	}
+
+	static void write(IImage image, File file, FileFormat format) throws IOException {
+		write(image, new FileOutputStream(file), format);
+	}
 }

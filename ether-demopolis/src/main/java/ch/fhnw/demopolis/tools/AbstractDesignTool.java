@@ -45,7 +45,6 @@ import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.ControlPanel.Button;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
 import ch.fhnw.ether.image.IGPUImage;
-import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Vec3;
@@ -68,7 +67,7 @@ public abstract class AbstractDesignTool implements IDesignTool {
 		this.model = model;
 		this.scene = scene;
 		this.control = control;
-		this.texture = texture != null ? Platform.get().getImageSupport().readGPU(Asset.get(texture)) : null;
+		this.texture = texture != null ? IGPUImage.read(Asset.get(texture)) : null;
 		this.buttons = new Button[10];
 	}
 	

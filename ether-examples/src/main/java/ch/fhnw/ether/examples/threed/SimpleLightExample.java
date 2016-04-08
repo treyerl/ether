@@ -182,7 +182,7 @@ public final class SimpleLightExample {
 				IMaterial solidMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.WHITE, 10, 1, 1f);
 				IMaterial lineMaterial = new LineMaterial(new RGBA(1, 1, 1, 0.2f));
 
-				IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
+				IGPUImage t = IGPUImage.read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
 				IMaterial textureMaterial = new ShadedMaterial(RGB.BLACK, RGB.BLUE, RGB.GRAY, RGB.RED, 10, 1, 1f, t);
 
 				IMesh solidMeshT = new DefaultMesh(Primitive.TRIANGLES, solidMaterial, DefaultGeometry.createVN(s.getTriangles(), s.getNormals()));

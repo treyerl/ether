@@ -102,7 +102,7 @@ public final class SimpleSphereExample {
 				solidMeshL.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 				solidMeshP.setTransform(Mat4.trs(0, 0, 0, 0, 0, 0, 0.1f, 0.1f, 0.1f));
 
-				IGPUImage t = Platform.get().getImageSupport().readGPU(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
+				IGPUImage t = IGPUImage.read(SimpleLightExample.class.getResource("/textures/earth_nasa.jpg"));
 				IMesh texturedMeshT = new DefaultMesh(Primitive.TRIANGLES, new ColorMapMaterial(t), DefaultGeometry.createVM(sphere.getTriangles(), sphere.getTexCoords()), Queue.DEPTH);
 				texturedMeshT.setPosition(Vec3.ZERO);
 
