@@ -35,6 +35,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.BufferUtilities;
 
 abstract class AbstractHostImage extends AbstractImage implements IHostImage {
@@ -68,6 +69,44 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	}
 	
 	@Override
+	public IHostImage resize(int width, int height) {
+		return Platform.get().getImageSupport().resize(this, width, height);
+	}
+	
+	@Override
+	public IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		throw new UnsupportedOperationException();
+//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
+//			return image;
+//		
+//		boolean convertType = false;
+//		boolean convertFormat = false;
+//		boolean convertAlpha = false;
+//		
+//		if (componentType == null)
+//			componentType = image.getComponentType();
+//		else if (componentType != image.getComponentType())
+//			convertType = true;
+//		
+//		if (componentFormat == null)
+//			componentFormat = image.getComponentFormat();
+//		else if (componentFormat != image.getComponentFormat())
+//			convertFormat = true;
+//		
+//		if (alphaMode == null)
+//			alphaMode = image.getAlphaMode();
+//		else if (alphaMode != image.getAlphaMode())
+//			convertAlpha = true;
+//		
+//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode, null);
+//		
+//		
+//		
+//		return result;
+	}
+	
+	
+	@Override
 	public final IHostImage getSubImage(int x, int y, int width, int height) {
 		IHostImage image = allocate(width, height);
 		if (x + width > getWidth())
@@ -84,7 +123,7 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 
 	@Override
 	public final void setSubImage(int x, int y, IHostImage image) {
-		image = IHostImage.convert(image, getComponentType(), getComponentFormat(), getAlphaMode());
+		image = convert(getComponentType(), getComponentFormat(), getAlphaMode());
 		if (x + image.getWidth() > getWidth())
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + image.getHeight() > getHeight())
@@ -119,37 +158,6 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 
 	protected final int pos(int x, int y) {
 		return (y * getWidth() + x) * getNumBytesPerPixel();		
-	}
-
-	static IHostImage convert(IHostImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		throw new UnsupportedOperationException();
-//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
-//			return image;
-//		
-//		boolean convertType = false;
-//		boolean convertFormat = false;
-//		boolean convertAlpha = false;
-//		
-//		if (componentType == null)
-//			componentType = image.getComponentType();
-//		else if (componentType != image.getComponentType())
-//			convertType = true;
-//		
-//		if (componentFormat == null)
-//			componentFormat = image.getComponentFormat();
-//		else if (componentFormat != image.getComponentFormat())
-//			convertFormat = true;
-//		
-//		if (alphaMode == null)
-//			alphaMode = image.getAlphaMode();
-//		else if (alphaMode != image.getAlphaMode())
-//			convertAlpha = true;
-//		
-//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode, null);
-//		
-//		
-//		
-//		return result;
 	}
 
 	public static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {

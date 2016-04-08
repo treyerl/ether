@@ -35,11 +35,10 @@ import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 
-// TODO: rename to ImageTarget
-public class FrameTarget extends AbstractVideoTarget {
+public class ImageTarget extends AbstractVideoTarget {
 	private final IHostImage image;
 
-	public FrameTarget(IHostImage image) {
+	public ImageTarget(IHostImage image) {
 		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, false);
 		this.image = image;
 	}
@@ -50,13 +49,7 @@ public class FrameTarget extends AbstractVideoTarget {
 		IHostImage videoImage = videoFrame.getHostImage();
 		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
-			if (image.getWidth() != videoImage.getWidth() || image.getHeight() != videoImage.getHeight()) {
-				IHostImage scaled = IHostImage.resize(videoImage, image.getWidth(), image.getHeight());
-				image.setSubImage(0, 0, scaled);
-			} else {
-				// XXX check this (original code was just assigning internally)
-				image.setSubImage(0, 0, videoImage);
-			}
+			image.setSubImage(0, 0, videoImage.resize(image.getWidth(), image.getHeight()));
 		}
 	}
 }

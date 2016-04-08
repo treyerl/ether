@@ -50,6 +50,10 @@ public interface IHostImage extends IImage {
 	
 	IHostImage allocate(int width, int height);
 	
+	IHostImage resize(int width, int height);
+
+	IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode);
+
 	byte[] getPixel(int x, int y, byte[] dst);
 
 	void setPixel(int x, int y, byte[] src);
@@ -94,14 +98,6 @@ public interface IHostImage extends IImage {
 
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		return AbstractHostImage.create(width, height, componentType, componentFormat, alphaMode, pixels);
-	}
-	
-	static IHostImage convert(IHostImage image, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		return AbstractHostImage.convert(image, componentType, componentFormat, alphaMode);
-	}
-	
-	static IHostImage resize(IHostImage image, int width, int height) {
-		return Platform.get().getImageSupport().resize(image, width, height);
 	}
 	
 	static IHostImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {

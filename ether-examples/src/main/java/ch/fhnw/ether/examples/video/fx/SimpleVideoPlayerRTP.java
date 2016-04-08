@@ -53,7 +53,7 @@ import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.ether.video.ArrayVideoSource;
 import ch.fhnw.ether.video.CameraInfo;
 import ch.fhnw.ether.video.CameraSource;
-import ch.fhnw.ether.video.FrameTarget;
+import ch.fhnw.ether.video.ImageTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.IVideoSource;
 import ch.fhnw.ether.video.URLVideoSource;
@@ -93,7 +93,7 @@ public class SimpleVideoPlayerRTP {
 
 		if(mask != null) {
 			IHostImage maskOut  = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB);
-			FrameTarget target = new FrameTarget(maskOut);
+			ImageTarget target = new ImageTarget(maskOut);
 			target.setTimebase(videoOut);
 			target.useProgram(new RenderProgram<>(mask));
 			fxs.add(new ChromaKey(maskOut));
