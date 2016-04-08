@@ -107,8 +107,6 @@ public final class STBImageSupport implements IImageSupport {
 		return image;
 	}
 	
-	// TODO: implement readGPU as fast path (no buffer copying required)
-
 	@Override
 	public void write(IImage frame, OutputStream out, FileFormat format) throws IOException {
 		throw new UnsupportedOperationException();

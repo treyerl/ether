@@ -38,6 +38,7 @@ import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
+import ch.fhnw.util.color.ColorUtilities;
 import ch.fhnw.util.math.Mat3;
 
 public class Convolution extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
@@ -176,9 +177,9 @@ public class Convolution extends AbstractVideoFX implements IVideoCPUFX, IVideoG
 			ImageProcessor.processLines(image, (pixels, j) -> {
 				int idx = 0;
 				for(int i = image.getWidth(); --i >= 0;) {
-					pixels.put(toByte(outFrame[j][idx++]));
-					pixels.put(toByte(outFrame[j][idx++]));
-					pixels.put(toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
 					pixels.put((byte)255);
 				}
 			});
@@ -186,9 +187,9 @@ public class Convolution extends AbstractVideoFX implements IVideoCPUFX, IVideoG
 			ImageProcessor.processLines(image, (pixels, j) -> {
 				int idx = 0;
 				for(int i = image.getWidth(); --i >= 0;) {
-					pixels.put(toByte(outFrame[j][idx++]));
-					pixels.put(toByte(outFrame[j][idx++]));
-					pixels.put(toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
+					pixels.put(ColorUtilities.toByte(outFrame[j][idx++]));
 				}
 			});
 		}

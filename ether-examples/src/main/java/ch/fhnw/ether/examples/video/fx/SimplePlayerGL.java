@@ -133,7 +133,9 @@ public class SimplePlayerGL {
 					fxsUI.setLayoutData(ParameterWindow.hfill());
 					fxsUI.select(0);
 					fxsUI.addSelectionListener(new SelectionListener() {
-						@Override public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+						@Override public void widgetSelected(SelectionEvent e) {
+							widgetDefaultSelected(e);
+						}
 
 						@Override
 						public void widgetDefaultSelected(SelectionEvent e) {

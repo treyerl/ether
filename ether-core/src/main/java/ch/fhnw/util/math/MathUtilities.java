@@ -68,6 +68,16 @@ public final class MathUtilities {
 	public static double clamp(double value, double min, double max) {
 		return Math.max(min, Math.min(max, value));
 	}
+	
+	public static float wrap(float v) {
+		float result = v % 1f;
+		return result < 0 ? result + 1 : result;
+	}
+
+	public static double wrap(double v) {
+		double result = v % 1.0;
+		return result < 0 ? result + 1 : result;
+	}
 
 	public static int random(int min, int max) {
 		return min + (int)Math.round(Math.random() * (max - min));

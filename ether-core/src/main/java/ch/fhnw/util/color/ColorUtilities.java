@@ -33,7 +33,6 @@ package ch.fhnw.util.color;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.util.TextUtilities;
 
 public final class ColorUtilities {
@@ -58,9 +57,9 @@ public final class ColorUtilities {
 
 			// RGB to XYZ
 
-			r = AbstractVideoFX.toFloat(pixels.get()); // R 0..1
-			g = AbstractVideoFX.toFloat(pixels.get()); // G 0..1
-			b = AbstractVideoFX.toFloat(pixels.get()); // B 0..1
+			r = toFloat(pixels.get()); // R 0..1
+			g = toFloat(pixels.get()); // G 0..1
+			b = toFloat(pixels.get()); // B 0..1
 
 			if (r == 0 && g == 0 && b == 0) {
 				result[idx++] = 0.0f;
@@ -246,9 +245,9 @@ public final class ColorUtilities {
 
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
-			final float r = AbstractVideoFX.toFloat(pixels.get());
-			final float g = AbstractVideoFX.toFloat(pixels.get());
-			final float b = AbstractVideoFX.toFloat(pixels.get());
+			final float r = toFloat(pixels.get());
+			final float g = toFloat(pixels.get());
+			final float b = toFloat(pixels.get());
 			result[idx + 0] = 0.299f * r + 0.587f * g + 0.114f * b;
 			result[idx + 1] = -0.168736f * r - 0.331264f * g + 0.5f      * b;
 			result[idx + 2] =  0.5f      * r - 0.418688f * g - 0.081312f * b;
@@ -269,9 +268,9 @@ public final class ColorUtilities {
 			final float r = yPbPr[idx]                            + 1.402f    * yPbPr[idx+2];
 			final float g = yPbPr[idx] - 0.344136f * yPbPr[idx+1] - 0.714136f * yPbPr[idx+2];
 			final float b = yPbPr[idx] + 1.772f    * yPbPr[idx+1];	
-			pixels.put(AbstractVideoFX.toByte(r));
-			pixels.put(AbstractVideoFX.toByte(g));
-			pixels.put(AbstractVideoFX.toByte(b));
+			pixels.put(toByte(r));
+			pixels.put(toByte(g));
+			pixels.put(toByte(b));
 			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
@@ -285,9 +284,9 @@ public final class ColorUtilities {
 		
 		int idx = 0;
 		for (int i = result.length / 3; --i >= 0;) {
-			final float r = AbstractVideoFX.toFloat(pixels.get());
-			final float g = AbstractVideoFX.toFloat(pixels.get());
-			final float b = AbstractVideoFX.toFloat(pixels.get());
+			final float r = toFloat(pixels.get());
+			final float g = toFloat(pixels.get());
+			final float b = toFloat(pixels.get());
 			result[idx + 0] = 0.299f * r + 0.587f * g + 0.114f * b;
 			result[idx + 1] = 0.492f * (b - result[idx]);
 			result[idx + 2] = 0.877f * (r - result[idx]);
@@ -308,9 +307,9 @@ public final class ColorUtilities {
 			final float r = yuv[idx] + 1.14f  * yuv[idx + 2];
 			final float g = yuv[idx] - 0.395f * yuv[idx + 1] - 0.581f * yuv[idx + 2];
 			final float b = yuv[idx] + 2.033f * yuv[idx + 1];
-			pixels.put(AbstractVideoFX.toByte(r));
-			pixels.put(AbstractVideoFX.toByte(g));
-			pixels.put(AbstractVideoFX.toByte(b));
+			pixels.put(toByte(r));
+			pixels.put(toByte(g));
+			pixels.put(toByte(b));
 			if (numComponents == 4)
 				pixels.get();
 			idx += 3;
@@ -387,4 +386,26 @@ public final class ColorUtilities {
 			    "  return hsb;",
 				"}");
 	}
+	
+	// type conversion helpers
+	
+	public static float toFloat(final byte v) {
+		return (v & 0xFF) / 255f;
+	}
+
+	public static float toDouble(final byte v) {
+		return (v & 0xFF) / 255;
+	}
+	
+	public static byte toByte(final float v) {
+		if(v < 0f) return 0;
+		if(v > 1f) return -1;
+		return (byte) (v * 255f);
+	}
+
+	public static byte toByte(final double v) {
+		if(v < 0.0) return 0;
+		if(v > 1.0) return -1;
+		return (byte) (v * 255.0);
+	}	
 }

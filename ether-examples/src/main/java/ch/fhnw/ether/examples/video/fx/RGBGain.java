@@ -38,6 +38,7 @@ import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
+import ch.fhnw.util.color.ColorUtilities;
 
 public class RGBGain extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter RED   = new Parameter("red",   "Red Gain",   0, 2, 1);
@@ -65,9 +66,9 @@ public class RGBGain extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX 
 		ImageProcessor.processLines(image, (pixels, j)->{
 			int idx = pixels.position();
 			for(int i = 0; i < image.getWidth(); i++) {
-				pixels.put(toByte(toFloat(pixels.get(idx++)) * rs));
-				pixels.put(toByte(toFloat(pixels.get(idx++)) * gs));
-				pixels.put(toByte(toFloat(pixels.get(idx++)) * bs));
+				pixels.put(ColorUtilities.toByte(ColorUtilities.toFloat(pixels.get(idx++)) * rs));
+				pixels.put(ColorUtilities.toByte(ColorUtilities.toFloat(pixels.get(idx++)) * gs));
+				pixels.put(ColorUtilities.toByte(ColorUtilities.toFloat(pixels.get(idx++)) * bs));
 				if(numComponents == 4) {					
 					pixels.get();
 					idx++;

@@ -69,40 +69,70 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	}
 	
 	@Override
-	public IHostImage resize(int width, int height) {
-		return Platform.get().getImageSupport().resize(this, width, height);
+	public final IHostImage copy() {
+		IHostImage image = allocate();
+		BufferUtilities.arraycopy(getPixels(), 0, image.getPixels(), 0, getPixels().capacity());
+		return image;
+	}
+
+	@Override
+	public final IHostImage allocate() {
+		return allocate(getWidth(), getHeight());
 	}
 	
 	@Override
-	public IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		throw new UnsupportedOperationException();
-//		if (image.getComponentType() == componentType && image.getComponentFormat() == componentFormat && image.getAlphaMode() == alphaMode)
-//			return image;
-//		
-//		boolean convertType = false;
-//		boolean convertFormat = false;
-//		boolean convertAlpha = false;
-//		
-//		if (componentType == null)
-//			componentType = image.getComponentType();
-//		else if (componentType != image.getComponentType())
-//			convertType = true;
-//		
-//		if (componentFormat == null)
-//			componentFormat = image.getComponentFormat();
-//		else if (componentFormat != image.getComponentFormat())
-//			convertFormat = true;
-//		
-//		if (alphaMode == null)
-//			alphaMode = image.getAlphaMode();
-//		else if (alphaMode != image.getAlphaMode())
-//			convertAlpha = true;
-//		
-//		IHostImage result = create(image.getWidth(), image.getHeight(), componentType, componentFormat, alphaMode, null);
-//		
-//		
-//		
-//		return result;
+	public final IHostImage allocate(int width, int height) {
+		return create(width, height, getComponentType(), getComponentFormat(), getAlphaMode(), null);
+	}
+	
+	@Override
+	public final IHostImage resize(int width, int height) {
+		return Platform.get().getImageSupport().resize(this, width, height);
+	}
+	
+	// XXX slow and lots of room for optimization
+	@Override
+	public final IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
+		if (getComponentType() == componentType && getComponentFormat() == componentFormat && getAlphaMode() == alphaMode)
+			return this;
+		
+		boolean convertFormat = false;
+		boolean convertAlpha = false;
+		
+		if (componentType == null)
+			componentType = getComponentType();
+		
+		if (componentFormat == null)
+			componentFormat = getComponentFormat();
+		else if (componentFormat != getComponentFormat())
+			convertFormat = true;
+		
+		if (alphaMode == null)
+			alphaMode = getAlphaMode();
+		else if (alphaMode != getAlphaMode())
+			convertAlpha = true;
+		
+		IHostImage result = create(getWidth(), getHeight(), componentType, componentFormat, alphaMode, null);
+		
+		float[] pixel = new float[4];
+		for (int y = 0; y < getHeight(); ++y) {
+			for (int x = 0; x < getWidth(); ++x) {
+				getPixel(x, y, pixel);
+				if (convertFormat) {
+					convertFormatToRGBA(getComponentFormat(), pixel);
+					convertRGBAToFormat(componentFormat, pixel);
+				}
+				if (convertAlpha) {
+					if (alphaMode == AlphaMode.POST_MULTIPLIED)
+						convertAlphaToPostMultiplied(componentFormat, pixel);
+					else
+						convertAlphaToPreMultiplied(componentFormat, pixel);
+				}
+				result.setPixel(x, y, pixel);
+			}
+		}
+		
+		return result;
 	}
 	
 	
@@ -138,7 +168,12 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	@Override
 	public final ByteBuffer getPixels() {
 		return pixels;
-	}	
+	}
+	
+	@Override
+	public final IGPUImage createGPUImage() {
+		return IGPUImage.create(getWidth(), getHeight(), getComponentType(), getComponentFormat(), getAlphaMode(), getPixels());
+	}
 	
 	@Override
 	public final boolean equals(Object obj) {
@@ -167,6 +202,82 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 		case FLOAT:
 			return new FloatImage(width, height, componentFormat, alphaMode, pixels);
 		}
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException("unsupported component type: " + componentType);
 	}
+	
+	private static void convertFormatToRGBA(ComponentFormat format, float[] pixel) {
+		switch (format) {
+		case G:
+			pixel[3] = 1;
+			pixel[2] = pixel[0];
+			pixel[1] = pixel[0];
+			break;
+		case GA:
+			pixel[3] = pixel[1];
+			pixel[2] = pixel[0];
+			pixel[1] = pixel[0];
+			break;
+		case RGB:
+			pixel[3] = 1;
+			break;
+		case RGBA:
+			break;
+		}
+	}
+	
+	private static void convertRGBAToFormat(ComponentFormat format, float[] pixel) {
+		switch (format) {
+		case G:
+			pixel[0] = (pixel[0] + pixel[1] + pixel[2]) / 3f;
+			break;
+		case GA:
+			pixel[0] = (pixel[0] + pixel[1] + pixel[2]) / 3f;
+			pixel[1] = pixel[3];
+			break;
+		case RGB:
+		case RGBA:
+			break;
+		}
+	}
+	
+	private static void convertAlphaToPostMultiplied(ComponentFormat format, float[] pixel) {
+		switch (format) {
+		case G:
+			break;
+		case GA:
+			if (pixel[1] > 0) {
+				pixel[0] = pixel[0] / pixel[1];
+			} else {
+				pixel[0] = pixel[1] = 0;
+			}
+			break;
+		case RGB:
+			break;
+		case RGBA:
+			if (pixel[3] > 0) {
+				pixel[0] = pixel[0] / pixel[1];
+				pixel[1] = pixel[1] / pixel[1];
+				pixel[2] = pixel[2] / pixel[1];
+			} else {
+				pixel[0] = pixel[1] = pixel[2] = pixel[3] = 0;
+			}
+		}
+	}
+
+	private static void convertAlphaToPreMultiplied(ComponentFormat format, float[] pixel) {
+		switch (format) {
+		case G:
+			break;
+		case GA:
+			pixel[0] = pixel[0] * pixel[1];
+			break;
+		case RGB:
+			break;
+		case RGBA:
+			pixel[0] = pixel[0] * pixel[3];
+			pixel[1] = pixel[1] * pixel[3];
+			pixel[2] = pixel[2] * pixel[3];
+		}		
+	}
+	
 }

@@ -302,8 +302,6 @@ public class ParameterWindow {
 				pack(sc);
 				f.pack();
 				f.setLocation(Display.getDefault().getBounds().width - f.getBounds().width, f.getLocation().y);
-
-
 				f.setVisible(true);
 				frame.set(f);
 			}

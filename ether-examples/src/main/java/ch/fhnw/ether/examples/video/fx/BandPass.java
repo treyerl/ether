@@ -41,6 +41,7 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
+import ch.fhnw.util.color.ColorUtilities;
 
 public class BandPass extends AbstractVideoFX implements IVideoCPUFX {
 	private static final Parameter LOW  = new Parameter("low",  "low cutoff frequency",  0, 1, 0);
@@ -80,11 +81,11 @@ public class BandPass extends AbstractVideoFX implements IVideoCPUFX {
 			final float[] gj = g[j];
 			final float[] bj = b[j];
 			for(int i = image.getWidth(); --i >= 0;) {
-				rj[i*2+0] = toFloat(pixels.get()); 
+				rj[i*2+0] = ColorUtilities.toFloat(pixels.get()); 
 				rj[i*2+1] = 0f;
-				gj[i*2+0] = toFloat(pixels.get()); 
+				gj[i*2+0] = ColorUtilities.toFloat(pixels.get()); 
 				gj[i*2+1] = 0f;
-				bj[i*2+0] = toFloat(pixels.get()); 
+				bj[i*2+0] = ColorUtilities.toFloat(pixels.get()); 
 				bj[i*2+1] = 0f;
 				if(numComponents == 4) pixels.get();
 			}
@@ -117,13 +118,13 @@ public class BandPass extends AbstractVideoFX implements IVideoCPUFX {
 			for(int i = image.getWidth(); --i >= 0;) {
 				float re = rj[i*2+0];
 				float im = rj[i*2+1];
-				pixels.put(toByte(Math.hypot(re, im)));
+				pixels.put(ColorUtilities.toByte(Math.hypot(re, im)));
 				re = gj[i*2+0];
 				im = gj[i*2+1];
-				pixels.put(toByte(Math.hypot(re, im)));
+				pixels.put(ColorUtilities.toByte(Math.hypot(re, im)));
 				re = bj[i*2+0];
 				im = bj[i*2+1];
-				pixels.put(toByte(Math.hypot(re, im)));
+				pixels.put(ColorUtilities.toByte(Math.hypot(re, im)));
 				if(numComponents == 4) pixels.get();
 			}
 		});

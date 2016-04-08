@@ -61,7 +61,7 @@ public class FakeThermoCam extends AbstractVideoFX implements IVideoCPUFX, IVide
 			float[] hsb = new float[image.getWidth() * 3];
 			int pos = pixels.position();
 			for(int i = 0; i < image.getHeight(); i++) {
-				float v = toFloat(pixels.get()) + toFloat(pixels.get()) + toFloat(pixels.get());
+				float v = ColorUtilities.toFloat(pixels.get()) + ColorUtilities.toFloat(pixels.get()) + ColorUtilities.toFloat(pixels.get());
 				hsb[i*3+0] = v / 3f;
 				hsb[i*3+1] = 1f;
 				hsb[i*3+2] = 1f;

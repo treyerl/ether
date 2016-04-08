@@ -41,6 +41,7 @@ import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 import ch.fhnw.util.color.ColorUtilities;
+import ch.fhnw.util.math.MathUtilities;
 
 
 public class ChromaKey extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
@@ -96,8 +97,8 @@ public class ChromaKey extends AbstractVideoFX implements IVideoCPUFX, IVideoGLF
 		final float range = getVal(RANGE);
 		final float sMin  = getVal(S_MIN);
 		final float bMin  = getVal(B_MIN);
-		final float hh    = wrap(hue + range);
-		final float hl    = wrap(hue - range);
+		final float hh    = MathUtilities.wrap(hue + range);
+		final float hl    = MathUtilities.wrap(hue - range);
 
 		ImageProcessor.processLines(image, (pixels, j)->{
 			final float[] hsb = new float[image.getWidth() * 3];
@@ -113,9 +114,9 @@ public class ChromaKey extends AbstractVideoFX implements IVideoCPUFX, IVideoGLF
 					pixels.get();
 					pixels.get();
 				} else {
-					pixels.put(toByte(this.mask.getComponentFloat(i, j, 0)));
-					pixels.put(toByte(this.mask.getComponentFloat(i, j, 1)));
-					pixels.put(toByte(this.mask.getComponentFloat(i, j, 2)));
+					pixels.put(ColorUtilities.toByte(this.mask.getComponentFloat(i, j, 0)));
+					pixels.put(ColorUtilities.toByte(this.mask.getComponentFloat(i, j, 1)));
+					pixels.put(ColorUtilities.toByte(this.mask.getComponentFloat(i, j, 2)));
 				}
 			}
 		});

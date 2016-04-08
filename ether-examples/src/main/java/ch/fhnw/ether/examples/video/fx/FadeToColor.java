@@ -38,6 +38,8 @@ import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
+import ch.fhnw.util.color.ColorUtilities;
+import ch.fhnw.util.math.MathUtilities;
 
 public class FadeToColor extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter FADE  = new Parameter("fade",  "Fade",  0, 1, 0);
@@ -72,9 +74,9 @@ public class FadeToColor extends AbstractVideoFX implements IVideoCPUFX, IVideoG
 			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
 				for(int i = 0; i < image.getWidth(); i++) {
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), red,   fade)));
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), green, fade)));
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), blue,  fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), red,   fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), green, fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), blue,  fade)));
 					pixels.get();
 					idx++;
 				}
@@ -83,9 +85,9 @@ public class FadeToColor extends AbstractVideoFX implements IVideoCPUFX, IVideoG
 			ImageProcessor.processLines(image, (pixels, j)->{
 				int idx = pixels.position();
 				for(int i = 0; i < image.getWidth(); i++) {
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), red,   fade)));
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), green, fade)));
-					pixels.put(toByte(mix(toFloat(pixels.get(idx++)), blue,  fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), red,   fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), green, fade)));
+					pixels.put(ColorUtilities.toByte(MathUtilities.lerp(ColorUtilities.toFloat(pixels.get(idx++)), blue,  fade)));
 				}
 			});
 		}

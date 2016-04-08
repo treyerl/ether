@@ -43,6 +43,8 @@ import ch.fhnw.ether.video.VideoFrame;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
+import ch.fhnw.util.color.ColorUtilities;
+import ch.fhnw.util.math.MathUtilities;
 
 public class MotionBlur extends AbstractVideoFX implements IVideoCPUFX, IVideoGLFX {
 	private static final Parameter DECAY = new Parameter("decay", "Decay", 0.01f, 1f, 1f);
@@ -89,20 +91,20 @@ public class MotionBlur extends AbstractVideoFX implements IVideoCPUFX, IVideoGL
 			for(int i = image.getWidth(); --i >= 0;) {
 				position(pixels, image, i, j);
 
-				float r = toFloat(pixels.get());
-				float g = toFloat(pixels.get());
-				float b = toFloat(pixels.get());
+				float r = ColorUtilities.toFloat(pixels.get());
+				float g = ColorUtilities.toFloat(pixels.get());
+				float b = ColorUtilities.toFloat(pixels.get());
 
-				bufferJ[idx] = mix(bufferJ[idx], r, decay); idx++;
-				bufferJ[idx] = mix(bufferJ[idx], g, decay); idx++;
-				bufferJ[idx] = mix(bufferJ[idx], b, decay);
+				bufferJ[idx] = MathUtilities.lerp(bufferJ[idx], r, decay); idx++;
+				bufferJ[idx] = MathUtilities.lerp(bufferJ[idx], g, decay); idx++;
+				bufferJ[idx] = MathUtilities.lerp(bufferJ[idx], b, decay);
 
 				idx -= 2;
 
 				position(pixels, image, i, j);					
-				pixels.put(toByte(bufferJ[idx++]));
-				pixels.put(toByte(bufferJ[idx++]));
-				pixels.put(toByte(bufferJ[idx++]));
+				pixels.put(ColorUtilities.toByte(bufferJ[idx++]));
+				pixels.put(ColorUtilities.toByte(bufferJ[idx++]));
+				pixels.put(ColorUtilities.toByte(bufferJ[idx++]));
 
 			}
 		});

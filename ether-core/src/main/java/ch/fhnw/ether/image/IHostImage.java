@@ -54,6 +54,10 @@ public interface IHostImage extends IImage {
 
 	IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode);
 
+	IHostImage getSubImage(int x, int y, int width, int height);
+
+	void setSubImage(int x, int y, IHostImage frame);
+	
 	byte[] getPixel(int x, int y, byte[] dst);
 
 	void setPixel(int x, int y, byte[] src);
@@ -70,19 +74,9 @@ public interface IHostImage extends IImage {
 	
 	void setComponentFloat(int x, int y, int component, float value);
 	
-	IHostImage getSubImage(int x, int y, int width, int height);
-
-	void setSubImage(int x, int y, IHostImage frame);
-	
 	ByteBuffer getPixels();
 	
-	default IGPUImage createGPUImage() {
-		return IGPUImage.create(this);
-	}
-	
-	static IHostImage create(IGPUImage image) {
-		return image.createHostImage();
-	}
+	IGPUImage createGPUImage();
 	
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat) {
 		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, null);

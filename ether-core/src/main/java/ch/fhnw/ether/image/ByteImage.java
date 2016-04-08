@@ -33,29 +33,12 @@ package ch.fhnw.ether.image;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.util.BufferUtilities;
+import ch.fhnw.util.color.ColorUtilities;
 
 final class ByteImage extends AbstractHostImage {
 	
 	ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode, pixels);
-	}
-	
-	@Override
-	public IHostImage copy() {
-		IHostImage image = allocate();
-		BufferUtilities.arraycopy(getPixels(), 0, image.getPixels(), 0, getPixels().capacity());
-		return image;
-	}
-
-	@Override
-	public IHostImage allocate() {
-		return new ByteImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode(), null);
-	}
-	
-	@Override
-	public IHostImage allocate(int width, int height) {
-		return new ByteImage(width, height, getComponentFormat(), getAlphaMode(), null);
 	}
 	
 	@Override
@@ -77,7 +60,7 @@ final class ByteImage extends AbstractHostImage {
 	public float[] getPixel(int x, int y, float[] dst) {
 		int pos = pos(x, y);
 		for (int i = 0; i < getComponentFormat().getNumComponents(); ++i)
-			dst[i] = getPixels().get(pos + i) / 255f;
+			dst[i] = ColorUtilities.toFloat(getPixels().get(pos + i));
 		return dst;
 	}
 
@@ -85,7 +68,7 @@ final class ByteImage extends AbstractHostImage {
 	public void setPixel(int x, int y, float[] src) {
 		int pos = pos(x, y);
 		for (int i = 0; i < getComponentFormat().getNumComponents(); ++i)
-			getPixels().put(pos + i, (byte)(src[i] * 255f));
+			getPixels().put(pos + i, ColorUtilities.toByte(src[i]));
 	}
 
 	@Override
@@ -100,11 +83,11 @@ final class ByteImage extends AbstractHostImage {
 
 	@Override
 	public float getComponentFloat(int x, int y, int component) {
-		return getComponentByte(x, y, component) / 255f;
+		return ColorUtilities.toFloat(getComponentByte(x, y, component));
 	}
 
 	@Override
 	public void setComponentFloat(int x, int y, int component, float value) {
-		setComponentByte(x, y, component, (byte)(value * 255f));
+		setComponentByte(x, y, component, ColorUtilities.toByte(value));
 	}
 }

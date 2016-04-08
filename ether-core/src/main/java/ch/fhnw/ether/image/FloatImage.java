@@ -33,7 +33,7 @@ package ch.fhnw.ether.image;
 
 import java.nio.ByteBuffer;
 
-import ch.fhnw.util.BufferUtilities;
+import ch.fhnw.util.color.ColorUtilities;
 
 final class FloatImage extends AbstractHostImage {
 	
@@ -42,27 +42,10 @@ final class FloatImage extends AbstractHostImage {
 	}
 	
 	@Override
-	public IHostImage copy() {
-		IHostImage image = allocate();
-		BufferUtilities.arraycopy(getPixels(), 0, image.getPixels(), 0, getPixels().capacity());
-		return image;
-	}
-
-	@Override
-	public IHostImage allocate() {
-		return new FloatImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode(), null);
-	}
-	
-	@Override
-	public IHostImage allocate(int width, int height) {
-		return new FloatImage(width, height, getComponentFormat(), getAlphaMode(), null);
-	}
-	
-	@Override
 	public byte[] getPixel(int x, int y, byte[] dst) {
 		int pos = pos(x, y);
 		for (int i = 0; i < getComponentFormat().getNumComponents(); ++i)
-			dst[i] = (byte)(getPixels().getFloat(pos + i) * 255f);
+			dst[i] = ColorUtilities.toByte(getPixels().getFloat(pos + i));
 		return dst;
 	}
 
@@ -70,7 +53,7 @@ final class FloatImage extends AbstractHostImage {
 	public void setPixel(int x, int y, byte[] src) {
 		int pos = pos(x, y);
 		for (int i = 0; i < getComponentFormat().getNumComponents(); ++i)
-			getPixels().putFloat(pos + i * 4, src[i] / 255f);
+			getPixels().putFloat(pos + i * 4, ColorUtilities.toFloat(src[i]));
 	}
 
 	@Override
@@ -90,12 +73,12 @@ final class FloatImage extends AbstractHostImage {
 
 	@Override
 	public byte getComponentByte(int x, int y, int component) {
-		return (byte)(getComponentFloat(x, y, component) * 255f);
+		return ColorUtilities.toByte(getComponentFloat(x, y, component));
 	}
 
 	@Override
 	public void setComponentByte(int x, int y, int component, byte value) {
-		setComponentFloat(x, y, component, value / 255f);
+		setComponentFloat(x, y, component, ColorUtilities.toFloat(value));
 	}
 
 	@Override
