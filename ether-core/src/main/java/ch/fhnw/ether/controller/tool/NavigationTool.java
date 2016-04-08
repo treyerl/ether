@@ -47,6 +47,8 @@ import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
+import ch.fhnw.util.Version;
+import ch.fhnw.util.Version.OS;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Vec3;
 
@@ -176,11 +178,12 @@ public class NavigationTool extends AbstractTool {
 		}
 	}
 
+	// FIXME: find a solution for OS-dependent stuff like this
 	@Override
 	public void pointerScrolled(IPointerEvent e) {
 		DefaultCameraControl control = new DefaultCameraControl(getCamera(e.getView()));
-		float zoomFactor = 0.01f * control.getDistance();
-		control.addToAzimuth(-e.getScrollX());
+		float zoomFactor = (Version.getOS() == OS.WINDOWS ? 0.1f : 0.01f) * control.getDistance();
+		control.addToAzimuth((Version.getOS() == OS.WINDOWS ? -5f : -1f) * e.getScrollX());
 		if (e.isControlDown()) {
 			control.dolly(e.getScrollY() * zoomFactor);
 		} else {
