@@ -39,8 +39,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
+import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 
 // TODO: add explicit dispose
@@ -103,6 +103,7 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 	
 	@Override
 	public IHostImage createHostImage() {
+		System.out.println("create host image from gpu");
 		try (IGLContext ctx = GLContextManager.acquireContext()) {
 			int target = GL11.GL_TEXTURE_2D;
 			int type = TYPE_MAP[getComponentType().ordinal()];

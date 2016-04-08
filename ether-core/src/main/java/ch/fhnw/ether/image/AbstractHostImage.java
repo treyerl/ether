@@ -47,10 +47,19 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	protected AbstractHostImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, componentType, componentFormat, alphaMode);
 
-		// XXX should we really copy the buffer here, or just check & assign?
-		this.pixels = BufferUtils.createByteBuffer(width * height * getNumBytesPerPixel());
-		if (pixels != null)
-			this.pixels.put(pixels);
+		if (pixels != null) {
+			if (!pixels.isDirect())
+				throw new IllegalArgumentException("direct buffer required");
+			
+			if (pixels.capacity() < width * height * getNumBytesPerPixel()) {
+				System.out.println(pixels.capacity() + " " + width + " " + height + " " + getNumBytesPerPixel());
+				throw new IllegalArgumentException("pixel buffer too small");
+			}
+		} else {
+			pixels = BufferUtils.createByteBuffer(width * height * getNumBytesPerPixel());
+		}
+		
+		this.pixels = pixels;
 	}
 	
 	@Override

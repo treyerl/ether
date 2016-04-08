@@ -44,6 +44,14 @@ public interface IGPUImage extends IImage {
 		return create(image.getWidth(), image.getHeight(), image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), image.getPixels());
 	}
 
+	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat) {
+		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, null);
+	}
+
+	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, ByteBuffer pixels) {
+		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, pixels);
+	}
+
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		return create(width, height, componentType, componentFormat, alphaMode, null);
 	}

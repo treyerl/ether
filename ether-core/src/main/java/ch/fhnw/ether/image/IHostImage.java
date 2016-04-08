@@ -73,6 +73,14 @@ public interface IHostImage extends IImage {
 		return image.createHostImage();
 	}
 	
+	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat) {
+		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, null);
+	}
+
+	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, ByteBuffer pixels) {
+		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, pixels);
+	}
+
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		return create(width, height, componentType, componentFormat, alphaMode, null);
 	}

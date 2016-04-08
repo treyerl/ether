@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.Log;
@@ -50,7 +49,7 @@ public class RTPServer extends Thread {
 	private final Map<String,  RTSPRequest> channels = new ConcurrentHashMap<>();
 		
 	private final AtomicReference<IHostImage> currentImage = new AtomicReference<>(
-			IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED)
+			IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB)
 	);
 	
 	private final int port;

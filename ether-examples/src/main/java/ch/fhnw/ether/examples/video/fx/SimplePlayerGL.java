@@ -49,7 +49,6 @@ import ch.fhnw.ether.audio.fx.AudioGain;
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
@@ -102,7 +101,7 @@ public class SimplePlayerGL {
 				new FakeThermoCam());
 
 		if(mask != null) {
-			IHostImage maskOut = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+			IHostImage maskOut = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB);
 			FrameTarget target = new FrameTarget(maskOut);
 			target.setTimebase(videoOut);
 			target.useProgram(new RenderProgram<>(mask));
@@ -125,8 +124,7 @@ public class SimplePlayerGL {
 			scene.add3DObject(mesh);
 
 			try {
-				//RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
-				RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source);
+				RenderProgram<IVideoRenderTarget> video = new RenderProgram<>((IVideoSource)source, fxs.get(current.get()));
 
 				new ParameterWindow(parent->{
 					Combo fxsUI = new Combo(parent, SWT.READ_ONLY);
@@ -175,6 +173,7 @@ public class SimplePlayerGL {
 			}
 		} catch(Throwable t) {
 			// XXX this is currently defunct due to AWT
+			System.exit(1);
 			source =  CameraSource.create(CameraInfo.getInfos()[0]);
 		}
 		

@@ -44,7 +44,6 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.ArrayUtilities;
@@ -722,7 +721,7 @@ public class RTPmjpg {
 	// for testing
 	public static void main(String[] args) throws IOException {
 		LOG.setLevels(Log.ALL);
-		IHostImage img = IHostImage.create(500,  300, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+		IHostImage img = IHostImage.create(500,  300, ComponentType.BYTE, ComponentFormat.RGB);
 		for(int y = img.getHeight(); --y >= 0;) {
 			for(int x = img.getWidth(); --x >= 0;) {
 				img.setPixel(x, y, new byte[] { (byte)(Math.random() * 255), (byte)(Math.random() * 255), (byte)(Math.random() * 255) });

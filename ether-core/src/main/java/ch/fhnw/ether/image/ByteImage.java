@@ -37,10 +37,6 @@ import ch.fhnw.util.BufferUtilities;
 
 final class ByteImage extends AbstractHostImage {
 	
-	ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		super(width, height, ComponentType.BYTE, componentFormat, alphaMode);
-	}
-
 	ByteImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode, pixels);
 	}
@@ -54,12 +50,12 @@ final class ByteImage extends AbstractHostImage {
 
 	@Override
 	public IHostImage allocate() {
-		return new ByteImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode());
+		return new ByteImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode(), null);
 	}
 	
 	@Override
 	public IHostImage allocate(int width, int height) {
-		return new ByteImage(width, height, getComponentFormat(), getAlphaMode());
+		return new ByteImage(width, height, getComponentFormat(), getAlphaMode(), null);
 	}
 	
 	@Override

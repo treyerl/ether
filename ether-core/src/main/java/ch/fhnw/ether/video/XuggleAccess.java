@@ -61,7 +61,6 @@ import com.xuggle.xuggler.IVideoResampler;
 import ch.fhnw.ether.audio.AudioUtilities;
 import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
@@ -350,7 +349,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 			}
 			ByteBuffer dstBuffer = BufferUtils.createByteBuffer(w * h * 3);
 			flip(newPic.getByteBuffer(), dstBuffer, w, h);
-			result = IHostImage.create(w, h, ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED, dstBuffer);
+			result = IHostImage.create(w, h, ComponentType.BYTE, ComponentFormat.RGB, dstBuffer);
 			if(!(this.audioData.isEmpty())) {
 				while(audioData.size() > (2  * this.audioData.size()) + 128)
 					audioData.take();

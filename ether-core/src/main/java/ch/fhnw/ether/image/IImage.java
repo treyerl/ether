@@ -41,7 +41,7 @@ package ch.fhnw.ether.image;
 public interface IImage {
 
 	enum ComponentType {
-		BYTE(8), FLOAT(32);
+		BYTE(1), FLOAT(4);
 
 		private final int size;
 

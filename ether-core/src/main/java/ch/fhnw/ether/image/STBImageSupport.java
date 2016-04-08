@@ -50,6 +50,15 @@ public final class STBImageSupport implements IImageSupport {
 
 	@Override
 	public IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return (IHostImage)read(in, componentType, componentFormat, alphaMode, true);
+	}
+	
+	@Override
+	public IGPUImage readGPU(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
+		return (IGPUImage)read(in, componentType, componentFormat, alphaMode, false);
+	}
+	
+	public IImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, boolean host) throws IOException {
 		// TODO: HDR support (stb read as float)
 		// TODO: Pre-multiplied alpha support
 		int numComponentsRequested = componentFormat != null ? componentFormat.getNumComponents() : 0;
@@ -78,8 +87,19 @@ public final class STBImageSupport implements IImageSupport {
 			alphaMode = AlphaMode.POST_MULTIPLIED;
 		else if (alphaMode != AlphaMode.POST_MULTIPLIED)
 			throw new UnsupportedOperationException("premultiplied alpha unsupported");
+
+		IImage image = null;
 		
-		IHostImage image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
+		if (host) {
+			// note: we need to create a copy here in order to explicity release the STB-managed buffer.
+			ByteBuffer copy = BufferUtils.createByteBuffer(pixels.capacity());
+			pixels.rewind();
+			copy.put(pixels);
+			image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, copy);
+		} else {
+			// no copy required for gpu-fast path
+			image = IGPUImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
+		}
 
 		pixels.rewind();
 		STBImage.stbi_image_free(pixels);

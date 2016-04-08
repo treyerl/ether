@@ -131,9 +131,8 @@ public class GLContextManager {
 	}
 
 	public static IGLContext acquireContext(boolean wait) {
-		if (GLFW.glfwGetCurrentContext() != 0) {
+		if (GLFW.glfwGetCurrentContext() != 0)
 			return VOID_CONTEXT;
-		}
 		return contexts.acquireContext(wait);
 	}
 

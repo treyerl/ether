@@ -35,13 +35,9 @@ import java.nio.ByteBuffer;
 
 import ch.fhnw.util.BufferUtilities;
 
-public final class FloatImage extends AbstractHostImage {
+final class FloatImage extends AbstractHostImage {
 	
-	public FloatImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode) {
-		super(width, height, ComponentType.FLOAT, componentFormat, alphaMode);
-	}
-
-	public FloatImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
+	FloatImage(int width, int height, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, ComponentType.BYTE, componentFormat, alphaMode, pixels);
 	}
 	
@@ -54,12 +50,12 @@ public final class FloatImage extends AbstractHostImage {
 
 	@Override
 	public IHostImage allocate() {
-		return new FloatImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode());
+		return new FloatImage(getWidth(), getHeight(), getComponentFormat(), getAlphaMode(), null);
 	}
 	
 	@Override
 	public IHostImage allocate(int width, int height) {
-		return new FloatImage(width, height, getComponentFormat(), getAlphaMode());
+		return new FloatImage(width, height, getComponentFormat(), getAlphaMode(), null);
 	}
 	
 	@Override

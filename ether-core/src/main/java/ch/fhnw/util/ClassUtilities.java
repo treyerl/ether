@@ -319,6 +319,13 @@ public final class ClassUtilities {
 	public static String getCallerClassName() {
 		return Thread.currentThread().getStackTrace()[3].getClassName();
 	}
+	
+	public static String getCallerClassAndMethodName(int n) {
+		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+		if (n + 4 >= elements.length)
+			return "none";
+		return elements[n + 3].getClassName() + "." + elements[n + 3].getMethodName();
+	}
 
 	public static Field getField(Class<?> type, String field) {
 		HashMap<String, Field> fields = fieldMap.get(type);

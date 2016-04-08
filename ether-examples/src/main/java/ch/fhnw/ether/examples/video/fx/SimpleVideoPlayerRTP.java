@@ -43,7 +43,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Combo;
 
 import ch.fhnw.ether.image.IHostImage;
-import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
@@ -93,7 +92,7 @@ public class SimpleVideoPlayerRTP {
 		AtomicInteger current = new AtomicInteger(0);
 
 		if(mask != null) {
-			IHostImage maskOut  = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+			IHostImage maskOut  = IHostImage.create(mask.getWidth(), mask.getHeight(), ComponentType.BYTE, ComponentFormat.RGB);
 			FrameTarget target = new FrameTarget(maskOut);
 			target.setTimebase(videoOut);
 			target.useProgram(new RenderProgram<>(mask));
