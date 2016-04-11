@@ -29,16 +29,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.examples.visualizer;
+package ch.fhnw.ether.examples.audio.fx;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import ch.fhnw.ether.audio.AudioUtilities.Window;
 import ch.fhnw.ether.audio.FFT;
@@ -60,92 +62,52 @@ public class AudioVisualizer {
 
 	public static void main(String[] args) throws RenderCommandException, IOException {
 		IAudioSource                      src = new URLAudioSource(new File(args[0]).toURI().toURL());
-		//AbstractAudioSource<?>            src   = new SilenceAudioSource(1, 44100, 16);
-		//SinGen                            sin   = new SinGen(0);
 		DCRemove                          dcrmv = new DCRemove();
 		AutoGain                          gain  = new AutoGain();
 		FFT                               fft   = new FFT(20, Window.HANN);
 		BandsButterworth                  bands = new BandsButterworth(40, 8000, 40, N_CUBES, 1);
 		PitchDetect                       pitch = new PitchDetect(fft, 2);
-	//	InvFFT                            ifft  = new InvFFT(fft);
 
 		final JavaSoundTarget audioOut = new JavaSoundTarget();
 
-		final Canvas c = new Canvas() {
-			private static final long serialVersionUID = 6220722420324801742L;
-
-			@Override
-			public void paint(Graphics g) {
-				g.clearRect(0, 0, getWidth(), getHeight());
-				try{
-					int w = getWidth() / N_CUBES;
-					for(int i = 0; i < N_CUBES; i++) {
-						int h = (int) (bands.power(i) * getHeight());
-						g.fillRect(i * w, getHeight() - h, w, h);
-					}
-					g.drawString(TextUtilities.toString(pitch.pitch()), 0, 20);
-					/*
-					g.setColor(Color.RED);
-					int count = 0;
-					for(float f : pitch.pitch(audioOut[0])) {
-						if(f < 200) continue;
-						int x = (int) ((f * getWidth()) / 10000f);
-						g.drawLine(x, 0, x, getHeight());
-						if(++count > 2) break;
-					}
-					 */
-				} catch(Throwable t) {
-					g.setColor(Color.RED);
-					g.fillRect(0, 0, getWidth(), getHeight());
+		Display display = new Display();
+	    Shell shell = new Shell(display);
+		shell.setText("Audio Visualizer");
+		shell.setLayout(new FillLayout());
+		Canvas c = new Canvas(shell, SWT.NONE);
+		c.addPaintListener(e->{
+			Rectangle b = c.getBounds();
+			e.gc.fillRectangle(b);
+			Color bc = e.gc.getBackground();
+			try{
+				e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_BLUE));
+				int w = b.width / N_CUBES;
+				for(int i = 0; i < N_CUBES; i++) {
+					int h = (int) (bands.power(i) * b.height);
+					e.gc.fillRectangle(i * w, b.height - h, w, h);
 				}
-				repaint(20);
+				e.gc.setBackground(bc);
+				e.gc.drawText(TextUtilities.toString(pitch.pitch()), 0, 20);
+			} catch(Throwable t) {
+				e.gc.setBackground(e.display.getSystemColor(SWT.COLOR_RED));
+				e.gc.fillRectangle(b);
 			}
-		};
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				JFrame frame = new JFrame();
-				frame.add(c);
-				frame.setSize(1000, 200);
-				frame.setVisible(true);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			}
+			c.redraw();
 		});
-
-		/*
-		Scene    scene = new Scene();
-
-		scene.add3DObject(new Mesh(Mat4.ID, new CubeGeoemtry(), new ColorMaterial(RGBA.WHITE)));
-
-		for(int i = 0; i < N_CUBES; i++) {
-			scene.add3DObject(new Mesh(()->{
-				return Mat4.multiply(Mat4.scale(0.8f, 0.8f, spec.get(i)), Mat4.translate(i - (N_CUBES / 2f), 0, 0));
-			},
-			new CubeGeometry(),
-			new ColorMaterial(()->{
-				return new RGBA(spec.get(i),spec.get(i),spec.get(i),1);
-				};
-			}));
-		}
-		 */
-
+		shell.open();
+		
 		RenderProgram<IAudioRenderTarget> audio = new RenderProgram<>(src, /*sin,*/ dcrmv, gain, fft, bands, pitch /*, robo, ifft*/);
-		//RenderProgram<IVideoRenderTarget> video = new RenderProgram<>();
-
-		//scene.attach(video);
 
 		new ParameterWindow(audio);
 
-		//ViewportTarget  videoOut = new ViewportTarget();
-
 		audioOut.useProgram(audio);
-		//videoOut.useProgram(video);
-
-		//videoOut.start();
 		audioOut.start();
-
-		// audioOut.stop();
-		//videoOut.stop();
+		
+		while (!shell.isDisposed()) {
+		      if (!display.readAndDispatch()) {
+		        display.sleep();
+		      }
+		    }
+		    display.dispose();
 	}
 }

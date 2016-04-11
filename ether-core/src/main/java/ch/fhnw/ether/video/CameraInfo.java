@@ -33,10 +33,12 @@ package ch.fhnw.ether.video;
 
 import java.awt.Dimension;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import ch.fhnw.util.math.Vec2;
 
 import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamException;
 
 public class CameraInfo {
 	private final Webcam cam;
@@ -54,12 +56,16 @@ public class CameraInfo {
 	}
 	
 	public static CameraInfo[] getInfos() {
-		List<Webcam> cams = Webcam.getWebcams();
-		CameraInfo[] result = new CameraInfo[cams.size()];
-		int idx = 0;
-		for(Webcam cam : cams)
-			result[idx++] = new CameraInfo(cam);
-		return result;
+		try {
+			List<Webcam> cams = Webcam.getWebcams(5000);
+			CameraInfo[] result = new CameraInfo[cams.size()];
+			int idx = 0;
+			for(Webcam cam : cams)
+				result[idx++] = new CameraInfo(cam);
+			return result;
+		} catch (WebcamException | TimeoutException e) {
+			return new CameraInfo[0];
+		}
 	}
 
 	public Webcam getNativeCamera() {
