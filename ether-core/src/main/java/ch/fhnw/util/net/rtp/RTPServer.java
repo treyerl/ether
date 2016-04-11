@@ -44,28 +44,30 @@ import ch.fhnw.util.Log;
 
 public class RTPServer extends Thread {
 	private static final Log LOG = Log.create();
-	
+
 	private final Map<Integer, RTPSession>  sessions = new ConcurrentHashMap<>();
 	private final Map<String,  RTSPRequest> channels = new ConcurrentHashMap<>();
-		
+
 	private final AtomicReference<IHostImage> currentImage = new AtomicReference<>(
 			IHostImage.create(1, 1, ComponentType.BYTE, ComponentFormat.RGB)
-	);
-	
+			);
+
 	private final int port;
 
 	public RTPServer(int port) {
 		this(port, true);
 	}
-	
+
 	public RTPServer(int port, boolean start) {
 		super(RTPServer.class.getName());
 		this.port = port;
-		setPriority(Thread.MIN_PRIORITY);
-		setDaemon(true);
-		start();
+		if(start) {
+			setPriority(Thread.MIN_PRIORITY);
+			setDaemon(true);
+			start();
+		}
 	}
-	
+
 	@Override
 	public void run() {
 		try(ServerSocket listenSocket = new ServerSocket(port)) {
@@ -76,7 +78,7 @@ public class RTPServer extends Thread {
 			LOG.severe(e);
 		}
 	}
-	
+
 	public RTPSession getSession(RTSPRequest req) {
 		return sessions.get(Integer.valueOf(req.getSessionKey()));
 	}
@@ -84,11 +86,11 @@ public class RTPServer extends Thread {
 	public void addSession(int sessionKey, RTPSession session) {
 		sessions.put(sessionKey, session);
 	}
-	
+
 	public RTSPRequest getChannel(String key) {
 		return channels.get(key);
 	}
-	
+
 	public void addChannel(String key, RTSPRequest channel) {
 		channels.put(key, channel);
 	}
@@ -98,7 +100,7 @@ public class RTPServer extends Thread {
 	}
 
 	public static void main(String args[]) {
-		new RTPServer(Integer.parseInt(args[0])).run();
+		new RTPServer(Integer.parseInt(args[0]), false).run();
 	}
 
 	public IHostImage getImage() {

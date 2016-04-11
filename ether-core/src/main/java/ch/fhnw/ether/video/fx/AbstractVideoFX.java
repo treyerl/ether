@@ -389,7 +389,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		int numComponents = image.getComponentFormat().getNumComponents();
 		if (image.getComponentType() != ComponentType.BYTE) 
 			throw new IllegalArgumentException("unsupported " + image.getComponentType() + "-component type");
-		if (numComponents != 3 || numComponents != 4)
+		if (numComponents != 3 && numComponents != 4)
 			throw new IllegalArgumentException("unsupported " + numComponents + "-component format");
 	}
 	

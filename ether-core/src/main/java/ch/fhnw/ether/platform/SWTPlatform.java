@@ -39,7 +39,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import ch.fhnw.ether.image.IImageSupport;
-import ch.fhnw.ether.image.STBImageSupport;
+import ch.fhnw.ether.image.SWTImageSupport;
 import ch.fhnw.ether.render.gl.GLContextManager;
 
 final class SWTPlatform implements IPlatform {
@@ -48,7 +48,7 @@ final class SWTPlatform implements IPlatform {
 
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
-	private final IImageSupport imageSupport = new STBImageSupport();
+	private final IImageSupport imageSupport = new SWTImageSupport();
 
 	public SWTPlatform() {
 		errorCallback = GLFWErrorCallback.createPrint(System.err);

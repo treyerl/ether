@@ -124,7 +124,7 @@ public class SimpleVideoPlayerRTP {
 		videoOut.useProgram(video);
 		videoOut.start();
 
-		Platform.get().init();
+		Platform.get().run();
 	}
 
 }

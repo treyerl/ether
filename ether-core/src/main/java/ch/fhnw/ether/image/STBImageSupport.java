@@ -46,7 +46,7 @@ import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 
-public final class STBImageSupport implements IImageSupport {
+public class STBImageSupport implements IImageSupport {
 
 	@Override
 	public IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {

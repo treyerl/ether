@@ -31,21 +31,17 @@
 
 package ch.fhnw.util.net.rtp;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
-
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.ether.image.IImageSupport.FileFormat;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.ByteList;
 import ch.fhnw.util.Log;
@@ -53,7 +49,7 @@ import ch.fhnw.util.Log.Level;
 
 public class RTPmjpg {
 	private static final Log LOG = Log.create(Level.SEVERE, Level.WARN);
-
+	
 	/**
 	 * Payload encode JPEG pictures into RTP packets according to RFC 2435.
 	 * For detailed information see: http://www.rfc-editor.org/rfc/rfc2435.txt
@@ -246,15 +242,14 @@ public class RTPmjpg {
 		CompInfo() {}
 	}
 
-	static final ThreadLocal<ImageWriter> writer = ThreadLocal.withInitial(()->ImageIO.getImageWritersByFormatName("JPEG").next());
 	private int                 type;
 	private int                 height;
 	private int                 width;
 	private int                 quant;
-	private final BufferedImage img;
 	private final int           seqNb;
 	private final int           timestamp;
 	private int                 mtu = 1450;
+	private final IHostImage    image;
 	
 	public RTPmjpg(IHostImage img, int seqNb, int timestamp) {
 		quant          = DEFAULT_JPEG_QUANT;
@@ -262,19 +257,15 @@ public class RTPmjpg {
 		width          = -1;
 		height         = -1;
 		
-		// XXX CURRENTLY DEFUNCT... can't use BufferedImage
-		// this.img       = img;
-		this.img = null;
+		this.image     = img;
 		this.seqNb     = seqNb;
 		this.timestamp = timestamp;
 	}
 
 	public List<RTPpacket> createPackets() throws IOException {
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		try(ImageOutputStream out = new MemoryCacheImageOutputStream(bout)) {
-			writer.get().setOutput(out);
-			writer.get().write(img);
-			byte[] result = bout.toByteArray();
+		try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			Platform.get().getImageSupport().write(image, out, FileFormat.JPEG);
+			byte[] result = out.toByteArray();
 			return gst_rtp_jpeg_pay_handle_buffer(result, result.length, seqNb, timestamp);
 		}
 	}

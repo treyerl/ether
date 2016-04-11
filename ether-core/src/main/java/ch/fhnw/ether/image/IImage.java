@@ -63,12 +63,14 @@ public interface IImage {
 	}
 
 	enum ComponentFormat {
-		G(1), GA(2), RGB(3), RGBA(4);
+		G(1, false), GA(2, true), RGB(3, false), RGBA(4, true);
 
-		private final int numComponents;
+		private final int     numComponents;
+		private final boolean hasAlpha;
 
-		private ComponentFormat(int numComponents) {
+		private ComponentFormat(int numComponents, boolean hasAlpha) {
 			this.numComponents = numComponents;
+			this.hasAlpha      = hasAlpha;
 		}
 
 		public int getNumComponents() {
@@ -77,6 +79,10 @@ public interface IImage {
 
 		public static ComponentFormat get(int numComponents) {
 			return ComponentFormat.values()[numComponents - 1];
+		}
+
+		public boolean hasAlpha() {
+			return hasAlpha;
 		}
 	}
 
