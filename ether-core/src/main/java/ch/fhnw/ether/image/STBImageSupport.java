@@ -75,13 +75,13 @@ public class STBImageSupport implements IImageSupport {
 		if (pixels == null)
 			throw new IOException("can't load image: " + STBImage.stbi_failure_reason());
 		
-		if (componentFormat == null)
-			componentFormat = ComponentFormat.get(numComponents.get(0));
-		
 		if (componentType == null)
 			componentType = ComponentType.BYTE;
 		else if (componentType == ComponentType.FLOAT)
 			throw new UnsupportedOperationException("float types unsupported");
+		
+		if (componentFormat == null)
+			componentFormat = ComponentFormat.get(numComponents.get(0));
 		
 		if (alphaMode == null)
 			alphaMode = AlphaMode.POST_MULTIPLIED;

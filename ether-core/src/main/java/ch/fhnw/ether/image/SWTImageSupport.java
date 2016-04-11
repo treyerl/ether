@@ -13,7 +13,12 @@ public class SWTImageSupport extends STBImageSupport {
 	private static final PaletteData RGB8  = new PaletteData(0xFF0000, 0xFF00, 0xFF);
 	private static final PaletteData RGBA8 = new PaletteData(0xFF000000, 0xFF0000, 0xFF00);
 
-	private ThreadLocal<ImageLoader> writer = new ThreadLocal<ImageLoader>() {protected ImageLoader initialValue() {return new ImageLoader();}};
+	private ThreadLocal<ImageLoader> writer = new ThreadLocal<ImageLoader>() {
+		@Override
+		protected ImageLoader initialValue() {
+			return new ImageLoader();
+		}
+	};
 
 	@Override
 	public void write(IImage frame, OutputStream out, FileFormat format) throws IOException {
