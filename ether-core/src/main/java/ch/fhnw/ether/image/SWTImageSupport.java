@@ -9,6 +9,10 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.PaletteData;
 
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
+
 public class SWTImageSupport extends STBImageSupport {
 	private static final PaletteData RGB8  = new PaletteData(0xFF0000, 0xFF00, 0xFF);
 	private static final PaletteData RGBA8 = new PaletteData(0xFF000000, 0xFF0000, 0xFF00);
@@ -27,46 +31,63 @@ public class SWTImageSupport extends STBImageSupport {
 		out.close();
 	}
 
-	private ImageData toImageData(IImage frame) throws IOException {
-		if(frame instanceof ByteImage) {
-			ByteImage  image  = (ByteImage)frame;
-			ByteBuffer pixels = image.getPixels();
+	private ImageData toImageData(IImage image) throws IOException {
+		IHostImage hostImage = null;
+		if (image instanceof IHostImage)
+			hostImage = (IHostImage)image;
+		else if (image instanceof IGPUImage)
+			hostImage = ((IGPUImage)image).createHostImage();
+		else
+			throw new IllegalArgumentException("unsupported image type");
+		
+		hostImage = hostImage.convert(ComponentType.BYTE, hostImage.getComponentFormat().hasAlpha() ? ComponentFormat.RGBA : ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 
-			pixels.clear();
-			byte[] data = new byte[pixels.capacity()];
-			pixels.clear();
-			int pixelSize = image.getNumBytesPerPixel();
-			int linelen = image.getWidth() * pixelSize;
-			for(int j = image.getHeight(); --j >= 0;)
-				pixels.get(data, j * linelen, linelen);
-			ImageData result = new ImageData(image.getWidth(), image.getHeight(), pixelSize * 8, getPaletteData(image), 1, data);
-			if(image.getComponentFormat().hasAlpha()) {
-				byte[]    alpha  = new byte[image.getWidth() * image.getHeight()];
-				int idx = 3;
-				for(int j = image.getHeight(); --j >= 0;) {
-					for(int i = 0; i < image.getWidth(); i++, idx += pixelSize)
-						alpha[j * image.getWidth() + i] = pixels.get(idx);
-				}
-				result.alphaData = alpha;
+		ByteBuffer pixels = hostImage.getPixels();
+		int w = hostImage.getWidth();
+		int h = hostImage.getHeight();
+		ComponentFormat format = hostImage.getComponentFormat();
+
+		pixels.clear();
+		byte[] data = new byte[pixels.capacity()];
+
+		// flip image
+		pixels.clear();
+		int pixelSize = hostImage.getNumBytesPerPixel();
+		int linelen = w * pixelSize;
+		for (int y = h; --y >= 0;)
+			pixels.get(data, y * linelen, linelen);
+
+		ImageData result = new ImageData(w, h, pixelSize * 8, getPaletteData(format), 1, data);
+		if (format.hasAlpha()) {
+			byte[] alpha = new byte[w * h];
+			int idx = 3;
+			for (int y = h; --y >= 0;) {
+				for (int x = 0; x < w; x++, idx += pixelSize)
+					alpha[y * w + x] = pixels.get(idx);
 			}
-			return result;
-
-		} else throw new IOException("Unsupported image format: " + frame.getClass().getName());
+			result.alphaData = alpha;
+		}
+		return result;
 	}
 
-	private PaletteData getPaletteData(ByteImage image) throws IOException {
-		switch(image.getComponentFormat()) {
-		case RGB:  return RGB8;
-		case RGBA: return RGBA8;
-		default:   throw new IOException("Unsupported component format: " + image.getComponentFormat());
+	private PaletteData getPaletteData(ComponentFormat format) throws IOException {
+		switch (format) {
+		case RGB:
+			return RGB8;
+		case RGBA:
+			return RGBA8;
+		default:
+			throw new IllegalArgumentException("unsupported component format: " + format);
 		}
 	}
 
 	private int swtFormat(FileFormat format) {
 		switch (format) {
-		case JPEG:	return SWT.IMAGE_JPEG;
-		case PNG:	return SWT.IMAGE_PNG;
-		default:    return SWT.IMAGE_BMP;
+		case JPEG:
+			return SWT.IMAGE_JPEG;
+		case PNG:
+			return SWT.IMAGE_PNG;
 		}
+		throw new IllegalArgumentException("unsupported file format: " + format);
 	}
 }

@@ -59,8 +59,14 @@ public class STBImageSupport implements IImageSupport {
 	}
 	
 	public IImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, boolean host) throws IOException {
-		// TODO: HDR support (stb read as float)
+
+		// TODO: need to wait for lwjgl fix / solution re float vs byte buffer returned from stbi_loaf
+		
 		// TODO: Pre-multiplied alpha support
+
+		STBImage.stbi_set_flip_vertically_on_load(1);
+		STBImage.stbi_set_unpremultiply_on_load(1);
+
 		int numComponentsRequested = componentFormat != null ? componentFormat.getNumComponents() : 0;
 		byte[] bytes = getBytesFromInputStream(in);
 		ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length);
@@ -69,16 +75,21 @@ public class STBImageSupport implements IImageSupport {
 		IntBuffer width = BufferUtils.createIntBuffer(1);
 		IntBuffer height = BufferUtils.createIntBuffer(1);
 		IntBuffer numComponents = BufferUtils.createIntBuffer(1);
-		
-		STBImage.stbi_set_flip_vertically_on_load(1);
-		ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
-		if (pixels == null)
-			throw new IOException("can't load image: " + STBImage.stbi_failure_reason());
-		
+
 		if (componentType == null)
 			componentType = ComponentType.BYTE;
-		else if (componentType == ComponentType.FLOAT)
-			throw new UnsupportedOperationException("float types unsupported");
+		
+		ByteBuffer pixels;
+		if (componentType == ComponentType.BYTE) {
+			pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
+		} else if (componentType == ComponentType.FLOAT) {
+			throw new IllegalArgumentException("unsupported component type: " + componentType);
+			//pixels = STBImage.stbi_loadf_from_memory(buffer, width, height, numComponents, numComponentsRequested);			
+		} else {
+			throw new IllegalArgumentException("unsupported component type: " + componentType);
+		}
+		if (pixels == null)
+			throw new IOException("can't load image: " + STBImage.stbi_failure_reason());
 		
 		if (componentFormat == null)
 			componentFormat = ComponentFormat.get(numComponents.get(0));
