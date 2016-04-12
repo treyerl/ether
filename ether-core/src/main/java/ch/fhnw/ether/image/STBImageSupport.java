@@ -89,7 +89,6 @@ public class STBImageSupport implements IImageSupport {
 			throw new UnsupportedOperationException("premultiplied alpha unsupported");
 
 		IImage image = null;
-		
 		if (host) {
 			// note: we need to create a copy here in order to explicity release the STB-managed buffer.
 			ByteBuffer copy = BufferUtils.createByteBuffer(pixels.capacity());
@@ -121,10 +120,10 @@ public class STBImageSupport implements IImageSupport {
 		
 		switch (image.getComponentType()) {
 		case BYTE:
-			STBImageResize.stbir_resize_float(image.getPixels(), image.getWidth(), image.getHeight(), 0, pixels, width, height, 0, image.getComponentFormat().getNumComponents());
+			STBImageResize.stbir_resize_uint8(image.getPixels(), image.getWidth(), image.getHeight(), 0, pixels, width, height, 0, image.getComponentFormat().getNumComponents());
 			break;
 		case FLOAT:
-			STBImageResize.stbir_resize_uint8(image.getPixels(), image.getWidth(), image.getHeight(), 0, pixels, width, height, 0, image.getComponentFormat().getNumComponents());
+			STBImageResize.stbir_resize_float(image.getPixels().asFloatBuffer(), image.getWidth(), image.getHeight(), 0, pixels.asFloatBuffer(), width, height, 0, image.getComponentFormat().getNumComponents());
 			break;
 		}
 		return IHostImage.create(width, height, image.getComponentType(), image.getComponentFormat(), image.getAlphaMode(), pixels);

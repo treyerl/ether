@@ -90,7 +90,7 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 		return Platform.get().getImageSupport().resize(this, width, height);
 	}
 	
-	// XXX slow and lots of room for optimization
+	// TODO test & optimize
 	@Override
 	public final IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		if (getComponentType() == componentType && getComponentFormat() == componentFormat && getAlphaMode() == alphaMode)
