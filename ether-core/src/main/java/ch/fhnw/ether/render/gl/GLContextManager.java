@@ -54,7 +54,7 @@ public class GLContextManager {
 		@Override
 		public void close() throws Exception {
 			if (DBG)
-				GLError.checkWithMessage("gl error (temporary void context release)");
+				GLError.checkWithMessage("temporary void context release");
 		}
 	}
 
@@ -68,12 +68,12 @@ public class GLContextManager {
 		void acquire() {
 			window.makeCurrent(true);
 			if (DBG)
-				GLError.checkWithMessage("gl error (temporary real context acquire)");
+				GLError.checkWithMessage("temporary real context acquire");
 		}
 
 		void release() {
 			if (DBG)
-				GLError.checkWithMessage("gl error (temporary real context release)");
+				GLError.checkWithMessage("temporary real context release");
 			window.makeCurrent(false);
 		}
 

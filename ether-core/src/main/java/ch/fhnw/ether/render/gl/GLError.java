@@ -56,7 +56,7 @@ public final class GLError {
 		if (error == GL11.GL_NO_ERROR)
 			return false;
 		
-		LOG.severe(message + ": " + getErrorString(error));
+		LOG.severe("gl error: " + message + ": " + getErrorString(error));
 		return true;
 	}
 	
@@ -64,7 +64,7 @@ public final class GLError {
 		int error = GL11.glGetError();
 		if (error == GL11.GL_NO_ERROR)
 			return;
-		throw new RuntimeException(message + ": " + getErrorString(error));
+		throw new RuntimeException("gl error: " + message + ": " + getErrorString(error));
 	}
 	
 	public static String getErrorString(int error) {
@@ -86,7 +86,7 @@ public final class GLError {
 		case GL11.GL_STACK_OVERFLOW:
 			return ": GL_STACK_OVERFLOW";
 		default:
-			return "UNKNOWN ERROR";
+			return "UNKNOWN ERROR 0x" + Integer.toHexString(error);
 		}
 	}
 }

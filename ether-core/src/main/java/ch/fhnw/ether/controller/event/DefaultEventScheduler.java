@@ -63,9 +63,10 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 	public DefaultEventScheduler(IController controller, Runnable runnable, float fps) {
 		//this.controller = controller;
 		this.runnable = runnable;
-		this.interval = 1 / fps;
-		this.sceneThread = new Thread(this::runSceneThread, "scenethread");
-		this.sceneThread.setPriority(Thread.MAX_PRIORITY);
+		interval = 1 / fps;
+		sceneThread = new Thread(this::runSceneThread, "scenethread");
+		sceneThread.setDaemon(true);
+		sceneThread.setPriority(Thread.MAX_PRIORITY);
 		sceneThread.start();
 	}
 

@@ -42,6 +42,7 @@ import org.lwjgl.opengl.GL11;
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
+import ch.fhnw.ether.render.gl.GLError;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -75,7 +76,9 @@ public abstract class AbstractRenderer implements IRenderer {
 	private ShadowVolumes shadowVolumes;
 
 	public AbstractRenderer() {
-		this.renderThread = new Thread(this::runRenderThread, "renderthread");
+		renderThread = new Thread(this::runRenderThread, "renderthread");
+		renderThread.setDaemon(true);
+		renderThread.setPriority(Thread.MAX_PRIORITY);
 		renderThread.start();
 	}
 
@@ -112,7 +115,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		try (IGLContext ctx = GLContextManager.acquireContext()) {
 			renderState.getRenderUpdates().forEach(update -> {
 				update.update();
-				checkGLError("updates");
+    			GLError.checkWithMessage("updating");
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -129,17 +132,11 @@ public abstract class AbstractRenderer implements IRenderer {
     			window.makeCurrent(true);
     			render(targetState, view, vcs);
     			window.makeCurrent(false);
-				checkGLError("rendering");
+    			GLError.checkWithMessage("rendering");
             } catch (Exception e) {
                 e.printStackTrace();
             }
 		});
-	}
-	
-	public static void checkGLError(String where) {
-		int error = GL11.glGetError();
-		if (error != 0)
-			System.err.println("opengl: " + where + " caused GL error 0x" + Integer.toHexString(error));		
 	}
 
 	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
