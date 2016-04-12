@@ -103,7 +103,7 @@ public final class FloatUniformBuffer {
 		if (ubo == null) {
 			ubo = new GLObject(Type.BUFFER);
 			GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, ubo.getId());
-			GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, size(stride) * 4, null, GL15.GL_STREAM_DRAW);
+			GL15.glBufferData(GL31.GL_UNIFORM_BUFFER, size(stride) * 4, GL15.GL_STREAM_DRAW);
 			GL15.glBindBuffer(GL31.GL_UNIFORM_BUFFER, 0);
 		}
 
