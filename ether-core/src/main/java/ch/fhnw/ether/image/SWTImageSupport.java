@@ -25,8 +25,11 @@ public class SWTImageSupport extends STBImageSupport {
 	};
 
 	@Override
-	public void write(IImage frame, OutputStream out, FileFormat format) throws IOException {
-		writer.get().data = new ImageData[] {toImageData(frame)};
+	public void write(IImage image, OutputStream out, FileFormat format) throws IOException {
+		if (format == null)
+			format = FileFormat.JPEG;
+
+		writer.get().data = new ImageData[] { toImageData(image) };
 		writer.get().save(out, swtFormat(format));
 		out.close();
 	}

@@ -31,8 +31,6 @@
 
 package ch.fhnw.ether.image;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,17 +44,59 @@ public interface IImageSupport {
 		PNG, JPEG
 	}
 
+	/**
+	 * Read a host image from input stream.
+	 * 
+	 * @param in
+	 *            the stream to read from
+	 * @param componentType
+	 *            the requested component type for the image or null for using
+	 *            the best matching type
+	 * @param componentFormat
+	 *            the requested component format for the image or null for using
+	 *            the best matching format
+	 * @param alphaMode
+	 *            the requested alpha format or null for post multiplied
+	 * @return the loaded image
+	 * @throws IOException
+	 *             if image cannot be read
+	 */
 	IHostImage readHost(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException;
 
+	/**
+	 * Read a GPU image from input stream.
+	 * 
+	 * @see #readHost(InputStream, ComponentType, ComponentFormat, AlphaMode)
+	 */
 	default IGPUImage readGPU(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return readHost(in, componentType, componentFormat, alphaMode).createGPUImage();
 	}
 
+	/**
+	 * Write an image to output stream.
+	 * 
+	 * @param image
+	 *            the image to be written
+	 * @param out
+	 *            the stream to write to
+	 * @param format
+	 *            the requested file format or null for using default format
+	 *            (jpg)
+	 * @throws IOException
+	 *             if image cannot be written
+	 */
 	void write(IImage image, OutputStream out, FileFormat format) throws IOException;
 
-	default void write(IImage image, File file, FileFormat format) throws IOException {
-		write(image, new FileOutputStream(file), format);
-	}
-
+	/**
+	 * Resize host image.
+	 * 
+	 * @param image
+	 *            the image to be resized
+	 * @param width
+	 *            target width
+	 * @param height
+	 *            target height
+	 * @return new image, resized to width*height
+	 */
 	IHostImage resize(IHostImage image, int width, int height);
 }

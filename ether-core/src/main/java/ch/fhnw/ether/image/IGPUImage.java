@@ -40,49 +40,154 @@ import java.nio.ByteBuffer;
 
 import ch.fhnw.ether.platform.Platform;
 
+/**
+ * An IGPUImage refers to an image that resides on GPU memory. A GPU image is
+ * not mutable through this interface, but can be modified by the GPU API
+ * through obtaining the GPU handle.
+ * 
+ * @author radar
+ *
+ */
 public interface IGPUImage extends IImage {
 	public static final IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
 	
+	/**
+	 * Get GPU resource handle of this image (i.e., in the case of OpenGL the texture ID).
+	 */
 	long getGPUHandle();
 	
+	/**
+	 * Create host image from GPU image. Note that this operation may be expensive.
+	 */
 	IHostImage createHostImage();
 	
+	/**
+	 * Create new GPU image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat) {
 		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, null);
 	}
 
+	/**
+	 * Create new GPU image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, ByteBuffer pixels) {
 		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, pixels);
 	}
 
+	/**
+	 * Create new GPU image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		return create(width, height, componentType, componentFormat, alphaMode, null);
 	}
 
+	/**
+	 * Create new GPU image.
+	 * 
+	 * @param width
+	 *            image width
+	 * @param height
+	 *            image height
+	 * @param componentType
+	 *            image type
+	 * @param componentFormat
+	 *            image format
+	 * @param alphaMode
+	 *            image alpha mode
+	 * @param pixels
+	 *            byte buffer containing pixel data or null for creating an
+	 *            empty image
+	 * @return the created image
+	 */
 	static IGPUImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		return new GLGPUImage(width, height, componentType, componentFormat, alphaMode, pixels);
 	}
 
+	/**
+	 * Read a GPU image from input stream.
+	 * 
+	 * @param in
+	 *            the stream to read from
+	 * @param componentType
+	 *            the requested component type for the image or null for using
+	 *            the best matching type
+	 * @param componentFormat
+	 *            the requested component format for the image or null for using
+	 *            the best matching format
+	 * @param alphaMode
+	 *            the requested alpha format or null for post multiplied
+	 * @return the loaded image
+	 * @throws IOException
+	 *             if image cannot be read
+	 */
 	static IGPUImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return Platform.get().getImageSupport().readGPU(in, componentType, componentFormat, alphaMode);
 	}
 
+	/**
+	 * Read a GPU image from input stream.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IGPUImage read(InputStream in) throws IOException {
 		return read(in, null, null, null);
 	}
 	
+	/**
+	 * Read a GPU image from file.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IGPUImage read(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return read(new FileInputStream(file), componentType, componentFormat, alphaMode);
 	}
 
+	/**
+	 * Read a GPU image from file.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IGPUImage read(File file) throws IOException {
 		return read(new FileInputStream(file), null, null, null);
 	}
 
+	/**
+	 * Read a GPU image from URL.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IGPUImage read(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return read(url.openStream(), componentType, componentFormat, alphaMode);
 	}
 
+	/**
+	 * Read a GPU image from URL.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IGPUImage read(URL url) throws IOException {
 		return read(url.openStream(), null, null, null);
 	}

@@ -90,22 +90,57 @@ public interface IImage {
 		POST_MULTIPLIED, PRE_MULTIPLIED
 	}
 
+	/**
+	 * Get image width in pixels.
+	 */
 	int getWidth();
 
+	/**
+	 * Get image height in pixels.
+	 */
 	int getHeight();
 
+	/**
+	 * Get image component type.
+	 */
 	ComponentType getComponentType();
 
+	/**
+	 * Get image component format.
+	 */
 	ComponentFormat getComponentFormat();
 
+	/**
+	 * Get image alpha mode.
+	 */
 	AlphaMode getAlphaMode();
 
+	/**
+	 * Get image pixel size in bytes.
+	 */
 	int getNumBytesPerPixel();
 	
+	/**
+	 * Write an image to output stream.
+	 * 
+	 * @param image
+	 *            the image to be written
+	 * @param out
+	 *            the stream to write to
+	 * @param format
+	 *            the requested file format or null for using default format
+	 *            (jpg)
+	 * @throws IOException
+	 *             if image cannot be written
+	 */
 	static void write(IImage image, OutputStream out, FileFormat format) throws IOException {
 		Platform.get().getImageSupport().write(image, out, format);
 	}
 
+	/**
+	 * Write image to file.
+	 * @see #write(IImage, OutputStream, FileFormat)
+	 */
 	static void write(IImage image, File file, FileFormat format) throws IOException {
 		write(image, new FileOutputStream(file), format);
 	}

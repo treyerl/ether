@@ -40,80 +40,241 @@ import java.nio.ByteBuffer;
 
 import ch.fhnw.ether.platform.Platform;
 
+/**
+ * An IHostImage refers to an image whose pixel data remains in host memory. A host
+ * image is mutable.
+ * 
+ * @author radar
+ *
+ */
 public interface IHostImage extends IImage {
 
+	/**
+	 * Clears this image, set all pixel data to zero.
+	 */
 	void clear();
 	
+	/**
+	 * Returns a copy of this image.
+	 */
 	IHostImage copy();
 
+	/**
+	 * Allocates a new image with same size, type, format and alpha mode.
+	 */
 	IHostImage allocate();
 	
+	/**
+	 * Allocates a new image with specified size, but same type format and alpha mode.
+	 */
 	IHostImage allocate(int width, int height);
 	
+	/**
+	 * Returns a new, resized instance of this image.
+	 */
 	IHostImage resize(int width, int height);
 
+	/**
+	 * Returns a new instance of this image, with type, format and alpha mode converted to requested values.
+	 */
 	IHostImage convert(ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode);
 
+	/**
+	 * Returns a sub-image of this image, as specified by the provided coordinates and size.
+	 */
 	IHostImage getSubImage(int x, int y, int width, int height);
 
-	void setSubImage(int x, int y, IHostImage frame);
+	/**
+	 * Sets a sub-image within this image. If the provided sub-image has a
+	 * differen type / format, it is automatically converted to the target type
+	 * / format. Beware that this may cause extra overhead.
+	 */
+	void setSubImage(int x, int y, IHostImage image);
 	
+	/**
+	 * Get pixel at coordinate x-y in byte format. The pixel data is stored in
+	 * the provided array, which needs to have a minimum size of the number of
+	 * components in this image.
+	 */
 	byte[] getPixel(int x, int y, byte[] dst);
 
+	/**
+	 * Set pixel at coordinate x-y in byte format. The provided array needs to
+	 * have a minimum size of the number of components in this image.
+	 */
 	void setPixel(int x, int y, byte[] src);
 	
+	/**
+	 * Get pixel at coordinate x-y in float format. The pixel data is stored in
+	 * the provided array, which needs to have a minimum size of the number of
+	 * components in this image.
+	 */
 	float[] getPixel(int x, int y, float[] dst);
 	
+	/**
+	 * Set pixel at coordinate x-y in float format. The provided array needs to
+	 * have a minimum size of the number of components in this image.
+	 */
 	void setPixel(int x, int y, float[] src);
 	
+	/**
+	 * Get byte component at coordinate x-y.
+	 */
 	byte getComponentByte(int x, int y, int component);
 	
+	/**
+	 * Set byte component at coordinate x-y.
+	 */
 	void setComponentByte(int x, int y, int component, byte value);
 	
+	/**
+	 * Get float component at coordinate x-y.
+	 */
 	float getComponentFloat(int x, int y, int component);
 	
+	/**
+	 * Set float component at coordinate x-y.
+	 */
 	void setComponentFloat(int x, int y, int component, float value);
 	
+	/**
+	 * Direct access to internal pixel buffer.
+	 */
 	ByteBuffer getPixels();
 	
+	/**
+	 * Create an (independent) GPU image from this image. Note that this
+	 * operation may be expensive.
+	 */
 	IGPUImage createGPUImage();
 	
+	/**
+	 * Create new host image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat) {
 		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, null);
 	}
 
+	/**
+	 * Create new host image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, ByteBuffer pixels) {
 		return create(width, height, componentType, componentFormat, AlphaMode.POST_MULTIPLIED, pixels);
 	}
 
+	/**
+	 * Create new host image.
+	 * 
+	 * @see #create(int, int, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode, ByteBuffer)
+	 */
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		return create(width, height, componentType, componentFormat, alphaMode, null);
 	}
 
+	/**
+	 * Create new host image.
+	 * 
+	 * @param width
+	 *            image width
+	 * @param height
+	 *            image height
+	 * @param componentType
+	 *            image type
+	 * @param componentFormat
+	 *            image format
+	 * @param alphaMode
+	 *            image alpha mode
+	 * @param pixels
+	 *            byte buffer containing pixel data or null for creating an
+	 *            empty image
+	 * @return the created image
+	 */
 	static IHostImage create(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		return AbstractHostImage.create(width, height, componentType, componentFormat, alphaMode, pixels);
 	}
 	
+	/**
+	 * Read a host image from input stream.
+	 * 
+	 * @param in
+	 *            the stream to read from
+	 * @param componentType
+	 *            the requested component type for the image or null for using
+	 *            the best matching type
+	 * @param componentFormat
+	 *            the requested component format for the image or null for using
+	 *            the best matching format
+	 * @param alphaMode
+	 *            the requested alpha format or null for post multiplied
+	 * @return the loaded image
+	 * @throws IOException
+	 *             if image cannot be read
+	 */
 	static IHostImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return Platform.get().getImageSupport().readHost(in, componentType, componentFormat, alphaMode);
 	}
 	
+	/**
+	 * Read a host image from input stream.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IHostImage read(InputStream in) throws IOException {
 		return read(in, null, null, null);
 	}
 	
+	/**
+	 * Read a host image from file.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IHostImage read(File file, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return read(new FileInputStream(file), componentType, componentFormat, alphaMode);
 	}
 
+	/**
+	 * Read a host image from file.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IHostImage read(File file) throws IOException {
 		return read(new FileInputStream(file), null, null, null);
 	}
 
+	/**
+	 * Read a host image from URL.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IHostImage read(URL url, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) throws IOException {
 		return read(url.openStream(), componentType, componentFormat, alphaMode);
 	}
 
+	/**
+	 * Read a host image from URL.
+	 * 
+	 * @see #read(InputStream, ch.fhnw.ether.image.IImage.ComponentType,
+	 *      ch.fhnw.ether.image.IImage.ComponentFormat,
+	 *      ch.fhnw.ether.image.IImage.AlphaMode)
+	 */
 	static IHostImage read(URL url) throws IOException {
 		return read(url.openStream(), null, null, null);
 	}
