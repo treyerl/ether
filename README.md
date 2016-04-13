@@ -1,7 +1,7 @@
 ether
 =====
 
-A versatile, modular Java framework for 3D rendering and AV processing. Primarily targeted at OpenGL 3.3+ and based on LWJGL 3 (https://www.lwjgl.org).
+A versatile, modular Java framework for 3D rendering and AV processing, including some specialities such as projection mapping or RTP streaming. Primarily targeted at OpenGL 3.3+ and based on LWJGL 3 (https://www.lwjgl.org).
 
 Manifesto
 ---------
@@ -23,6 +23,8 @@ Repository
 ----------
 
 The build is now based on gradle, however still requires a bit of tweaking. The code typically runs out of the box on Mac OS X, Windows and Linux.
+
+There are a few examples. For a larger one, refer to the demopolis sub-project, which realised an urban planning application. It comes with data and is fully usable, and currently exhibited at the Berlin Academy of the Arts.
 
 
 Further Info & Contact
