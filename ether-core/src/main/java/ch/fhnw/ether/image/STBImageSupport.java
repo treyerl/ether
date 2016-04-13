@@ -35,7 +35,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -59,9 +61,6 @@ public class STBImageSupport implements IImageSupport {
 	}
 	
 	public IImage read(InputStream in, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, boolean host) throws IOException {
-
-		// TODO: need to wait for lwjgl fix / solution re float vs byte buffer returned from stbi_loaf
-		
 		// TODO: Pre-multiplied alpha support
 
 		STBImage.stbi_set_flip_vertically_on_load(1);
@@ -79,17 +78,17 @@ public class STBImageSupport implements IImageSupport {
 		if (componentType == null)
 			componentType = ComponentType.BYTE;
 		
-		ByteBuffer pixels;
+		Buffer pixels;
 		if (componentType == ComponentType.BYTE) {
 			pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
 		} else if (componentType == ComponentType.FLOAT) {
-			throw new IllegalArgumentException("unsupported component type: " + componentType);
-			//pixels = STBImage.stbi_loadf_from_memory(buffer, width, height, numComponents, numComponentsRequested);			
+			pixels = STBImage.stbi_loadf_from_memory(buffer, width, height, numComponents, numComponentsRequested);			
 		} else {
 			throw new IllegalArgumentException("unsupported component type: " + componentType);
 		}
 		if (pixels == null)
 			throw new IOException("can't load image: " + STBImage.stbi_failure_reason());
+		pixels.rewind();
 		
 		if (componentFormat == null)
 			componentFormat = ComponentFormat.get(numComponents.get(0));
@@ -100,20 +99,33 @@ public class STBImageSupport implements IImageSupport {
 			throw new UnsupportedOperationException("premultiplied alpha unsupported");
 
 		IImage image = null;
-		if (host) {
-			// note: we need to create a copy here in order to explicity release the STB-managed buffer.
-			ByteBuffer copy = BufferUtils.createByteBuffer(pixels.capacity());
-			pixels.rewind();
-			copy.put(pixels);
-			image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, copy);
+		if (componentType == ComponentType.BYTE) {
+			ByteBuffer bytePixels = (ByteBuffer)pixels;
+			if (host) {
+				// note: we need to create a copy here in order to explicity release the STB-managed buffer.
+				ByteBuffer copy = BufferUtils.createByteBuffer(bytePixels.capacity());
+				copy.put(bytePixels);
+				image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, copy);
+			} else {
+				// no copy required for gpu-fast path
+				image = IGPUImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, bytePixels);
+			}
+			bytePixels.rewind();
+			STBImage.stbi_image_free(bytePixels);
 		} else {
-			// no copy required for gpu-fast path
-			image = IGPUImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, pixels);
+			// note: for float images, we need to obtain a copy anyway, since we need to pass on a byte buffer
+			FloatBuffer floatPixels = (FloatBuffer)pixels;
+			ByteBuffer copy = BufferUtils.createByteBuffer(floatPixels.capacity() * 4);
+			copy.asFloatBuffer().put(floatPixels);
+			if (host) {
+				image = IHostImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, copy);
+			} else {
+				image = IGPUImage.create(width.get(0), height.get(0), componentType, componentFormat, alphaMode, copy);				
+			}
+			floatPixels.rewind();
+			STBImage.stbi_image_free(floatPixels);
 		}
 
-		pixels.rewind();
-		STBImage.stbi_image_free(pixels);
-		
 		return image;
 	}
 	
