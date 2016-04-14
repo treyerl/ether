@@ -31,8 +31,7 @@
 
 package ch.fhnw.ether.view;
 
-import ch.fhnw.ether.controller.event.IKeyEvent;
-import ch.fhnw.ether.controller.event.IPointerEvent;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.math.Vec2;
 
 public interface IWindow {
@@ -47,102 +46,34 @@ public interface IWindow {
 
 		void windowRefresh(IWindow window);
 
-		void windowGainedFocus(IWindow window);
+		void windowFocusChanged(IWindow window, boolean focused);
 
-		void windowLostFocus(IWindow window);
-
-		void framebufferResized(IWindow window, int w, int h);
+		void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize);
 	}
 	
 	interface IKeyListener {
-		void keyPressed(IKeyEvent e);
+		void keyPressed(IWindow window, int mods, int key, int scancode, boolean repeat);
 
-		void keyReleased(IKeyEvent e);
+		void keyReleased(IWindow window, int mods, int key, int scancode);
 	}
 
 	interface IPointerListener {
-		public void pointerEntered(IPointerEvent e);
+		public void pointerEntered(IWindow window, int mods, Vec2 position);
 
-		public void pointerExited(IPointerEvent e);
+		public void pointerExited(IWindow window, int mods, Vec2 position);
 
-		public void pointerPressed(IPointerEvent e);
+		public void pointerPressed(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerReleased(IPointerEvent e);
+		public void pointerReleased(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerClicked(IPointerEvent e);
+		public void pointerClicked(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerMoved(IPointerEvent e);
+		public void pointerMoved(IWindow window, int mods, Vec2 position);
 
-		public void pointerDragged(IPointerEvent e);
+		public void pointerDragged(IWindow window, int mods, Vec2 position);
 
-		public void pointerWheelMoved(IPointerEvent e);
+		public void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll);
 	}
-	
-	IWindowListener VOID_WINDOW_LISTENER = new IWindowListener() {
-		@Override
-		public void windowRefresh(IWindow window) {
-		}
-		
-		@Override
-		public void windowLostFocus(IWindow window) {
-		}
-		
-		@Override
-		public void windowGainedFocus(IWindow window) {
-		}
-		
-		@Override
-		public void windowCloseRequest(IWindow window) {
-		}
-		
-		@Override
-		public void framebufferResized(IWindow window, int w, int h) {
-		}
-	};
-	
-	IKeyListener VOID_KEY_LISTENER = new IKeyListener() {
-		@Override
-		public void keyReleased(IKeyEvent e) {
-		}
-		
-		@Override
-		public void keyPressed(IKeyEvent e) {
-		}
-	};
-
-	IPointerListener VOID_POINTER_LISTENER = new IPointerListener() {
-		@Override
-		public void pointerWheelMoved(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerReleased(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerPressed(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerMoved(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerExited(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerEntered(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerDragged(IPointerEvent e) {
-		}
-		
-		@Override
-		public void pointerClicked(IPointerEvent e) {
-		}
-	};
 	
 	/**
 	 * Destroy this window and free all resources associated with it.
@@ -220,4 +151,14 @@ public interface IWindow {
 	 * (origin bottom left).
 	 */
 	void setPointerPosition(float x, float y);
+	
+	public void setWindowListener(IWindowListener windowListener);
+	
+	public void setKeyListener(IKeyListener keyListener);
+	
+	public void setPointerListener(IPointerListener pointerListener);
+	
+	static IWindow create(Vec2 size, String title, boolean decorated) {
+		return Platform.get().createWindow(size, title, decorated);
+	}
 }

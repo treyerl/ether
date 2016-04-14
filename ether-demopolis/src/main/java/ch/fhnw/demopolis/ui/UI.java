@@ -324,7 +324,7 @@ public class UI {
 		});
 	}
 
-	public void viewResized(int w, int h) {
+	public void viewResized(float w, float h) {
 		statusPanel.viewResized(w, h);
 		controlPanel.viewResized(w, h);
 	}

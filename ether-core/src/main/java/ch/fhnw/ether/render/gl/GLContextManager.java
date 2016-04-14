@@ -36,8 +36,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.lwjgl.glfw.GLFW;
 
-import ch.fhnw.ether.view.GLFWWindow;
-import ch.fhnw.ether.view.IView;
+import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.math.Vec2;
 
 // decide whether we should really use ExistingContext or be strict 
@@ -60,10 +59,10 @@ public class GLContextManager {
 	}
 
 	private static final class TemporaryContext implements IGLContext {
-		GLFWWindow window;
+		IWindow window;
 
 		TemporaryContext() {
-			window = new GLFWWindow(null, new Vec2(16, 16), "", IView.RENDER_VIEW);
+			window = IWindow.create(new Vec2(16, 16), null, false);
 		}
 
 		void acquire() {
@@ -116,7 +115,7 @@ public class GLContextManager {
 
 	private static ContextPool contexts;
 
-	private static GLFWWindow sharedContext;
+	private static IWindow sharedContext;
 
 	public static void init() {
 		if (contexts == null) {
@@ -142,7 +141,7 @@ public class GLContextManager {
 			contexts.releaseContext((TemporaryContext) context);
 	}
 
-	public static GLFWWindow getSharedContextWindow() {
+	public static IWindow getSharedContextWindow() {
 		return sharedContext;
 	}
 }

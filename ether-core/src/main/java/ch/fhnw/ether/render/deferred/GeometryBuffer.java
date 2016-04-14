@@ -40,8 +40,8 @@ import org.lwjgl.opengl.GL30;
 import ch.fhnw.ether.render.IRenderer.IRenderTargetState;
 import ch.fhnw.ether.render.gl.FrameBuffer;
 import ch.fhnw.ether.render.gl.GLObject;
-import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.ether.render.gl.GLObject.Type;
+import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.util.Viewport;
 
 public final class GeometryBuffer {
@@ -64,8 +64,8 @@ public final class GeometryBuffer {
 		
 		Viewport viewport = state.getViewCameraState().getViewport();
 		if (viewport.w != width || viewport.h != height) {
-			width = viewport.w;
-			height = viewport.h;
+			width = (int)viewport.w;
+			height = (int)viewport.h;
 			
 			frameBuffer.bind();
 			

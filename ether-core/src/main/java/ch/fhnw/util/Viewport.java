@@ -37,12 +37,12 @@ package ch.fhnw.util;
  * @author radar
  */
 public final class Viewport {
-	public final int x;
-	public final int y;
-	public final int w;
-	public final int h;
+	public final float x;
+	public final float y;
+	public final float w;
+	public final float h;
 
-	public Viewport(int x, int y, int w, int h) {
+	public Viewport(float x, float y, float w, float h) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -50,7 +50,7 @@ public final class Viewport {
 	}
 	
 	public float getAspect() {
-		return (float)w / (float)h;
+		return w / h;
 	}
 	
 	@Override

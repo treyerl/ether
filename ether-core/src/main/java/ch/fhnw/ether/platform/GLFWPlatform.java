@@ -40,6 +40,8 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.image.STBImageSupport;
 import ch.fhnw.ether.render.gl.GLContextManager;
+import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.util.math.Vec2;
 
 final class GLFWPlatform implements IPlatform {
 
@@ -94,6 +96,11 @@ final class GLFWPlatform implements IPlatform {
 	public void runOnMainThread(Runnable runnable) {
 		queue.offer(runnable);
 		GLFW.glfwPostEmptyEvent();
+	}
+	
+	@Override
+	public IWindow createWindow(Vec2 size, String title, boolean decorated) {
+		return new GLFWWindow(size, title, decorated);
 	}
 
 	@Override

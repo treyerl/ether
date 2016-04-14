@@ -32,6 +32,8 @@
 package ch.fhnw.ether.platform;
 
 import ch.fhnw.ether.image.IImageSupport;
+import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.util.math.Vec2;
 
 public interface IPlatform {
 	/**
@@ -54,6 +56,11 @@ public interface IPlatform {
 	 * windows, etc.
 	 */
 	void runOnMainThread(Runnable runnable);
+	
+	/**
+	 * Create window.
+	 */
+	IWindow createWindow(Vec2 size, String title, boolean decorated);
 	
 	/**
 	 * Get platform-dependent image support (image reading / writing / scaling).

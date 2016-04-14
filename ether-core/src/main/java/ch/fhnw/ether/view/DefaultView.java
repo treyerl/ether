@@ -33,8 +33,9 @@ package ch.fhnw.ether.view;
 
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
-import ch.fhnw.ether.controller.event.IKeyEvent;
+import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
+import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.view.IWindow.IKeyListener;
 import ch.fhnw.ether.view.IWindow.IPointerListener;
@@ -54,7 +55,7 @@ public class DefaultView implements IView {
 
 	private final IController controller;
 
-	private volatile GLFWWindow window;
+	private volatile IWindow window;
 
 	private volatile Viewport viewport = new Viewport(0, 0, 1, 1);
 
@@ -65,7 +66,7 @@ public class DefaultView implements IView {
 		this.viewConfig = viewConfig;
 
 		Platform.get().runOnMainThread(() -> {
-			window = new GLFWWindow(this, new Vec2(16, 16), title != null ? title : "", viewConfig);
+			window = IWindow.create(new Vec2(16, 16), title != null ? title : "", viewConfig.getViewType() == ViewType.INTERACTIVE_VIEW);
 	
 			window.setWindowListener(windowListener);
 			window.setKeyListener(keyListener);
@@ -147,73 +148,75 @@ public class DefaultView implements IView {
 		}
 		
 		@Override
-		public void windowGainedFocus(IWindow w) {
-			runOnSceneThread(time -> controller.viewGainedFocus(DefaultView.this));
+		public void windowFocusChanged(IWindow w, boolean focused) {
+			if (focused)
+				runOnSceneThread(time -> controller.viewGainedFocus(DefaultView.this));
+			else 
+				runOnSceneThread(time -> controller.viewLostFocus(DefaultView.this));
 		}
 
 		@Override
-		public void windowLostFocus(IWindow w) {
-			runOnSceneThread(time -> controller.viewLostFocus(DefaultView.this));
-		}
-
-		@Override
-		public void framebufferResized(IWindow window, int w, int h) {
-			viewport = new Viewport(0, 0, w, h);
+		public void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize) {
+			viewport = new Viewport(0, 0, framebufferSize.x, framebufferSize.y);
 			runOnSceneThread(time -> controller.viewResized(DefaultView.this));
 		}
 	};
 
 	private IKeyListener keyListener = new IKeyListener() {
 		@Override
-		public void keyPressed(IKeyEvent e) {
-			runOnSceneThread(time -> controller.keyPressed(e));
+		public void keyPressed(IWindow window, int mods, int key, int scancode, boolean repeat) {
+			runOnSceneThread(time -> controller.keyPressed(new KeyEvent(DefaultView.this, mods, key, scancode, repeat)));
 		}
 
 		@Override
-		public void keyReleased(IKeyEvent e) {
-			runOnSceneThread(time -> controller.keyReleased(e));
+		public void keyReleased(IWindow window, int mods, int key, int scancode) {
+			runOnSceneThread(time -> controller.keyReleased(new KeyEvent(DefaultView.this, mods, key, scancode, false)));
 		}
 	};
 
 	private IPointerListener pointerListener = new IPointerListener() {
 		@Override
-		public void pointerEntered(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerEntered(e));
+		public void pointerEntered(IWindow window, int mods, Vec2 position) {
+			runOnSceneThread(time -> controller.pointerEntered(ptre(mods, position, Vec2.ZERO, 0, 0)));
 		}
 
 		@Override
-		public void pointerExited(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerExited(e));
+		public void pointerExited(IWindow window, int mods, Vec2 position) {
+			runOnSceneThread(time -> controller.pointerExited(ptre(mods, position, Vec2.ZERO, 0, 0)));
 		}
 
 		@Override
-		public void pointerPressed(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerPressed(e));
+		public void pointerPressed(IWindow window, int mods, Vec2 position, int button) {
+			runOnSceneThread(time -> controller.pointerPressed(ptre(mods, position, Vec2.ZERO, button, 1)));
 		}
 
 		@Override
-		public void pointerReleased(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerReleased(e));
+		public void pointerReleased(IWindow window, int mods, Vec2 position, int button) {
+			runOnSceneThread(time -> controller.pointerReleased(ptre(mods, position, Vec2.ZERO, button, 0)));
 		}
 
 		@Override
-		public void pointerClicked(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerClicked(e));
+		public void pointerClicked(IWindow window, int mods, Vec2 position, int button) {
+			runOnSceneThread(time -> controller.pointerClicked(ptre(mods, position, Vec2.ZERO, button, 1)));
 		}
 
 		@Override
-		public void pointerMoved(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerMoved(e));
+		public void pointerMoved(IWindow window, int mods, Vec2 position) {
+			runOnSceneThread(time -> controller.pointerMoved(ptre(mods, position, Vec2.ZERO, 0, 0)));
 		}
 
 		@Override
-		public void pointerDragged(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerDragged(e));
+		public void pointerDragged(IWindow window, int mods, Vec2 position) {
+			runOnSceneThread(time -> controller.pointerDragged(ptre(mods, position, Vec2.ZERO, 0, 0)));
 		}
 
 		@Override
-		public void pointerWheelMoved(IPointerEvent e) {
-			runOnSceneThread(time -> controller.pointerScrolled(e));
+		public void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll) {
+			runOnSceneThread(time -> controller.pointerScrolled(ptre(mods, position, scroll, 0, 0)));
 		}
 	};
+	
+	IPointerEvent ptre(int mods, Vec2 position, Vec2 scroll, int button, int count) {
+		return new PointerEvent(this, mods, button, count, position.x, position.y, scroll.x, scroll.y);
+	}
 }

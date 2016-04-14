@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.view;
+package ch.fhnw.ether.platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,13 +52,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.libffi.Closure;
 
-import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
-import ch.fhnw.ether.controller.event.IPointerEvent;
-import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
-import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.view.IView.Config;
-import ch.fhnw.ether.view.IView.ViewType;
+import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.math.Vec2;
 
 /**
@@ -66,32 +61,29 @@ import ch.fhnw.util.math.Vec2;
  *
  * @author radar
  */
-public final class GLFWWindow implements IWindow {
+final class GLFWWindow implements IWindow {
 	private static final boolean DBG = false;
 	
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
 	
-	private IView view;
+	private String title;
 	
 	private Vec2 windowPosition = Vec2.ZERO;
 	private Vec2 windowSize = Vec2.ONE;
 	private Vec2 framebufferSize = Vec2.ONE;
 	
-	private String title;
-	
 	private long window;
 	
-	private float pointerX = 0;
-	private float pointerY = 0;
+	private Vec2 pointerPosition = Vec2.ZERO;
 	private int pointerButtons = 0;
 	private boolean pointerDragged = false;
 	private int modifiers = 0;
 	private int vao = -1;
 	
 	private final List<Closure.V> callbacks = new ArrayList<>();
-	private IWindowListener windowListener = VOID_WINDOW_LISTENER;
-	private IKeyListener keyListener = VOID_KEY_LISTENER;
-	private IPointerListener pointerListener = VOID_POINTER_LISTENER;
+	private IWindowListener windowListener;
+	private IKeyListener keyListener;
+	private IPointerListener pointerListener;
 	
 	/**
 	 * Creates window.
@@ -107,22 +99,21 @@ public final class GLFWWindow implements IWindow {
 	 * @param config
 	 *            The configuration.
 	 */
-	public GLFWWindow(IView view, Vec2 size, String title, Config config) {
+	public GLFWWindow(Vec2 size, String title, boolean decorated) {
 		if (DBG)
 			System.out.println("window create: " + size + " " + title);
 
-		if (view != null)
+		if (title != null)
 			NUM_WINDOWS.incrementAndGet();
+		else
+			title = "context";
 		
-		this.view = view;
-		this.windowSize = size;
 		this.title = title;
+		this.windowSize = size;
 		
 		// make sure this comes before setting up window hints due to side effects!
-        GLFWWindow shared = GLContextManager.getSharedContextWindow();
+        GLFWWindow shared = (GLFWWindow)GLContextManager.getSharedContextWindow();
 
-        boolean interactive = config.getViewType() == ViewType.INTERACTIVE_VIEW;
-		
         GLFW.glfwDefaultWindowHints();
 
         GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -131,8 +122,8 @@ public final class GLFWWindow implements IWindow {
         GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);		
         
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, interactive ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
-        GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, interactive ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, decorated ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+        GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, decorated ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
 
         window = GLFW.glfwCreateWindow((int)size.x, (int)size.y, title, MemoryUtil.NULL, shared != null ? shared.window : MemoryUtil.NULL);
         if (window == MemoryUtil.NULL)
@@ -260,14 +251,17 @@ public final class GLFWWindow implements IWindow {
 		GLFW.glfwSetCursorPos(window, x, y);
 	}
 	
+	@Override
 	public void setWindowListener(IWindowListener windowListener) {
 		this.windowListener = windowListener;
 	}
 	
+	@Override
 	public void setKeyListener(IKeyListener keyListener) {
 		this.keyListener = keyListener;
 	}
 	
+	@Override
 	public void setPointerListener(IPointerListener pointerListener) {
 		this.pointerListener = pointerListener;
 	}
@@ -279,8 +273,10 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window) {
 				if (DBG)
-					System.out.println("window close request: " + view);
+					System.out.println("window close request: " + title);
 				
+				if (windowListener == null)
+					return;
 				windowListener.windowCloseRequest(GLFWWindow.this);
 			}
 		};
@@ -289,8 +285,10 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window) {
 				if (DBG)
-					System.out.println("window refresh request: " + view);
+					System.out.println("window refresh request: " + title);
 				
+				if (windowListener == null)
+					return;
 				windowListener.windowRefresh(GLFWWindow.this);
 			}
 		};
@@ -299,12 +297,11 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int focused) {
 				if (DBG)
-					System.out.println("window focus: " + view + " " + focused);
+					System.out.println("window focus: " + title + " " + focused);
 
-				if (focused > 0)
-					windowListener.windowGainedFocus(GLFWWindow.this);
-				else
-					windowListener.windowLostFocus(GLFWWindow.this);
+				if (windowListener == null)
+					return;
+				windowListener.windowFocusChanged(GLFWWindow.this, focused > 0);
 			}
 		};
 		
@@ -312,7 +309,7 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int xpos, int ypos) {
 				if (DBG)
-					System.out.println("window position request: " + view);
+					System.out.println("window position request: " + title);
 				
 				windowPosition = new Vec2(xpos, ypos);
 			}
@@ -322,9 +319,12 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int width, int height) {
 				if (DBG)
-					System.out.println("window resize: " + view + " " + width + " " + height);
+					System.out.println("window resize: " + title + " " + width + " " + height);
 
 				windowSize = new Vec2(width, height);
+				if (windowListener == null)
+					return;
+				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
 			}
 		};
 
@@ -332,10 +332,12 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int width, int height) {
 				if (DBG)
-					System.out.println("framebuffer resize: " + view + " " + width + " " + height);
+					System.out.println("framebuffer resize: " + title + " " + width + " " + height);
 				
 				framebufferSize = new Vec2(width, height);
-				windowListener.framebufferResized(GLFWWindow.this, width, height);
+				if (windowListener == null)
+					return;
+				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
 			}
 		};
 
@@ -360,15 +362,15 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int key, int scancode, int action, int mods) {
 				if (DBG)
-					System.out.println("window key: " + view + " " + key + " " + scancode + " " + action + " " + mods);
+					System.out.println("window key: " + title + " " + key + " " + scancode + " " + action + " " + mods);
 				
 				modifiers = mods;
 				if (action == GLFW.GLFW_PRESS)
-					keyListener.keyPressed(new KeyEvent(view, mods, key, scancode, false));
+					keyListener.keyPressed(GLFWWindow.this, mods, key, scancode, false);
 				else if (action == GLFW.GLFW_REPEAT)
-					keyListener.keyPressed(new KeyEvent(view, mods, key, scancode, true));
+					keyListener.keyPressed(GLFWWindow.this, mods, key, scancode, true);
 				else if (action == GLFW.GLFW_RELEASE)
-					keyListener.keyReleased(new KeyEvent(view, mods, key, scancode, false));
+					keyListener.keyReleased(GLFWWindow.this, mods, key, scancode);
 			}
 		};
 
@@ -382,13 +384,14 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int entered) {
 				if (DBG)
-					System.out.println("window pointer entered: " + view + " " + entered);
+					System.out.println("window pointer entered: " + title + " " + entered);
 
-				IPointerEvent event = new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, 0, 0);
+				if (pointerListener == null)
+					return;				
 				if (entered > 0)
-					pointerListener.pointerEntered(event);
+					pointerListener.pointerEntered(GLFWWindow.this, modifiers, pointerPosition);
 				else 
-					pointerListener.pointerExited(event);
+					pointerListener.pointerExited(GLFWWindow.this, modifiers, pointerPosition);
 			}
 		};
 
@@ -396,20 +399,19 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, double xpos, double ypos) {
 				if (DBG)
-					System.out.println("window pointer moved: " + view + " " + xpos + " " + ypos);
+					System.out.println("window pointer moved: " + title + " " + xpos + " " + ypos);
 				
 				float sx = framebufferSize.x / windowSize.x;
 				float sy = framebufferSize.y / windowSize.y;
-				
-				pointerX = sx * (float)xpos;
-				pointerY = sy * (float)(windowSize.y - ypos);				
-				
-				IPointerEvent event = new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, 0, 0);
+				pointerPosition = new Vec2(sx * (float)xpos, sy * (float)(windowSize.y - ypos));
+
+				if (pointerListener == null)
+					return;				
 				if (pointerButtons == 0) {
-					pointerListener.pointerMoved(event);
+					pointerListener.pointerMoved(GLFWWindow.this, modifiers, pointerPosition);
 				} else {
 					pointerDragged = true;
-					pointerListener.pointerDragged(event);
+					pointerListener.pointerDragged(GLFWWindow.this, modifiers, pointerPosition);
 				}
 			}
 		};
@@ -418,21 +420,22 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, int button, int action, int mods) {
 				if (DBG)
-					System.out.println("window pointer button: " + view + " " + button + " " + action + " " + mods);
+					System.out.println("window pointer button: " + title + " " + button + " " + action + " " + mods);
 
 				modifiers = mods;
 				int mask = 1 << button;
-				IPointerEvent event = new PointerEvent(view, mods, button, 1, pointerX, pointerY, 0, 0);
 				if (action == GLFW.GLFW_PRESS || action == GLFW.GLFW_REPEAT) {
 					pointerButtons |= mask;
-					pointerListener.pointerPressed(event);
+					if (pointerListener != null)
+						pointerListener.pointerPressed(GLFWWindow.this, modifiers, pointerPosition, button);
 				} else if (action == GLFW.GLFW_RELEASE) {
 					pointerButtons &= ~mask;
-					pointerListener.pointerReleased(event);
+					if (pointerListener != null)
+						pointerListener.pointerReleased(GLFWWindow.this, modifiers, pointerPosition, button);
 				}
 				if (pointerButtons == 0) {
-					if (!pointerDragged)
-						pointerListener.pointerClicked(event);
+					if (!pointerDragged && pointerListener != null)
+						pointerListener.pointerClicked(GLFWWindow.this, modifiers, pointerPosition, button);
 					pointerDragged = false;
 				}
 			}
@@ -442,9 +445,11 @@ public final class GLFWWindow implements IWindow {
 			@Override
 			public void invoke(long window, double xoffset, double yoffset) {
 				if (DBG)
-					System.out.println("window pointer scrolled: " + view + " " + xoffset + " " + yoffset);
-	
-				pointerListener.pointerWheelMoved(new PointerEvent(view, modifiers, 0, 0, pointerX, pointerY, (float)xoffset, (float)-yoffset));
+					System.out.println("window pointer scrolled: " + title + " " + xoffset + " " + yoffset);
+
+				if (pointerListener == null)
+					return;
+				pointerListener.pointerWheelMoved(GLFWWindow.this, modifiers, pointerPosition, new Vec2((float)xoffset, (float)-yoffset));
 			}
 		};
 		

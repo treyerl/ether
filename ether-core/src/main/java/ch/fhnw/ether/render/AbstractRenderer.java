@@ -170,7 +170,7 @@ public abstract class AbstractRenderer implements IRenderer {
 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 
-		GL11.glViewport(0, 0, view.getViewport().w, view.getViewport().h);
+		GL11.glViewport(0, 0, (int)view.getViewport().w, (int)view.getViewport().h);
 		
 		if (!view.isEnabled())
 			return;
