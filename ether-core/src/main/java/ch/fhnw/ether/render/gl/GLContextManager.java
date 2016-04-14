@@ -38,6 +38,7 @@ import org.lwjgl.glfw.GLFW;
 
 import ch.fhnw.ether.view.GLFWWindow;
 import ch.fhnw.ether.view.IView;
+import ch.fhnw.util.math.Vec2;
 
 // decide whether we should really use ExistingContext or be strict 
 // that there is no current context when a temporary one is requested. 
@@ -62,7 +63,7 @@ public class GLContextManager {
 		GLFWWindow window;
 
 		TemporaryContext() {
-			window = new GLFWWindow(null, 16, 16, "", IView.RENDER_VIEW);
+			window = new GLFWWindow(null, new Vec2(16, 16), "", IView.RENDER_VIEW);
 		}
 
 		void acquire() {

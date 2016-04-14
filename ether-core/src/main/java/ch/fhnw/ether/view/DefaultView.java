@@ -40,6 +40,7 @@ import ch.fhnw.ether.view.IWindow.IKeyListener;
 import ch.fhnw.ether.view.IWindow.IPointerListener;
 import ch.fhnw.ether.view.IWindow.IWindowListener;
 import ch.fhnw.util.Viewport;
+import ch.fhnw.util.math.Vec2;
 
 /**
  * Default view class that implements some basic functionality. Use as base for
@@ -64,7 +65,7 @@ public class DefaultView implements IView {
 		this.viewConfig = viewConfig;
 
 		Platform.get().runOnMainThread(() -> {
-			window = new GLFWWindow(this, 16, 16, title, viewConfig);
+			window = new GLFWWindow(this, new Vec2(16, 16), title != null ? title : "", viewConfig);
 	
 			window.setWindowListener(windowListener);
 			window.setKeyListener(keyListener);
@@ -72,9 +73,9 @@ public class DefaultView implements IView {
 	
 			// Note: we open the window initially at a smaller size, and then
 			// resize in order to trigger the window listener.
-			window.setSize(w, h);
+			window.setSize(new Vec2(w, h));
 			if (x != -1)
-				window.setPosition(x, y);
+				window.setPosition(new Vec2(x, y));
 			window.setVisible(true);
 		});
 		

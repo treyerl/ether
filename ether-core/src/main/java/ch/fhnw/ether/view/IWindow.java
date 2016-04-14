@@ -33,6 +33,7 @@ package ch.fhnw.ether.view;
 
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
+import ch.fhnw.util.math.Vec2;
 
 public interface IWindow {
 	enum PointerMode {
@@ -52,7 +53,7 @@ public interface IWindow {
 
 		void framebufferResized(IWindow window, int w, int h);
 	}
-
+	
 	interface IKeyListener {
 		void keyPressed(IKeyEvent e);
 
@@ -77,6 +78,72 @@ public interface IWindow {
 		public void pointerWheelMoved(IPointerEvent e);
 	}
 	
+	IWindowListener VOID_WINDOW_LISTENER = new IWindowListener() {
+		@Override
+		public void windowRefresh(IWindow window) {
+		}
+		
+		@Override
+		public void windowLostFocus(IWindow window) {
+		}
+		
+		@Override
+		public void windowGainedFocus(IWindow window) {
+		}
+		
+		@Override
+		public void windowCloseRequest(IWindow window) {
+		}
+		
+		@Override
+		public void framebufferResized(IWindow window, int w, int h) {
+		}
+	};
+	
+	IKeyListener VOID_KEY_LISTENER = new IKeyListener() {
+		@Override
+		public void keyReleased(IKeyEvent e) {
+		}
+		
+		@Override
+		public void keyPressed(IKeyEvent e) {
+		}
+	};
+
+	IPointerListener VOID_POINTER_LISTENER = new IPointerListener() {
+		@Override
+		public void pointerWheelMoved(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerReleased(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerPressed(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerMoved(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerExited(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerEntered(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerDragged(IPointerEvent e) {
+		}
+		
+		@Override
+		public void pointerClicked(IPointerEvent e) {
+		}
+	};
+	
 	/**
 	 * Destroy this window and free all resources associated with it.
 	 */
@@ -93,28 +160,51 @@ public interface IWindow {
 	void swapBuffers();	
 
 	/**
+	 * Get this window's title.
+	 */
+	String getTitle();
+	
+	/**
 	 * Set this window's title.
-	 * 
-	 * @param title
-	 *            New window title.
 	 */
 	void setTitle(String title);
 
+	/**
+	 * Returns true if this window is visible.
+	 */
+	boolean isVisible();
+	
 	/**
 	 * Shows / hides this window.
 	 */
 	void setVisible(boolean visible);
 
 	/**
-	 * Set this window's position (in window units)
+	 * Get this window's position (in screen units).
 	 */
-	void setPosition(int x, int y);
+	Vec2 getPosition();
+	
+	/**
+	 * Set this window's position (in screen units).
+	 */
+	void setPosition(Vec2 position);
 
 	/**
-	 * Set this window's size.
+	 * Get this window's size (in screen units).
 	 */
-	void setSize(int width, int height);
+	Vec2 getSize();
+	
+	/**
+	 * Set this window's size (in screen units)
+	 */
+	void setSize(Vec2 size);
 
+	/**
+	 * Get this window's framebuffer size (in pixel units);
+	 * @return
+	 */
+	Vec2 getFramebufferSize();
+	
 	/**
 	 * Enable or disable this window as a fullscreen window.
 	 */

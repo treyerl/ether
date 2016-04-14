@@ -32,6 +32,7 @@
 package ch.fhnw.ether.examples.mapping;
 
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.view.IView;
 
@@ -51,6 +52,7 @@ public final class MappingExample {
 	 * square 4 points at 0.8 units.
 	 */
 	public MappingExample() {
+		Platform.get().init();
 		IController controller = new MappingController();
 		controller.run(time -> {
 			// FIXME: for every view use separate camera with dedicated angle
@@ -63,14 +65,6 @@ public final class MappingExample {
 			IScene scene = new MappingScene(controller);
 			controller.setScene(scene);
 		});
-		
-		// try {
-		// new TUIO(controller);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-
-		// geometry server currently disabled
-		// new GeometryServer(controller);
+		Platform.get().run();
 	}
 }

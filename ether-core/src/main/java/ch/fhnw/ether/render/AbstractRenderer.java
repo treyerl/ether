@@ -137,6 +137,19 @@ public abstract class AbstractRenderer implements IRenderer {
                 e.printStackTrace();
             }
 		});
+		
+		// swap buffers for all views
+		renderState.getRenderStates().forEach(targetState -> {
+			IView view = targetState.getView();
+			IWindow window = view.getWindow();
+			if (window == null)
+				return;
+            try {
+            	window.swapBuffers();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+		});
 	}
 
 	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
@@ -168,7 +181,7 @@ public abstract class AbstractRenderer implements IRenderer {
 
 		// render everything
 		render(renderState);
-		view.getWindow().swapBuffers();
+		//view.getWindow().swapBuffers();
 	}
 	
 	protected abstract void render(IRenderTargetState state);
