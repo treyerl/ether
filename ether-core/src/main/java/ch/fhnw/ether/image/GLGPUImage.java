@@ -90,6 +90,7 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 			GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 			GL11.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+			GL11.glBindTexture(target, 0);
 			GL11.glFinish();
 		} catch (Throwable t) {
 			LOG.severe(t);
@@ -103,12 +104,10 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 	
 	@Override
 	public IHostImage createHostImage() {
-		System.out.println("create host image from gpu");
 		try (IGLContext ctx = GLContextManager.acquireContext()) {
 			int target = GL11.GL_TEXTURE_2D;
 			int type = TYPE_MAP[getComponentType().ordinal()];
 			int format = FORMAT_MAP[getComponentFormat().ordinal()];
-
 			GL11.glBindTexture(target, texture.getId());
 			ByteBuffer pixels = BufferUtils.createByteBuffer(getWidth() * getHeight() * getNumBytesPerPixel());
 			GL11.glGetTexImage(target, 0, format, type, pixels);
