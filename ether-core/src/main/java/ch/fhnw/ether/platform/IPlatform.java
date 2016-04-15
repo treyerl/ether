@@ -31,7 +31,6 @@
 
 package ch.fhnw.ether.platform;
 
-import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.math.Vec2;
 

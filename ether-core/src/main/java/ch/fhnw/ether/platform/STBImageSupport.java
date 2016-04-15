@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.platform;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,6 +44,9 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.stb.STBImageResize;
 
+import ch.fhnw.ether.image.IGPUImage;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;

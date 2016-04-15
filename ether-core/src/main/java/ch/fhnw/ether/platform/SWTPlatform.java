@@ -38,8 +38,6 @@ import org.eclipse.swt.widgets.Display;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import ch.fhnw.ether.image.IImageSupport;
-import ch.fhnw.ether.image.SWTImageSupport;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.math.Vec2;

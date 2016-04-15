@@ -36,7 +36,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import ch.fhnw.ether.image.IImageSupport.FileFormat;
+import ch.fhnw.ether.platform.IImageSupport.FileFormat;
 import ch.fhnw.ether.platform.Platform;
 
 /**
@@ -141,7 +141,7 @@ public interface IImage {
 	 * Write image to file.
 	 * @see #write(IImage, OutputStream, FileFormat)
 	 */
-	static void write(IImage image, File file, FileFormat format) throws IOException {
-		write(image, new FileOutputStream(file), format);
+	static void write(IImage image, File file) throws IOException {
+		write(image, new FileOutputStream(file), FileFormat.get(file));
 	}
 }

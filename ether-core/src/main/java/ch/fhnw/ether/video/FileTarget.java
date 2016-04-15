@@ -34,7 +34,6 @@ package ch.fhnw.ether.video;
 import java.io.File;
 
 import ch.fhnw.ether.image.IImage;
-import ch.fhnw.ether.image.IImageSupport;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.util.TextUtilities;
@@ -64,7 +63,7 @@ public class FileTarget extends AbstractVideoTarget {
 		}
 		sleepUntil(getFrame().playOutTime);
 		try {
-			IImage.write(getFrame().getHostImage(), new File(path, name + "_" + count + "." + ext), ext.equals("png") ? IImageSupport.FileFormat.PNG : IImageSupport.FileFormat.JPEG);
+			IImage.write(getFrame().getHostImage(), new File(path, name + "_" + count + "." + ext));
 		} catch (Throwable e) {
 			throw new RenderCommandException(e);
 		}

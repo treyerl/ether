@@ -29,19 +29,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.image;
+package ch.fhnw.ether.platform;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import ch.fhnw.ether.image.IGPUImage;
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.util.TextUtilities;
 
 public interface IImageSupport {
 	enum FileFormat {
-		PNG, JPEG
+		PNG, JPEG;
+		
+		public static FileFormat get(File file) {
+			return get(TextUtilities.getFileExtensionWithoutDot(file.getName()).toLowerCase());
+		}
+		
+		public static FileFormat get(String ext) {
+			switch (ext) {
+			case "jpg":
+			case "jpeg":
+				return JPEG;
+			case "png":
+				return PNG;
+			}
+			throw new IllegalArgumentException("invalid image extension: " + ext);
+		}
 	}
 
 	/**
