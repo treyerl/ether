@@ -438,26 +438,14 @@ public final class ClassUtilities {
 		return (object != null) ? (Class<? extends T>) object.getClass() : null;
 	}
 
-	public static class BREAK extends RuntimeException {
-		private static final long serialVersionUID = -2735707320614288957L;
-
-		public static void IF(boolean condition) throws BREAK {
-			if(condition) {
-				try {
-					throw new BREAK();
-				} catch(BREAK e) {}
-			}
-		}
-	}
-
 	public static int getDimension(Class<?> cls) {
 		return cls.getComponentType() == null ? 0 : 1 + getDimension(cls.getComponentType());
 	}
 
-	private static final AtomicLong iCounter = new AtomicLong();
+	private static final AtomicLong ID_COUNTER = new AtomicLong();
 
 	public static long createObjectID() {
-		return iCounter.addAndGet(1);
+		return ID_COUNTER.addAndGet(1);
 	}
 
 	public static int identityHashCode(Object x) {

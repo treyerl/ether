@@ -142,10 +142,10 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void destroy() {
-		callbacks.forEach(c -> c.free());
-		callbacks.clear();
 		GLFW.glfwDestroyWindow(window);
 		window = 0;
+		callbacks.forEach(c -> c.free());
+		callbacks.clear();
 		
 		// XXX not sure if this is what we want in all cases, but for now ok.
 		if (NUM_WINDOWS.decrementAndGet() == 0)
@@ -275,8 +275,12 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("window close request: " + title);
 				
-				if (windowListener == null)
+				if (windowListener == null) {
+					Platform.get().runOnMainThread(() -> {
+						destroy();
+					});
 					return;
+				}
 				windowListener.windowCloseRequest(GLFWWindow.this);
 			}
 		};
@@ -322,6 +326,7 @@ final class GLFWWindow implements IWindow {
 					System.out.println("window resize: " + title + " " + width + " " + height);
 
 				windowSize = new Vec2(width, height);
+				
 				if (windowListener == null)
 					return;
 				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
@@ -335,6 +340,7 @@ final class GLFWWindow implements IWindow {
 					System.out.println("framebuffer resize: " + title + " " + width + " " + height);
 				
 				framebufferSize = new Vec2(width, height);
+
 				if (windowListener == null)
 					return;
 				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
@@ -365,6 +371,9 @@ final class GLFWWindow implements IWindow {
 					System.out.println("window key: " + title + " " + key + " " + scancode + " " + action + " " + mods);
 				
 				modifiers = mods;
+
+				if (keyListener == null)
+					return;				
 				if (action == GLFW.GLFW_PRESS)
 					keyListener.keyPressed(GLFWWindow.this, mods, key, scancode, false);
 				else if (action == GLFW.GLFW_REPEAT)

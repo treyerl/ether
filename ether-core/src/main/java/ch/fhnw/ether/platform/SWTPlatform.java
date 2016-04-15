@@ -56,13 +56,14 @@ final class SWTPlatform implements IPlatform {
 
 	@Override
 	public void init() {
-		Display.getDefault();
-		
+		// note: it seems to be important that GLFW is initialized before SWT (e.g. segfaults when closing windows on OS X)
 		GLFW.glfwSetErrorCallback(errorCallback);
-
 		if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
 			throw new IllegalStateException("unable to initialize glfw");
 		
+		Display.getDefault();
+		Display.setAppName("ether");
+
 		GLContextManager.init();
 	}
 
@@ -89,10 +90,11 @@ final class SWTPlatform implements IPlatform {
 
 	@Override
 	public void exit() {
-		errorCallback.free();
-		// XXX we get a segfault here if we call glfwTerminate...
-		// GLFW.glfwTerminate();
 		Display.getDefault().dispose();
+		
+		errorCallback.free();
+		GLFW.glfwTerminate();
+
 		System.exit(0);
 	}
 
