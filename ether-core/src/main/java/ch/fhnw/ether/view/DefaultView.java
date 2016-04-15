@@ -72,7 +72,7 @@ public class DefaultView implements IView {
 			window.setKeyListener(keyListener);
 			window.setPointerListener(pointerListener);
 	
-			// Note: we open the window initially at a smaller size, and then
+			// note: we open the window initially at a smaller size, and then
 			// resize in order to trigger the window listener.
 			window.setSize(new Vec2(w, h));
 			if (x != -1)

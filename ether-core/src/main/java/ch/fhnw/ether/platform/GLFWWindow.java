@@ -31,12 +31,14 @@
 
 package ch.fhnw.ether.platform;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -67,6 +69,9 @@ final class GLFWWindow implements IWindow {
 	private static final boolean DBG = false;
 	
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
+	
+	private static final IntBuffer INT_BUFFER_0 = BufferUtils.createIntBuffer(1);
+	private static final IntBuffer INT_BUFFER_1 = BufferUtils.createIntBuffer(1);
 	
 	private String title;
 	
@@ -140,6 +145,9 @@ final class GLFWWindow implements IWindow {
             throw new RuntimeException("failed to create window");
         
         setCallbacks();
+        
+        GLFW.glfwGetFramebufferSize(window, INT_BUFFER_0, INT_BUFFER_1);
+        framebufferSize = new Vec2(INT_BUFFER_0.get(0), INT_BUFFER_1.get(0));
 		
 		try (IContext context = acquireContext()) {
 			GLFW.glfwSwapInterval(1);
@@ -157,11 +165,16 @@ final class GLFWWindow implements IWindow {
 		window = 0;
 		callbacks.forEach(c -> c.free());
 		callbacks.clear();
+		contextLock.unlock();
 		
 		// XXX not sure if this is what we want in all cases, but for now ok.
 		if (NUM_WINDOWS.decrementAndGet() == 0)
 			Platform.get().exit();
-		contextLock.unlock();
+	}
+	
+	@Override
+	public boolean isDestroyed() {
+		return window == 0;
 	}
 	
 	@Override

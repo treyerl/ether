@@ -84,6 +84,11 @@ public interface IWindow {
 	void destroy();
 	
 	/**
+	 * Returns true if this window has been destroyed.
+	 */
+	boolean isDestroyed();
+	
+	/**
 	 * Acquire this window's render context. Note that this is an
 	 * auto-closeable, thus needs to be used with
 	 * 

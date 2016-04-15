@@ -31,6 +31,8 @@
 
 package ch.fhnw.util;
 
+import ch.fhnw.util.math.Vec2;
+
 /**
  * Viewport rectangle for use with OpenGL.
  *
@@ -42,6 +44,13 @@ public final class Viewport {
 	public final float w;
 	public final float h;
 
+	public Viewport(Vec2 dimension) {
+		this.x = 0;
+		this.y = 0;
+		this.w = dimension.x;
+		this.h = dimension.y;
+	}
+	
 	public Viewport(float x, float y, float w, float h) {
 		this.x = x;
 		this.y = y;
