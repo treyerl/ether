@@ -39,9 +39,9 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
 
 import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
+import ch.fhnw.ether.view.IWindow.IContext;
 
 // TODO: add explicit dispose
 public final class GLGPUImage extends AbstractImage implements IGPUImage {
@@ -78,7 +78,7 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 	
 	public GLGPUImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode, ByteBuffer pixels) {
 		super(width, height, componentType, componentFormat, alphaMode);
-		try (IGLContext ctx = GLContextManager.acquireContext()) {
+		try (IContext ctx = GLContextManager.acquireContext()) {
 			texture = new GLObject(Type.TEXTURE);
 			int target = GL11.GL_TEXTURE_2D;
 			GL11.glBindTexture(target, texture.getId());
@@ -104,7 +104,7 @@ public final class GLGPUImage extends AbstractImage implements IGPUImage {
 	
 	@Override
 	public IHostImage createHostImage() {
-		try (IGLContext ctx = GLContextManager.acquireContext()) {
+		try (IContext ctx = GLContextManager.acquireContext()) {
 			int target = GL11.GL_TEXTURE_2D;
 			int type = TYPE_MAP[getComponentType().ordinal()];
 			int format = FORMAT_MAP[getComponentFormat().ordinal()];

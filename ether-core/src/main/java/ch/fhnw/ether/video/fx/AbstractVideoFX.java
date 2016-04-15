@@ -48,7 +48,6 @@ import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.render.Renderable;
 import ch.fhnw.ether.render.gl.FrameBuffer;
 import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
 import ch.fhnw.ether.render.variable.IShaderUniform;
@@ -79,6 +78,7 @@ import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
 import ch.fhnw.ether.video.AbstractVideoTarget;
 import ch.fhnw.ether.video.IVideoRenderTarget;
 import ch.fhnw.ether.video.VideoFrame;
+import ch.fhnw.ether.view.IWindow.IContext;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
@@ -285,7 +285,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 	@Override
 	protected final void run(IVideoRenderTarget target) throws RenderCommandException {
 		if(target instanceof AbstractVideoTarget && ((AbstractVideoTarget)target).runAs() == GLFX) {
-			try(IGLContext ctx = GLContextManager.acquireContext()) {
+			try(IContext ctx = GLContextManager.acquireContext()) {
 				// XXX really necessary to store / restore viewport info here?
 				processFrame(target.getFrame().playOutTime, target);
 				material.prepare((AbstractVideoTarget)target);

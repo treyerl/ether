@@ -41,7 +41,6 @@ import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
 import ch.fhnw.ether.render.gl.GLError;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
@@ -50,6 +49,7 @@ import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
 import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.ether.view.IWindow.IContext;
 
 public abstract class AbstractRenderer implements IRenderer {
 	
@@ -112,7 +112,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		// note that it's absolutely imperative that this is executed for
 		// every render runnable created. otherwise scene-render state will
 		// get out of sync resulting in ugly fails.
-		try (IGLContext ctx = GLContextManager.acquireContext()) {
+		try (IContext ctx = GLContextManager.acquireContext()) {
 			renderState.getRenderUpdates().forEach(update -> {
 				update.update();
     			GLError.checkWithMessage("updating");
@@ -128,14 +128,12 @@ public abstract class AbstractRenderer implements IRenderer {
 			if (window == null)
 				return;
 			IViewCameraState vcs = targetState.getViewCameraState();
-            try {
-    			window.makeCurrent(true);
-    			render(targetState, view, vcs);
-    			window.makeCurrent(false);
-    			GLError.checkWithMessage("rendering");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+			try (IContext ctx = window.acquireContext()) {
+				render(targetState, view, vcs);
+				GLError.checkWithMessage("rendering");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 		
 		// swap buffers for all views

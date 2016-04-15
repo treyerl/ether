@@ -39,7 +39,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import ch.fhnw.ether.render.gl.GLContextManager.IGLContext;
+import ch.fhnw.ether.view.IWindow.IContext;
 import ch.fhnw.util.AutoDisposer;
 import ch.fhnw.util.AutoDisposer.Reference;
 import ch.fhnw.util.IDisposable;
@@ -73,7 +73,7 @@ public class GLObject {
 
 		@Override
 		public void dispose() {
-			try (IGLContext context = GLContextManager.acquireContext()) {
+			try (IContext context = GLContextManager.acquireContext()) {
 				if(userData != null)
 					userData.dispose();
 				else {

@@ -37,6 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.lwjgl.glfw.GLFW;
 
 import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.ether.view.IWindow.IContext;
 import ch.fhnw.util.math.Vec2;
 
 // decide whether we should really use ExistingContext or be strict 
@@ -47,10 +48,7 @@ public class GLContextManager {
 
 	private static final int NUM_CONTEXTS = 4;
 
-	public interface IGLContext extends AutoCloseable {
-	}
-
-	private static final class ExistingContext implements IGLContext {
+	private static final class ExistingContext implements IContext {
 		@Override
 		public void close() throws Exception {
 			if (DBG)
@@ -58,7 +56,7 @@ public class GLContextManager {
 		}
 	}
 
-	private static final class TemporaryContext implements IGLContext {
+	private static final class TemporaryContext implements IContext {
 		IWindow window;
 
 		TemporaryContext() {
@@ -66,7 +64,7 @@ public class GLContextManager {
 		}
 
 		void acquire() {
-			window.makeCurrent(true);
+			window.acquireContext();
 			if (DBG)
 				GLError.checkWithMessage("temporary real context acquire");
 		}
@@ -74,7 +72,7 @@ public class GLContextManager {
 		void release() {
 			if (DBG)
 				GLError.checkWithMessage("temporary real context release");
-			window.makeCurrent(false);
+			window.releaseContext();
 		}
 
 		@Override
@@ -111,7 +109,7 @@ public class GLContextManager {
 		}
 	}
 
-	private static final IGLContext VOID_CONTEXT = new ExistingContext();
+	private static final IContext VOID_CONTEXT = new ExistingContext();
 
 	private static ContextPool contexts;
 
@@ -126,17 +124,17 @@ public class GLContextManager {
 		}
 	}
 
-	public static IGLContext acquireContext() {
+	public static IContext acquireContext() {
 		return acquireContext(true);
 	}
 
-	public static IGLContext acquireContext(boolean wait) {
+	public static IContext acquireContext(boolean wait) {
 		if (GLFW.glfwGetCurrentContext() != 0)
 			return VOID_CONTEXT;
 		return contexts.acquireContext(wait);
 	}
 
-	public static void releaseContext(IGLContext context) {
+	public static void releaseContext(IContext context) {
 		if (context instanceof TemporaryContext)
 			contexts.releaseContext((TemporaryContext) context);
 	}

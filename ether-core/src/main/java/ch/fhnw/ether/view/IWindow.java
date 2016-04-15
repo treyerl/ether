@@ -35,6 +35,9 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.math.Vec2;
 
 public interface IWindow {
+	public interface IContext extends AutoCloseable {
+	}
+
 	enum PointerMode {
 		NORMAL,
 		HIDDEN,
@@ -81,9 +84,28 @@ public interface IWindow {
 	void destroy();
 	
 	/**
-	 * Make this window's OpenGL context current or release the current context.
+	 * Acquire this window's render context. Note that this is an
+	 * auto-closeable, thus needs to be used with
+	 * 
+	 * <pre>
+	 * {@code
+	 * try (IContext ctx = window.acquireContext()) {
+	 *   // ...
+	 * } catch (Throwable t) {}
+	 *   // ...
+	 * }
+	 * </pre>
+	 * 
+	 * thus the context will be automatically released when getting out of
+	 * scope.
 	 */
-	void makeCurrent(boolean current);
+	IContext acquireContext();
+	
+	/**
+	 * Release this window's render context. Use only explicitly if you can't
+	 * use try with resource.
+	 */
+	void releaseContext();
 
 	/**
 	 * Swap buffers.

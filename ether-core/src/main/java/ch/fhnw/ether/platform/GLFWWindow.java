@@ -34,6 +34,8 @@ package ch.fhnw.ether.platform;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
@@ -85,6 +87,14 @@ final class GLFWWindow implements IWindow {
 	private IKeyListener keyListener;
 	private IPointerListener pointerListener;
 	
+	private final Lock contextLock = new ReentrantLock();
+	private final IContext context = new IContext() {
+		@Override
+		public void close() throws Exception {
+			releaseContext();
+		}
+	};
+	
 	/**
 	 * Creates window.
 	 *
@@ -131,17 +141,18 @@ final class GLFWWindow implements IWindow {
         
         setCallbacks();
 		
-		makeCurrent(true);
-		GLFW.glfwSwapInterval(1);
-		makeCurrent(false);
+		try (IContext context = acquireContext()) {
+			GLFW.glfwSwapInterval(1);
+		} catch (Exception e) {
+		}
 		
 		if (DBG)
-			System.out.println("window created.");
-		
+			System.out.println("window created.");		
  	}
 	
 	@Override
 	public void destroy() {
+		contextLock.lock();
 		GLFW.glfwDestroyWindow(window);
 		window = 0;
 		callbacks.forEach(c -> c.free());
@@ -150,28 +161,35 @@ final class GLFWWindow implements IWindow {
 		// XXX not sure if this is what we want in all cases, but for now ok.
 		if (NUM_WINDOWS.decrementAndGet() == 0)
 			Platform.get().exit();
+		contextLock.unlock();
 	}
 	
 	@Override
-	public void makeCurrent(boolean current) {
-		if (current) {
-			GLFW.glfwMakeContextCurrent(window);
-			try {
-				GL.getCapabilities();
-			} catch (Exception e) {
-				GL.createCapabilities(true);			
-			}
-			// we're not using VAOs but still need to create one
-			if (vao == -1)
-				vao = GL30.glGenVertexArrays();
-			GL30.glBindVertexArray(vao);			
-		} else {
-			GLFW.glfwMakeContextCurrent(0);
+	public IContext acquireContext() {
+		contextLock.lock();
+		GLFW.glfwMakeContextCurrent(window);
+		try {
+			GL.getCapabilities();
+		} catch (Exception e) {
+			GL.createCapabilities(true);			
 		}
+		// we're not using VAOs but still need to create one
+		if (vao == -1)
+			vao = GL30.glGenVertexArrays();
+		GL30.glBindVertexArray(vao);
+		return context;
+	}
+	
+	@Override
+	public void releaseContext() {
+		GLFW.glfwMakeContextCurrent(0);
+		contextLock.unlock();
 	}
 	
 	@Override
 	public void swapBuffers() {
+		if (window == 0)
+			return;
 		GLFW.glfwSwapBuffers(window);
 	}
 
@@ -275,6 +293,7 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("window close request: " + title);
 				
+				// still handle close even if there's no listener
 				if (windowListener == null) {
 					Platform.get().runOnMainThread(() -> {
 						destroy();
