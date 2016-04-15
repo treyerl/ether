@@ -70,6 +70,7 @@ final class GLFWWindow implements IWindow {
 	
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
 	
+	// for getting window/framebuffer sizes. to be used on main thread only
 	private static final IntBuffer INT_BUFFER_0 = BufferUtils.createIntBuffer(1);
 	private static final IntBuffer INT_BUFFER_1 = BufferUtils.createIntBuffer(1);
 	
@@ -357,11 +358,8 @@ final class GLFWWindow implements IWindow {
 				if (DBG)
 					System.out.println("window resize: " + title + " " + width + " " + height);
 
-				windowSize = new Vec2(width, height);
-				
-				if (windowListener == null)
-					return;
-				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
+				// note: we're currently not using this callback, since window
+				// size is explicitly fetched in framebuffer callback.
 			}
 		};
 
@@ -370,7 +368,9 @@ final class GLFWWindow implements IWindow {
 			public void invoke(long window, int width, int height) {
 				if (DBG)
 					System.out.println("framebuffer resize: " + title + " " + width + " " + height);
-				
+
+				GLFW.glfwGetWindowSize(window, INT_BUFFER_0, INT_BUFFER_1);
+		        windowSize = new Vec2(INT_BUFFER_0.get(0), INT_BUFFER_1.get(0));
 				framebufferSize = new Vec2(width, height);
 
 				if (windowListener == null)
