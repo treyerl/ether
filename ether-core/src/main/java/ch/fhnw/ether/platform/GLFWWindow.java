@@ -115,7 +115,10 @@ final class GLFWWindow implements IWindow {
 	 * @param config
 	 *            The configuration.
 	 */
+	// TODO: add more elaborate window configuration options
 	public GLFWWindow(Vec2 size, String title, boolean decorated) {
+		checkMainThread();
+		
 		if (DBG)
 			System.out.println("window create: " + size + " " + title);
 
@@ -161,6 +164,12 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void destroy() {
+		checkMainThread();
+		
+		if (DBG)
+			System.out.println("window destroy: " + title);
+		
+		// note: we cannot destroy window as long as the context is acquired (i.e. window is rendering)
 		contextLock.lock();
 		GLFW.glfwDestroyWindow(window);
 		window = 0;
@@ -214,17 +223,21 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void setTitle(String title) {
+		checkMainThread();
 		this.title = title;
 		GLFW.glfwSetWindowTitle(window, title);
 	}
 
+	// TODO: cache visible flag, so this can be called from any thread
 	@Override
 	public boolean isVisible() {
+		checkMainThread();
 		return GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_VISIBLE) > 0 ? true : false;
 	}
 	
 	@Override
 	public void setVisible(boolean visible) {
+		checkMainThread();
 		if (visible) {
 			GLFW.glfwShowWindow(window);
 		} else {
@@ -239,6 +252,7 @@ final class GLFWWindow implements IWindow {
 
 	@Override
 	public void setPosition(Vec2 position) {
+		checkMainThread();
 		windowPosition = position;
 		GLFW.glfwSetWindowPos(window, (int)position.x, (int)position.y);
 	}
@@ -250,6 +264,7 @@ final class GLFWWindow implements IWindow {
 
 	@Override
 	public void setSize(Vec2 size) {
+		checkMainThread();
 		windowSize = size;
 		GLFW.glfwSetWindowSize(window, (int)size.x, (int)size.y);
 	}
@@ -261,10 +276,12 @@ final class GLFWWindow implements IWindow {
 	
 	@Override
 	public void setFullscreen(boolean enabled) {
+		checkMainThread();
 	}
 
 	@Override
 	public void setPointerMode(PointerMode mode) {
+		checkMainThread();
 		switch (mode) {
 		case NORMAL:
 			GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
@@ -280,21 +297,25 @@ final class GLFWWindow implements IWindow {
 
 	@Override
 	public void setPointerPosition(float x, float y) {
+		checkMainThread();
 		GLFW.glfwSetCursorPos(window, x, y);
 	}
 	
 	@Override
 	public void setWindowListener(IWindowListener windowListener) {
+		checkMainThread();
 		this.windowListener = windowListener;
 	}
 	
 	@Override
 	public void setKeyListener(IKeyListener keyListener) {
+		checkMainThread();
 		this.keyListener = keyListener;
 	}
 	
 	@Override
 	public void setPointerListener(IPointerListener pointerListener) {
+		checkMainThread();
 		this.pointerListener = pointerListener;
 	}
 	
@@ -362,7 +383,7 @@ final class GLFWWindow implements IWindow {
 				// size is explicitly fetched in framebuffer callback.
 			}
 		};
-
+		
 		GLFWFramebufferSizeCallback framebufferSizeCallback = new GLFWFramebufferSizeCallback() {
 			@Override
 			public void invoke(long window, int width, int height) {
@@ -502,5 +523,10 @@ final class GLFWWindow implements IWindow {
 		callbacks.add(pointerPositionCallback);
 		callbacks.add(pointerButtonCallback);
 		callbacks.add(pointerScrollCallback);
+	}
+	
+	private void checkMainThread() {
+		if (!Platform.get().isMainThread())
+			throw new IllegalThreadStateException("must be called from main thread, but called from " + Thread.currentThread());
 	}
 }

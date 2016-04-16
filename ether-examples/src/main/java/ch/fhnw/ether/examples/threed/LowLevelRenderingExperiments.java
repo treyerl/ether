@@ -40,6 +40,7 @@ public class LowLevelRenderingExperiments {
 			try (IContext ctx = window.acquireContext()) {
 				GL11.glClearColor(0, 0, 0, 1);
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+				
 				Vec2 v = window.getFramebufferSize();
 
 				GL11.glViewport(0, 0, (int)v.x, (int)v.y);

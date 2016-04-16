@@ -80,11 +80,15 @@ public interface IWindow {
 	
 	/**
 	 * Destroy this window and free all resources associated with it.
+	 * 
+	 * Call from main thread only.
 	 */
 	void destroy();
 	
 	/**
 	 * Returns true if this window has been destroyed.
+	 * 
+	 * May be called from any thread.
 	 */
 	boolean isDestroyed();
 	
@@ -103,88 +107,137 @@ public interface IWindow {
 	 * 
 	 * thus the context will be automatically released when getting out of
 	 * scope.
+	 * 
+	 * May be called from any thread.
 	 */
 	IContext acquireContext();
 	
 	/**
 	 * Release this window's render context. Use only explicitly if you can't
 	 * use try with resource.
+	 * 
+	 * May be called from any thread.
 	 */
 	void releaseContext();
 
 	/**
 	 * Swap buffers.
+	 * 
+	 * May be called from any thread.
 	 */
 	void swapBuffers();	
 
 	/**
 	 * Get this window's title.
+	 * 
+	 * May be called from any thread.
 	 */
 	String getTitle();
 	
 	/**
 	 * Set this window's title.
+	 * 
+	 * Call from main thread only.
 	 */
 	void setTitle(String title);
 
 	/**
 	 * Returns true if this window is visible.
+	 * 
+	 * Call from main thread only.
 	 */
 	boolean isVisible();
 	
 	/**
 	 * Shows / hides this window.
+	 * 
+	 * Call from main thread only.
 	 */
 	void setVisible(boolean visible);
 
 	/**
 	 * Get this window's position (in screen units).
+	 * 
+	 * May be called from any thread.
 	 */
 	Vec2 getPosition();
 	
 	/**
 	 * Set this window's position (in screen units).
+	 * 
+	 * Call from main thread only.
 	 */
 	void setPosition(Vec2 position);
 
 	/**
 	 * Get this window's size (in screen units).
+	 * 
+	 * May be called from any thread.
 	 */
 	Vec2 getSize();
 	
 	/**
 	 * Set this window's size (in screen units)
+	 * 
+	 * Call from main thread only.
 	 */
 	void setSize(Vec2 size);
 
 	/**
 	 * Get this window's framebuffer size (in pixel units);
-	 * @return
+	 * 
+	 * May be called from any thread.
 	 */
 	Vec2 getFramebufferSize();
 	
 	/**
 	 * Enable or disable this window as a fullscreen window.
+	 * 
+	 * Call from main thread only.
 	 */
 	void setFullscreen(boolean enabled);
 
 	/**
 	 * Set pointer mode for this window.
+	 * 
+	 * Call from main thread only.
 	 */
 	void setPointerMode(PointerMode mode);
 
 	/**
 	 * Warp pointer to x y (in pixel units), in right-handed window coordinates
 	 * (origin bottom left).
+	 * 
+	 * Call from main thread only.
 	 */
 	void setPointerPosition(float x, float y);
 	
-	public void setWindowListener(IWindowListener windowListener);
+	/**
+	 * Set window listener (or pass null to reset).
+	 * 
+	 * Call from main thread only.
+	 */
+	void setWindowListener(IWindowListener windowListener);
 	
-	public void setKeyListener(IKeyListener keyListener);
+	/**
+	 * Set key listener (or pass null to reset).
+	 * 
+	 * Call from main thread only.
+	 */
+	void setKeyListener(IKeyListener keyListener);
 	
-	public void setPointerListener(IPointerListener pointerListener);
+	/**
+	 * Set pointer listener (or pass null to reset).
+	 * 
+	 * Call from main thread only.
+	 */
+	void setPointerListener(IPointerListener pointerListener);
 	
+	/**
+	 * Create window.
+	 * 
+	 * Call from main thread only.
+	 */
 	static IWindow create(Vec2 size, String title, boolean decorated) {
 		return Platform.get().createWindow(size, title, decorated);
 	}
