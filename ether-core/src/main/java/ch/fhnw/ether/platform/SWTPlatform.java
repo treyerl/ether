@@ -31,86 +31,27 @@
 
 package ch.fhnw.ether.platform;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.eclipse.swt.widgets.Display;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
 
-import ch.fhnw.ether.render.gl.GLContextManager;
-import ch.fhnw.ether.view.IWindow;
-import ch.fhnw.util.math.Vec2;
-
-final class SWTPlatform implements IPlatform {
-
-	private final GLFWErrorCallback errorCallback;
-
-	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-
-	private final IImageSupport imageSupport = new SWTImageSupport();
-
+final class SWTPlatform extends GLFWPlatform {
 	public SWTPlatform() {
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
+		super(new SWTImageSupport());
 	}
 
 	@Override
-	public void init() {
-		// note: it seems to be important that GLFW is initialized before SWT (e.g. segfaults when closing windows on OS X)
-		GLFW.glfwSetErrorCallback(errorCallback);
-		if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
-			throw new IllegalStateException("unable to initialize glfw");
-		
+	protected void initInternal() {
 		Display.getDefault();
 		Display.setAppName("ether");
-
-		GLContextManager.init();
 	}
 
 	@Override
-	public void run() {
-		try {
-			while (true) {
-				if (!Display.getDefault().readAndDispatch())
-					Display.getDefault().sleep();
-				Runnable runnable;
-				while ((runnable = queue.poll()) != null) {
-					try {
-						runnable.run();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		exit();
-	}
-
-	@Override
-	public void exit() {
+	protected void exitInternal() {
 		Display.getDefault().dispose();
-		
-		errorCallback.free();
-		GLFW.glfwTerminate();
-
-		System.exit(0);
 	}
 
 	@Override
-	public void runOnMainThread(Runnable runnable) {
-		queue.offer(runnable);
-		Display.getDefault().wake();
-	}
-
-	@Override
-	public IWindow createWindow(Vec2 size, String title, boolean decorated) {
-		return new GLFWWindow(size, title, decorated);
-	}
-
-	@Override
-	public IImageSupport getImageSupport() {
-		return imageSupport;
+	protected void waitForEvents() {
+		if (!Display.getDefault().readAndDispatch())
+			Display.getDefault().sleep();
 	}
 }

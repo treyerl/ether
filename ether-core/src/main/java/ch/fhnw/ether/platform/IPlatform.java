@@ -49,6 +49,11 @@ public interface IPlatform {
 	 * Exit platform. Closes all windows and releases all resources.
 	 */
 	void exit();
+	
+	/**
+	 * Returns true if called from main thread, false otherwise.
+	 */
+	boolean isMainThread();
 
 	/**
 	 * Execute task on main thread. Typically used for opening / closing

@@ -41,33 +41,42 @@ import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.math.Vec2;
 
-final class GLFWPlatform implements IPlatform {
-
-	private final GLFWErrorCallback errorCallback;
+class GLFWPlatform implements IPlatform {
 
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
-	private final IImageSupport imageSupport = new STBImageSupport();
+	private final GLFWErrorCallback errorCallback;
+	private final IImageSupport imageSupport;
+	
+	private final Thread mainThread;
 
 	public GLFWPlatform() {
-		errorCallback = GLFWErrorCallback.createPrint(System.err);
+		this(new STBImageSupport());
+	}
+	
+	protected GLFWPlatform(IImageSupport imageSupport) {
+		this.errorCallback = GLFWErrorCallback.createPrint(System.err);
+		this.imageSupport = imageSupport;
+		this.mainThread = Thread.currentThread();
 	}
 
 	@Override
-	public void init() {
+	public final void init() {
 		GLFW.glfwSetErrorCallback(errorCallback);
 		
 		if (GLFW.glfwInit() != GLFW.GLFW_TRUE)
 			throw new IllegalStateException("unable to initialize glfw");
 		
+		initInternal();
+		
 		GLContextManager.init();
 	}
 
 	@Override
-	public void run() {
+	public final void run() {
 		try {
 			while (true) {
-				GLFW.glfwWaitEvents();
+				waitForEvents();
 				Runnable runnable;
 				while ((runnable = queue.poll()) != null) {
 					try {
@@ -84,14 +93,20 @@ final class GLFWPlatform implements IPlatform {
 	}
 
 	@Override
-	public void exit() {
+	public final void exit() {
+		exitInternal();
 		errorCallback.free();
 		GLFW.glfwTerminate();
 		System.exit(0);
 	}
+	
+	@Override
+	public boolean isMainThread() {
+		return Thread.currentThread().equals(mainThread);
+	}
 
 	@Override
-	public void runOnMainThread(Runnable runnable) {
+	public final void runOnMainThread(Runnable runnable) {
 		queue.offer(runnable);
 		GLFW.glfwPostEmptyEvent();
 	}
@@ -104,5 +119,15 @@ final class GLFWPlatform implements IPlatform {
 	@Override
 	public IImageSupport getImageSupport() {
 		return imageSupport;
+	}
+	
+	protected void initInternal() {
+	}
+	
+	protected void exitInternal() {
+	}
+	
+	protected void waitForEvents() {
+		GLFW.glfwWaitEvents();		
 	}
 }
