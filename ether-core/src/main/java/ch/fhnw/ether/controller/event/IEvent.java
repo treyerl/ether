@@ -32,8 +32,10 @@
 package ch.fhnw.ether.controller.event;
 
 import ch.fhnw.ether.view.IView;
+import ch.fhnw.ether.view.IWindow;
 
 public interface IEvent {
+
 	class Event implements IEvent {
 		private final IView view;
 		private final int modifiers;
@@ -54,12 +56,6 @@ public interface IEvent {
 		}
 	}
 	
-	
-	int MOD_SHIFT = 1;
-	int MOD_CONTROL = 2;
-	int MOD_ALT = 4;
-	int MOD_SUPER = 8;
-	
 	IView getView();
 
 	int getModifiers();
@@ -69,18 +65,18 @@ public interface IEvent {
 	}
 	
 	default boolean isShiftDown() {
-		return (getModifiers() & MOD_SHIFT) != 0;
+		return (getModifiers() & IWindow.MOD_SHIFT) != 0;
 	}
 
 	default boolean isControlDown() {
-		return (getModifiers() & MOD_CONTROL) != 0;
+		return (getModifiers() & IWindow.MOD_CONTROL) != 0;
 	}
 
 	default boolean isAltDown() {
-		return (getModifiers() & MOD_ALT) != 0;
+		return (getModifiers() & IWindow.MOD_ALT) != 0;
 	}
 
 	default boolean isSuperDown() {
-		return (getModifiers() & MOD_SUPER) != 0;
+		return (getModifiers() & IWindow.MOD_SUPER) != 0;
 	}
 }

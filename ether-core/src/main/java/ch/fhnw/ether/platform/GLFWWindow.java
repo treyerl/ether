@@ -48,6 +48,7 @@ import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowIconifyCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -75,7 +76,7 @@ final class GLFWWindow implements IWindow {
 	private static final IntBuffer INT_BUFFER_1 = BufferUtils.createIntBuffer(1);
 	
 	private String title;
-	
+	private boolean visible;
 	private Vec2 windowPosition = Vec2.ZERO;
 	private Vec2 windowSize = Vec2.ONE;
 	private Vec2 framebufferSize = Vec2.ONE;
@@ -128,6 +129,7 @@ final class GLFWWindow implements IWindow {
 			title = "context";
 		
 		this.title = title;
+		this.visible = false;
 		this.windowSize = size;
 		
 		// make sure this comes before setting up window hints due to side effects!
@@ -228,16 +230,14 @@ final class GLFWWindow implements IWindow {
 		GLFW.glfwSetWindowTitle(window, title);
 	}
 
-	// TODO: cache visible flag, so this can be called from any thread
 	@Override
 	public boolean isVisible() {
-		checkMainThread();
-		return GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_VISIBLE) > 0 ? true : false;
+		return visible;
 	}
 	
 	@Override
 	public void setVisible(boolean visible) {
-		checkMainThread();
+		this.visible = visible;
 		if (visible) {
 			GLFW.glfwShowWindow(window);
 		} else {
@@ -399,6 +399,16 @@ final class GLFWWindow implements IWindow {
 				windowListener.windowResized(GLFWWindow.this, windowSize, framebufferSize);
 			}
 		};
+		
+		GLFWWindowIconifyCallback iconifyCallback = new GLFWWindowIconifyCallback() {
+			@Override
+			public void invoke(long window, int iconified) {
+				if (DBG)
+					System.out.println("window iconified: " + iconified);
+
+				visible = iconified == 0;
+			}
+		};
 
 		GLFW.glfwSetWindowCloseCallback(window, closeCallback);
 		GLFW.glfwSetWindowRefreshCallback(window, refreshCallback);
@@ -406,6 +416,7 @@ final class GLFWWindow implements IWindow {
 		GLFW.glfwSetWindowPosCallback(window, positionCallback);
 		GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
 		GLFW.glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+		GLFW.glfwSetWindowIconifyCallback(window, iconifyCallback);
 
 		callbacks.add(closeCallback);
 		callbacks.add(refreshCallback);
@@ -413,6 +424,7 @@ final class GLFWWindow implements IWindow {
 		callbacks.add(positionCallback);
 		callbacks.add(sizeCallback);
 		callbacks.add(framebufferSizeCallback);
+		callbacks.add(iconifyCallback);
 
 		
 		//---- KEY CALLBACKS

@@ -34,9 +34,23 @@ package ch.fhnw.ether.view;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.math.Vec2;
 
+/**
+ * Abstraction of a window with the most basic operations.
+ * @author radar
+ *
+ */
 public interface IWindow {
+	/**
+	 * Opqaue abstraction of underlying rendering context (e.g. an OpenGL context).
+	 * @see IWindow#acquireContext() for details how to acquire and release.
+	 */
 	public interface IContext extends AutoCloseable {
 	}
+
+	int MOD_SHIFT = 1;
+	int MOD_CONTROL = 2;
+	int MOD_ALT = 4;
+	int MOD_SUPER = 8;
 
 	enum PointerMode {
 		NORMAL,
@@ -76,6 +90,29 @@ public interface IWindow {
 		public void pointerDragged(IWindow window, int mods, Vec2 position);
 
 		public void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll);
+	}
+	
+	class WindowAdapter implements IWindowListener {
+		@Override public void windowCloseRequest(IWindow window) {}
+		@Override public void windowRefresh(IWindow window) {}
+		@Override public void windowFocusChanged(IWindow window, boolean focused) {}
+		@Override public void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize) {}		
+	}
+	
+	class KeyAdapter implements IKeyListener {
+		@Override public void keyPressed(IWindow window, int mods, int key, int scancode, boolean repeat) {}
+		@Override public void keyReleased(IWindow window, int mods, int key, int scancode) {}
+	}
+	
+	class PointerAdapter implements IPointerListener {
+		@Override public void pointerEntered(IWindow window, int mods, Vec2 position) {}
+		@Override public void pointerExited(IWindow window, int mods, Vec2 position) {}
+		@Override public void pointerPressed(IWindow window, int mods, Vec2 position, int button) {}
+		@Override public void pointerReleased(IWindow window, int mods, Vec2 position, int button) {}
+		@Override public void pointerClicked(IWindow window, int mods, Vec2 position, int button) {}
+		@Override public void pointerMoved(IWindow window, int mods, Vec2 position) {}
+		@Override public void pointerDragged(IWindow window, int mods, Vec2 position) {}
+		@Override public void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll) {}
 	}
 	
 	/**
@@ -144,7 +181,7 @@ public interface IWindow {
 	/**
 	 * Returns true if this window is visible.
 	 * 
-	 * Call from main thread only.
+	 * May be called from any thread.
 	 */
 	boolean isVisible();
 	
