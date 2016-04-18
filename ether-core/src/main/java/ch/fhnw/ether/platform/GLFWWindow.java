@@ -54,7 +54,7 @@ import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.libffi.Closure;
+import org.lwjgl.system.Callback;
 
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
@@ -88,7 +88,7 @@ final class GLFWWindow implements IWindow {
 	private int modifiers = 0;
 	private int vao = -1;
 	
-	private final List<Closure.V> callbacks = new ArrayList<>();
+	private final List<Callback> callbacks = new ArrayList<>();
 	private IWindowListener windowListener;
 	private IKeyListener keyListener;
 	private IPointerListener pointerListener;
