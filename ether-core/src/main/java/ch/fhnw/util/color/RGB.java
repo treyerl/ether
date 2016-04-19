@@ -134,7 +134,7 @@ public final class RGB implements IColor, IVec3 {
 		int g = (int) (this.g * 255);
 		int b = (int) (this.b * 255);
 		int a = 255;
-		return (r << 24 | g << 16 | b << 8 | a << 0);
+		return (r << 24 | g << 16 | b << 8 | a);
 	}
 
 	public int toABGR32() {
@@ -142,7 +142,7 @@ public final class RGB implements IColor, IVec3 {
 		int g = (int) (this.g * 255);
 		int b = (int) (this.b * 255);
 		int a = 255;
-		return (a << 24 | b << 16 | g << 8 | r << 0);
+		return (a << 24 | b << 16 | g << 8 | r);
 	}
 
 	@Override

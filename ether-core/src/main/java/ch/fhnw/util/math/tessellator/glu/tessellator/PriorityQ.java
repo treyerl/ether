@@ -64,7 +64,7 @@ abstract class PriorityQ {
         int node;
     }
 
-    static interface Leq {
+    interface Leq {
         boolean leq(Object key1, Object key2);
     }
 

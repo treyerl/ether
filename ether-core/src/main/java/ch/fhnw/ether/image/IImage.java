@@ -53,7 +53,7 @@ public interface IImage {
 
 		private final int size;
 
-		private ComponentType(int size) {
+		ComponentType(int size) {
 			this.size = size;
 		}
 
@@ -68,7 +68,7 @@ public interface IImage {
 		private final int     numComponents;
 		private final boolean hasAlpha;
 
-		private ComponentFormat(int numComponents, boolean hasAlpha) {
+		ComponentFormat(int numComponents, boolean hasAlpha) {
 			this.numComponents = numComponents;
 			this.hasAlpha      = hasAlpha;
 		}

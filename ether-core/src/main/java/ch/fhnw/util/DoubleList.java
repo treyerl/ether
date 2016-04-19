@@ -43,13 +43,12 @@ public final class DoubleList extends SimpleArrayList<double[], Double> {
 	public DoubleList() {
 	}
 
-	public DoubleList(int initialSize) {
-		super(initialSize);
+	public DoubleList(int initialCapacity) {
+		super(initialCapacity);
 	}
 
 	public DoubleList(DoubleList src) {
-		super(src.size);
-		elementData = src.elementData.clone();
+		super(src);
 	}
 
 	@Override
@@ -84,19 +83,6 @@ public final class DoubleList extends SimpleArrayList<double[], Double> {
 
 	@Override
 	public boolean addAll(double[] src) {
-		int numNew = src.length;
-		ensureCapacity(size + numNew);
-		if(numNew < 16) {
-			for(int i = 0; i < numNew; i++)
-				elementData[size++] = src[i];
-		} else {
-			System.arraycopy(src, 0, elementData, size, numNew);
-			size += numNew;
-		}
-		return numNew != 0;		
-	}
-
-	public boolean addAll(float[] src) {
 		int numNew = src.length;
 		ensureCapacity(size + numNew);
 		if(numNew < 16) {

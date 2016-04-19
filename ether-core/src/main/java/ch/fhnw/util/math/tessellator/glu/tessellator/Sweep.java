@@ -1172,7 +1172,8 @@ class Sweep {
              */
             if (!reg.sentinel) {
                 assert (reg.fixUpperEdge);
-                assert (++fixedEdges == 1);
+                fixedEdges++;
+                assert (fixedEdges == 1);
             }
             assert (reg.windingNumber == 0);
             DeleteRegion(tess, reg);

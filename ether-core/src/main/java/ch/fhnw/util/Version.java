@@ -20,7 +20,7 @@ public class Version {
 		}
 
 		private static OS[] valuesro;
-		public static final OS[] valuesro() {
+		public static OS[] valuesro() {
 			if(valuesro == null) valuesro = values();
 			return valuesro;
 		}
@@ -29,7 +29,7 @@ public class Version {
 	public enum Architecture {
 		UNKNOWN(32), X86(32), X86_64(64);
 		int wordSize;
-		private Architecture(int wordSize) {
+		Architecture(int wordSize) {
 			this.wordSize = wordSize;
 		}
 	}

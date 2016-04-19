@@ -49,7 +49,7 @@ import ch.fhnw.ether.platform.Platform;
  *
  */
 public interface IGPUImage extends IImage {
-	public static final IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
+	IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
 	
 	/**
 	 * Get GPU resource handle of this image (i.e., in the case of OpenGL the texture ID).

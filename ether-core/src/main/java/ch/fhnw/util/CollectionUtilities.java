@@ -253,8 +253,7 @@ public final class CollectionUtilities {
 	}
 
 	public static <T> List<T> append(List<T> list, T[] array) {
-		for(T e : array)
-			list.add(e);
+		Collections.addAll(list, array);
 		return list;
 	}
 

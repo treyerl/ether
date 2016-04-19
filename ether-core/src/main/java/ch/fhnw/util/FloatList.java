@@ -39,14 +39,16 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 public final class FloatList extends SimpleArrayList<float[], Float> {
-	public FloatList() {}
+	
+	public FloatList() {
+	}
 
 	public FloatList(int initialCapacity) {
 		super(initialCapacity);
 	}
 
-	public FloatList(FloatList fl) {
-		super(fl);
+	public FloatList(FloatList src) {
+		super(src);
 	}
 
 	@Override
@@ -77,19 +79,6 @@ public final class FloatList extends SimpleArrayList<float[], Float> {
 	public void clear() {
 		modCount++;
 		size = 0;
-	}
-
-	public void addAll(float f0, float f1) {
-		ensureCapacity(size + 2);
-		elementData[size++] = f0;
-		elementData[size++] = f1;
-	}
-
-	public void addAll(float f0, float f1, float f2) {
-		ensureCapacity(size + 3);
-		elementData[size++] = f0;
-		elementData[size++] = f1;
-		elementData[size++] = f2;
 	}
 
 	@Override

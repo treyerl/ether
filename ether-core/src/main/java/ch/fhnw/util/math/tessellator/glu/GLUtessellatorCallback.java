@@ -80,7 +80,7 @@ public interface GLUtessellatorCallback {
 	 * @see #end end
 	 * @see #begin begin
 	 */
-	public void begin(int type);
+	void begin(int type);
 
 	/**
 	 * The same as the {@link #begin begin} callback method except that it takes
@@ -100,7 +100,7 @@ public interface GLUtessellatorCallback {
 	 * @see #endData endData
 	 * @see #begin begin
 	 */
-	public void beginData(int type, Object polygonData);
+	void beginData(int type, Object polygonData);
 
 	/**
 	 * The <b>edgeFlag</b> callback method is similar to glEdgeFlag. The method
@@ -126,7 +126,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #edgeFlagData edgeFlagData
 	 */
-	public void edgeFlag(boolean boundaryEdge);
+	void edgeFlag(boolean boundaryEdge);
 
 	/**
 	 * The same as the {@link #edgeFlag edgeFlage} callback method except that
@@ -142,7 +142,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #edgeFlag edgeFlag
 	 */
-	public void edgeFlagData(boolean boundaryEdge, Object polygonData);
+	void edgeFlagData(boolean boundaryEdge, Object polygonData);
 
 	/**
 	 * The <b>vertex</b> callback method is invoked between the {@link #begin
@@ -160,7 +160,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #vertexData vertexData
 	 */
-	public void vertex(Object vertexData);
+	void vertex(Object vertexData);
 
 	/**
 	 * The same as the {@link #vertex vertex} callback method except that it
@@ -177,7 +177,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #vertex vertex
 	 */
-	public void vertexData(Object vertexData, Object polygonData);
+	void vertexData(Object vertexData, Object polygonData);
 
 	/**
 	 * The end callback serves the same purpose as glEnd. It indicates the end
@@ -187,7 +187,7 @@ public interface GLUtessellatorCallback {
 	 * @see #begin begin
 	 * @see #endData endData
 	 */
-	public void end();
+	void end();
 
 	/**
 	 * The same as the {@link #end end} callback method except that it takes an
@@ -202,7 +202,7 @@ public interface GLUtessellatorCallback {
 	 * @see #beginData beginData
 	 * @see #end end
 	 */
-	public void endData(Object polygonData);
+	void endData(Object polygonData);
 
 	/**
 	 * The <b>combine</b> callback method is called to create a new vertex when
@@ -258,7 +258,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #combineData combineData
 	 */
-	public void combine(double[] coords, Object[] data, float[] weight, Object[] outData);
+	void combine(double[] coords, Object[] data, float[] weight, Object[] outData);
 
 	/**
 	 * The same as the {@link #combine combine} callback method except that it
@@ -280,7 +280,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #combine combine
 	 */
-	public void combineData(double[] coords, Object[] data, float[] weight, Object[] outData, Object polygonData);
+	void combineData(double[] coords, Object[] data, float[] weight, Object[] outData, Object polygonData);
 
 	/**
 	 * The <b>error</b> callback method is called when an error is encountered.
@@ -312,7 +312,7 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #errorData errorData
 	 */
-	public void error(int errnum);
+	void error(int errnum);
 
 	/**
 	 * The same as the {@link #error error} callback method except that it takes
@@ -328,5 +328,5 @@ public interface GLUtessellatorCallback {
 	 * @see GLU#gluTessCallback gluTessCallback
 	 * @see #error error
 	 */
-	public void errorData(int errnum, Object polygonData);
+	void errorData(int errnum, Object polygonData);
 }

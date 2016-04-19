@@ -385,7 +385,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 		return result;
 	}
 	
-	protected static final void ensureRGB8OrRGBA8(IHostImage image) {
+	protected static void ensureRGB8OrRGBA8(IHostImage image) {
 		int numComponents = image.getComponentFormat().getNumComponents();
 		if (image.getComponentType() != ComponentType.BYTE) 
 			throw new IllegalArgumentException("unsupported " + image.getComponentType() + "-component type");

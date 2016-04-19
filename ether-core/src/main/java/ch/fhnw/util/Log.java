@@ -33,6 +33,7 @@ package ch.fhnw.util;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 
@@ -61,8 +62,7 @@ public class Log implements Serializable {
 
 	public void setLevels(Level ... levels) {
 		this.levels = EnumSet.noneOf(Level.class);
-		for(Level l : levels)
-			this.levels.add(l);
+		Collections.addAll(this.levels, levels);
 	}
 
 	private String format(Level lvl, String msg) {

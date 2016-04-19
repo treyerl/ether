@@ -42,17 +42,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class ClassUtilities {
@@ -270,8 +260,7 @@ public final class ClassUtilities {
 	private static Collection<Field> getAllFields(Class<?> type, List<Field> result) {
 		if(type == CLS_Object) return result;
 		try {
-			for(Field f : type.getDeclaredFields())
-				result.add(f);
+			Collections.addAll(result, type.getDeclaredFields());
 		} catch(Throwable t) {
 			t.printStackTrace();
 		}
@@ -303,8 +292,7 @@ public final class ClassUtilities {
 
 	private static Collection<Method> getAllMethods(Class<?> type, List<Method> result) {
 		if(type == CLS_Object) return result;
-		for(Method m : type.getDeclaredMethods())
-			result.add(m);
+		Collections.addAll(result, type.getDeclaredMethods());
 		return getAllMethods(type.getSuperclass(), result);
 	}
 

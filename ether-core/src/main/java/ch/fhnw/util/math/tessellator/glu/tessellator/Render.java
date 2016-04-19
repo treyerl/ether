@@ -81,9 +81,9 @@ class Render {
         long size;        /* number of triangles used */
         GLUhalfEdge eStart;    /* edge where this primitive starts */
         RenderCallBack render;
-    };
+    }
 
-    private static interface RenderCallBack {
+    private interface RenderCallBack {
         void render(GLUtessellatorImpl tess, GLUhalfEdge e, long size);
     }
 

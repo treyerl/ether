@@ -352,7 +352,6 @@ public final class MeshUtilities {
 					for (int j = 0; j < ga.length; j++) {
 						if (attributes[i].id().equals(ga[j].id())) {
 							data[i].addAll(gd[j]);
-							continue;
 						}
 					}
 				}

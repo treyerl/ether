@@ -21,7 +21,7 @@ public class GLU {
 	 * @see #gluDeleteTess gluDeleteTess
 	 * @see #gluTessCallback gluTessCallback
 	 ****************************************************************************/
-	public static final GLUtessellator gluNewTess() {
+	public static GLUtessellator gluNewTess() {
 		return GLUtessellatorImpl.gluNewTess();
 	}
 
@@ -38,7 +38,7 @@ public class GLU {
 	 * @see #gluNewTess gluNewTess
 	 * @see #gluTessCallback gluTessCallback
 	 ****************************************************************************/
-	public static final void gluDeleteTess(GLUtessellator tessellator) {
+	public static void gluDeleteTess(GLUtessellator tessellator) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluDeleteTess();
 	}
@@ -130,7 +130,7 @@ public class GLU {
 	 * @see #gluGetTessProperty gluGetTessProperty
 	 * @see #gluNewTess gluNewTess
 	 ****************************************************************************/
-	public static final void gluTessProperty(GLUtessellator tessellator, int which, double value) {
+	public static void gluTessProperty(GLUtessellator tessellator, int which, double value) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessProperty(which, value);
 	}
@@ -158,8 +158,8 @@ public class GLU {
 	 * @see #gluNewTess gluNewTess
 	 * @see #gluTessProperty gluTessProperty
 	 ****************************************************************************/
-	public static final void gluGetTessProperty(GLUtessellator tessellator, int which, double[] value,
-			int value_offset) {
+	public static void gluGetTessProperty(GLUtessellator tessellator, int which, double[] value,
+										  int value_offset) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluGetTessProperty(which, value, value_offset);
 	}
@@ -202,7 +202,7 @@ public class GLU {
 	 * @see #gluTessBeginPolygon gluTessBeginPolygon
 	 * @see #gluTessEndPolygon gluTessEndPolygon
 	 ****************************************************************************/
-	public static final void gluTessNormal(GLUtessellator tessellator, double x, double y, double z) {
+	public static void gluTessNormal(GLUtessellator tessellator, double x, double y, double z) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessNormal(x, y, z);
 	}
@@ -476,7 +476,7 @@ public class GLU {
 	 * @see #gluTessProperty gluTessProperty
 	 * @see #gluTessNormal gluTessNormal
 	 ****************************************************************************/
-	public static final void gluTessCallback(GLUtessellator tessellator, int which, GLUtessellatorCallback aCallback) {
+	public static void gluTessCallback(GLUtessellator tessellator, int which, GLUtessellatorCallback aCallback) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessCallback(which, aCallback);
 	}
@@ -517,8 +517,8 @@ public class GLU {
 	 * @see #gluTessNormal gluTessNormal
 	 * @see #gluTessEndPolygon gluTessEndPolygon
 	 ****************************************************************************/
-	public static final void gluTessVertex(GLUtessellator tessellator, double[] coords, int coords_offset,
-			Object data) {
+	public static void gluTessVertex(GLUtessellator tessellator, double[] coords, int coords_offset,
+									 Object data) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessVertex(coords, coords_offset, data);
 	}
@@ -565,7 +565,7 @@ public class GLU {
 	 * @see #gluTessNormal gluTessNormal
 	 * @see #gluTessEndPolygon gluTessEndPolygon
 	 ****************************************************************************/
-	public static final void gluTessBeginPolygon(GLUtessellator tessellator, Object data) {
+	public static void gluTessBeginPolygon(GLUtessellator tessellator, Object data) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessBeginPolygon(data);
 	}
@@ -596,7 +596,7 @@ public class GLU {
 	 * @see #gluTessNormal gluTessNormal
 	 * @see #gluTessEndPolygon gluTessEndPolygon
 	 ****************************************************************************/
-	public static final void gluTessBeginContour(GLUtessellator tessellator) {
+	public static void gluTessBeginContour(GLUtessellator tessellator) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessBeginContour();
 	}
@@ -627,7 +627,7 @@ public class GLU {
 	 * @see #gluTessNormal gluTessNormal
 	 * @see #gluTessEndPolygon gluTessEndPolygon
 	 ****************************************************************************/
-	public static final void gluTessEndContour(GLUtessellator tessellator) {
+	public static void gluTessEndContour(GLUtessellator tessellator) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessEndContour();
 	}
@@ -666,7 +666,7 @@ public class GLU {
 	 * @see #gluTessNormal gluTessNormal
 	 * @see #gluTessBeginPolygon gluTessBeginPolygon
 	 ****************************************************************************/
-	public static final void gluTessEndPolygon(GLUtessellator tessellator) {
+	public static void gluTessEndPolygon(GLUtessellator tessellator) {
 		GLUtessellatorImpl tess = (GLUtessellatorImpl) tessellator;
 		tess.gluTessEndPolygon();
 	}

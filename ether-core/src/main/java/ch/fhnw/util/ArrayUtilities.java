@@ -646,16 +646,6 @@ public final class ArrayUtilities {
 		return result;
 	}
 
-	public static Object copyOf(Object a, int length) {
-		Object result = Array.newInstance(a.getClass().getComponentType(), length);
-		System.arraycopy(a, 0, result, 0, Array.getLength(a));
-		return result;
-	}
-
-	public static Object copyOf(Object a) {
-		return copyOf(a, Array.getLength(a));
-	}
-
 	public static String[] toStringArray(Object[] values) {
 		if(values == null) return null;
 		String[] result = new String[values.length];

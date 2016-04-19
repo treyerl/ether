@@ -44,7 +44,7 @@ public interface IWindow {
 	 * Opqaue abstraction of underlying rendering context (e.g. an OpenGL context).
 	 * @see IWindow#acquireContext() for details how to acquire and release.
 	 */
-	public interface IContext extends AutoCloseable {
+	interface IContext extends AutoCloseable {
 	}
 
 	int MOD_SHIFT = 1;
@@ -75,21 +75,21 @@ public interface IWindow {
 	}
 
 	interface IPointerListener {
-		public void pointerEntered(IWindow window, int mods, Vec2 position);
+		void pointerEntered(IWindow window, int mods, Vec2 position);
 
-		public void pointerExited(IWindow window, int mods, Vec2 position);
+		void pointerExited(IWindow window, int mods, Vec2 position);
 
-		public void pointerPressed(IWindow window, int mods, Vec2 position, int button);
+		void pointerPressed(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerReleased(IWindow window, int mods, Vec2 position, int button);
+		void pointerReleased(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerClicked(IWindow window, int mods, Vec2 position, int button);
+		void pointerClicked(IWindow window, int mods, Vec2 position, int button);
 
-		public void pointerMoved(IWindow window, int mods, Vec2 position);
+		void pointerMoved(IWindow window, int mods, Vec2 position);
 
-		public void pointerDragged(IWindow window, int mods, Vec2 position);
+		void pointerDragged(IWindow window, int mods, Vec2 position);
 
-		public void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll);
+		void pointerWheelMoved(IWindow window, int mods, Vec2 position, Vec2 scroll);
 	}
 	
 	class WindowAdapter implements IWindowListener {
