@@ -31,11 +31,10 @@
 
 package ch.fhnw.ether.media;
 
-public interface IRenderTarget<F extends AbstractFrame> extends ITimebase {
+public interface IRenderTarget<F extends AbstractFrame> extends IScheduler {
 	void    render() throws RenderCommandException;
 	void    setFrame(AbstractFrameSource src, F frame);
 	F       getFrame();
 	long    getTotalElapsedFrames();
 	long    getRelativeElapsedFrames();
-	boolean isRendering();
 }

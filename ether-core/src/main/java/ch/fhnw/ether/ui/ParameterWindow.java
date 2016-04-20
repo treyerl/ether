@@ -141,8 +141,8 @@ public class ParameterWindow {
 					heightUI.setText(Integer.toString(((IVideoSource)src).getHeight()));
 				}
 			}
-			if(program.getTarget() != null) {
-				IRenderTarget<?> target = program.getTarget(); 
+			IRenderTarget<?> target = program.getTarget(); 
+			if(target != null) {
 				if(target.getTotalElapsedFrames() == 0 || programChange) {
 					startFrames = target.getTotalElapsedFrames();
 					startTime   = System.nanoTime();
@@ -152,14 +152,14 @@ public class ParameterWindow {
 					realTimeUI.setText(FMT.format(elapsed / IScheduler.SEC2NS));
 					actualRateUI.setText(FMT.format((IScheduler.SEC2NS * frames) / elapsed));
 				}
-				if(target instanceof IScheduler)
-					targetTimeUI.setText(FMT.format(target.getTime()));
-				if(target != null) {
-					AbstractFrame frame = target.getFrame();
-					if(frame != null) {
-						frameTimeUI.setText(FMT.format(frame.playOutTime));
-					}
+				
+				targetTimeUI.setText(FMT.format(target.getTime()));
+
+				AbstractFrame frame = target.getFrame();
+				if(frame != null) {
+					frameTimeUI.setText(FMT.format(frame.playOutTime));
 				}
+	
 				relativeFramesUI.setText(Long.toString(target.getRelativeElapsedFrames()));
 				totalFramesUI.setText(Long.toString(target.getTotalElapsedFrames()));
 			}

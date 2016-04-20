@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
-public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRenderTarget<F>> implements IRenderTarget<F>, IScheduler {
+public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRenderTarget<F>> implements IRenderTarget<F> {
 	private static final Log LOG = Log.create();
 
 	private   final int                     priority;
