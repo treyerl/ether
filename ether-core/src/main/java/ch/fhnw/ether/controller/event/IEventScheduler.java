@@ -103,7 +103,7 @@ public interface IEventScheduler extends IScheduler {
 	void repaint();
 
 	/**
-	 * Returns true if caller calls from scene thread.
+	 * Returns true if caller calls from scheduler's thread.
 	 */
-	boolean isSceneThread();
+	boolean isSchedulerThread();
 }

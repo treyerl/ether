@@ -37,14 +37,13 @@ import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.AbstractRenderCommand;
-import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
 import ch.fhnw.ether.video.fx.IVideoCPUFX;
 import ch.fhnw.ether.video.fx.IVideoGLFX;
 
-public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame, IVideoRenderTarget> implements IVideoRenderTarget, IScheduler {
+public abstract class AbstractVideoTarget extends AbstractMediaTarget<VideoFrame, IVideoRenderTarget> implements IVideoRenderTarget {
 	private final Class<?> preferredType;
 
 	protected AbstractVideoTarget(int threadPriority, Class<?> preferredType, boolean realTime) {

@@ -76,7 +76,7 @@ public abstract class AbstractRenderer implements IRenderer {
 	private ShadowVolumes shadowVolumes;
 
 	public AbstractRenderer() {
-		renderThread = new Thread(this::runRenderThread, "renderthread");
+		renderThread = new Thread(this::runRenderThread, "render-thread");
 		renderThread.setDaemon(true);
 		renderThread.setPriority(Thread.MAX_PRIORITY);
 		renderThread.start();

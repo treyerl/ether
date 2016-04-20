@@ -36,38 +36,35 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.media.ITimebase;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.util.Pair;
 
-public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
+public final class DefaultEventScheduler implements IEventScheduler {
 
 	private static final long START_TIME = System.nanoTime();
 
-	//private final IController controller;
 	private final Runnable runnable;
 
 	private final double interval;
 
-	private final Thread sceneThread;
+	private final Thread schedulerThread;
 
 	private final List<IAnimationAction> animations = new ArrayList<>();
 	private final List<Pair<Double, IAction>> actions = new ArrayList<>();
 
 	private final AtomicBoolean repaint = new AtomicBoolean();
 
-	private ITimebase     timebase;
+	private ITimebase timebase;
 	private AtomicBoolean running = new AtomicBoolean(true);
 
-	public DefaultEventScheduler(IController controller, Runnable runnable, float fps) {
-		//this.controller = controller;
+	public DefaultEventScheduler(Runnable runnable, float fps) {
 		this.runnable = runnable;
 		interval = 1 / fps;
-		sceneThread = new Thread(this::runSceneThread, "scenethread");
-		sceneThread.setDaemon(true);
-		sceneThread.setPriority(Thread.MAX_PRIORITY);
-		sceneThread.start();
+		schedulerThread = new Thread(this::runSchedulerThread, "scheduler-thread");
+		schedulerThread.setDaemon(true);
+		schedulerThread.setPriority(Thread.MAX_PRIORITY);
+		schedulerThread.start();
 	}
 
 	@Override
@@ -104,11 +101,11 @@ public final class DefaultEventScheduler implements IEventScheduler, ITimebase {
 	}
 
 	@Override
-	public boolean isSceneThread() {
-		return Thread.currentThread().equals(sceneThread);
+	public boolean isSchedulerThread() {
+		return Thread.currentThread().equals(schedulerThread);
 	}
 
-	private void runSceneThread() {
+	private void runSchedulerThread() {
 		while (running.get()) {
 			double time = getTime();
 

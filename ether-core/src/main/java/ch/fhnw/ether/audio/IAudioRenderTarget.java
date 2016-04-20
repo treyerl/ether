@@ -36,7 +36,7 @@ import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 
-public interface IAudioRenderTarget extends IRenderTarget<AudioFrame>, IScheduler {
+public interface IAudioRenderTarget extends IRenderTarget<AudioFrame>, IScheduler  {
 	int          getNumChannels();
 	float        getSampleRate();
 	void         useProgram(RenderProgram<IAudioRenderTarget> program) throws RenderCommandException;

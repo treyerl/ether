@@ -67,8 +67,8 @@ public class DefaultController implements IController {
 	
 	private static final boolean DBG = false;
 
-	private final DefaultEventScheduler scheduler;
 	private final IRenderManager renderManager;
+	private final DefaultEventScheduler scheduler;
 
 	private IScene scene;
 
@@ -91,7 +91,7 @@ public class DefaultController implements IController {
 
 	public DefaultController(IRenderer renderer, float fps) {
 		this.renderManager = new DefaultRenderManager(this, renderer);
-		this.scheduler = new DefaultEventScheduler(this, renderManager.getRenderRunnable(), fps);
+		this.scheduler = new DefaultEventScheduler(renderManager.getRenderRunnable(), fps);
 		run(time -> {
 			this.tool = new NavigationTool(this, new PickTool(this));
 		});
@@ -194,7 +194,7 @@ public class DefaultController implements IController {
 	
 	@Override
 	public boolean isSceneThread() {
-		return scheduler.isSceneThread();
+		return scheduler.isSchedulerThread();
 	}
 	
 	@Override
