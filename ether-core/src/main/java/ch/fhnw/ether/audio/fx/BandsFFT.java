@@ -31,12 +31,12 @@
 
  import java.util.Arrays;
 
- import ch.fhnw.ether.audio.AudioUtilities;
- import ch.fhnw.ether.audio.FFT;
- import ch.fhnw.ether.audio.IAudioRenderTarget;
- import ch.fhnw.ether.audio.Smooth;
- import ch.fhnw.ether.media.AbstractRenderCommand;
- import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.audio.AudioUtilities;
+import ch.fhnw.ether.audio.FFT;
+import ch.fhnw.ether.audio.IAudioRenderTarget;
+import ch.fhnw.ether.audio.Smooth;
+import ch.fhnw.ether.media.AbstractRenderCommand;
+import ch.fhnw.ether.media.RenderCommandException;
 
  public class BandsFFT extends AbstractRenderCommand<IAudioRenderTarget> {
 	 public enum Div {LINEAR, LOGARITHMIC}

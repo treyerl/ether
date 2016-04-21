@@ -31,8 +31,8 @@
 
 package ch.fhnw.ether.media;
 
-import ch.fhnw.util.TextUtilities;
 import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
+import ch.fhnw.util.TextUtilities;
 
 public class Parameter implements IMaterialAttribute<Float> {
 	public enum Type {RANGE, ITEMS}

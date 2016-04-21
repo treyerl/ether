@@ -35,10 +35,10 @@ import java.util.Arrays;
 
 import ch.fhnw.ether.audio.AudioFrame;
 import ch.fhnw.ether.audio.AudioUtilities;
+import ch.fhnw.ether.audio.AudioUtilities.Window;
 import ch.fhnw.ether.audio.BlockBuffer;
 import ch.fhnw.ether.audio.ButterworthFilter;
 import ch.fhnw.ether.audio.IAudioRenderTarget;
-import ch.fhnw.ether.audio.AudioUtilities.Window;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;

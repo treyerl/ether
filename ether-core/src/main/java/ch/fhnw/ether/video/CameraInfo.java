@@ -35,10 +35,10 @@ import java.awt.Dimension;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import ch.fhnw.util.math.Vec2;
-
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamException;
+
+import ch.fhnw.util.math.Vec2;
 
 public class CameraInfo {
 	private final Webcam cam;

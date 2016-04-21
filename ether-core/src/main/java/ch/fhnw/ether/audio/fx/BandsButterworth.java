@@ -30,12 +30,12 @@
  */package ch.fhnw.ether.audio.fx;
 
  import ch.fhnw.ether.audio.AudioFrame;
- import ch.fhnw.ether.audio.AudioUtilities;
- import ch.fhnw.ether.audio.ButterworthFilter;
- import ch.fhnw.ether.audio.IAudioRenderTarget;
- import ch.fhnw.ether.audio.Smooth;
- import ch.fhnw.ether.media.AbstractRenderCommand;
- import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.audio.AudioUtilities;
+import ch.fhnw.ether.audio.ButterworthFilter;
+import ch.fhnw.ether.audio.IAudioRenderTarget;
+import ch.fhnw.ether.audio.Smooth;
+import ch.fhnw.ether.media.AbstractRenderCommand;
+import ch.fhnw.ether.media.RenderCommandException;
 
  public class BandsButterworth extends AbstractRenderCommand<IAudioRenderTarget> {
 	 private final int     size;

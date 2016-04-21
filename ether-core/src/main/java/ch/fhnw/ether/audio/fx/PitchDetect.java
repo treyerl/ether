@@ -30,18 +30,18 @@
  */package ch.fhnw.ether.audio.fx;
 
  import java.util.ArrayList;
- import java.util.BitSet;
- import java.util.Collections;
- import java.util.List;
- import java.util.concurrent.atomic.AtomicReference;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
- import ch.fhnw.ether.audio.AudioUtilities;
- import ch.fhnw.ether.audio.FFT;
- import ch.fhnw.ether.audio.IAudioRenderTarget;
- import ch.fhnw.ether.media.AbstractRenderCommand;
- import ch.fhnw.ether.media.RenderCommandException;
- import ch.fhnw.util.ClassUtilities;
- import ch.fhnw.util.math.Vec2;
+import ch.fhnw.ether.audio.AudioUtilities;
+import ch.fhnw.ether.audio.FFT;
+import ch.fhnw.ether.audio.IAudioRenderTarget;
+import ch.fhnw.ether.media.AbstractRenderCommand;
+import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.util.ClassUtilities;
+import ch.fhnw.util.math.Vec2;
 
  public class PitchDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	 private static final float THRESHOLD = 0.2f;
