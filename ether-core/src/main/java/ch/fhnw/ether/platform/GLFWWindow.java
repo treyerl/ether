@@ -32,13 +32,12 @@
 package ch.fhnw.ether.platform;
 
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWCursorEnterCallback;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -55,7 +54,6 @@ import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Callback;
 
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
@@ -89,7 +87,6 @@ final class GLFWWindow implements IWindow {
 	private int modifiers = 0;
 	private int vao = -1;
 	
-	private final List<Callback> callbacks = new ArrayList<>();
 	private IWindowListener windowListener;
 	private IKeyListener keyListener;
 	private IPointerListener pointerListener;
@@ -173,10 +170,9 @@ final class GLFWWindow implements IWindow {
 		
 		// note: we cannot destroy window as long as the context is acquired (i.e. window is rendering)
 		contextLock.lock();
+		Callbacks.glfwFreeCallbacks(window);
 		GLFW.glfwDestroyWindow(window);
 		window = 0;
-		callbacks.forEach(c -> c.free());
-		callbacks.clear();
 		contextLock.unlock();
 		
 		// XXX not sure if this is what we want in all cases, but for now ok.
@@ -353,13 +349,13 @@ final class GLFWWindow implements IWindow {
 		
 		GLFWWindowFocusCallback focusCallback = new GLFWWindowFocusCallback() {
 			@Override
-			public void invoke(long window, int focused) {
+			public void invoke(long window, boolean focused) {
 				if (DBG)
 					System.out.println("window focus: " + title + " " + focused);
 
 				if (windowListener == null)
 					return;
-				windowListener.windowFocusChanged(GLFWWindow.this, focused > 0);
+				windowListener.windowFocusChanged(GLFWWindow.this, focused);
 			}
 		};
 		
@@ -402,11 +398,11 @@ final class GLFWWindow implements IWindow {
 		
 		GLFWWindowIconifyCallback iconifyCallback = new GLFWWindowIconifyCallback() {
 			@Override
-			public void invoke(long window, int iconified) {
+			public void invoke(long window, boolean iconified) {
 				if (DBG)
 					System.out.println("window iconified: " + iconified);
 
-				visible = iconified == 0;
+				visible = !iconified;
 			}
 		};
 
@@ -417,14 +413,6 @@ final class GLFWWindow implements IWindow {
 		GLFW.glfwSetWindowSizeCallback(window, sizeCallback);
 		GLFW.glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 		GLFW.glfwSetWindowIconifyCallback(window, iconifyCallback);
-
-		callbacks.add(closeCallback);
-		callbacks.add(refreshCallback);
-		callbacks.add(focusCallback);
-		callbacks.add(positionCallback);
-		callbacks.add(sizeCallback);
-		callbacks.add(framebufferSizeCallback);
-		callbacks.add(iconifyCallback);
 
 		
 		//---- KEY CALLBACKS
@@ -449,20 +437,19 @@ final class GLFWWindow implements IWindow {
 		};
 
 		GLFW.glfwSetKeyCallback(window, keyCallback);
-		callbacks.add(keyCallback);
 		
 
 		//---- POINTER CALLBACKS
 		
 		GLFWCursorEnterCallback pointerEnterCallback = new GLFWCursorEnterCallback() {
 			@Override
-			public void invoke(long window, int entered) {
+			public void invoke(long window, boolean entered) {
 				if (DBG)
 					System.out.println("window pointer entered: " + title + " " + entered);
 
 				if (pointerListener == null)
 					return;				
-				if (entered > 0)
+				if (entered)
 					pointerListener.pointerEntered(GLFWWindow.this, modifiers, pointerPosition);
 				else 
 					pointerListener.pointerExited(GLFWWindow.this, modifiers, pointerPosition);
@@ -531,10 +518,6 @@ final class GLFWWindow implements IWindow {
 		GLFW.glfwSetCursorPosCallback(window, pointerPositionCallback);
 		GLFW.glfwSetMouseButtonCallback(window, pointerButtonCallback);
 		GLFW.glfwSetScrollCallback(window, pointerScrollCallback);
-		callbacks.add(pointerEnterCallback);
-		callbacks.add(pointerPositionCallback);
-		callbacks.add(pointerButtonCallback);
-		callbacks.add(pointerScrollCallback);
 	}
 	
 	private void checkMainThread() {
