@@ -49,6 +49,9 @@ import ch.fhnw.ether.render.gl.GLObject.Type;
  *
  * @author radar
  */
+
+// TODO: switch to arrays instead of using float buffer (or offer both methods)?
+
 public final class FloatUniformBuffer {
 	private static final AtomicInteger BINDING_POINT_COUNTER = new AtomicInteger();
 

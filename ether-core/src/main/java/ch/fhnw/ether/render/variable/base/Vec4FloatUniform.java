@@ -38,7 +38,7 @@ import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 import ch.fhnw.util.math.IVec4;
 
 public class Vec4FloatUniform extends AbstractUniform<IVec4> {
-	private float[] value;
+	private IVec4 value;
 	
 	public Vec4FloatUniform(ITypedAttribute<IVec4> attribute, String shaderName) {
 		super(attribute, shaderName);
@@ -58,7 +58,7 @@ public class Vec4FloatUniform extends AbstractUniform<IVec4> {
 
 	@Override
 	public final void update(Object[] data) {
-		value = fetch(data).toArray();
+		value = fetch(data);
 	}
 
 	@Override

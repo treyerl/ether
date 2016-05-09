@@ -201,7 +201,7 @@ public final class DefaultGeometry extends AbstractGeometry {
 		if (normals == null)
 			return IGeometry.createNormals(vertices);
 		if (normals.length == 3)
-			return IGeometry.createNormals(vertices.length / 3, new Vec3(normals));
+			return IGeometry.createNormals(vertices.length / 3, new Vec3(normals[0], normals[1], normals[2]));
 		return normals;
 	}
 }

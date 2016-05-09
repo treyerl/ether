@@ -43,6 +43,9 @@ import ch.fhnw.util.BufferUtilities;
  *
  * @author radar
  */
+
+// TODO: switch to arrays instead of using float buffer (or offer both methods)?
+
 public final class FloatArrayBuffer implements IArrayBuffer {
 	private GLObject vbo;
 	private int size;

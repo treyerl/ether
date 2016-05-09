@@ -29,40 +29,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.render.variable.base;
+package ch.fhnw.util.math;
 
-import java.util.function.Supplier;
+import ch.fhnw.util.IFloatArrayCopyProvider;
 
-import ch.fhnw.ether.render.gl.Program;
-import ch.fhnw.ether.scene.attribute.ITypedAttribute;
-import ch.fhnw.util.math.IVec3;
 
-public class Vec3FloatUniform extends AbstractUniform<IVec3> {
-	private IVec3 value;
+public interface IVec2 extends IFloatArrayCopyProvider {
+	float x();
+	float y();
 	
-	public Vec3FloatUniform(ITypedAttribute<IVec3> attribute, String shaderName) {
-		super(attribute, shaderName);
-	}
-
-	public Vec3FloatUniform(ITypedAttribute<IVec3> attribute, String shaderName, Supplier<IVec3> supplier) {
-		super(attribute, shaderName, supplier);
-	}
-
-	public Vec3FloatUniform(String id, String shaderName, Supplier<IVec3> supplier) {
-		super(id, shaderName, supplier);
-	}
-
-	public Vec3FloatUniform(String id, String shaderName) {
-		super(id, shaderName);
-	}
-
-	@Override
-	public final void update(Object[] data) {
-		value = fetch(data);
-	}
-
-	@Override
-	public final void enable(Program program) {
-		program.setUniformVec3(getShaderIndex(program), value);
-	}
+	Vec2 toVec2();
 }

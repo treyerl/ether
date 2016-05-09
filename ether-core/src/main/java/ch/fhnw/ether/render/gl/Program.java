@@ -35,11 +35,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.opengl.GL32;
@@ -48,6 +46,9 @@ import org.lwjgl.opengl.GL40;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
+import ch.fhnw.util.math.IVec2;
+import ch.fhnw.util.math.IVec3;
+import ch.fhnw.util.math.IVec4;
 
 /**
  * GLSL shader program abstraction.
@@ -187,35 +188,59 @@ public final class Program {
 			GL20.glUniform1f(index, value);
 	}
 
+	public void setUniformVec2(int index, IVec2 value) {
+		if (value != null && index >= 0)
+			GL20.glUniform2f(index, value.x(), value.y());
+	}
+
+	public void setUniformVec2(int index, float x, float y) {
+		if (index >= 0)
+			GL20.glUniform2f(index, x, y);
+	}
+
 	public void setUniformVec2(int index, float[] value) {
 		if (value != null && index >= 0)
-			GL20.glUniform2f(index, value[0], value[1]);
+			GL20.glUniform2fv(index, value);
+	}
+
+	public void setUniformVec3(int index, IVec3 value) {
+		if (value != null && index >= 0)
+			GL20.glUniform3f(index, value.x(), value.y(), value.z());
+	}
+
+	public void setUniformVec3(int index, float x, float y, float z) {
+		if (index >= 0)
+			GL20.glUniform3f(index, x, y, z);
 	}
 
 	public void setUniformVec3(int index, float[] value) {
 		if (value != null && index >= 0)
-			GL20.glUniform3f(index, value[0], value[1], value[2]);
+			GL20.glUniform3fv(index, value);
+	}
+
+	public void setUniformVec4(int index, IVec4 value) {
+		if (value != null && index >= 0)
+			GL20.glUniform4f(index, value.x(), value.y(), value.z(), value.w());
+	}
+
+	public void setUniformVec4(int index, float x, float y, float z, float w) {
+		if (index >= 0)
+			GL20.glUniform4f(index, x, y, z, w);
 	}
 
 	public void setUniformVec4(int index, float[] value) {
 		if (value != null && index >= 0)
-			GL20.glUniform4f(index, value[0], value[1], value[2], value[3]);
+			GL20.glUniform4fv(index, value);
 	}
 
 	public void setUniformMat3(int index, float[] value) {
-		if (value != null && index >= 0) {
-			FloatBuffer buf = BufferUtils.createFloatBuffer(9);
-			buf.put(value);
-			GL20.glUniformMatrix3fv(index, false, buf);
-		}
+		if (value != null && index >= 0)
+			GL20.glUniformMatrix3fv(index, false, value);
 	}
 
 	public void setUniformMat4(int index, float[] value) {
-		if (value != null && index >= 0) {
-			FloatBuffer buf = BufferUtils.createFloatBuffer(16);
-			buf.put(value);
-			GL20.glUniformMatrix4fv(index, false, buf);
-		}
+		if (value != null && index >= 0)
+			GL20.glUniformMatrix4fv(index, false, value);
 	}
 
 	public void setUniformSampler(int index, int unit) {

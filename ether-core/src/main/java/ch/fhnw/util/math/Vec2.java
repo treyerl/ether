@@ -34,14 +34,13 @@ package ch.fhnw.util.math;
 import java.util.Collection;
 
 import ch.fhnw.util.HashUtilities;
-import ch.fhnw.util.IFloatArrayCopyProvider;
 
 /**
  * 2D vector for basic vector algebra. Instances are immutable.
  *
  * @author radar
  */
-public final class Vec2 implements IFloatArrayCopyProvider {
+public final class Vec2 implements IVec2 {
 	public static final Vec2 ZERO = new Vec2(0, 0);
 	public static final Vec2 ONE = new Vec2(1, 1);
 	public static final Vec2 X = new Vec2(1, 0);
@@ -61,6 +60,16 @@ public final class Vec2 implements IFloatArrayCopyProvider {
 		this((float) x, (float) y);
 	}
 	
+	@Override
+	public float x() {
+		return x;
+	}
+	
+	@Override
+	public float y() {
+		return y;
+	}
+
 	public boolean isZero() {
 		return MathUtilities.isZero(length());
 	}
@@ -102,6 +111,11 @@ public final class Vec2 implements IFloatArrayCopyProvider {
 	
 	public float angle(Vec2 v) {
 		return MathUtilities.RADIANS_TO_DEGREES * (float)Math.acos(dot(v) / length() * v.length());		
+	}
+	
+	@Override
+	public Vec2 toVec2() {
+		return this;
 	}
 
 	@Override

@@ -31,12 +31,10 @@
 
 package ch.fhnw.ether.platform;
 
-import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
@@ -58,8 +56,8 @@ final class GLFWWindow implements IWindow {
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
 	
 	// for getting window/framebuffer sizes. to be used on main thread only
-	private static final IntBuffer INT_BUFFER_0 = BufferUtils.createIntBuffer(1);
-	private static final IntBuffer INT_BUFFER_1 = BufferUtils.createIntBuffer(1);
+	private static final int[] INT_ARRAY_0 = new int[1];
+	private static final int[] INT_ARRAY_1 = new int[1];
 	
 	private String title;
 	private boolean visible;
@@ -133,8 +131,8 @@ final class GLFWWindow implements IWindow {
         
         setCallbacks();
         
-        GLFW.glfwGetFramebufferSize(window, INT_BUFFER_0, INT_BUFFER_1);
-        framebufferSize = new Vec2(INT_BUFFER_0.get(0), INT_BUFFER_1.get(0));
+        GLFW.glfwGetFramebufferSize(window, INT_ARRAY_0, INT_ARRAY_1);
+        framebufferSize = new Vec2(INT_ARRAY_0[0], INT_ARRAY_1[0]);
 		
 		try (IContext context = acquireContext()) {
 			GLFW.glfwSwapInterval(1);
@@ -353,8 +351,8 @@ final class GLFWWindow implements IWindow {
             if (DBG)
                 System.out.println("framebuffer resize: " + title + " " + width + " " + height);
 
-            GLFW.glfwGetWindowSize(w, INT_BUFFER_0, INT_BUFFER_1);
-            windowSize = new Vec2(INT_BUFFER_0.get(0), INT_BUFFER_1.get(0));
+            GLFW.glfwGetWindowSize(w, INT_ARRAY_0, INT_ARRAY_1);
+            windowSize = new Vec2(INT_ARRAY_0[0], INT_ARRAY_1[0]);
             framebufferSize = new Vec2(width, height);
 
             if (windowListener == null)

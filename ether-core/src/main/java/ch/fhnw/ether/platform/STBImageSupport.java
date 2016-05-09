@@ -85,7 +85,7 @@ public class STBImageSupport implements IImageSupport {
 		if (componentType == ComponentType.BYTE) {
 			pixels = STBImage.stbi_load_from_memory(buffer, width, height, numComponents, numComponentsRequested);
 		} else if (componentType == ComponentType.FLOAT) {
-			pixels = STBImage.stbi_loadf_from_memory(buffer, width, height, numComponents, numComponentsRequested);			
+			pixels = STBImage.stbi_loadf_from_memory(buffer, width, height, numComponents, numComponentsRequested);
 		} else {
 			throw new IllegalArgumentException("unsupported component type: " + componentType);
 		}
