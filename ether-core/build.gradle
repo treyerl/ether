@@ -15,12 +15,16 @@ dependencies {
     compile "org.lwjgl:lwjgl-platform:$lwjglVersion:natives-osx"
 
     compile "com.github.wendykierp:JTransforms:3.1"
+
     compile "xuggle:xuggle-xuggler:5.4"
+
     compile "com.github.sarxos:webcam-capture:0.3.11"
-    //compile "com.googlecode.soundlibs:soundlibs:1.2"
+
     compile "com.googlecode.soundlibs:tritonus-share:0.3.7-2"
     compile "com.googlecode.soundlibs:jlayer:1.0.1-1"
     compile "com.googlecode.soundlibs:mp3spi:1.9.5-1"
-    compile files("libs/jaad/jaad-0.8.4.jar")
+
+    compile "net.sourceforge.jaadec:jaad:0.8.4"
+
     compile files("libs/jcodec/jcodec-0.2.jar")
 }
