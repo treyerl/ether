@@ -1,0 +1,5 @@
+description = """ether-avion"""
+
+dependencies {
+    compile project(":ether-core")
+}
