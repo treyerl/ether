@@ -1,0 +1,333 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0C1845F21CE60F7F0086CD99 /* avion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0C1845F11CE60F7F0086CD99 /* avion.mm */; };
+		0C1845F41CE6108B0086CD99 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845F31CE6108B0086CD99 /* AVFoundation.framework */; };
+		0C1845F91CE610EA0086CD99 /* JavaNativeFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845F81CE610EA0086CD99 /* JavaNativeFoundation.framework */; };
+		0C1845FE1CE614460086CD99 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845FD1CE614460086CD99 /* CoreVideo.framework */; };
+		0C1846001CE614520086CD99 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845FF1CE614520086CD99 /* CoreGraphics.framework */; };
+		0C1846021CE6147B0086CD99 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1846011CE6147B0086CD99 /* CoreMedia.framework */; };
+		0C78FD7C1CE60E4400592A97 /* avion.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0C78FD7B1CE60E4400592A97 /* avion.hpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0C1845F11CE60F7F0086CD99 /* avion.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = avion.mm; sourceTree = "<group>"; };
+		0C1845F31CE6108B0086CD99 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		0C1845F61CE610B90086CD99 /* JavaVM.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaVM.framework; path = System/Library/Frameworks/JavaVM.framework; sourceTree = SDKROOT; };
+		0C1845F81CE610EA0086CD99 /* JavaNativeFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaNativeFoundation.framework; path = System/Library/Frameworks/JavaVM.framework/Frameworks/JavaNativeFoundation.framework; sourceTree = SDKROOT; };
+		0C1845FD1CE614460086CD99 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		0C1845FF1CE614520086CD99 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		0C1846011CE6147B0086CD99 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		0C78FD781CE60E4400592A97 /* liblibavion.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblibavion.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C78FD7B1CE60E4400592A97 /* avion.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = avion.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0C78FD751CE60E4400592A97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C1845F41CE6108B0086CD99 /* AVFoundation.framework in Frameworks */,
+				0C1846001CE614520086CD99 /* CoreGraphics.framework in Frameworks */,
+				0C1846021CE6147B0086CD99 /* CoreMedia.framework in Frameworks */,
+				0C1845FE1CE614460086CD99 /* CoreVideo.framework in Frameworks */,
+				0C1845F91CE610EA0086CD99 /* JavaNativeFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0C1845F51CE610960086CD99 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0C1846011CE6147B0086CD99 /* CoreMedia.framework */,
+				0C1845FF1CE614520086CD99 /* CoreGraphics.framework */,
+				0C1845FD1CE614460086CD99 /* CoreVideo.framework */,
+				0C1845F81CE610EA0086CD99 /* JavaNativeFoundation.framework */,
+				0C1845F61CE610B90086CD99 /* JavaVM.framework */,
+				0C1845F31CE6108B0086CD99 /* AVFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0C78FD6F1CE60E4400592A97 = {
+			isa = PBXGroup;
+			children = (
+				0C78FD7A1CE60E4400592A97 /* Source */,
+				0C78FD791CE60E4400592A97 /* Products */,
+				0C1845F51CE610960086CD99 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		0C78FD791CE60E4400592A97 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0C78FD781CE60E4400592A97 /* liblibavion.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0C78FD7A1CE60E4400592A97 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				0C78FD7B1CE60E4400592A97 /* avion.hpp */,
+				0C1845F11CE60F7F0086CD99 /* avion.mm */,
+			);
+			name = Source;
+			path = avion;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		0C78FD761CE60E4400592A97 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C78FD7C1CE60E4400592A97 /* avion.hpp in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		0C78FD771CE60E4400592A97 /* libavion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0C78FD831CE60E4400592A97 /* Build configuration list for PBXNativeTarget "libavion" */;
+			buildPhases = (
+				0C1845FA1CE611520086CD99 /* ShellScript */,
+				0C78FD741CE60E4400592A97 /* Sources */,
+				0C78FD751CE60E4400592A97 /* Frameworks */,
+				0C78FD761CE60E4400592A97 /* Headers */,
+				0C1845FB1CE611810086CD99 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libavion;
+			productName = avion;
+			productReference = 0C78FD781CE60E4400592A97 /* liblibavion.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0C78FD701CE60E4400592A97 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "FHNW / Stefan Arisona";
+				TargetAttributes = {
+					0C78FD771CE60E4400592A97 = {
+						CreatedOnToolsVersion = 7.3;
+					};
+				};
+			};
+			buildConfigurationList = 0C78FD731CE60E4400592A97 /* Build configuration list for PBXProject "avion" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0C78FD6F1CE60E4400592A97;
+			productRefGroup = 0C78FD791CE60E4400592A97 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0C78FD771CE60E4400592A97 /* libavion */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0C1845FA1CE611520086CD99 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo $SRCROOT\njavah -classpath $SRCROOT/../../src/main/java -d $SRCROOT/avion ch.fhnw.ether.avion.AVAsset";
+		};
+		0C1845FB1CE611810086CD99 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo $BUILT_PRODUCTS_DIR\necho $PRODUCT_NAME\ncp $BUILT_PRODUCTS_DIR/$PRODUCT_NAME.dylib $SRCROOT/../../libs/";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0C78FD741CE60E4400592A97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0C1845F21CE60F7F0086CD99 /* avion.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0C78FD811CE60E4400592A97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		0C78FD821CE60E4400592A97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /System/Library/Frameworks/JavaVM.framework/Headers;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		0C78FD841CE60E4400592A97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/Frameworks/JavaVM.framework/Frameworks",
+				);
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0C78FD851CE60E4400592A97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/Frameworks/JavaVM.framework/Frameworks",
+				);
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C78FD731CE60E4400592A97 /* Build configuration list for PBXProject "avion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C78FD811CE60E4400592A97 /* Debug */,
+				0C78FD821CE60E4400592A97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0C78FD831CE60E4400592A97 /* Build configuration list for PBXNativeTarget "libavion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0C78FD841CE60E4400592A97 /* Debug */,
+				0C78FD851CE60E4400592A97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0C78FD701CE60E4400592A97 /* Project object */;
+}
