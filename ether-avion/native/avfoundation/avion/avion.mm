@@ -2,7 +2,7 @@
  *  avion.mm
  *  avion
  *
- *  Created by Stefan Müller Arisona on 13/05/16.
+ *  Created by Stefan Arisona on 13/05/16.
  *  Copyright © 2016 FHNW / Stefan Arisona. All rights reserved.
  *
  */
@@ -229,12 +229,7 @@ public:
 };
 
 
-/*
- * Class:     ch_fhnw_ether_video_avfoundation_AVAsset
- * Method:    nativeCreate
- * Signature: (Ljava/lang/String;)J
- */
-JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_video_avfoundation_AVAsset_nativeCreate
+JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_video_avfoundation_Avion_nativeCreate
 (JNIEnv * env, jclass, jstring javaURL) {
     JNF_COCOA_ENTER(env);
     
@@ -256,7 +251,7 @@ JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_video_avfoundation_AVAsset_nativeCrea
 
 
 
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeDispose
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_nativeDispose
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -265,7 +260,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeDispose
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetDuration
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetDuration
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -274,7 +269,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetDuration
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrameRate
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrameRate
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -283,7 +278,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrameRate
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrameCount
+JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrameCount
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -292,7 +287,7 @@ JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrameCount
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetWidth
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetWidth
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -301,7 +296,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetWidth
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetHeight
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetHeight
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
@@ -310,7 +305,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetHeight
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeRewind
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_nativeRewind
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
 
@@ -319,7 +314,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeRewind
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrame
+JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrame
 (JNIEnv * env, jclass, jlong nativeHandle, jdouble time) {
     JNF_COCOA_ENTER(env);
 
@@ -328,7 +323,7 @@ JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetFrame
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetNextFrame
+JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetNextFrame
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
 
@@ -337,7 +332,7 @@ JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeGetNextFrame
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeLoadFrame
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeLoadFrame
 (JNIEnv * env, jclass, jlong nativeHandle, jdouble time, jint textureId) {
     JNF_COCOA_ENTER(env);
     
@@ -346,7 +341,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeLoadFrame
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_AVAsset_nativeLoadFrames
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeLoadFrames
 (JNIEnv * env, jclass, jlong nativeHandle, jint numFrames, jint textureId) {
     JNF_COCOA_ENTER(env);
     

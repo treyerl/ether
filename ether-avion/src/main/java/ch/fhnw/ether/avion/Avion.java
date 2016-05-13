@@ -31,13 +31,17 @@ package ch.fhnw.ether.avion;
 
 import java.net.URL;
 
-public final class AVAsset {
+public final class Avion {
+	public static void main(String[] args) {
+		System.out.println("welcome to avion: " + READY);
+	}
+	
 	private static boolean READY = true;
 
 	static {
 		try {
 			System.loadLibrary("avion");
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			READY = false;
 		}
 	}
@@ -55,7 +59,7 @@ public final class AVAsset {
 	private final int width;
 	private final int height;
 
-	public AVAsset(URL url) {
+	public Avion(URL url) {
 		if (!isReady())
 			throw new RuntimeException("native av library not loaded");
 		

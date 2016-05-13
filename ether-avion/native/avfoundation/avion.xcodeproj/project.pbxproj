@@ -13,6 +13,7 @@
 		0C1845FE1CE614460086CD99 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845FD1CE614460086CD99 /* CoreVideo.framework */; };
 		0C1846001CE614520086CD99 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1845FF1CE614520086CD99 /* CoreGraphics.framework */; };
 		0C1846021CE6147B0086CD99 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1846011CE6147B0086CD99 /* CoreMedia.framework */; };
+		0C4A0FB51CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */; };
 		0C78FD7C1CE60E4400592A97 /* avion.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0C78FD7B1CE60E4400592A97 /* avion.hpp */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,7 @@
 		0C1845FD1CE614460086CD99 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		0C1845FF1CE614520086CD99 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0C1846011CE6147B0086CD99 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ch_fhnw_ether_avion_Avion.h; sourceTree = "<group>"; };
 		0C78FD781CE60E4400592A97 /* liblibavion.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblibavion.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C78FD7B1CE60E4400592A97 /* avion.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = avion.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,6 +81,7 @@
 			children = (
 				0C78FD7B1CE60E4400592A97 /* avion.hpp */,
 				0C1845F11CE60F7F0086CD99 /* avion.mm */,
+				0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */,
 			);
 			name = Source;
 			path = avion;
@@ -92,6 +95,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C78FD7C1CE60E4400592A97 /* avion.hpp in Headers */,
+				0C4A0FB51CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +164,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo $SRCROOT\njavah -classpath $SRCROOT/../../src/main/java -d $SRCROOT/avion ch.fhnw.ether.avion.AVAsset";
+			shellScript = "echo $SRCROOT\njavah -classpath $SRCROOT/../../src/main/java -d $SRCROOT/avion ch.fhnw.ether.avion.Avion";
 		};
 		0C1845FB1CE611810086CD99 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
