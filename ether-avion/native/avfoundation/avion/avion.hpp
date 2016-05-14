@@ -63,19 +63,22 @@ public:
         
         NSDictionary* options = @{ AVURLAssetPreferPreciseDurationAndTimingKey : @YES };
         
+        //---- asset
         asset = [AVURLAsset URLAssetWithURL:nsUrl options:options];
         if (!asset) {
             MSG("avassetwrapper: invalid url '%s'\n", url.c_str());
             throw std::invalid_argument("invalid url " + url);
         }
         
+        //--- audio track
         NSArray* audioTracks = [asset tracksWithMediaType:AVMediaTypeAudio];
         if ([audioTracks count] < 1) {
             MSG("avassetwrapper: no audio track for '%s'\n", url.c_str());
             throw std::invalid_argument("no audio track");
         }
         audioTrack = [audioTracks objectAtIndex:0];
-
+        
+        //--- video track
         NSArray* videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
         if ([videoTracks count] < 1) {
             MSG("avassetwrapper: no video track for '%s'\n", url.c_str());
@@ -129,9 +132,20 @@ public:
             throw std::invalid_argument("could not initialize audio reader");
         }
         
-        NSDictionary* audioSettings = @{ AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] };
-        [audioReader addOutput:[AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:audioTrack outputSettings:audioSettings]];
+        //NSDictionary* audioSettings = @{ AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM] };
+        //[audioReader addOutput:[AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:audioTrack outputSettings:audioSettings]];
         
+        NSDictionary* audioSettings = @{
+            AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],
+            AVSampleRateKey : [NSNumber numberWithFloat:44100.0],
+            AVNumberOfChannelsKey : [NSNumber numberWithInt:2],
+            AVLinearPCMBitDepthKey : [NSNumber numberWithInt:32],
+            AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool:NO],
+            AVLinearPCMIsFloatKey : [NSNumber numberWithBool:YES],
+            AVLinearPCMIsBigEndianKey : [NSNumber numberWithBool:NO],
+        };
+        [audioReader addOutput:[AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioSettings]];
+
         audioReader.timeRange = timeRange;
         
         if ([audioReader startReading] != YES) {
@@ -150,7 +164,9 @@ public:
             throw std::invalid_argument("could not initialize video reader");
         }
         
-        NSDictionary* videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA] };
+        NSDictionary* videoSettings = @{
+            (id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA]
+        };
         [videoReader addOutput:[AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoSettings]];
 
         videoReader.timeRange = timeRange;
@@ -176,6 +192,29 @@ public:
         }
         
         double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+
+        
+        
+        CMItemCount numSamplesInBuffer = CMSampleBufferGetNumSamples(sampleBuffer);
+        
+
+        
+        CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
+        if (!blockBuffer) {
+            MSG("get next audio frame: could not get audio block buffer\n");
+            CFRelease(sampleBuffer);
+            return -1;
+        }
+
+        size_t length = 0;
+        void* data = nullptr;
+        if (CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &length, (char**)&data) != kCMBlockBufferNoErr) {
+            MSG("get next audio frame: cannot get audio data\n");
+            CFRelease(sampleBuffer);
+            return -1;
+        }
+        
+        printf("got audio samples: %ld %ld \n", numSamplesInBuffer, length);
 
         CFRelease(sampleBuffer);
         
