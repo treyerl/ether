@@ -9,99 +9,75 @@ extern "C" {
 #endif
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeCreate
+ * Method:    decoderCreate
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_nativeCreate
+JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
   (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeDispose
+ * Method:    decoderDispose
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_nativeDispose
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDispose
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetDuration
+ * Method:    decoderGetDuration
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetDuration
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetDuration
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetFrameRate
+ * Method:    decoderGetVideoFrameRate
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrameRate
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoFrameRate
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetFrameCount
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrameCount
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetWidth
+ * Method:    decoderGetVideoWidth
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetWidth
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoWidth
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetHeight
+ * Method:    decoderGetVideoHeight
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetHeight
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoHeight
   (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeRewind
- * Signature: (J)V
+ * Method:    decoderSeek
+ * Signature: (JD)V
  */
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_nativeRewind
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetFrame
- * Signature: (JD)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetFrame
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderSeek
   (JNIEnv *, jclass, jlong, jdouble);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeGetNextFrame
- * Signature: (J)[B
+ * Method:    decoderGetNextAudioFrame
+ * Signature: (JLjava/nio/FloatBuffer;)D
  */
-JNIEXPORT jbyteArray JNICALL Java_ch_fhnw_ether_avion_Avion_nativeGetNextFrame
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextAudioFrame
+  (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeLoadFrame
- * Signature: (JDI)I
+ * Method:    decoderGetNextVideoFrame
+ * Signature: (JLjava/nio/ByteBuffer;)D
  */
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeLoadFrame
-  (JNIEnv *, jclass, jlong, jdouble, jint);
-
-/*
- * Class:     ch_fhnw_ether_avion_Avion
- * Method:    nativeLoadFrames
- * Signature: (JII)I
- */
-JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_nativeLoadFrames
-  (JNIEnv *, jclass, jlong, jint, jint);
+JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextVideoFrame
+  (JNIEnv *, jclass, jlong, jobject);
 
 #ifdef __cplusplus
 }

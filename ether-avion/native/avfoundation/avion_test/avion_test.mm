@@ -29,57 +29,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.avion;
+#import <Foundation/Foundation.h>
 
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
+#include "avion.hpp"
 
-public final class Avion {
-	public static void main(String[] args) {
-		System.out.println("welcome to avion: " + READY);
-	}
+int main(int argc, char *argv[]) {
+    
+    printf("avion test flight\n");
+
+    @autoreleasepool {
+        AVAssetWrapper* wrapper = new AVAssetWrapper("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4");
+        
+        //wrapper->seek(60);
+        
+        size_t size = wrapper->getVideoWidth() * wrapper->getVideoHeight() * 4;
+        uint8_t buffer[size];
+        
+        double pts = 0;
+        while (pts != -1) {
+            pts = wrapper->getNextVideoFrame(buffer);
+            printf("got video frame %f\n", pts);
+
+            pts = wrapper->getNextAudioFrame((float*)buffer);
+            printf("got audio frame %f\n", pts);
+        }
+    }
 	
-	private static boolean READY = true;
-
-	static {
-		try {
-			System.loadLibrary("avion");
-		} catch (Throwable t) {
-			READY = false;
-		}
-	}
-
-	public static boolean isReady() {
-		return READY;
-	}
-
-	private Avion() {
-	}
-	
-	public static AVDecoder createDecoder(URL url) {
-		return new AVDecoder(url);
-	}
-	
-	public static AVEncoder createEncoder(String path) {
-		return new AVEncoder(path);
-	}
-
-	static native long decoderCreate(String url);
-
-	static native void decoderDispose(long nativeHandle);
-
-	static native double decoderGetDuration(long nativeHandle);
-
-	static native double decoderGetVideoFrameRate(long nativeHandle);
-
-	static native int decoderGetVideoWidth(long nativeHandle);
-
-	static native int decoderGetVideoHeight(long nativeHandle);
-
-	static native void decoderSeek(long nativeHandle, double time);
-
-	static native double decoderGetNextAudioFrame(long nativeHandle, FloatBuffer buffer);
-
-	static native double decoderGetNextVideoFrame(long nativeHandle, ByteBuffer buffer);
+    return 0;
 }
+
