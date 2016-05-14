@@ -34,51 +34,75 @@ package ch.fhnw.ether.avion;
 import java.net.URL;
 import java.nio.ByteBuffer;
 
-public final class Avion {
-	public static void main(String[] args) {
-		System.out.println("welcome to avion: " + READY);
-	}
+public final class AVDecoder {
 	
-	private static boolean READY = true;
-
-	static {
-		try {
-			System.loadLibrary("avion");
-		} catch (Throwable t) {
-			READY = false;
+	public class Profile {
+		public Profile(boolean video, boolean audio, int audioFrameSize, int audioSampleRate) {
+			
 		}
 	}
-
-	public static boolean isReady() {
-		return READY;
-	}
-
-	private Avion() {
-	}
 	
-	public static AVDecoder createDecoder(URL url) {
-		return new AVDecoder(url);
+
+	private long nativeHandle;
+
+	private final URL url;
+	private final double duration;
+	private final double videoFrameRate;
+	private final int videoWidth;
+	private final int videoHeight;
+
+	public AVDecoder(URL url) {
+		this.url = url;
+
+		nativeHandle = Avion.decoderCreate(url.toString());
+		if (nativeHandle == 0)
+			throw new IllegalArgumentException("cannot create av decoder from " + url);
+
+		duration = Avion.decoderGetDuration(nativeHandle);
+		videoFrameRate = Avion.decoderGetVideoFrameRate(nativeHandle);
+		videoWidth = Avion.decoderGetVideoWidth(nativeHandle);
+		videoHeight = Avion.decoderGetVideoHeight(nativeHandle);
 	}
-	
-	public static AVEncoder createEncoder(String path) {
-		return new AVEncoder(path);
+
+	public void dispose() {
+		Avion.decoderDispose(nativeHandle);
+		nativeHandle = 0;
 	}
 
-	static native long decoderCreate(String url);
+	public URL getURL() {
+		return url;
+	}
 
-	static native void decoderDispose(long nativeHandle);
+	public double getDuration() {
+		return duration;
+	}
 
-	static native double decoderGetDuration(long nativeHandle);
+	public double getVideoFrameRate() {
+		return videoFrameRate;
+	}
 
-	static native double decoderGetVideoFrameRate(long nativeHandle);
+	public int getVideoWidth() {
+		return videoWidth;
+	}
 
-	static native int decoderGetVideoWidth(long nativeHandle);
+	public int getVideoHeight() {
+		return videoHeight;
+	}
 
-	static native int decoderGetVideoHeight(long nativeHandle);
+	public ByteBuffer getNextAudioFrame(double[] pts) {
+		return Avion.decoderGetNextAudioFrame(nativeHandle, pts);
+	}
 
-	static native void decoderSeek(long nativeHandle, double time);
+	public ByteBuffer getNextVideoFrame(double[] pts) {
+		return Avion.decoderGetNextVideoFrame(nativeHandle, pts);
+	}
 
-	static native ByteBuffer decoderGetNextAudioFrame(long nativeHandle, double[] pts);
+	public void seek(double time) {
+		Avion.decoderSeek(nativeHandle, time);
+	}
 
-	static native ByteBuffer decoderGetNextVideoFrame(long nativeHandle, double[] pts);
+	@Override
+	public String toString() {
+		return getURL() + " (d=" + getDuration() + " fr=" + getVideoFrameRate() + " w=" + getVideoWidth() + " h=" + getVideoHeight() + ")";
+	}
 }

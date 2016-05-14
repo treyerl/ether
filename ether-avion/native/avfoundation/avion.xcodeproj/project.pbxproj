@@ -15,6 +15,8 @@
 		0C1846021CE6147B0086CD99 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C1846011CE6147B0086CD99 /* CoreMedia.framework */; };
 		0C4A0FB51CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h in Headers */ = {isa = PBXBuildFile; fileRef = 0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */; };
 		0C78FD7C1CE60E4400592A97 /* avion.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0C78FD7B1CE60E4400592A97 /* avion.hpp */; };
+		0CBA055E1CE73169002D012B /* avion_jni.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0CBA055D1CE73169002D012B /* avion_jni.mm */; };
+		0CBA05601CE733C2002D012B /* Avion.java in Sources */ = {isa = PBXBuildFile; fileRef = 0CBA055F1CE733C2002D012B /* Avion.java */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +30,8 @@
 		0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ch_fhnw_ether_avion_Avion.h; sourceTree = "<group>"; };
 		0C78FD781CE60E4400592A97 /* liblibavion.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblibavion.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C78FD7B1CE60E4400592A97 /* avion.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = avion.hpp; sourceTree = "<group>"; };
+		0CBA055D1CE73169002D012B /* avion_jni.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = avion_jni.mm; sourceTree = "<group>"; };
+		0CBA055F1CE733C2002D012B /* Avion.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Avion.java; path = ../../src/main/java/ch/fhnw/ether/avion/Avion.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,12 +53,12 @@
 		0C1845F51CE610960086CD99 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0C1845F31CE6108B0086CD99 /* AVFoundation.framework */,
 				0C1846011CE6147B0086CD99 /* CoreMedia.framework */,
 				0C1845FF1CE614520086CD99 /* CoreGraphics.framework */,
 				0C1845FD1CE614460086CD99 /* CoreVideo.framework */,
 				0C1845F81CE610EA0086CD99 /* JavaNativeFoundation.framework */,
 				0C1845F61CE610B90086CD99 /* JavaVM.framework */,
-				0C1845F31CE6108B0086CD99 /* AVFoundation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -62,6 +66,7 @@
 		0C78FD6F1CE60E4400592A97 = {
 			isa = PBXGroup;
 			children = (
+				0CBA05611CE733CF002D012B /* JNI API */,
 				0C78FD7A1CE60E4400592A97 /* Source */,
 				0C78FD791CE60E4400592A97 /* Products */,
 				0C1845F51CE610960086CD99 /* Frameworks */,
@@ -81,10 +86,19 @@
 			children = (
 				0C78FD7B1CE60E4400592A97 /* avion.hpp */,
 				0C1845F11CE60F7F0086CD99 /* avion.mm */,
+				0CBA055D1CE73169002D012B /* avion_jni.mm */,
 				0C4A0FB41CE649D1000C8F02 /* ch_fhnw_ether_avion_Avion.h */,
 			);
 			name = Source;
 			path = avion;
+			sourceTree = "<group>";
+		};
+		0CBA05611CE733CF002D012B /* JNI API */ = {
+			isa = PBXGroup;
+			children = (
+				0CBA055F1CE733C2002D012B /* Avion.java */,
+			);
+			name = "JNI API";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -187,6 +201,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C1845F21CE60F7F0086CD99 /* avion.mm in Sources */,
+				0CBA055E1CE73169002D012B /* avion_jni.mm in Sources */,
+				0CBA05601CE733C2002D012B /* Avion.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

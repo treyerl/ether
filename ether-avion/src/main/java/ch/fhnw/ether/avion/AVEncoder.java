@@ -29,3 +29,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package ch.fhnw.ether.avion;
+
+public final class AVEncoder {
+
+	private long nativeHandle;
+
+	public AVEncoder(String path) {
+	}
+
+	public void dispose() {
+		nativeHandle = 0;
+	}
+
+	@Override
+	public String toString() {
+		return "encoder" + nativeHandle;
+	}
+}
