@@ -29,4 +29,71 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import "avion.hpp"
+#pragma once
+
+#include <algorithm>
+#include <deque>
+#include <utility>
+#include <vector>
+
+template<typename T>
+class AudioQueue {
+    struct Entry {
+        Entry(double pts, T* samples, int length) : m_pts(pts), m_length(length), m_start(0) {
+            m_samples = new T[length];
+            std::copy(samples, samples + length, m_samples);
+        }
+        
+        ~Entry() {
+            delete[] m_samples;
+        }
+        
+        double m_pts;
+        T* m_samples;
+        int m_length;
+        int m_start;
+    };
+    
+    const double m_sampleRate;
+
+    std::deque<Entry> m_queue;
+    
+    int m_queueSize;
+
+public:
+    AudioQueue(double sampleRate) : m_sampleRate(sampleRate) {
+    }
+    
+    ~AudioQueue() {
+    }
+    
+    int size() const {
+        return m_queueSize;
+    }
+    
+    void put(double pts, T* src, int length) {
+        m_queueSize += length;
+        m_queue.push_back(Entry(pts, src, length));
+    }
+    
+    void take(double& pts, T* dst, int length) {
+        m_queueSize -= length;
+        Entry& entry = m_queue.front();
+        pts = entry.m_pts + (double)entry.m_start / m_sampleRate;
+        while (length > 0) {
+            int l = std::min(length, entry.m_length - entry.m_start);
+            std::copy(entry.m_samples + entry.m_start, entry.m_samples + l, dst);
+            entry.m_start += l;
+            if (entry.m_start == entry.m_length) {
+                m_queue.pop_front();
+                entry = m_queue.front();
+            }
+            dst += l;
+            length -= l;
+        }
+    }
+    
+    void clear() {
+        m_queue.clear();
+    }
+};

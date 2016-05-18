@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     printf("avion test flight\n");
 
     @autoreleasepool {
-        AVAssetWrapper* wrapper = new AVAssetWrapper("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4");
+        Avion* wrapper = Avion::create("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4", true, true, 1024, false, 44100);
         
         //wrapper->seek(60);
         

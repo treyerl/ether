@@ -45,7 +45,7 @@ JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
     
     jlong nativeHandle = 0;
     try {
-        nativeHandle = (jlong)new AVAssetWrapper(url);
+        nativeHandle = (jlong)Avion::create(url, true, true, 1024, false, 44100);
     } catch(std::exception& e) {
         // fall through, return zero
     }
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDispose
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
-    delete (AVAssetWrapper*)nativeHandle;
+    delete (Avion*)nativeHandle;
 
     JNF_COCOA_EXIT(env);
 }
@@ -70,7 +70,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetDuration
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
-    return ((AVAssetWrapper*)nativeHandle)->getDuration();
+    return ((Avion*)nativeHandle)->getDuration();
     
     JNF_COCOA_EXIT(env);
 }
@@ -79,7 +79,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoFrameRat
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
-    return ((AVAssetWrapper*)nativeHandle)->getVideoFrameRate();
+    return ((Avion*)nativeHandle)->getVideoFrameRate();
     
     JNF_COCOA_EXIT(env);
 }
@@ -88,7 +88,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoWidth
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
-    return ((AVAssetWrapper*)nativeHandle)->getVideoWidth();
+    return ((Avion*)nativeHandle)->getVideoWidth();
     
     JNF_COCOA_EXIT(env);
 }
@@ -97,7 +97,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoHeight
 (JNIEnv * env, jclass, jlong nativeHandle) {
     JNF_COCOA_ENTER(env);
     
-    return ((AVAssetWrapper*)nativeHandle)->getVideoHeight();
+    return ((Avion*)nativeHandle)->getVideoHeight();
     
     JNF_COCOA_EXIT(env);
 }
@@ -106,7 +106,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderSeek
 (JNIEnv * env, jclass, jlong nativeHandle, jdouble time) {
     JNF_COCOA_ENTER(env);
 
-    ((AVAssetWrapper*)nativeHandle)->seek(time);
+    ((Avion*)nativeHandle)->seek(time);
     
     JNF_COCOA_EXIT(env);
 }
@@ -116,7 +116,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextAudioFram
     JNF_COCOA_ENTER(env);
     
     float* buffer = (float*)env->GetDirectBufferAddress(floatBuffer);
-    return ((AVAssetWrapper*)nativeHandle)->getNextAudioFrame(buffer);
+    return ((Avion*)nativeHandle)->getNextAudioFrame(buffer);
     
     JNF_COCOA_EXIT(env);
     
@@ -127,7 +127,7 @@ JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextVideoFram
     JNF_COCOA_ENTER(env);
     
     uint8_t* buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
-    return ((AVAssetWrapper*)nativeHandle)->getNextVideoFrame(buffer);
+    return ((Avion*)nativeHandle)->getNextVideoFrame(buffer);
     
     JNF_COCOA_EXIT(env);
     
