@@ -33,19 +33,13 @@
 
 #define MSG(...) { printf(__VA_ARGS__); fflush(stdout); }
 
-#import <Foundation/Foundation.h>
-#import <AVFoundation/AVFoundation.h>
-
 #include <string>
 
-#include "audio_buffer.hpp"
-
-
-class Avion {
+class AvionDecoder {
 public:
-    static Avion* create(std::string url, bool video, bool audio, int audioBufferSize, bool audioInterleaved, double audioSampleRate);
+    static AvionDecoder* create(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate);
     
-    virtual ~Avion() {}
+    virtual ~AvionDecoder() {}
     
     virtual double getDuration() = 0;
     
@@ -57,7 +51,7 @@ public:
     
     virtual void seek(double time) = 0;
     
-    virtual double getNextAudioFrame(float* buffer) = 0;
+    virtual int getNextAudioFrame(float* buffer, double& pts) = 0;
 
-    virtual double getNextVideoFrame(uint8_t* buffer) = 0;
+    virtual int getNextVideoFrame(uint8_t* buffer, double& pts) = 0;
 };

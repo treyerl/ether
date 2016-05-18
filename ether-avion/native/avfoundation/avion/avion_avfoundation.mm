@@ -29,7 +29,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+
 #import "avion.hpp"
+
+#include "audio_buffer.hpp"
 
 // TODO:
 // - flip image vertically, optimise pixel transfer
@@ -37,28 +42,37 @@
 // - complete audio
 // - API: replace seek with range (start + end time)?
 
-class AVAssetWrapper : public Avion {
+class AVAssetDecoder : public AvionDecoder {
 private:
-    std::string url;
+    const std::string url;
+    const bool decodeAudio;
+    const bool decodeVideo;
+
+    const int audioBufferSize;
+    const bool audioInterleaved;
+    AudioQueue<float> audioQueue;
+
     AVAsset* asset;
     AVAssetTrack* audioTrack;
     AVAssetTrack* videoTrack;
     
-    AVAssetReader* audioReader;
-    AVAssetReader* videoReader;
-    
-    double duration;
     double videoFrameRate;
     CGSize videoSize;
     
-    AudioQueue<float> m_queue { 44100 };
-    
+    double duration;
+
+    AVAssetReader* audioReader;
+    AVAssetReader* videoReader;
+
 public:
-    AVAssetWrapper(std::string url) : url(url), audioReader(nullptr), videoReader(nullptr) {
+    AVAssetDecoder(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate) :
+    url(url), decodeAudio(decodeAudio), decodeVideo(decodeVideo),
+    audioBufferSize(audioBufferSize), audioInterleaved(audioInterleaved), audioQueue(audioSampleRate),
+    audioReader(nullptr), videoReader(nullptr) {
         
         NSURL* nsUrl = [NSURL URLWithString:[NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding]];
         if (!nsUrl) {
-            MSG("avassetwrapper: invalid url '%s'\n", url.c_str());
+            MSG("avf: invalid url '%s'\n", url.c_str());
             throw std::invalid_argument("invalid url " + url);
         }
         
@@ -67,41 +81,40 @@ public:
         //---- asset
         asset = [AVURLAsset URLAssetWithURL:nsUrl options:options];
         if (!asset) {
-            MSG("avassetwrapper: invalid url '%s'\n", url.c_str());
+            MSG("avf: invalid url '%s'\n", url.c_str());
             throw std::invalid_argument("invalid url " + url);
         }
         
         //--- audio track
-        NSArray* audioTracks = [asset tracksWithMediaType:AVMediaTypeAudio];
-        if ([audioTracks count] < 1) {
-            MSG("avassetwrapper: no audio track for '%s'\n", url.c_str());
-            throw std::invalid_argument("no audio track");
+        if (decodeAudio) {
+            NSArray* audioTracks = [asset tracksWithMediaType:AVMediaTypeAudio];
+            if ([audioTracks count] < 1) {
+                MSG("avf: no audio track for '%s'\n", url.c_str());
+                throw std::invalid_argument("no audio track");
+            }
+            audioTrack = [audioTracks objectAtIndex:0];
         }
-        audioTrack = [audioTracks objectAtIndex:0];
         
         //--- video track
-        NSArray* videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
-        if ([videoTracks count] < 1) {
-            MSG("avassetwrapper: no video track for '%s'\n", url.c_str());
-            throw std::invalid_argument("no video track");
+        if (decodeVideo) {
+            NSArray* videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+            if ([videoTracks count] < 1) {
+                MSG("avf: no video track for '%s'\n", url.c_str());
+                throw std::invalid_argument("no video track");
+            }
+            videoTrack = [videoTracks objectAtIndex:0];
+            videoFrameRate = [videoTrack nominalFrameRate];
+            videoSize = [videoTrack naturalSize];
         }
-        videoTrack = [videoTracks objectAtIndex:0];
         
         duration = CMTimeGetSeconds([asset duration]);
         
-        videoFrameRate = [videoTrack nominalFrameRate];
-        videoSize = [videoTrack naturalSize];
-        
         seek(0.0);
         
-        MSG("avfoundation asset: %s: duration=%f framerate=%f size=%dx%d\n",
-            url.c_str(), duration, videoFrameRate, (int)videoSize.width, (int)videoSize.height);
-        
-        m_queue.size();
-        m_queue.put(0, 0, 10);
+        MSG("avf: %s: duration=%f framerate=%f size=%dx%d\n", url.c_str(), duration, videoFrameRate, (int)videoSize.width, (int)videoSize.height);
     }
     
-    virtual ~AVAssetWrapper() {
+    virtual ~AVAssetDecoder() {
         if (audioReader)
             [audioReader release];
         if (videoReader)
@@ -129,76 +142,83 @@ public:
         CMTimeRange timeRange = CMTimeRangeMake(CMTimeMakeWithSeconds(time, 1), kCMTimePositiveInfinity);
         
         //---- setup audio reader
-        if (audioReader != nullptr)
-            [audioReader release];
-        
-        audioReader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
-        if (!audioReader || error) {
-            MSG("avassetwrapper: could not initialize audio reader for '%s'\n", url.c_str());
-            throw std::invalid_argument("could not initialize audio reader");
-        }
-        
-        NSDictionary* audioSettings = @{
-                                        AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],
-                                        AVSampleRateKey : [NSNumber numberWithFloat:44100.0],
-                                        AVNumberOfChannelsKey : [NSNumber numberWithInt:2],
-                                        AVLinearPCMBitDepthKey : [NSNumber numberWithInt:32],
-                                        AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool:NO],
-                                        AVLinearPCMIsFloatKey : [NSNumber numberWithBool:YES],
-                                        AVLinearPCMIsBigEndianKey : [NSNumber numberWithBool:NO],
-                                        };
-        [audioReader addOutput:[AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioSettings]];
-        
-        audioReader.timeRange = timeRange;
-        
-        if ([audioReader startReading] != YES) {
-            [audioReader release];
-            MSG("avfoundation: could not start reading audio from '%s': %s\n", url.c_str(), [[[audioReader error] localizedDescription] UTF8String]);
-            throw std::invalid_argument("could not start reading audio");
+        if (decodeAudio) {
+            if (audioReader != nullptr)
+                [audioReader release];
+            
+            audioReader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
+            if (!audioReader || error) {
+                MSG("avf: could not initialize audio reader for '%s'\n", url.c_str());
+                throw std::invalid_argument("could not initialize audio reader");
+            }
+            
+            NSDictionary* audioSettings = @{
+                                            AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],
+                                            AVSampleRateKey : [NSNumber numberWithFloat:44100.0],
+                                            AVNumberOfChannelsKey : [NSNumber numberWithInt:2],
+                                            AVLinearPCMBitDepthKey : [NSNumber numberWithInt:32],
+                                            AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool:NO],
+                                            AVLinearPCMIsFloatKey : [NSNumber numberWithBool:YES],
+                                            AVLinearPCMIsBigEndianKey : [NSNumber numberWithBool:NO],
+                                            };
+            [audioReader addOutput:[AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioSettings]];
+            
+            audioReader.timeRange = timeRange;
+            
+            if ([audioReader startReading] != YES) {
+                [audioReader release];
+                MSG("avf: could not start reading audio from '%s': %s\n", url.c_str(), [[[audioReader error] localizedDescription] UTF8String]);
+                throw std::invalid_argument("could not start reading audio");
+            }
         }
         
         //---- setup video reader
-        if (videoReader != nullptr)
-            [audioReader release];
-        
-        videoReader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
-        if (!videoReader || error) {
-            MSG("avassetwrapper: could not initialize video reader for '%s'\n", url.c_str());
-            throw std::invalid_argument("could not initialize video reader");
-        }
-        
-        NSDictionary* videoSettings = @{
-                                        (id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA]
-                                        };
-        [videoReader addOutput:[AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoSettings]];
-        
-        videoReader.timeRange = timeRange;
-        
-        if ([videoReader startReading] != YES) {
-            [videoReader release];
-            MSG("avfoundation: could not start reading video from '%s': %s\n", url.c_str(), [[[videoReader error] localizedDescription] UTF8String]);
-            throw std::invalid_argument("could not start reading video");
+        if (decodeVideo) {
+            if (videoReader != nullptr)
+                [audioReader release];
+            
+            videoReader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
+            if (!videoReader || error) {
+                MSG("avf: could not initialize video reader for '%s'\n", url.c_str());
+                throw std::invalid_argument("could not initialize video reader");
+            }
+            
+            NSDictionary* videoSettings = @{
+                                            (id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA]
+                                            };
+            [videoReader addOutput:[AVAssetReaderTrackOutput assetReaderTrackOutputWithTrack:videoTrack outputSettings:videoSettings]];
+            
+            videoReader.timeRange = timeRange;
+            
+            if ([videoReader startReading] != YES) {
+                [videoReader release];
+                MSG("avf: could not start reading video from '%s': %s\n", url.c_str(), [[[videoReader error] localizedDescription] UTF8String]);
+                throw std::invalid_argument("could not start reading video");
+            }
         }
     }
     
-    double getNextAudioFrame(float* buffer) {
+    int getNextAudioFrame(float* buffer, double& pts) {
+        if (!decodeAudio)
+            return -1;
+        
         if ([audioReader status] != AVAssetReaderStatusReading) {
-            MSG("get next audio frame: reached end of media\n");
+            MSG("avf: get next audio frame: reached end of media\n");
             return -1;
         }
         
         AVAssetReaderOutput* output = [audioReader.outputs objectAtIndex:0];
         CMSampleBufferRef sampleBuffer = [output copyNextSampleBuffer];
         if (!sampleBuffer) {
-            MSG("get next audio frame: could not copy audio sample buffer\n");
+            MSG("avf: get next audio frame: could not copy audio sample buffer\n");
             return -1;
         }
         
-        double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+        pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
         
         CMBlockBufferRef blockBuffer = CMSampleBufferGetDataBuffer(sampleBuffer);
         if (!blockBuffer) {
-            MSG("get next audio frame: could not get audio block buffer\n");
+            MSG("avf: get next audio frame: could not get audio block buffer\n");
             CFRelease(sampleBuffer);
             return -1;
         }
@@ -206,7 +226,7 @@ public:
         size_t length = 0;
         float* data = nullptr;
         if (CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &length, (char**)&data) != kCMBlockBufferNoErr) {
-            MSG("get next audio frame: cannot get audio data\n");
+            MSG("avf: get next audio frame: cannot get audio data\n");
             CFRelease(sampleBuffer);
             return -1;
         }
@@ -216,23 +236,26 @@ public:
         
         CFRelease(sampleBuffer);
         
-        return pts;
+        return 0;
     }
     
-    double getNextVideoFrame(uint8_t* buffer) {
+    int getNextVideoFrame(uint8_t* buffer, double& pts) {
+        if (!decodeVideo)
+            return -1;
+        
         if ([videoReader status] != AVAssetReaderStatusReading) {
-            MSG("get next video frame: reached end of media\n");
+            MSG("avf: get next video frame: reached end of media\n");
             return -1;
         }
         
         AVAssetReaderOutput* output = [videoReader.outputs objectAtIndex:0];
         CMSampleBufferRef sampleBuffer = [output copyNextSampleBuffer];
         if (!sampleBuffer) {
-            MSG("get next video frame: could not copy video sample buffer\n");
+            MSG("avf: get next video frame: could not copy video sample buffer\n");
             return -1;
         }
         
-        double pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
+        pts = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer));
         
         CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
         
@@ -247,7 +270,7 @@ public:
         int bytesPerRow = (int)CVPixelBufferGetBytesPerRow(imageBuffer);
         int skip = bytesPerRow - width * 4;
         int length = width * height * 4;
-        MSG("w=%d h=%d bpr=%d skip=%d length=%d\n", width, height, bytesPerRow, skip, length);
+        MSG("avf: w=%d h=%d bpr=%d skip=%d length=%d\n", width, height, bytesPerRow, skip, length);
         
         for (int y = height; --y >= 0;) {
             uint8_t* src = (uint8_t*)CVPixelBufferGetBaseAddress(imageBuffer) + y * bytesPerRow;
@@ -268,10 +291,10 @@ public:
         CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
         CFRelease(sampleBuffer);
         
-        return pts;
+        return 0;
     }
 };
 
-Avion* Avion::create(std::string url, bool video, bool audio, int audioBufferSize, bool audioInterleaved, double audioSampleRate) {
-    return new AVAssetWrapper(url);
+AvionDecoder* AvionDecoder::create(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate) {
+    return new AVAssetDecoder(url, decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
 }
