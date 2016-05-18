@@ -15,7 +15,6 @@ subprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         maven { url "http://maven-eclipse.github.io/maven" }
-        maven { url "http://jcenter.bintray.com/"}
-        maven { url "http://xuggle.googlecode.com/svn/trunk/repo/share/java/" }
+        maven { url "http://jcenter.bintray.com/" }
     }
 }
