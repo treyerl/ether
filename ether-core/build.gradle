@@ -16,7 +16,6 @@ dependencies {
 
     compile "com.github.wendykierp:JTransforms:3.1"
 
-    compile "xuggle:xuggle-xuggler:5.4"
 
     compile "com.github.sarxos:webcam-capture:0.3.11"
 
@@ -26,5 +25,6 @@ dependencies {
 
     compile "net.sourceforge.jaadec:jaad:0.8.4"
 
+    compile files("libs/xuggle/xuggle-xuggler-5.4.jar")
     compile files("libs/jcodec/jcodec-0.2.jar")
 }
