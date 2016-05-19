@@ -33,13 +33,28 @@
 
 #define MSG(...) { printf(__VA_ARGS__); fflush(stdout); }
 
+#include <limits>
 #include <string>
 
-class AvionDecoder {
+class Avion {
+public:
+    const int NO_ERROR = 0;
+    const int END_OF_STREAM = -1;
+    const int NO_SUCH_STREAM = -2;
+    const int INTERNAL_ERROR = -3;
+};
+
+class AvionDecoder : public Avion {
 public:
     static AvionDecoder* create(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate);
     
     virtual ~AvionDecoder() {}
+    
+    virtual void setRange(double start, double end = std::numeric_limits<double>::infinity()) = 0;
+    
+    virtual bool hasAudio() = 0;
+    
+    virtual bool hasVideo() = 0;
     
     virtual double getDuration() = 0;
     
@@ -49,9 +64,7 @@ public:
     
     virtual int getVideoHeight() = 0;
     
-    virtual void seek(double time) = 0;
-    
-    virtual int getNextAudioFrame(float* buffer, double& pts) = 0;
+    virtual int decodeAudio(float* buffer, double& pts) = 0;
 
-    virtual int getNextVideoFrame(uint8_t* buffer, double& pts) = 0;
+    virtual int decodeVideo(uint8_t* buffer, double& pts) = 0;
 };

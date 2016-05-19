@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     ch_fhnw_ether_avion_Avion
  * Method:    decoderCreate
- * Signature: (Ljava/lang/String;)J
+ * Signature: (Ljava/lang/String;ZZIZD)J
  */
 JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
-  (JNIEnv *, jclass, jstring);
+  (JNIEnv *, jclass, jstring, jboolean, jboolean, jint, jboolean, jdouble);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
@@ -22,6 +22,30 @@ JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
  */
 JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDispose
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     ch_fhnw_ether_avion_Avion
+ * Method:    decoderRange
+ * Signature: (JDD)V
+ */
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderRange
+  (JNIEnv *, jclass, jlong, jdouble, jdouble);
+
+/*
+ * Class:     ch_fhnw_ether_avion_Avion
+ * Method:    decoderHasAudio
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_ether_avion_Avion_decoderHasAudio
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     ch_fhnw_ether_avion_Avion
+ * Method:    decoderHasVideo
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_ch_fhnw_ether_avion_Avion_decoderHasVideo
+  (JNIEnv *, jclass);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
@@ -57,27 +81,19 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoHeight
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    decoderSeek
- * Signature: (JD)V
+ * Method:    decoderDecodeAudio
+ * Signature: (JLjava/nio/FloatBuffer;[D)I
  */
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderSeek
-  (JNIEnv *, jclass, jlong, jdouble);
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeAudio
+  (JNIEnv *, jclass, jlong, jobject, jdoubleArray);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    decoderGetNextAudioFrame
- * Signature: (JLjava/nio/FloatBuffer;)D
+ * Method:    decoderDecodeVideo
+ * Signature: (JLjava/nio/ByteBuffer;[D)I
  */
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextAudioFrame
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     ch_fhnw_ether_avion_Avion
- * Method:    decoderGetNextVideoFrame
- * Signature: (JLjava/nio/ByteBuffer;)D
- */
-JNIEXPORT jdouble JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetNextVideoFrame
-  (JNIEnv *, jclass, jlong, jobject);
+JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeVideo
+  (JNIEnv *, jclass, jlong, jobject, jdoubleArray);
 
 #ifdef __cplusplus
 }

@@ -56,12 +56,12 @@ class AudioQueue {
     
     const double m_sampleRate;
 
-    std::deque<Entry> m_queue;
+    std::deque<std::shared_ptr<Entry>> m_queue;
     
     int m_queueSize;
 
 public:
-    AudioQueue(double sampleRate) : m_sampleRate(sampleRate) {
+    AudioQueue(double sampleRate) : m_sampleRate(sampleRate), m_queueSize(0) {
     }
     
     ~AudioQueue() {
@@ -71,26 +71,35 @@ public:
         return m_queueSize;
     }
     
-    void put(double pts, T* src, int length) {
-        m_queueSize += length;
-        m_queue.push_back(Entry(pts, src, length));
+    void put(T* src, int num, double pts) {
+        m_queueSize += num;
+        m_queue.push_back(std::make_shared<Entry>(pts, src, num));
     }
     
-    void take(double& pts, T* dst, int length) {
-        m_queueSize -= length;
-        Entry& entry = m_queue.front();
-        pts = entry.m_pts + (double)entry.m_start / m_sampleRate;
-        while (length > 0) {
-            int l = std::min(length, entry.m_length - entry.m_start);
-            std::copy(entry.m_samples + entry.m_start, entry.m_samples + l, dst);
-            entry.m_start += l;
-            if (entry.m_start == entry.m_length) {
+    int take(T* dst, int num, double& pts) {
+        int result = 0;
+        if (num > m_queueSize)
+            num = m_queueSize;
+        result = num;
+        
+        Entry* entry = m_queue.front().get();
+        pts = entry->m_pts + (double)entry->m_start / m_sampleRate;
+        while (num > 0) {
+            int l = std::min(num, entry->m_length - entry->m_start);
+            std::copy(entry->m_samples + entry->m_start, entry->m_samples + entry->m_start + l, dst);
+            entry->m_start += l;
+            if (entry->m_start == entry->m_length) {
                 m_queue.pop_front();
-                entry = m_queue.front();
+                if (m_queue.empty())
+                    break;
+                entry = m_queue.front().get();
             }
             dst += l;
-            length -= l;
+            num -= l;
         }
+        
+        m_queueSize -= result;
+        return result;
     }
     
     void clear() {

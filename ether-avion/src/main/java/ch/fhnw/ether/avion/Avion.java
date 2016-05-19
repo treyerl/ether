@@ -57,19 +57,25 @@ public final class Avion {
 	private Avion() {
 	}
 	
-	public static AVDecoder createDecoder(URL url) {
-		return new AVDecoder(url);
+	public static AVDecoder createDecoder(URL url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate) {
+		return new AVDecoder(url, decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
 	}
 	
 	public static AVEncoder createEncoder(String path) {
 		return new AVEncoder(path);
 	}
 
-	static native long decoderCreate(String url);
+	static native long decoderCreate(String url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate);
 
 	static native void decoderDispose(long nativeHandle);
 
-	static native double decoderGetDuration(long nativeHandle);
+    static native void decoderRange(long nativeHandle, double start, double end);
+
+    static native boolean decoderHasAudio();
+
+    static native boolean decoderHasVideo();
+    
+    static native double decoderGetDuration(long nativeHandle);
 
 	static native double decoderGetVideoFrameRate(long nativeHandle);
 
@@ -77,9 +83,7 @@ public final class Avion {
 
 	static native int decoderGetVideoHeight(long nativeHandle);
 
-	static native void decoderSeek(long nativeHandle, double time);
+	static native int decoderDecodeAudio(long nativeHandle, FloatBuffer buffer, double[] pts);
 
-	static native double decoderGetNextAudioFrame(long nativeHandle, FloatBuffer buffer);
-
-	static native double decoderGetNextVideoFrame(long nativeHandle, ByteBuffer buffer);
+	static native int decoderDecodeVideo(long nativeHandle, ByteBuffer buffer, double[] pts);
 }

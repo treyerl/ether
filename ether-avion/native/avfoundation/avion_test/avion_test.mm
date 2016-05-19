@@ -38,22 +38,28 @@ int main(int argc, char *argv[]) {
     printf("avion test flight\n");
 
     @autoreleasepool {
-        AvionDecoder* decoder = AvionDecoder::create("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4", true, true, 1024, false, 44100);
+        const int audioSize = 1024;
+        
+        AvionDecoder* decoder = AvionDecoder::create("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4", true, true, audioSize, false, 44100);
         
         //wrapper->seek(60);
         
         size_t size = decoder->getVideoWidth() * decoder->getVideoHeight() * 4;
-        uint8_t buffer[size];
+        uint8_t image[size];
+        
+        float samples[audioSize];
         
         int error = 0;
         double pts = 0;
         while (error != -1) {
-            error = decoder->getNextVideoFrame(buffer, pts);
-            printf("got video frame %f\n", pts);
+            error = decoder->decodeVideo(image, pts);
+            printf("got video frame %f %d\n", pts, error);
 
-            error = decoder->getNextAudioFrame((float*)buffer, pts);
-            printf("got audio frame %f\n", pts);
+            //error = decoder->decodeAudio(samples, pts);
+            //printf("got audio frame %f %d\n", pts, error);
         }
+        
+        delete decoder;
     }
 	
     return 0;
