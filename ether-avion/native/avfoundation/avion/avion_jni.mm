@@ -37,6 +37,8 @@
 
 #include "ch_fhnw_ether_avion_Avion.h"
 
+extern "C" {
+
 JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
 (JNIEnv * env, jclass, jstring url, jboolean decodeAudio, jboolean decodeVideo, jint audioBufferSize, jboolean audioInterleaved, jdouble audioSampleRate) {
     JNF_COCOA_ENTER(env);
@@ -155,3 +157,4 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeVideo
     JNF_COCOA_EXIT(env);
 }
 
+}

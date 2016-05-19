@@ -33,16 +33,10 @@ package ch.fhnw.ether.avion;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 public final class AVDecoder {
 	
-	public class Profile {
-		public Profile(boolean video, boolean audio, int audioFrameSize, int audioSampleRate) {
-			
-		}
-	}
-	
-
 	private long nativeHandle;
 
 	private final URL url;
@@ -51,10 +45,10 @@ public final class AVDecoder {
 	private final int videoWidth;
 	private final int videoHeight;
 
-	public AVDecoder(URL url) {
+	public AVDecoder(URL url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate) {
 		this.url = url;
 
-		nativeHandle = Avion.decoderCreate(url.toString());
+		nativeHandle = Avion.decoderCreate(url.toString(), decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
 		if (nativeHandle == 0)
 			throw new IllegalArgumentException("cannot create av decoder from " + url);
 
@@ -67,6 +61,18 @@ public final class AVDecoder {
 	public void dispose() {
 		Avion.decoderDispose(nativeHandle);
 		nativeHandle = 0;
+	}
+
+	public void range(double start, double end) {
+		Avion.decoderRange(nativeHandle, start, end);
+	}
+	
+	public boolean hasAudio() {
+		return Avion.decoderHasAudio(nativeHandle);
+	}
+	
+	public boolean hasVideo() {
+		return Avion.decoderHasVideo(nativeHandle);
 	}
 
 	public URL getURL() {
@@ -89,16 +95,12 @@ public final class AVDecoder {
 		return videoHeight;
 	}
 
-	public ByteBuffer getNextAudioFrame(double[] pts) {
-		return Avion.decoderGetNextAudioFrame(nativeHandle, pts);
+	public int decodeAudio(FloatBuffer buffer, double[] pts) {
+		return Avion.decoderDecodeAudio(nativeHandle, buffer, pts);
 	}
 
-	public ByteBuffer getNextVideoFrame(double[] pts) {
-		return Avion.decoderGetNextVideoFrame(nativeHandle, pts);
-	}
-
-	public void seek(double time) {
-		Avion.decoderSeek(nativeHandle, time);
+	public int decodeVideo(ByteBuffer buffer, double[] pts) {
+		return Avion.decoderDecodeVideo(nativeHandle, buffer, pts);
 	}
 
 	@Override

@@ -36,7 +36,7 @@
 
 #include "audio_buffer.hpp"
 
-uint32_t reverse(uint32_t value) {
+static uint32_t reverse(uint32_t value) {
     return (value << 24 & 0xff000000) |
            (value << 8  & 0x00ff0000) |
            (value >> 8  & 0x0000ff00) |
@@ -187,8 +187,6 @@ public:
                 throw std::invalid_argument("could not start reading video for " + url);
             }
         }
-        
-        MSG("avf: set range ok %8.8x %8.8x", audioReader, videoReader);
     }
     
     bool hasAudio() {

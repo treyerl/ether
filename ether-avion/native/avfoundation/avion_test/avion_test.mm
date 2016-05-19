@@ -33,6 +33,8 @@
 
 #include "avion.hpp"
 
+#include "ch_fhnw_ether_avion_Avion.h"
+
 int main(int argc, char *argv[]) {
     
     printf("avion test flight\n");

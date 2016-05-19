@@ -34,18 +34,18 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderRange
 /*
  * Class:     ch_fhnw_ether_avion_Avion
  * Method:    decoderHasAudio
- * Signature: ()Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_ether_avion_Avion_decoderHasAudio
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
  * Method:    decoderHasVideo
- * Signature: ()Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_ch_fhnw_ether_avion_Avion_decoderHasVideo
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion

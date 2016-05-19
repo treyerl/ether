@@ -37,7 +37,34 @@ import java.nio.FloatBuffer;
 
 public final class Avion {
 	public static void main(String[] args) {
-		System.out.println("welcome to avion: " + READY);
+		try {
+			System.out.println("welcome to avion: " + READY);
+	
+	        int audioSize = 1024;
+	        
+	        AVDecoder decoder = Avion.createDecoder(new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), true, true, audioSize, false, 44100);
+	        
+	        //wrapper->seek(60);
+	        
+	        int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
+	        ByteBuffer image = ByteBuffer.allocateDirect(size);
+	        
+	        FloatBuffer samples = ByteBuffer.allocateDirect(4 * audioSize).asFloatBuffer();
+	        
+	        int error = 0;
+	        double[] pts = new double[1];
+	        while (error != -1) {
+	            error = decoder.decodeVideo(image, pts);
+	            System.out.println("got video frame " + pts + " " + error + " " + pts[0]);
+	
+	            error = decoder.decodeAudio(samples, pts);
+	            System.out.println("got audio frame " + pts + " " + error + " " + pts[0]);
+	        }
+	        
+	        decoder.dispose();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static boolean READY = true;
@@ -66,14 +93,14 @@ public final class Avion {
 	}
 
 	static native long decoderCreate(String url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate);
-
+    
 	static native void decoderDispose(long nativeHandle);
 
     static native void decoderRange(long nativeHandle, double start, double end);
 
-    static native boolean decoderHasAudio();
+    static native boolean decoderHasAudio(long nativeHandle);
 
-    static native boolean decoderHasVideo();
+    static native boolean decoderHasVideo(long nativeHandle);
     
     static native double decoderGetDuration(long nativeHandle);
 

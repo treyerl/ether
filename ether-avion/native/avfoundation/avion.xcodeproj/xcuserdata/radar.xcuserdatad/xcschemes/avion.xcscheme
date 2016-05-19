@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "0C78FD771CE60E4400592A97"
-               BuildableName = "liblibavion.dylib"
-               BlueprintName = "libavion"
+               BuildableName = "libavion.dylib"
+               BlueprintName = "avion"
                ReferencedContainer = "container:avion.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,8 +46,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0C78FD771CE60E4400592A97"
-            BuildableName = "liblibavion.dylib"
-            BlueprintName = "libavion"
+            BuildableName = "libavion.dylib"
+            BlueprintName = "avion"
             ReferencedContainer = "container:avion.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -64,8 +64,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "0C78FD771CE60E4400592A97"
-            BuildableName = "liblibavion.dylib"
-            BlueprintName = "libavion"
+            BuildableName = "libavion.dylib"
+            BlueprintName = "avion"
             ReferencedContainer = "container:avion.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
