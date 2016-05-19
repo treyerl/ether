@@ -29,58 +29,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.avion;
+package ch.fhnw.ether.avion.example;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
-public final class Avion {
+import ch.fhnw.ether.avion.AVDecoder;
+import ch.fhnw.ether.avion.Avion;
 
-	private static boolean READY = true;
-
-	static {
+public final class AvionDecoderTest {
+	public static void main(String[] args) {
 		try {
-			System.loadLibrary("avion");
-		} catch (Throwable t) {
-			READY = false;
+			System.out.println("avion test flight: " + Avion.isReady());
+	
+	        int audioSize = 1024;
+	        
+	        AVDecoder decoder = Avion.createDecoder(new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), true, true, audioSize, false, 44100);
+	        
+	        //wrapper->seek(60);
+	        
+	        int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
+	        ByteBuffer image = ByteBuffer.allocateDirect(size);
+	        
+	        FloatBuffer samples = ByteBuffer.allocateDirect(4 * audioSize).asFloatBuffer();
+	        
+	        int error = 0;
+	        double[] pts = new double[1];
+	        while (error != -1) {
+	            error = decoder.decodeVideo(image, pts);
+	            System.out.println("got video frame " + pts + " " + error + " " + pts[0]);
+	
+	            error = decoder.decodeAudio(samples, pts);
+	            System.out.println("got audio frame " + pts + " " + error + " " + pts[0]);
+	        }
+	        
+	        decoder.dispose();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-
-	public static boolean isReady() {
-		return READY;
-	}
-
-	private Avion() {
-	}
-	
-	public static AVDecoder createDecoder(URL url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate) {
-		return new AVDecoder(url, decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
-	}
-	
-	public static AVEncoder createEncoder(String path) {
-		return new AVEncoder(path);
-	}
-
-	static native long decoderCreate(String url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate);
-    
-	static native void decoderDispose(long nativeHandle);
-
-    static native void decoderRange(long nativeHandle, double start, double end);
-
-    static native boolean decoderHasAudio(long nativeHandle);
-
-    static native boolean decoderHasVideo(long nativeHandle);
-    
-    static native double decoderGetDuration(long nativeHandle);
-
-	static native double decoderGetVideoFrameRate(long nativeHandle);
-
-	static native int decoderGetVideoWidth(long nativeHandle);
-
-	static native int decoderGetVideoHeight(long nativeHandle);
-
-	static native int decoderDecodeAudio(long nativeHandle, FloatBuffer buffer, double[] pts);
-
-	static native int decoderDecodeVideo(long nativeHandle, ByteBuffer buffer, double[] pts);
 }
