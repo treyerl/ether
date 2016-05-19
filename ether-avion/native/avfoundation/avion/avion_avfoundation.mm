@@ -35,12 +35,25 @@
 #import "avion.hpp"
 
 #include "audio_buffer.hpp"
+/*
+static uint32_t BGRA2RGBA(uint32_t value) {
+    return (value & 0xff000000) >> 16 |
+           (value & 0x00ff0000) |
+           (value & 0x0000ff00) << 16 |
+           (value & 0x000000ff);
+}
+*/
 
-static uint32_t reverse(uint32_t value) {
-    return (value << 24 & 0xff000000) |
-           (value << 8  & 0x00ff0000) |
-           (value >> 8  & 0x0000ff00) |
-           (value >> 24 & 0x000000ff);
+static uint32_t BGRA2RGBA(uint32_t value) {
+    return
+    (value & 0x00ff0000) >> 16 |
+    (value & 0x0000ff00) |
+    (value & 0x000000ff) << 16 |
+    (value & 0xff000000);
+//    (value & 0xff000000) >> 16 |
+//    (value & 0x00ff0000) |
+//    (value & 0x0000ff00) << 16 |
+//    (value & 0x000000ff);
 }
 
 // TODO:
@@ -298,7 +311,7 @@ public:
         for (int y = height; --y >= 0;) {
             uint32_t* row = src + y * pixelsPerRow;
             for (int x = 0; x < width; ++x) {
-                *dst++ = ::reverse(*row++);
+                *dst++ = ::BGRA2RGBA(*row++);
             }
         }
         

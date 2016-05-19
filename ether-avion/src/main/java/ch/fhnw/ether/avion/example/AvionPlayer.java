@@ -36,6 +36,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
@@ -107,7 +108,7 @@ public final class AvionPlayer {
 		"\n",
 		"void main(void) {\n",
 		"  vec2 x = vsTexCoord;",
-		"  color = vec4(1, 0, 0, 0); //texture(tex, vsTexCoord);\n",
+		"  color = texture(tex, vsTexCoord);\n",
 		"}\n"
 	};
 	
@@ -132,6 +133,10 @@ public final class AvionPlayer {
 	int textureUniform;
 	int vao;
 	int vbo;
+	int texture = -1;
+	
+	AVDecoder decoder;
+	ByteBuffer image;
 
 	void init() throws IOException {
 		GLFW.glfwSetErrorCallback(errCallback = new GLFWErrorCallback() {
@@ -177,15 +182,15 @@ public final class AvionPlayer {
 		GLFW.glfwSetWindowSize(window, width, height);
 
 		GLFW.glfwMakeContextCurrent(window);
-		GLFW.glfwSwapInterval(0);
+		GLFW.glfwSwapInterval(1);
 		GLFW.glfwShowWindow(window);
 		GL.createCapabilities();
 
 		GL11.glClearColor(0, 0, 0, 1);
 
-		// Create all needed GL resources
 		createProgram();
 		createBuffers();
+		createDecoder();
 	}
 
 	void createProgram() throws IOException {
@@ -224,17 +229,61 @@ public final class AvionPlayer {
 		GL20.glEnableVertexAttribArray(texCoordAttrib);
 
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		GL30.glBindVertexArray(0);
+		GL30.glBindVertexArray(0);		
+	}
+	
+	void createDecoder() {
+		try {
+			decoder = Avion.createDecoder(
+					new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), false, true,
+					1024, false, 44100);
+	
+			int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
+			image = BufferUtils.createByteBuffer(size);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+	
+	void decodeImage() {
+		double[] pts = new double[1];
+		int error = decoder.decodeVideo(image, pts);
+		if (error < 0) {
+			System.err.println("decoding error");
+			System.exit(1);
+		}
+
+		if (texture == -1) {
+			texture = GL11.glGenTextures();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+		}
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+		GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+		// XXX if we use GL12.GL_BGRA -> no need to convert on native side
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGB, decoder.getVideoWidth(), decoder.getVideoHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, image);
+		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 	}
 
 	void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
 		GL20.glUseProgram(program);
+		
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+		GL20.glUniform1i(textureUniform, 0);
+		
 		GL30.glBindVertexArray(vao);
 		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
 		GL30.glBindVertexArray(0);
-		//GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, 6);
+		
 		GL20.glUseProgram(0);
 		
 		int error = GL11.glGetError();
@@ -245,6 +294,8 @@ public final class AvionPlayer {
 	void loop() {
 		while (!GLFW.glfwWindowShouldClose(window)) {
 			GLFW.glfwPollEvents();
+			decodeImage();
+
 			GL11.glViewport(0, 0, width, height);
 			render();
 			GLFW.glfwSwapBuffers(window);
@@ -255,6 +306,8 @@ public final class AvionPlayer {
 		try {
 			init();
 			loop();
+			
+			decoder.dispose();
 
 			errCallback.free();
 			fbCallback.free();
