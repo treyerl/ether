@@ -68,6 +68,7 @@ private:
 
     const int audioBufferSize;
     const bool audioInterleaved;
+    const double audioSampleRate;
     AudioQueue<float> audioQueue;
 
     AVAsset* asset = nullptr;
@@ -84,7 +85,7 @@ private:
 
 public:
     AVAssetDecoder(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate) :
-    url(url), audioBufferSize(audioBufferSize), audioInterleaved(audioInterleaved), audioQueue(audioSampleRate) {
+    url(url), audioBufferSize(audioBufferSize), audioInterleaved(audioInterleaved), audioSampleRate(audioSampleRate), audioQueue(audioSampleRate) {
         
         NSURL* nsUrl = [NSURL URLWithString:[NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding]];
         if (!nsUrl) {
@@ -127,7 +128,7 @@ public:
         
         setRange(0.0);
         
-        MSG("avf: %s: duration=%f framerate=%f size=%dx%d\n", url.c_str(), duration, videoFrameRate, (int)videoSize.width, (int)videoSize.height);
+        //MSG("avf: %s: duration=%f framerate=%f size=%dx%d\n", url.c_str(), duration, videoFrameRate, (int)videoSize.width, (int)videoSize.height);
     }
     
     virtual ~AVAssetDecoder() {
@@ -156,7 +157,7 @@ public:
             
             NSDictionary* audioSettings = @{
                                             AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],
-                                            AVSampleRateKey : [NSNumber numberWithFloat:44100.0],
+                                            AVSampleRateKey : [NSNumber numberWithFloat:audioSampleRate],
                                             AVNumberOfChannelsKey : [NSNumber numberWithInt:2],
                                             AVLinearPCMBitDepthKey : [NSNumber numberWithInt:32],
                                             AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool: (audioInterleaved ? NO : YES)],
@@ -225,7 +226,7 @@ public:
     int getVideoHeight() {
         return videoSize.height;
     }
-    
+
     int decodeAudio(float* buffer, double& pts) {
         if (!audioReader)
             return NO_SUCH_STREAM;
@@ -261,7 +262,7 @@ public:
             }
             srcLength /= 4;
             
-            MSG("avf: got audio samples: %ld \n", srcLength);
+            //MSG("avf: put audio samples: %ld %f %f %f %f \n", srcLength, srcSamples[0], srcSamples[1], srcSamples[2], srcSamples[3]);
             audioQueue.put(srcSamples, srcLength, srcPts);
             
             CFRelease(sampleBuffer);
@@ -269,10 +270,14 @@ public:
         
         if (!audioQueue.size())
             return END_OF_STREAM;
-
-        return audioQueue.take(buffer, audioBufferSize, pts);
+        
+        int received = audioQueue.take(buffer, audioBufferSize, pts);
+        
+        //MSG("avf: get audio samples: %d %f %f %f %f \n", received, buffer[0], buffer[1], buffer[2], buffer[3]);
+        
+        return received;
     }
-    
+
     int decodeVideo(uint8_t* buffer, double& pts) {
         if (!videoReader)
             return NO_SUCH_STREAM;
@@ -302,9 +307,8 @@ public:
         int width = getVideoWidth();
         int height = getVideoHeight();
         int pixelsPerRow = (int)CVPixelBufferGetBytesPerRow(imageBuffer) / 4;
-        int length = width * height * 4;
 
-        MSG("avf: w=%d h=%d bpr=%d length=%d\n", width, height, pixelsPerRow, length);
+        //MSG("avf: w=%d h=%d bpr=%d length=%d\n", width, height, pixelsPerRow, width * height * 4);
         
         uint32_t* dst = (uint32_t*)buffer;
         uint32_t* src = (uint32_t*)CVPixelBufferGetBaseAddress(imageBuffer);

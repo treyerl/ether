@@ -34,7 +34,13 @@ package ch.fhnw.ether.avion.example;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioFormat.Encoding;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.SourceDataLine;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
@@ -50,39 +56,6 @@ import ch.fhnw.ether.avion.AVDecoder;
 import ch.fhnw.ether.avion.Avion;
 
 public final class AvionPlayer {
-	public static void mainXXX(String[] args) {
-		try {
-			System.out.println("avion test flight: " + Avion.isReady());
-
-			int audioSize = 1024;
-
-			AVDecoder decoder = Avion.createDecoder(
-					new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), true, true,
-					audioSize, false, 44100);
-
-			// wrapper->seek(60);
-
-			int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
-			ByteBuffer image = ByteBuffer.allocateDirect(size);
-
-			FloatBuffer samples = ByteBuffer.allocateDirect(4 * audioSize).asFloatBuffer();
-
-			int error = 0;
-			double[] pts = new double[1];
-			while (error != -1) {
-				error = decoder.decodeVideo(image, pts);
-				System.out.println("got video frame " + pts + " " + error + " " + pts[0]);
-
-				error = decoder.decodeAudio(samples, pts);
-				System.out.println("got audio frame " + pts + " " + error + " " + pts[0]);
-			}
-
-			decoder.dispose();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	private static final String[] VERTEX_SHADER = {
 		"#version 330\n",
 		"\n",
@@ -121,9 +94,12 @@ public final class AvionPlayer {
 		-1, 1,		0, 1		
 	};
 	
+	private static final int AUDIO_BUFFER_SIZE = 1024;
+	private static final double AUDIO_SAMPLE_RATE = 44100.0;
+	
 	long window;
-	int width = 1024;
-	int height = 768;
+	int width = 400;
+	int height = 200;
 	GLFWErrorCallback errCallback;
 	GLFWFramebufferSizeCallback fbCallback;
 
@@ -137,6 +113,7 @@ public final class AvionPlayer {
 	
 	AVDecoder decoder;
 	ByteBuffer image;
+	double pts;
 
 	void init() throws IOException {
 		GLFW.glfwSetErrorCallback(errCallback = new GLFWErrorCallback() {
@@ -235,11 +212,18 @@ public final class AvionPlayer {
 	void createDecoder() {
 		try {
 			decoder = Avion.createDecoder(
-					new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), false, true,
-					1024, false, 44100);
+					new URL("file:///Users/radar/Desktop/mr_robot.mp4"), true, true,
+					//new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), true, true,
+					AUDIO_BUFFER_SIZE, true, AUDIO_SAMPLE_RATE);
 	
 			int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
 			image = BufferUtils.createByteBuffer(size);
+			
+			Thread audioThread = new Thread(this::audio, "audio");
+			audioThread.setDaemon(true);
+			audioThread.setPriority(Thread.MAX_PRIORITY);
+			audioThread.start();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -253,6 +237,7 @@ public final class AvionPlayer {
 			System.err.println("decoding error");
 			System.exit(1);
 		}
+		this.pts = pts[0];
 
 		if (texture == -1) {
 			texture = GL11.glGenTextures();
@@ -294,17 +279,56 @@ public final class AvionPlayer {
 	void loop() {
 		while (!GLFW.glfwWindowShouldClose(window)) {
 			GLFW.glfwPollEvents();
-			decodeImage();
+			if (GLFW.glfwGetTime() > pts)
+				decodeImage();
 
 			GL11.glViewport(0, 0, width, height);
 			render();
 			GLFW.glfwSwapBuffers(window);
 		}
 	}
+	
+	void audio() {
+		SourceDataLine out = null; 
+		try {
+			AudioFormat format = new AudioFormat(Encoding.PCM_SIGNED, (float)AUDIO_SAMPLE_RATE, 16, 2, 4, (float)AUDIO_SAMPLE_RATE, false);
+			out = AudioSystem.getSourceDataLine(format);
+			out.open(format, 4 * AUDIO_BUFFER_SIZE);
+			out.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);;
+		}
+		
+		ByteBuffer bytes = ByteBuffer.allocateDirect(4 * AUDIO_BUFFER_SIZE);
+		bytes.order(ByteOrder.LITTLE_ENDIAN);
+		FloatBuffer samples = bytes.asFloatBuffer();
+		byte[] buffer = new byte[2 * AUDIO_BUFFER_SIZE];
+		
+        double[] pts = new double[1];
+
+        while (true) {
+			int n = decoder.decodeAudio(samples, pts);
+			if (n < 0)
+				System.exit(1);
+			
+			int j = 0;
+			for (int i = 0; i < samples.capacity(); ++i) {
+				int s = (int)(samples.get(i) * 32767.0);
+				if(s > Short.MAX_VALUE) s = Short.MAX_VALUE;
+				if(s < Short.MIN_VALUE) s = Short.MIN_VALUE;
+				buffer[j++] = (byte) (s >> 0);
+				buffer[j++] = (byte) (s >> 8);
+			}
+			int written = out.write(buffer, 0, 2 * AUDIO_BUFFER_SIZE);
+
+			//System.out.println("jso: written audio samples: " + written / 4 + " " + samples.get(0) + " " + samples.get(1) + " " + samples.get(2) + " " + samples.get(3));
+		}
+	}
 
 	void run() {
 		try {
-			init();
+			init();			
 			loop();
 			
 			decoder.dispose();
@@ -320,6 +344,7 @@ public final class AvionPlayer {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Avion Test Player");
 		new AvionPlayer().run();
 	}
 
