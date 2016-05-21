@@ -34,7 +34,6 @@ package ch.fhnw.ether.avion.example;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
@@ -212,7 +211,8 @@ public final class AvionPlayer {
 	
 	void createDecoder() {
 		try {
-	        AVDecoder.AudioFormat audioFormat = new AVDecoder.AudioFormat(AudioEncoding.PCM_32_FLOAT, AUDIO_SAMPLE_RATE, AUDIO_BUFFER_SIZE, true);
+	        //AVDecoder.AudioFormat audioFormat = new AVDecoder.AudioFormat(AudioEncoding.PCM_32_FLOAT, AUDIO_SAMPLE_RATE, AUDIO_BUFFER_SIZE, true);
+	        AVDecoder.AudioFormat audioFormat = new AVDecoder.AudioFormat(AudioEncoding.PCM_16_SIGNED, AUDIO_SAMPLE_RATE, AUDIO_BUFFER_SIZE, true);
 	        AVDecoder.VideoFormat videoFormat = new AVDecoder.VideoFormat(VideoPixelFormat.RGBA, true);
 			decoder = Avion.createDecoder(
 					new URL("file:///Users/radar/Desktop/mr_robot.mp4"),
@@ -222,10 +222,10 @@ public final class AvionPlayer {
 			int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
 			image = BufferUtils.createByteBuffer(size);
 			
-//			Thread audioThread = new Thread(this::audio, "audio");
-//			audioThread.setDaemon(true);
-//			audioThread.setPriority(Thread.MAX_PRIORITY);
-//			audioThread.start();
+			Thread audioThread = new Thread(this::audio, "audio");
+			audioThread.setDaemon(true);
+			audioThread.setPriority(Thread.MAX_PRIORITY);
+			audioThread.start();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -282,8 +282,8 @@ public final class AvionPlayer {
 	void loop() {
 		while (!GLFW.glfwWindowShouldClose(window)) {
 			GLFW.glfwPollEvents();
-			//if (GLFW.glfwGetTime() > pts)
-			//	decodeImage();
+			if (GLFW.glfwGetTime() > pts)
+				decodeImage();
 
 			GL11.glViewport(0, 0, width, height);
 			render();
@@ -305,8 +305,7 @@ public final class AvionPlayer {
 		
 		// XXX FIX BUFFER TYPE
 		ByteBuffer audio = BufferUtils.createByteBuffer(AUDIO_BUFFER_SIZE);
-		FloatBuffer samples = audio.asFloatBuffer();
-		byte[] buffer = new byte[AUDIO_BUFFER_SIZE / 2];
+		byte[] buffer = new byte[AUDIO_BUFFER_SIZE];
 		
         double[] pts = new double[1];
 
@@ -315,15 +314,9 @@ public final class AvionPlayer {
 			if (n < 0)
 				System.exit(1);
 			
-			int j = 0;
-			for (int i = 0; i < samples.capacity(); ++i) {
-				int s = (int)(samples.get(i) * 32767.0);
-				if(s > Short.MAX_VALUE) s = Short.MAX_VALUE;
-				if(s < Short.MIN_VALUE) s = Short.MIN_VALUE;
-				buffer[j++] = (byte) (s >> 0);
-				buffer[j++] = (byte) (s >> 8);
-			}
-			int written = out.write(buffer, 0, AUDIO_BUFFER_SIZE / 2);
+			audio.rewind();
+			audio.get(buffer);
+			out.write(buffer, 0, AUDIO_BUFFER_SIZE);
 
 			//System.out.println("jso: written audio samples: " + written / 4 + " " + samples.get(0) + " " + samples.get(1) + " " + samples.get(2) + " " + samples.get(3));
 		}
@@ -331,9 +324,7 @@ public final class AvionPlayer {
 
 	void run() {
 		try {
-			System.out.println("init");
 			init();			
-			System.out.println("loop");
 			loop();
 			
 			decoder.dispose();

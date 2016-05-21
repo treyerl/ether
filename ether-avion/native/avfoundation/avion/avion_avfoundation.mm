@@ -259,7 +259,6 @@ public:
                 CFRelease(sampleBuffer);
                 return INTERNAL_ERROR;
             }
-            srcLength /= 4;
             
             //MSG("avf: put audio samples: %ld %f %f %f %f \n", srcLength, srcSamples[0], srcSamples[1], srcSamples[2], srcSamples[3]);
             audioQueue.put(srcSamples, srcLength, srcPts);
