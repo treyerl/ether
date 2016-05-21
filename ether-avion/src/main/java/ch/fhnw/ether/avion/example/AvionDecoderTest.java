@@ -33,9 +33,14 @@ package ch.fhnw.ether.avion.example;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 
 import ch.fhnw.ether.avion.AVDecoder;
+import ch.fhnw.ether.avion.AVDecoder.AudioEncoding;
+import ch.fhnw.ether.avion.AVDecoder.AudioFormat;
+import ch.fhnw.ether.avion.AVDecoder.VideoFormat;
+import ch.fhnw.ether.avion.AVDecoder.VideoPixelFormat;
 import ch.fhnw.ether.avion.Avion;
 
 public final class AvionDecoderTest {
@@ -45,23 +50,25 @@ public final class AvionDecoderTest {
 	
 	        int audioSize = 1024;
 	        
-	        AVDecoder decoder = Avion.createDecoder(new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), true, true, audioSize, false, 44100);
+	        AudioFormat audioFormat = new AudioFormat(AudioEncoding.PCM_32_FLOAT, 44100, audioSize, true);
+	        VideoFormat videoFormat = new VideoFormat(VideoPixelFormat.RGBA, true);
+	        AVDecoder decoder = Avion.createDecoder(new URL("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4"), audioFormat, videoFormat);
 	        
 	        //wrapper->seek(60);
 	        
 	        int size = decoder.getVideoWidth() * decoder.getVideoHeight() * 4;
-	        ByteBuffer image = ByteBuffer.allocateDirect(size);
+	        ByteBuffer image = BufferUtils.createByteBuffer(size);
 	        
-	        FloatBuffer samples = ByteBuffer.allocateDirect(4 * audioSize).asFloatBuffer();
+	        ByteBuffer samples = BufferUtils.createByteBuffer(audioSize);
 	        
 	        int error = 0;
 	        double[] pts = new double[1];
 	        while (error != -1) {
 	            error = decoder.decodeVideo(image, pts);
-	            System.out.println("got video frame " + pts + " " + error + " " + pts[0]);
+	            System.out.println("got video frame " + pts[0] + " " + error);
 	
 	            error = decoder.decodeAudio(samples, pts);
-	            System.out.println("got audio frame " + pts + " " + error + " " + pts[0]);
+	            System.out.println("got audio frame " + pts[0] + " " + error);
 	        }
 	        
 	        decoder.dispose();

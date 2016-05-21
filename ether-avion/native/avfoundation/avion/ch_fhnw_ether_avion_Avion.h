@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     ch_fhnw_ether_avion_Avion
  * Method:    decoderCreate
- * Signature: (Ljava/lang/String;ZZIZD)J
+ * Signature: (Ljava/lang/String;ZIDIZZIZ)J
  */
 JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
-  (JNIEnv *, jclass, jstring, jboolean, jboolean, jint, jboolean, jdouble);
+  (JNIEnv *, jclass, jstring, jboolean, jint, jdouble, jint, jboolean, jboolean, jint, jboolean);
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
@@ -82,7 +82,7 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoHeight
 /*
  * Class:     ch_fhnw_ether_avion_Avion
  * Method:    decoderDecodeAudio
- * Signature: (JLjava/nio/FloatBuffer;[D)I
+ * Signature: (JLjava/nio/ByteBuffer;[D)I
  */
 JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeAudio
   (JNIEnv *, jclass, jlong, jobject, jdoubleArray);

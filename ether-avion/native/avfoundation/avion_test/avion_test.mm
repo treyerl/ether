@@ -42,14 +42,16 @@ int main(int argc, char *argv[]) {
     @autoreleasepool {
         const int audioSize = 1024;
         
-        AvionDecoder* decoder = AvionDecoder::create("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4", true, true, audioSize, false, 44100);
+        AvionDecoder::AudioFormat audioFormat(true, AvionDecoder::PCM_32_FLOAT, 44100.0, 1024, true);
+        AvionDecoder::VideoFormat videoFormat(true, AvionDecoder::RGBA, true);
+        AvionDecoder* decoder = AvionDecoder::create("file:///Users/radar/Desktop/simian_mobile_disco-audacity_of_huge_(2009).mp4", audioFormat, videoFormat);
         
         //wrapper->seek(60);
         
         size_t size = decoder->getVideoWidth() * decoder->getVideoHeight() * 4;
         uint8_t image[size];
         
-        float samples[audioSize];
+        uint8_t samples[audioSize];
         
         int error = 0;
         double pts = 0;
@@ -57,8 +59,8 @@ int main(int argc, char *argv[]) {
             error = decoder->decodeVideo(image, pts);
             printf("got video frame %f %d\n", pts, error);
 
-            //error = decoder->decodeAudio(samples, pts);
-            //printf("got audio frame %f %d\n", pts, error);
+            error = decoder->decodeAudio(samples, pts);
+            printf("got audio frame %f %d\n", pts, error);
         }
         
         delete decoder;

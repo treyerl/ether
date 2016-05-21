@@ -96,6 +96,7 @@ public:
             }
             dst += l;
             num -= l;
+            
         }
         
         m_queueSize -= result;

@@ -66,10 +66,8 @@ class AVAssetDecoder : public AvionDecoder {
 private:
     const std::string url;
 
-    const int audioBufferSize;
-    const bool audioInterleaved;
-    const double audioSampleRate;
-    AudioQueue<float> audioQueue;
+    AudioFormat audioFormat;
+    VideoFormat videoFormat;
 
     AVAsset* asset = nullptr;
     AVAssetTrack* audioTrack = nullptr;
@@ -83,9 +81,10 @@ private:
     AVAssetReader* audioReader = nullptr;
     AVAssetReader* videoReader = nullptr;
 
+    AudioQueue<uint8_t> audioQueue;
+    
 public:
-    AVAssetDecoder(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate) :
-    url(url), audioBufferSize(audioBufferSize), audioInterleaved(audioInterleaved), audioSampleRate(audioSampleRate), audioQueue(audioSampleRate) {
+    AVAssetDecoder(std::string url, AudioFormat audioFormat, VideoFormat videoFormat) : url(url), audioFormat(audioFormat), videoFormat(videoFormat), audioQueue(audioFormat.sampleRate) {
         
         NSURL* nsUrl = [NSURL URLWithString:[NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding]];
         if (!nsUrl) {
@@ -103,7 +102,7 @@ public:
         }
         
         //--- audio track
-        if (decodeAudio) {
+        if (audioFormat.decode) {
             NSArray* audioTracks = [asset tracksWithMediaType:AVMediaTypeAudio];
             if ([audioTracks count] > 0) {
                 audioTrack = [audioTracks objectAtIndex:0];
@@ -113,7 +112,7 @@ public:
         }
         
         //--- video track
-        if (decodeVideo) {
+        if (videoFormat.decode) {
             NSArray* videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
             if ([videoTracks count] > 0) {
                 videoTrack = [videoTracks objectAtIndex:0];
@@ -157,11 +156,11 @@ public:
             
             NSDictionary* audioSettings = @{
                                             AVFormatIDKey : [NSNumber numberWithUnsignedInt:kAudioFormatLinearPCM],
-                                            AVSampleRateKey : [NSNumber numberWithFloat:audioSampleRate],
+                                            AVSampleRateKey : [NSNumber numberWithFloat:audioFormat.sampleRate],
                                             AVNumberOfChannelsKey : [NSNumber numberWithInt:2],
-                                            AVLinearPCMBitDepthKey : [NSNumber numberWithInt:32],
-                                            AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool: (audioInterleaved ? NO : YES)],
-                                            AVLinearPCMIsFloatKey : [NSNumber numberWithBool:YES],
+                                            AVLinearPCMBitDepthKey : [NSNumber numberWithInt:(audioFormat.encoding == PCM_32_FLOAT ? 32 : 16)],
+                                            AVLinearPCMIsNonInterleaved : [NSNumber numberWithBool: (audioFormat.interleaved ? NO : YES)],
+                                            AVLinearPCMIsFloatKey : [NSNumber numberWithBool:(audioFormat.encoding == PCM_32_FLOAT ? YES : NO)],
                                             AVLinearPCMIsBigEndianKey : [NSNumber numberWithBool:NO],
                                             };
             [audioReader addOutput:[AVAssetReaderAudioMixOutput assetReaderAudioMixOutputWithAudioTracks:@[audioTrack] audioSettings:audioSettings]];
@@ -227,7 +226,7 @@ public:
         return videoSize.height;
     }
 
-    int decodeAudio(float* buffer, double& pts) {
+    int decodeAudio(uint8_t* buffer, double& pts) {
         if (!audioReader)
             return NO_SUCH_STREAM;
         
@@ -237,7 +236,7 @@ public:
         }
         
         AVAssetReaderOutput* output = [audioReader.outputs objectAtIndex:0];
-        while (audioQueue.size() < audioBufferSize) {
+        while (audioQueue.size() < audioFormat.bufferSize) {
             CMSampleBufferRef sampleBuffer = [output copyNextSampleBuffer];
             if (!sampleBuffer) {
                 MSG("avf: get next audio frame: could not copy audio sample buffer\n");
@@ -254,7 +253,7 @@ public:
             }
             
             size_t srcLength = 0;
-            float* srcSamples = nullptr;
+            uint8_t* srcSamples = nullptr;
             if (CMBlockBufferGetDataPointer(blockBuffer, 0, nullptr, &srcLength, (char**)&srcSamples) != kCMBlockBufferNoErr) {
                 MSG("avf: get next audio frame: cannot get audio data\n");
                 CFRelease(sampleBuffer);
@@ -271,7 +270,7 @@ public:
         if (!audioQueue.size())
             return END_OF_STREAM;
         
-        int received = audioQueue.take(buffer, audioBufferSize, pts);
+        int received = audioQueue.take(buffer, audioFormat.bufferSize, pts);
         
         //MSG("avf: get audio samples: %d %f %f %f %f \n", received, buffer[0], buffer[1], buffer[2], buffer[3]);
         
@@ -327,6 +326,6 @@ public:
     }
 };
 
-AvionDecoder* AvionDecoder::create(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate) {
-    return new AVAssetDecoder(url, decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
+AvionDecoder* AvionDecoder::create(std::string url, AudioFormat audioFormat, VideoFormat videoFormat) {
+    return new AVAssetDecoder(url, audioFormat, videoFormat);
 }

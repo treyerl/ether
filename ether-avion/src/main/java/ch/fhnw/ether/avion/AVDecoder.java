@@ -33,9 +33,43 @@ package ch.fhnw.ether.avion;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 public final class AVDecoder {
+	
+	public enum AudioEncoding {
+		PCM_16_SIGNED,
+		PCM_32_FLOAT,
+	}
+	
+	public static final class AudioFormat {
+		public final AudioEncoding encoding;
+		public final double sampleRate;
+		public final int bufferSize;
+		public final boolean interleaved;
+		
+		public AudioFormat(AudioEncoding encoding, double sampleRate, int bufferSize, boolean interleaved) {
+			this.encoding = encoding;
+			this.sampleRate = sampleRate;
+			this.bufferSize = bufferSize;
+			this.interleaved = interleaved;
+		}
+	}
+	
+	public enum VideoPixelFormat {
+		RGBA,
+		BGRA
+	}
+	
+	public static final class VideoFormat {
+		public final VideoPixelFormat pixelFormat;
+		public final boolean flip;
+		
+		public VideoFormat(VideoPixelFormat pixelFormat, boolean flip) {
+			this.pixelFormat = pixelFormat;
+			this.flip = flip;
+		}
+	}
+	
 	
 	private long nativeHandle;
 
@@ -45,10 +79,19 @@ public final class AVDecoder {
 	private final int videoWidth;
 	private final int videoHeight;
 
-	public AVDecoder(URL url, boolean decodeAudio, boolean decodeVideo, int audioBufferSize, boolean audioInterleaved, double audioSampleRate) {
+	AVDecoder(URL url, AudioFormat audioFormat, VideoFormat videoFormat) {
 		this.url = url;
 
-		nativeHandle = Avion.decoderCreate(url.toString(), decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
+		nativeHandle = Avion.decoderCreate(url.toString(), 
+				audioFormat != null,
+				audioFormat != null ? audioFormat.encoding.ordinal() : 0,
+				audioFormat != null ? audioFormat.sampleRate : 0,
+				audioFormat != null ? audioFormat.bufferSize : 0, 
+				audioFormat != null ? audioFormat.interleaved : false,
+				videoFormat != null,
+				videoFormat != null ? videoFormat.pixelFormat.ordinal() : 0,
+				videoFormat != null ? videoFormat.flip : false);	
+						
 		if (nativeHandle == 0)
 			throw new IllegalArgumentException("cannot create av decoder from " + url);
 
@@ -95,7 +138,7 @@ public final class AVDecoder {
 		return videoHeight;
 	}
 
-	public int decodeAudio(FloatBuffer buffer, double[] pts) {
+	public int decodeAudio(ByteBuffer buffer, double[] pts) {
 		return Avion.decoderDecodeAudio(nativeHandle, buffer, pts);
 	}
 

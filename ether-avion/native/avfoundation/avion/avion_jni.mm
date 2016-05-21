@@ -39,15 +39,18 @@
 
 extern "C" {
 
-JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate
-(JNIEnv * env, jclass, jstring url, jboolean decodeAudio, jboolean decodeVideo, jint audioBufferSize, jboolean audioInterleaved, jdouble audioSampleRate) {
+JNIEXPORT jlong JNICALL Java_ch_fhnw_ether_avion_Avion_decoderCreate(JNIEnv * env, jclass, jstring url,
+    jboolean audioDecode, jint audioEncoding, jdouble audioSampleRate, jint audioBufferSize, jboolean audioInterleaved,
+    jboolean videoDecode, jint videoPixelFormat, jboolean videoFlip) {
     JNF_COCOA_ENTER(env);
     
     const char* cUrl = env->GetStringUTFChars(url, JNI_FALSE);
     
     jlong nativeHandle = 0;
     try {
-        nativeHandle = (jlong)AvionDecoder::create(cUrl, decodeAudio, decodeVideo, audioBufferSize, audioInterleaved, audioSampleRate);
+        AvionDecoder::AudioFormat audioFormat(audioDecode, audioEncoding, audioSampleRate, audioBufferSize, audioInterleaved);
+        AvionDecoder::VideoFormat videoFormat(videoDecode, videoPixelFormat, videoFlip);
+        nativeHandle = (jlong)AvionDecoder::create(cUrl, audioFormat, videoFormat);
     } catch(std::exception& e) {
         // fall through, return zero
     }
@@ -132,10 +135,10 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderGetVideoHeight
 }
 
 JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeAudio
-(JNIEnv * env, jclass, jlong nativeHandle, jobject floatBuffer, jdoubleArray ptsArray) {
+(JNIEnv * env, jclass, jlong nativeHandle, jobject byteBuffer, jdoubleArray ptsArray) {
     JNF_COCOA_ENTER(env);
     
-    float* buffer = (float*)env->GetDirectBufferAddress(floatBuffer);
+    uint8_t* buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
     double pts = 0;
     int result = ((AvionDecoder*)nativeHandle)->decodeAudio(buffer, pts);
     env->SetDoubleArrayRegion(ptsArray, 0, 1, &pts);

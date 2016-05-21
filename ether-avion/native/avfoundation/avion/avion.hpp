@@ -46,7 +46,37 @@ public:
 
 class AvionDecoder : public Avion {
 public:
-    static AvionDecoder* create(std::string url, bool decodeAudio, bool decodeVideo, int audioBufferSize, bool audioInterleaved, double audioSampleRate);
+    enum AudioEncoding {
+        PCM_16_SIGNED,
+        PCM_32_FLOAT,
+    };
+    
+    class AudioFormat {
+    public:
+        AudioFormat(bool decode, int encoding, double sampleRate, int bufferSize, bool interleaved) : decode(decode), encoding(static_cast<AudioEncoding>(encoding)), sampleRate(sampleRate), bufferSize(bufferSize), interleaved(interleaved) {}
+        
+        const bool decode;
+        const AudioEncoding encoding;
+        const double sampleRate;
+        const int bufferSize;
+        const bool interleaved;
+    };
+    
+    enum VideoPixelFormat {
+        RGBA,
+        BGRA
+    };
+    
+    class VideoFormat {
+    public:
+        VideoFormat(bool decode, int pixelFormat, bool flip) : decode(decode), pixelFormat(static_cast<VideoPixelFormat>(pixelFormat)), flip(flip) {}
+        
+        const bool decode;
+        const VideoPixelFormat pixelFormat;
+        const bool flip;
+    };
+    
+    static AvionDecoder* create(std::string url, AudioFormat audioFormat, VideoFormat videoFormat);
     
     virtual ~AvionDecoder() {}
     
@@ -64,7 +94,7 @@ public:
     
     virtual int getVideoHeight() = 0;
     
-    virtual int decodeAudio(float* buffer, double& pts) = 0;
+    virtual int decodeAudio(uint8_t* buffer, double& pts) = 0;
 
     virtual int decodeVideo(uint8_t* buffer, double& pts) = 0;
 };
