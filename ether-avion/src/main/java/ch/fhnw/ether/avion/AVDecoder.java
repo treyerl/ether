@@ -106,8 +106,8 @@ public final class AVDecoder {
 		nativeHandle = 0;
 	}
 
-	public void range(double start, double end) {
-		Avion.decoderRange(nativeHandle, start, end);
+	public void setRange(double start, double end) {
+		Avion.decoderSetRange(nativeHandle, start, end);
 	}
 	
 	public boolean hasAudio() {

@@ -25,10 +25,10 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDispose
 
 /*
  * Class:     ch_fhnw_ether_avion_Avion
- * Method:    decoderRange
+ * Method:    decoderSetRange
  * Signature: (JDD)V
  */
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderRange
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderSetRange
   (JNIEnv *, jclass, jlong, jdouble, jdouble);
 
 /*

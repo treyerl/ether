@@ -70,7 +70,7 @@ public final class Avion {
     
 	static native void decoderDispose(long nativeHandle);
 
-    static native void decoderRange(long nativeHandle, double start, double end);
+    static native void decoderSetRange(long nativeHandle, double start, double end);
 
     static native boolean decoderHasAudio(long nativeHandle);
 

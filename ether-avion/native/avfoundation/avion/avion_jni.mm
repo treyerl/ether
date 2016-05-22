@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDispose
     JNF_COCOA_EXIT(env);
 }
 
-JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderRange
+JNIEXPORT void JNICALL Java_ch_fhnw_ether_avion_Avion_decoderSetRange
 (JNIEnv * env, jclass, jlong nativeHandle, jdouble start, jdouble end) {
     JNF_COCOA_ENTER(env);
     
@@ -141,7 +141,8 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeAudio
     uint8_t* buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
     double pts = 0;
     int result = ((AvionDecoder*)nativeHandle)->decodeAudio(buffer, pts);
-    env->SetDoubleArrayRegion(ptsArray, 0, 1, &pts);
+    if (ptsArray)
+        env->SetDoubleArrayRegion(ptsArray, 0, 1, &pts);
     return result;
     
     JNF_COCOA_EXIT(env);
@@ -154,7 +155,8 @@ JNIEXPORT jint JNICALL Java_ch_fhnw_ether_avion_Avion_decoderDecodeVideo
     uint8_t* buffer = (uint8_t*)env->GetDirectBufferAddress(byteBuffer);
     double pts = 0;
     int result = ((AvionDecoder*)nativeHandle)->decodeVideo(buffer, pts);
-    env->SetDoubleArrayRegion(ptsArray, 0, 1, &pts);
+    if (ptsArray)
+        env->SetDoubleArrayRegion(ptsArray, 0, 1, &pts);
     return result;
     
     JNF_COCOA_EXIT(env);
