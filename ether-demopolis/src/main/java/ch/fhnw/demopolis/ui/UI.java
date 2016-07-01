@@ -53,6 +53,7 @@ import ch.fhnw.ether.controller.event.IPointerEvent;
 import ch.fhnw.ether.controller.tool.AbstractTool;
 import ch.fhnw.ether.controller.tool.ITool;
 import ch.fhnw.ether.controller.tool.NavigationTool;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IWindow.PointerMode;
@@ -168,13 +169,13 @@ public class UI {
 		
 		@Override
 		public void startAnimation() {
-			controller.getCurrentView().getWindow().setPointerMode(PointerMode.HIDDEN);
+			Platform.get().runOnMainThread(() -> controller.getViews().get(0).getWindow().setPointerMode(PointerMode.HIDDEN));
 			cameraPath.startAnimation();
 		}
 		
 		@Override
 		public void stopAnimation() {
-			controller.getCurrentView().getWindow().setPointerMode(PointerMode.NORMAL);
+			Platform.get().runOnMainThread(() -> controller.getViews().get(0).getWindow().setPointerMode(PointerMode.NORMAL));
 			cameraPath.stopAnimation();
 		}
 		

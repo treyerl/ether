@@ -212,7 +212,7 @@ public class CameraPath {
 	}
 	
 	private void animate(double time, double interval) {
-		if (!animationRunning || currentPath == null || controller.getCurrentView() == null)
+		if (!animationRunning || currentPath == null)
 			return;
 
 		float t = (float)(time - animationStart) * SPEED / currentPath.getNumNodes();
@@ -223,7 +223,7 @@ public class CameraPath {
 			currentPath = loopPath;
 		}
 		
-		DefaultCameraControl dcc = new DefaultCameraControl(controller.getCamera(controller.getCurrentView()));
+		DefaultCameraControl dcc = new DefaultCameraControl(controller.getCamera(controller.getViews().get(0)));
 		Vec3 p = currentPath.position(t);
 		Vec3 v = currentPath.velocity(t);
 		
