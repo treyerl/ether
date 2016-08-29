@@ -63,6 +63,7 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	private BlockBuffer                 buffer;
 
 	public OnsetDetect(BandsButterworth bands) {
+		super(SENS, BAND_DECAY, AVG_DECAY);
 		this.bands = bands;
 	}
 

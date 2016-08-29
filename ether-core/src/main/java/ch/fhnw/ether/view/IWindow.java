@@ -31,6 +31,7 @@
 
 package ch.fhnw.ether.view;
 
+import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.math.Vec2;
 
@@ -228,11 +229,13 @@ public interface IWindow {
 	Vec2 getFramebufferSize();
 	
 	/**
-	 * Enable or disable this window as a fullscreen window.
+	 * Enable or disable this window as a fullscreen window on the given monitor.
 	 * 
 	 * Call from main thread only.
+	 * 
+	 * @param monitor The monitor to use for fullscreen or null to exit fullscreen mode.
 	 */
-	void setFullscreen(boolean enabled);
+	void setFullscreen(IMonitor monitor);
 
 	/**
 	 * Set pointer mode for this window.
@@ -278,4 +281,14 @@ public interface IWindow {
 	static IWindow create(Vec2 size, String title, boolean decorated) {
 		return Platform.get().createWindow(size, title, decorated);
 	}
+	
+	/**
+	 * Create full screen window.
+	 * 
+	 * Call from main thread only.
+	 */
+	static IWindow create(IMonitor monitor, String title) {
+		return Platform.get().createWindow(monitor, title);
+	}
+
 }

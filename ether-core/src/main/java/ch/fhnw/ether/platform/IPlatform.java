@@ -65,9 +65,19 @@ public interface IPlatform {
 	 * Create window.
 	 */
 	IWindow createWindow(Vec2 size, String title, boolean decorated);
-	
+
+	/**
+	 * Create full screen window.
+	 */
+	IWindow createWindow(IMonitor monitor, String title);
+
 	/**
 	 * Get platform-dependent image support (image reading / writing / scaling).
 	 */
 	IImageSupport getImageSupport();
+	
+	/**
+	 * Get monitors.
+	 */
+	IMonitor[] getMonitors();
 }

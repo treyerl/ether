@@ -34,6 +34,7 @@ package ch.fhnw.ether.platform;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -47,13 +48,13 @@ class GLFWPlatform implements IPlatform {
 
 	private final GLFWErrorCallback errorCallback;
 	private final IImageSupport imageSupport;
-	
+
 	private final Thread mainThread;
 
 	public GLFWPlatform() {
 		this(new STBImageSupport());
 	}
-	
+
 	protected GLFWPlatform(IImageSupport imageSupport) {
 		this.errorCallback = GLFWErrorCallback.createPrint(System.err);
 		this.imageSupport = imageSupport;
@@ -63,12 +64,12 @@ class GLFWPlatform implements IPlatform {
 	@Override
 	public final void init() {
 		GLFW.glfwSetErrorCallback(errorCallback);
-		
+
 		if (!GLFW.glfwInit())
 			throw new IllegalStateException("unable to initialize glfw");
-		
+
 		initInternal();
-		
+
 		GLContextManager.init();
 	}
 
@@ -99,7 +100,7 @@ class GLFWPlatform implements IPlatform {
 		GLFW.glfwTerminate();
 		System.exit(0);
 	}
-	
+
 	@Override
 	public boolean isMainThread() {
 		return Thread.currentThread().equals(mainThread);
@@ -110,24 +111,38 @@ class GLFWPlatform implements IPlatform {
 		queue.offer(runnable);
 		GLFW.glfwPostEmptyEvent();
 	}
-	
+
 	@Override
 	public IWindow createWindow(Vec2 size, String title, boolean decorated) {
 		return new GLFWWindow(size, title, decorated);
 	}
 
 	@Override
+	public IWindow createWindow(IMonitor monitor, String title) {
+		return new GLFWWindow(monitor, title);
+	}
+
+	@Override
 	public IImageSupport getImageSupport() {
 		return imageSupport;
 	}
-	
+
 	protected void initInternal() {
 	}
-	
+
 	protected void exitInternal() {
 	}
-	
+
 	protected void waitForEvents() {
 		GLFW.glfwWaitEvents();		
+	}
+
+	@Override
+	public IMonitor[] getMonitors() {
+		PointerBuffer monitors = GLFW.glfwGetMonitors();
+		IMonitor[] result = new IMonitor[monitors.limit()];
+		for(int i = 0; i < result.length; i++)
+			result[i] = new GLFWMonitor(monitors.get(i));
+		return result;
 	}
 }

@@ -39,11 +39,11 @@ import java.util.EnumSet;
 
 public class Log implements Serializable {
 	public enum Level {
-		SEVERE, WARN, INFO,
+		SEVERE, WARN, INFO, DEBUG,
 	}
 
 	private static final long    serialVersionUID = -4288206500724445427L;
-	public static  final Level[] ALL              = {Level.SEVERE, Level.WARN, Level.INFO};
+	public static  final Level[] ALL              = {Level.SEVERE, Level.WARN, Level.INFO, Level.DEBUG};
 	
 	private final transient PrintStream    out = System.err;
 	private final transient String         id;  
@@ -112,5 +112,10 @@ public class Log implements Serializable {
 		if(!(levels.contains(Level.SEVERE))) return;
 		out.println(format(Level.SEVERE, msg));
 		t.printStackTrace(out);
+	}
+
+	public void debug(String msg) {
+		if(!(levels.contains(Level.DEBUG))) return;
+		out.println(format(Level.DEBUG, msg));
 	}
 }

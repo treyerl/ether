@@ -36,6 +36,7 @@ import ch.fhnw.ether.controller.event.IEventScheduler.IAction;
 import ch.fhnw.ether.controller.event.IKeyEvent.KeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent.PointerEvent;
+import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.view.IWindow.IKeyListener;
 import ch.fhnw.ether.view.IWindow.IPointerListener;
@@ -61,25 +62,34 @@ public class DefaultView implements IView {
 
 	private boolean enabled = true;
 
+	public DefaultView(IController controller, IMonitor monitor, Config viewConfig, String title) {
+		this(controller, monitor, monitor.getX() , monitor.getY(),  monitor.getWidth(), monitor.getHeight(), viewConfig, title);
+	}
+
 	public DefaultView(IController controller, int x, int y, int w, int h, Config viewConfig, String title) {
+		this(controller, null, x, y, w, h, viewConfig, title);
+	}
+
+	private DefaultView(IController controller, IMonitor monitor, int x, int y, int w, int h, Config viewConfig, String title) {
 		this.controller = controller;
 		this.viewConfig = viewConfig;
 
 		Platform.get().runOnMainThread(() -> {
 			window = IWindow.create(new Vec2(16, 16), title != null ? title : "", viewConfig.getViewType() == ViewType.INTERACTIVE_VIEW);
-	
+
 			window.setWindowListener(windowListener);
 			window.setKeyListener(keyListener);
 			window.setPointerListener(pointerListener);
-	
+
 			// note: we open the window initially at a smaller size, and then
 			// resize in order to trigger the window listener.
 			window.setSize(new Vec2(w, h));
 			if (x != -1)
 				window.setPosition(new Vec2(x, y));
-			window.setVisible(true);
+			window.setVisible(true);			
+			window.setFullscreen(monitor);
 		});
-		
+
 		runOnSceneThread(t -> controller.viewCreated(this));
 	}
 
@@ -120,7 +130,7 @@ public class DefaultView implements IView {
 	public IWindow getWindow() {
 		return window;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "[view " + hashCode() + "]";
@@ -141,12 +151,12 @@ public class DefaultView implements IView {
 				controller.viewDisposed(DefaultView.this);
 			});
 		}
-		
+
 		@Override
 		public void windowRefresh(IWindow window) {
 			controller.repaint();
 		}
-		
+
 		@Override
 		public void windowFocusChanged(IWindow w, boolean focused) {
 			if (focused)
@@ -215,7 +225,7 @@ public class DefaultView implements IView {
 			runOnSceneThread(time -> controller.pointerScrolled(ptre(mods, position, scroll, 0, 0)));
 		}
 	};
-	
+
 	IPointerEvent ptre(int mods, Vec2 position, Vec2 scroll, int button, int count) {
 		return new PointerEvent(this, mods, button, count, position.x, position.y, scroll.x, scroll.y);
 	}

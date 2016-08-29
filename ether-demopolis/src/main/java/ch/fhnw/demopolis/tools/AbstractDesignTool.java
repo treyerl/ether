@@ -45,6 +45,7 @@ import ch.fhnw.demopolis.ui.ControlPanel;
 import ch.fhnw.demopolis.ui.ControlPanel.Button;
 import ch.fhnw.demopolis.ui.UI.IToolControl;
 import ch.fhnw.ether.image.IGPUImage;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.Vec3;
@@ -108,7 +109,7 @@ public abstract class AbstractDesignTool implements IDesignTool {
 			control.setCameraPerspective();
 			break;
 		case GLFW.GLFW_KEY_F:
-			control.getController().getViews().get(0).getWindow().setFullscreen(true);
+			control.getController().getViews().get(0).getWindow().setFullscreen(Platform.get().getMonitors()[0]);
 		}
 	}
 	
