@@ -50,6 +50,7 @@ import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.ether.view.IWindow.IContext;
+import ch.fhnw.util.color.RGBA;
 
 public abstract class AbstractRenderer implements IRenderer {
 	
@@ -153,7 +154,8 @@ public abstract class AbstractRenderer implements IRenderer {
 	private void render(IRenderTargetState renderState, IView view, IViewCameraState vcs) {
 		// default gl state
 		// FIXME: need to make this configurable and move to renderer
-		GL11.glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+		RGBA clearColor = view.getConfig().getClearColor();
+		GL11.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		GL11.glClearDepth(1.0f);
 
 		if (view.getConfig().has(ViewFlag.SMOOTH_LINES)) {

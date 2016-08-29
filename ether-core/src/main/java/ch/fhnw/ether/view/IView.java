@@ -29,107 +29,119 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */package ch.fhnw.ether.view;
 
-import java.util.Collections;
-import java.util.EnumSet;
+ import java.util.Collections;
+ import java.util.EnumSet;
 
-import ch.fhnw.ether.controller.IController;
-import ch.fhnw.util.Viewport;
+ import ch.fhnw.ether.controller.IController;
+ import ch.fhnw.util.Viewport;
+ import ch.fhnw.util.color.RGBA;
 
-/**
- * A 'view' here is a view with some control functionality, i.e. it handles the
- * rendering of the model and also the user input specific to the view.
- * 
- * @author radar
- */
-public interface IView {
-	enum ViewType {
-		INTERACTIVE_VIEW, RENDER_VIEW
-	}
+ /**
+  * A 'view' here is a view with some control functionality, i.e. it handles the
+  * rendering of the model and also the user input specific to the view.
+  * 
+  * @author radar
+  */
+ public interface IView {
+	 enum ViewType {
+		 INTERACTIVE_VIEW, RENDER_VIEW
+	 }
 
-	enum ViewFlag {
-		/** Grid visibility in navigation tool. */
-		GRID,
-		/** Enable line smoothing. */
-		SMOOTH_LINES,
-	}
+	 enum ViewFlag {
+		 /** Grid visibility in navigation tool. */
+		 GRID,
+		 /** Enable line smoothing. */
+		 SMOOTH_LINES,
+	 }
 
-	final class Config {
-		private final ViewType viewType;
-		private final int fsaaSamples;
-		private final EnumSet<ViewFlag> flags;
+	 final class Config {
+		 private final ViewType          viewType;
+		 private final int               fsaaSamples;
+		 private final EnumSet<ViewFlag> flags;
+		 private       RGBA              clearColor = new RGBA(0.1f, 0.2f, 0.3f, 1.0f);
 
-		public Config(ViewType viewType, int fsaaSamples) {
-			this.viewType = viewType;
-			this.fsaaSamples = fsaaSamples;
-			this.flags = EnumSet.noneOf(ViewFlag.class);			
-		}
-		
-		public Config(ViewType viewType, int fsaaSamples, ViewFlag... flags) {
-			this(viewType, fsaaSamples);
-			Collections.addAll(this.flags, flags);
-		}
+		 public Config(ViewType viewType, int fsaaSamples) {
+			 this.viewType = viewType;
+			 this.fsaaSamples = fsaaSamples;
+			 this.flags = EnumSet.noneOf(ViewFlag.class);			
+		 }
 
-		public ViewType getViewType() {
-			return viewType;
-		}
+		 public Config(ViewType viewType, int fsaaSamples, ViewFlag... flags) {
+			 this(viewType, fsaaSamples, null, flags);
+		 }
 
-		public int getFSAASamples() {
-			return fsaaSamples;
-		}
+		 public Config(ViewType viewType, int fsaaSamples, RGBA clearColor, ViewFlag... flags) {
+			 this(viewType, fsaaSamples);
+			 if(clearColor != null)
+				 this.clearColor = clearColor;
+			 Collections.addAll(this.flags, flags);
+		 }
 
-		public boolean has(ViewFlag flag) {
-			return flags.contains(flag);
-		}
-	}
+		 public ViewType getViewType() {
+			 return viewType;
+		 }
 
-	Config INTERACTIVE_VIEW = new Config(ViewType.INTERACTIVE_VIEW, 0, ViewFlag.GRID);
-	Config RENDER_VIEW = new Config(ViewType.RENDER_VIEW, 0);
+		 public int getFSAASamples() {
+			 return fsaaSamples;
+		 }
 
-	/**
-	 * Dispose this view and release all associated resources
-	 */
-	void dispose();
+		 public boolean has(ViewFlag flag) {
+			 return flags.contains(flag);
+		 }
 
-	/**
-	 * Check whether view is enabled for rendering.
-	 * 
-	 * @return true if view is enabled, false otherwise
-	 */
-	boolean isEnabled();
+		 public RGBA getClearColor() {
+			 return clearColor;
+		 }
+	 }
 
-	/**
-	 * Enable or disable view for rendering.
-	 * 
-	 * @param enabled
-	 *            enables view if true, disables otherwise
-	 */
-	void setEnabled(boolean enabled);
+	 Config INTERACTIVE_VIEW = new Config(ViewType.INTERACTIVE_VIEW, 0, ViewFlag.GRID);
+	 Config RENDER_VIEW = new Config(ViewType.RENDER_VIEW, 0);
 
-	/**
-	 * Get view configuration.
-	 * 
-	 * @return the view configuration
-	 */
-	Config getConfig();
+	 /**
+	  * Dispose this view and release all associated resources
+	  */
+	 void dispose();
 
-	/**
-	 * Get the controller this view belongs to.
-	 * 
-	 * @return the controller
-	 */
-	IController getController();
+	 /**
+	  * Check whether view is enabled for rendering.
+	  * 
+	  * @return true if view is enabled, false otherwise
+	  */
+	 boolean isEnabled();
 
-	/**
-	 * Get viewport [x, y, w, h].
-	 * 
-	 * @return the viewport
-	 */
-	Viewport getViewport();
+	 /**
+	  * Enable or disable view for rendering.
+	  * 
+	  * @param enabled
+	  *            enables view if true, disables otherwise
+	  */
+	 void setEnabled(boolean enabled);
 
-	/**
-	 * Get the underlying window of this view.
-	 * 
-	 * @return the window
-	 */
-	IWindow getWindow();
-}
+	 /**
+	  * Get view configuration.
+	  * 
+	  * @return the view configuration
+	  */
+	 Config getConfig();
+
+	 /**
+	  * Get the controller this view belongs to.
+	  * 
+	  * @return the controller
+	  */
+	 IController getController();
+
+	 /**
+	  * Get viewport [x, y, w, h].
+	  * 
+	  * @return the viewport
+	  */
+	 Viewport getViewport();
+
+	 /**
+	  * Get the underlying window of this view.
+	  * 
+	  * @return the window
+	  */
+	 IWindow getWindow();
+ }

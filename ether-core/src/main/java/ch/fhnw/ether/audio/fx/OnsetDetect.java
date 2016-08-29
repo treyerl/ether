@@ -47,6 +47,7 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	private static final Parameter SENS       = new Parameter("sens",   "Sensitivity",    0f,    100f,    100-25);
 	private static final Parameter BAND_DECAY = new Parameter("bDecay", "Per band decay", 0.88f, 0.9999f, 0.9f);
 	private static final Parameter AVG_DECAY  = new Parameter("aDecay", "Average decay",  0.88f, 0.9999f, 0.999f);
+	private static final Parameter MAX_BPM    = new Parameter("bpm",    "Max. BPM",       40,    180,     130);
 
 	private static final float[] BANDS      = { 80, 2000, 6000, 13000, 16000 };
 	private static final double  CHUNK_SIZE = 0.02;
@@ -61,9 +62,13 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	private float                       flux;
 	private float                       threshold;
 	private BlockBuffer                 buffer;
+	private int                         count;
+	private double                      holdTime;
+	private double                      lastBeat;
+	private double                      avgBPM;
 
 	public OnsetDetect(BandsButterworth bands) {
-		super(SENS, BAND_DECAY, AVG_DECAY);
+		super(SENS, BAND_DECAY, AVG_DECAY, MAX_BPM);
 		this.bands = bands;
 	}
 
@@ -166,5 +171,21 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 			threshold *= getVal(AVG_DECAY);
 
 		System.arraycopy(bandsa, 0, lastBands, 0, bandsa.length );
+
+		double hold = 60 / getVal(MAX_BPM);
+		if(frame.playOutTime > holdTime) {
+			if(onset() > 0.9f) {
+				count++;
+				holdTime = frame.playOutTime + hold;
+				double bpm = 60 / (frame.playOutTime - lastBeat);
+				avgBPM = avgBPM * 0.8 + (0.2 * bpm);
+				lastBeat = frame.playOutTime;
+			}
+		} else if(holdTime - (1.1 * hold) > frame.playOutTime)
+			holdTime = 0;
+	}
+
+	public int getOnsetCount() {
+		return count;
 	}	
 }
