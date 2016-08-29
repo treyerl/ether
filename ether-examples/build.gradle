@@ -1,8 +1,0 @@
-description = """ether-examples"""
-
-dependencies {
-	compile 'com.sun.net.httpserver:http:20070405'
-
-    compile project(":ether-core")
-    compile project(":ether-mapping")
-}
