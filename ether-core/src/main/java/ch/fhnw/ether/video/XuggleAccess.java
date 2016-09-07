@@ -220,11 +220,6 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	}
 
 	@Override
-	public String toString() {
-		return getSource().getURL() + " (d=" + getDuration() + " fr=" + getFrameRate() + " fc=" + getFrameCount() + " w=" + getWidth() + " h=" + getHeight() + ")";
-	}
-
-	@Override
 	public void rewind() throws IOException {
 		try {
 			doDecode.set(false);
@@ -270,7 +265,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 								queueSize.release();
 						}
 					}
-				} else if (currentPacket.getStreamIndex() == audioStream.getIndex()) {
+				} else if (audioStream != null && currentPacket.getStreamIndex() == audioStream.getIndex()) {
 					IAudioSamples samples = IAudioSamples.make(2048, audioCoder.getChannels());
 					int offset = 0;
 					while(offset < currentPacket.getSize()) {

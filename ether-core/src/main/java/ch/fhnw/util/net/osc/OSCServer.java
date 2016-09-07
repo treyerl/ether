@@ -39,14 +39,17 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import ch.fhnw.util.Log;
 import ch.fhnw.util.net.NetworkUtilities;
 
 public final class OSCServer extends OSCDispatcher implements OSCSender {
+	private static final Log log = Log.create();
+	
 	private static final int RECEIVE_BUFFER_SIZE = 1024 * 1024;
 	private static final int SEND_BUFFER_SIZE = 1024 * 1024;
 
@@ -55,7 +58,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 
 	private final BlockingQueue<DatagramPacket> sendQueue = new LinkedBlockingQueue<>();
 
-	private final Map<String, SocketAddress> remotePeers = new HashMap<>();
+	private final Map<String, SocketAddress> remotePeers = new ConcurrentHashMap<>();
 
 	public OSCServer(int port) throws IOException {
 		this(port, null);
@@ -82,6 +85,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		final Thread receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				log.info(Thread.currentThread().getName() + " started (" + socket.getLocalSocketAddress() + ")");
 				for (;;) {
 					try {
 						byte[] buffer = new byte[socket.getReceiveBufferSize()];
@@ -105,6 +109,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		final Thread sendThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				log.info(Thread.currentThread().getName() + " started)");
 				// every 10 packets wait 10ms to avoid UDP packet drops.
 				int count = 10;
 				int i = count;
@@ -127,16 +132,20 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		OSCCommon.setExceptionHandler(new ExceptionHandler() {
 			@Override
 			public void exception(Throwable t, Object source) {
-				System.out.println(source == null ? "OSC Exception (without source)" : "OSC Exception: " + source.toString());
+				log.warning(source == null ? "OSC Exception (without source)" : "OSC Exception: " + source.toString(), t);
 			}
 		});
 	}
 
+	public void addPeer(String id, SocketAddress addr) {
+		remotePeers.put(id, addr);
+		log.info("OSC peer added:" + addr);
+	}
+	
 	public void send(String address, Object... args) {
 		ByteBuffer packet = OSCMessage.getBytes(address, args);
-		for (SocketAddress destination : remotePeers.values()) {
+		for (SocketAddress destination : remotePeers.values())
 			send(destination, packet);
-		}
 	}
 
 	@Override

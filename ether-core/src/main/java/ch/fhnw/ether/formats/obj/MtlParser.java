@@ -39,10 +39,13 @@ import java.io.InputStreamReader;
 
 import ch.fhnw.ether.formats.ModelMaterial;
 import ch.fhnw.ether.formats.ModelObject;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.color.RGB;
 
 final class MtlParser {
+	private static final Log log = Log.create();
+	
 	private final ModelObject object;
 	private final String path;
 	private final String file;
@@ -61,7 +64,8 @@ final class MtlParser {
 			try {
 				input = new FileInputStream(new File(path + file));
 			} catch (Exception e) {
-				throw new RuntimeException("Could not open MTL file: '" + (path + file) + "'");
+				log.warning("Could not open MTL file: '" + (path + file) + "'");
+				return;
 			}
 		}
 

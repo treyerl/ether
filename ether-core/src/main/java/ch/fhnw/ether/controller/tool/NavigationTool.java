@@ -37,6 +37,8 @@ import java.util.List;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.controller.event.IKeyEvent;
 import ch.fhnw.ether.controller.event.IPointerEvent;
+import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.ether.platform.Platform.OS;
 import ch.fhnw.ether.scene.camera.DefaultCameraControl;
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -47,8 +49,6 @@ import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.material.LineMaterial;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
-import ch.fhnw.util.Version;
-import ch.fhnw.util.Version.OS;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Vec3;
 
@@ -182,8 +182,8 @@ public class NavigationTool extends AbstractTool {
 	@Override
 	public void pointerScrolled(IPointerEvent e) {
 		DefaultCameraControl control = new DefaultCameraControl(getCamera(e.getView()));
-		float zoomFactor = (Version.getOS() == OS.WINDOWS ? 0.1f : 0.01f) * control.getDistance();
-		control.addToAzimuth((Version.getOS() == OS.WINDOWS ? -5f : -1f) * e.getScrollX());
+		float zoomFactor = (Platform.getOS() == OS.WINDOWS ? 0.1f : 0.01f) * control.getDistance();
+		control.addToAzimuth((Platform.getOS() == OS.WINDOWS ? -5f : -1f) * e.getScrollX());
 		if (e.isControlDown()) {
 			control.dolly(e.getScrollY() * zoomFactor);
 		} else {

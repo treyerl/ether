@@ -35,10 +35,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 
 import ch.fhnw.ether.formats.ModelFace;
 import ch.fhnw.ether.formats.ModelGroup;
 import ch.fhnw.ether.formats.ModelObject;
+import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.math.Vec2;
 import ch.fhnw.util.math.Vec3;
@@ -91,9 +93,13 @@ final class ObjParser {
 
 		String[] words = TextUtilities.tokens(string);
 
-		if (words.length == 0 || words[0].startsWith("#"))
+		for(int i = 0; i < words.length; i++)
+			if(words[i].startsWith("#"))
+				words = ArrayUtilities.keep(words, i);
+		
+		if (words.length == 0)
 			return;
-
+		
 		switch (words[0]) {
 		case "v":
 			parseVertex(words);
@@ -125,7 +131,15 @@ final class ObjParser {
 		}
 	}
 
+	private static String[] expand(String[] words, int count) {
+		if(words.length >= count) return words;
+		String[] result = Arrays.copyOf(words, count);
+		for(int i = words.length; i < result.length; i++) result[i] = "0";
+		return result;
+	}
+
 	private void parseVertex(String[] words) {
+		words = expand(words, 4);
 		float x = Float.parseFloat(words[1]);
 		float y = convertToZUp ? -Float.parseFloat(words[3]) : Float.parseFloat(words[2]);
 		float z = convertToZUp ? Float.parseFloat(words[2]) : Float.parseFloat(words[3]);
@@ -133,6 +147,7 @@ final class ObjParser {
 	}
 
 	private void parseNormal(String[] words) {
+		words = expand(words, 4);
 		float x = Float.parseFloat(words[1]);
 		float y = convertToZUp ? -Float.parseFloat(words[3]) : Float.parseFloat(words[2]);
 		float z = convertToZUp ? Float.parseFloat(words[2]) : Float.parseFloat(words[3]);
@@ -140,6 +155,7 @@ final class ObjParser {
 	}
 
 	private void parseTexCoord(String[] words) {
+		words = expand(words, 3);
 		// obj is upper left, opengl is lower left
 		float u = 0;
 		float v = 0;

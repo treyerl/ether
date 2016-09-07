@@ -15,6 +15,8 @@ import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.util.ArrayUtilities;
+import ch.fhnw.util.MIME;
 
 public class SWTImageSupport extends STBImageSupport {
 	private static final PaletteData RGB8  = new PaletteData(0xFF0000, 0xFF00, 0xFF);
@@ -37,7 +39,7 @@ public class SWTImageSupport extends STBImageSupport {
 		out.close();
 	}
 
-	private ImageData toImageData(IImage image) throws IOException {
+	public static ImageData toImageData(IImage image) throws IOException {
 		IHostImage hostImage = null;
 		if (image instanceof IHostImage)
 			hostImage = (IHostImage)image;
@@ -76,7 +78,7 @@ public class SWTImageSupport extends STBImageSupport {
 		return result;
 	}
 
-	private PaletteData getPaletteData(ComponentFormat format) throws IOException {
+	private static PaletteData getPaletteData(ComponentFormat format) throws IOException {
 		switch (format) {
 		case RGB:
 			return RGB8;
@@ -95,5 +97,14 @@ public class SWTImageSupport extends STBImageSupport {
 			return SWT.IMAGE_PNG;
 		}
 		throw new IllegalArgumentException("unsupported file format: " + format);
+	}
+
+	private static final String[] TYPES = {
+			MIME.MT_PNG, MIME.MT_JPEG
+	};
+
+	@Override
+	public boolean canWrite(String mimeType) {
+		return ArrayUtilities.containsEquals(TYPES, mimeType);
 	}
 }

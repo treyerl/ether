@@ -31,10 +31,13 @@
 
 package ch.fhnw.util.net;
 
+import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -107,5 +110,21 @@ public final class NetworkUtilities {
 			}
 		}
 		return false;
+	}
+	
+	public static String URLEncode(String s) {
+		try {
+			return URLEncoder.encode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return s;
+		}
+	}
+
+	public static String URLDecode(String s) {
+		try {
+			return URLDecoder.decode(s, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return s;
+		}
 	}
 }

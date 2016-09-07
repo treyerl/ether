@@ -279,6 +279,89 @@ public class ParameterWindow {
 		return false;
 	}
 
+	public static Control createUI(Composite parent, AbstractRenderCommand<?> cmd, boolean asGroup) {
+		if(cmd.getClass().getName().equals(cmd.toString()) && cmd.getParameters().length == 0) {
+			Label result = new Label(parent, SWT.BORDER);
+			result.setText(cmd.toString());
+			result.setLayoutData(hfill());
+			return result;
+		}
+
+		Control result;
+
+		Parameter[] params = cmd.getParameters();
+		ParamUI[]   uis    = new ParamUI[params.length];
+		if(params.length > 0) {
+			Composite comp;
+			if(asGroup) {
+				Group group = new Group(parent, SWT.NULL);
+				group.setText(cmd.toString());
+				comp = group;
+			} else {
+				comp = new Composite(parent, SWT.NULL);
+			}
+			
+			comp.setLayout(new GridLayout(2, false));
+			comp.setLayoutData(hfill());
+			
+			for(int i = 0; i < uis.length; i++)
+				uis[i] = new ParamUI(comp, cmd, params[i]);
+
+			result = comp;
+		} else {
+			Label text = new Label(parent, SWT.NONE);
+			text.setText(cmd.toString());
+			text.setLayoutData(hfill());
+			result = text;
+		}
+
+		Menu menu   = new Menu(parent);
+		addMenuItem(menu, SWT.CHECK, "Enabled", cmd.isEnabled(), new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				cmd.setEnable(((MenuItem)e.getSource()).getSelection());
+				setEnablded(result, cmd.isEnabled());
+			}
+		});
+
+		if(params.length > 0) {
+			addMenuItem(menu, SWT.NONE, "Reset", false, new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					for (ParamUI p : uis)
+						p.reset();
+				}
+			});
+			addMenuItem(menu, SWT.NONE, "Zero", false, new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					for (ParamUI p : uis)
+						p.zero();
+				}
+			});
+		}
+
+		result.setMenu(menu);
+
+		return result;
+	}
+
+	private static void addMenuItem(Menu menu, int style, String label, boolean state, SelectionListener listener) {
+		MenuItem item = new MenuItem(menu, style);
+		item.setText(label);
+		item.setSelection(state);
+		item.addSelectionListener(listener);
+	}
+
+
+	private static void setEnablded(Control cmp, boolean state) {
+		cmp.setForeground(state ? null : cmp.getBackground());
+		if(cmp instanceof Composite) {
+			for(Control c : ((Composite) cmp).getChildren())
+				setEnablded(c, state);
+		}
+	}
+
 	public ParameterWindow(final IParameterWindowAddOn addOn, final AbstractRenderCommand<? extends IRenderTarget<?>> src, Flag ... flags) {
 		Platform.get().runOnMainThread(new Runnable() {
 
@@ -304,81 +387,6 @@ public class ParameterWindow {
 				f.setLocation(Display.getDefault().getBounds().width - f.getBounds().width, f.getLocation().y);
 				f.setVisible(true);
 				frame.set(f);
-			}
-
-			private void addMenuItem(Menu menu, int style, String label, boolean state, SelectionListener listener) {
-				MenuItem item = new MenuItem(menu, style);
-				item.setText(label);
-				item.setSelection(state);
-				item.addSelectionListener(listener);
-			}
-
-			Control createUI(Composite parent, AbstractRenderCommand<?> cmd) {
-				if(cmd.getClass().getName().equals(cmd.toString()) && cmd.getParameters().length == 0) {
-					Label result = new Label(parent, SWT.BORDER);
-					result.setText(cmd.toString());
-					result.setLayoutData(hfill());
-					return result;
-				}
-
-				Control result;
-
-				Parameter[] params = cmd.getParameters();
-				ParamUI[]   uis    = new ParamUI[params.length];
-				if(params.length > 0) {
-					Group group = new Group(parent, SWT.NULL);
-					group.setLayout(new GridLayout(2, false));
-					group.setLayoutData(hfill());
-					group.setText(cmd.toString());
-
-					for(int i = 0; i < uis.length; i++)
-						uis[i] = new ParamUI(group, cmd, params[i]);
-
-					result = group;
-				} else {
-					Label text = new Label(parent, SWT.NONE);
-					text.setText(cmd.toString());
-					text.setLayoutData(hfill());
-					result = text;
-				}
-
-				Menu menu   = new Menu(parent);
-				addMenuItem(menu, SWT.CHECK, "Enabled", cmd.isEnabled(), new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						cmd.setEnable(((MenuItem)e.getSource()).getSelection());
-						setEnablded(result, cmd.isEnabled());
-					}
-				});
-
-				if(params.length > 0) {
-					addMenuItem(menu, SWT.NONE, "Reset", false, new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							for (ParamUI p : uis)
-								p.reset();
-						}
-					});
-					addMenuItem(menu, SWT.NONE, "Zero", false, new SelectionAdapter() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							for (ParamUI p : uis)
-								p.zero();
-						}
-					});
-				}
-
-				result.setMenu(menu);
-
-				return result;
-			}
-
-			private void setEnablded(Control cmp, boolean state) {
-				cmp.setForeground(state ? null : cmp.getBackground());
-				if(cmp instanceof Composite) {
-					for(Control c : ((Composite) cmp).getChildren())
-						setEnablded(c, state);
-				}
 			}
 
 			Composite createUIRecr(Composite parent, AbstractRenderCommand<?> rcmd) {
@@ -425,7 +433,7 @@ public class ParameterWindow {
 				} else if(rcmd instanceof AbstractFrameSource) {
 					srcInfo = new SourceInfoUI(result, program);
 				} else {
-					createUI(parent, rcmd);
+					createUI(parent, rcmd, true);
 				}
 				return result;
 			}

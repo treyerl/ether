@@ -119,4 +119,20 @@ public interface IImageSupport {
 	 * @return new image, resized to width*height
 	 */
 	IHostImage resize(IHostImage image, int width, int height);
+
+	/**
+	 * Returns true if this image support can read files of the given mime type.
+	 * 
+	 * @param mimeType
+	 * @return
+	 */
+	boolean canRead(String mimeType);
+	
+	/**
+	 * Returns true if this image support can write files of the given mime type.
+	 * 
+	 * @param mimeType
+	 * @return
+	 */
+	boolean canWrite(String mimeType);
 }

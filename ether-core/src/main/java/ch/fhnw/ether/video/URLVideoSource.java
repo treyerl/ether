@@ -32,13 +32,16 @@
 package ch.fhnw.ether.video;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.imageio.ImageIO;
+import com.xuggle.xuggler.IContainerFormat;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.IAudioSource;
@@ -46,6 +49,9 @@ import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.platform.IImageSupport;
+import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.util.MIME;
 import ch.fhnw.util.TextUtilities;
 
 public class URLVideoSource extends AbstractFrameSource implements IAudioSource, IVideoSource {
@@ -64,6 +70,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 	private final BlockingQueue<float[]> audioData = new LinkedBlockingQueue<>();
 	private long                         samples;
 	private final AtomicBoolean          startup   = new AtomicBoolean(true);
+	private final IImageSupport          still     = Platform.get().getImageSupport();
 
 	public URLVideoSource(URL url) throws IOException {
 		this(url, Integer.MAX_VALUE);
@@ -72,7 +79,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 	public URLVideoSource(URL url, int numPlays) throws IOException {
 		try {
 			this.url    = url;
-			frameAccess = isStillImage(url) ? new FrameAccess(this) : USE_JCODEC ? new JCodecAccess(this, numPlays) : new XuggleAccess(this, numPlays);
+			frameAccess = access(url, numPlays);
 			init(url, 0, frameAccess.getDuration(), numPlays);
 		} catch(Throwable t) {
 			throw new IOException(t);
@@ -82,13 +89,20 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 	public URLVideoSource(URL url, double startInSec, double lengthInSec, int numPlays) throws IOException {
 		try {
 			this.url    = url;
-			frameAccess = isStillImage(url) ? new FrameAccess(this) : USE_JCODEC ? new JCodecAccess(this, numPlays) : new XuggleAccess(this, numPlays);
+			frameAccess = access(url, numPlays);
 			init(url, startInSec, lengthInSec, numPlays);
 		} catch(Throwable t) {
 			throw new IOException(t);
 		}
 	}
 
+	private FrameAccess access(URL url, int numPlays) throws IOException, URISyntaxException {
+		String mime = MIME.getContentTypeFor(url);
+		if(MIME.match(mime, MIME.MT_GIF))
+			return new GIFAccess(this, numPlays);
+		return still.canRead(mime) ? new FrameAccess(this) : USE_JCODEC ? new JCodecAccess(this, numPlays) : new XuggleAccess(this, numPlays);
+	}
+	
 	private void init(URL url, double startInSec, double lengthInSec, int numPlays) {
 		width       = frameAccess.getWidth();
 		height      = frameAccess.getHeight();
@@ -99,10 +113,6 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 		length      = lengthInSec;
 		frameCount  = lengthInSec == frameAccess.getDuration() ? frameAccess.getFrameCount() : (long)(lengthInSec * frameRate);
 		if(startInSec != 0) throw new IllegalArgumentException("startTime != 0 not implemented yet");
-	}
-
-	public static boolean isStillImage(URL url) {
-		return ImageIO.getImageReadersBySuffix(TextUtilities.getFileExtensionWithoutDot(url.getPath())).hasNext();
 	}
 
 	@Override
@@ -188,5 +198,32 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 
 	public double getPlayoutTimeInSec() {
 		return frameAccess.getPlayOutTimeInSec();
+	}
+
+	private static Set<String> TYPES;
+
+	public synchronized static boolean canRead(String mimeType) {
+		if(TYPES == null) {
+			TYPES = new HashSet<>();
+			if(USE_JCODEC) {
+				TYPES.add(MIME.MT_MP4);
+			} else {
+				String[][] types = MIME.getMimeTypes();
+				for(IContainerFormat fmt : IContainerFormat.getInstalledInputFormats()) {
+					for(String type : TextUtilities.split(fmt.getInputFormatShortName(), ','))
+						TYPES.add(type(type, types));
+				}
+				TYPES.add(MIME.MT_MOV);
+				TYPES.add(MIME.MT_GIF);
+			}
+		}
+		return TYPES.contains(mimeType);
+	}
+
+	private static String type(String subType, String[][] types) {
+		for(String[] mt : types)
+			if(mt[1].equals(subType))
+				return MIME.type(mt[0], mt[1]);
+		return MIME.type(MIME.VIDEO, subType);
 	}
 }

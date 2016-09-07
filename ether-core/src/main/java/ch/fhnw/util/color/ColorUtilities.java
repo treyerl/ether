@@ -408,4 +408,59 @@ public final class ColorUtilities {
 		if(v > 1.0) return -1;
 		return (byte) (v * 255.0);
 	}	
+	
+	 /**
+     * Converts the components of a color, as specified by the default RGB
+     * model, to an equivalent set of values for hue, saturation, and
+     * brightness that are the three components of the HSB model.
+     * <p>
+     * If the <code>hsbvals</code> argument is <code>null</code>, then a
+     * new array is allocated to return the result. Otherwise, the method
+     * returns the array <code>hsbvals</code>, with the values put into
+     * that array.
+     * @param     r   the red component of the color
+     * @param     g   the green component of the color
+     * @param     b   the blue component of the color
+     * @param     hsbvals  the array used to return the
+     *                     three HSB values, or <code>null</code>
+     * @return    an array of three elements containing the hue, saturation,
+     *                     and brightness (in that order), of the color with
+     *                     the indicated red, green, and blue components.
+     */
+    public static float[] RGBtoHSB(int r, int g, int b, float[] hsbvals) {
+        float hue, saturation, brightness;
+        if (hsbvals == null) {
+            hsbvals = new float[3];
+        }
+        int cmax = (r > g) ? r : g;
+        if (b > cmax) cmax = b;
+        int cmin = (r < g) ? r : g;
+        if (b < cmin) cmin = b;
+
+        brightness = ((float) cmax) / 255.0f;
+        if (cmax != 0)
+            saturation = ((float) (cmax - cmin)) / ((float) cmax);
+        else
+            saturation = 0;
+        if (saturation == 0)
+            hue = 0;
+        else {
+            float redc = ((float) (cmax - r)) / ((float) (cmax - cmin));
+            float greenc = ((float) (cmax - g)) / ((float) (cmax - cmin));
+            float bluec = ((float) (cmax - b)) / ((float) (cmax - cmin));
+            if (r == cmax)
+                hue = bluec - greenc;
+            else if (g == cmax)
+                hue = 2.0f + redc - bluec;
+            else
+                hue = 4.0f + greenc - redc;
+            hue = hue / 6.0f;
+            if (hue < 0)
+                hue = hue + 1.0f;
+        }
+        hsbvals[0] = hue;
+        hsbvals[1] = saturation;
+        hsbvals[2] = brightness;
+        return hsbvals;
+    }
 }

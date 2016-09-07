@@ -50,6 +50,8 @@ import ch.fhnw.ether.image.IImage;
 import ch.fhnw.ether.image.IImage.AlphaMode;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.util.ArrayUtilities;
+import ch.fhnw.util.MIME;
 
 public class STBImageSupport implements IImageSupport {
 
@@ -163,5 +165,19 @@ public class STBImageSupport implements IImageSupport {
 			os.flush();
 			return os.toByteArray();
 		}
+	}
+
+	private static final String[] TYPES = {
+			MIME.MT_PNG, MIME.MT_JPEG, MIME.MT_BMP, MIME.MT_TGA, MIME.MT_PSD, MIME.MT_HDR, MIME.MT_PICT, MIME.MT_PNM,
+	};
+
+	@Override
+	public boolean canRead(String mimeType) {
+		return ArrayUtilities.containsEquals(TYPES, mimeType);
+	}
+
+	@Override
+	public boolean canWrite(String mimeType) {
+		return false;
 	}
 }

@@ -72,6 +72,11 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 		this.bands = bands;
 	}
 
+	public OnsetDetect() {
+		super(SENS, BAND_DECAY, AVG_DECAY, MAX_BPM);
+		this.bands = null;
+	}
+
 	@Override
 	protected void init(IAudioRenderTarget target) throws RenderCommandException {
 		this.buffer = new BlockBuffer((int) (target.getSampleRate() * CHUNK_SIZE), false, Window.RECTANGLE);
@@ -91,6 +96,7 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 			filters    = new ButterworthFilter[OnsetDetect.this.bands.numBands()];
 		}
 	}
+	
 	private void processBand(final int band, final float decay, final float sens) {
 		float d = bandsa[band] - lastBands[band];
 		fluxBands[band] = d;
@@ -130,11 +136,6 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 		Arrays.fill(lastBands, 0f);
 		Arrays.fill(fluxBands, 0f);
 		Arrays.fill(thresholds, 0f);
-	}
-
-	public OnsetDetect() {
-		super(SENS, BAND_DECAY, AVG_DECAY);
-		this.bands = null;
 	}
 
 	@Override
@@ -185,7 +186,11 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 			holdTime = 0;
 	}
 
-	public int getOnsetCount() {
+	public int getOnsetCounter() {
 		return count;
-	}	
+	}
+		
+	public float getBPM() {
+		return (float) avgBPM;
+	}
 }

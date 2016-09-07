@@ -153,7 +153,7 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 
 	@Override
 	public final void setSubImage(int x, int y, IHostImage image) {
-		image = convert(getComponentType(), getComponentFormat(), getAlphaMode());
+		image = image.convert(getComponentType(), getComponentFormat(), getAlphaMode());
 		if (x + image.getWidth() > getWidth())
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + image.getHeight() > getHeight())
@@ -167,7 +167,9 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 
 	@Override
 	public final ByteBuffer getPixels() {
-		return pixels;
+		ByteBuffer result = pixels.duplicate();
+		result.clear();
+		return result;
 	}
 	
 	@Override

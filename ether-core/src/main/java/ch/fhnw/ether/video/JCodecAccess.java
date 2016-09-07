@@ -48,7 +48,7 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.util.Log;
 
 public final class JCodecAccess extends FrameAccess {
-	private static final Log LOG = Log.create();
+	private static final Log log = Log.create();
 
 	private   SeekableByteChannel channel;
 	protected FrameGrab           grab;
@@ -100,17 +100,12 @@ public final class JCodecAccess extends FrameAccess {
 	}
 
 	@Override
-	public String toString() {
-		return getSource().getURL() + " (d=" + getDuration() + " fr=" + getFrameRate() + " fc=" + getFrameCount() + " w=" + getWidth() + " h=" + getHeight() + ")";
-	}
-
-	@Override
 	public void rewind() {
 		try {
 			numPlays--;
 			grab.seekToFramePrecise(0);
 		} catch (Throwable t) {
-			LOG.warning(t);
+			log.warning(t);
 		}
 	}
 

@@ -190,7 +190,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 				while(getTime() <= time)
 					nap();
 			}
-		else if(time == NOT_RENDERING || time > getTime()) {
+		else if((time == NOT_RENDERING || time > getTime()) && isRendering()) {
 			BlockingTimeEvent event = new BlockingTimeEvent(time, runnable);
 			synchronized (timeEvents) {
 				timeEvents.add(event);
