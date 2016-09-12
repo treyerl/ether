@@ -5,9 +5,11 @@ import org.lwjgl.glfw.GLFWVidMode;
 
 public class GLFWMonitor implements IMonitor {
 	private long handle;
+	private int  index;
 	
-	public GLFWMonitor(long handle) {
+	public GLFWMonitor(long handle, int index) {
 		this.handle = handle;
+		this.index  = index;
 	}
 
 	@Override
@@ -40,6 +42,11 @@ public class GLFWMonitor implements IMonitor {
 	
 	public long getHandle() {
 		return handle;
+	}
+	
+	@Override
+	public int getIndex() {
+		return index;
 	}
 	
 	@Override

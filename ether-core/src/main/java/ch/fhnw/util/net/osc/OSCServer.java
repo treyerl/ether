@@ -39,6 +39,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -60,6 +61,9 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 
 	private final Map<String, SocketAddress> remotePeers = new ConcurrentHashMap<>();
 
+	private final Thread receiveThread;
+	private final Thread sendThread;
+	
 	public OSCServer(int port) throws IOException {
 		this(port, null);
 	}
@@ -82,7 +86,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 			socket.setSendBufferSize(size);
 		}
 
-		final Thread receiveThread = new Thread(new Runnable() {
+		receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				log.info(Thread.currentThread().getName() + " started (" + socket.getLocalSocketAddress() + ")");
@@ -104,9 +108,8 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		}, "osc receiver");
 		receiveThread.setDaemon(true);
 		receiveThread.setPriority(Thread.MAX_PRIORITY);
-		receiveThread.start();
 
-		final Thread sendThread = new Thread(new Runnable() {
+		sendThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				log.info(Thread.currentThread().getName() + " started)");
@@ -127,7 +130,6 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 			}
 		}, "osc sender");
 		sendThread.setDaemon(true);
-		sendThread.start();
 
 		OSCCommon.setExceptionHandler(new ExceptionHandler() {
 			@Override
@@ -137,9 +139,18 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		});
 	}
 
+	public void start() {
+		receiveThread.start();
+		sendThread.start();
+	}
+	
 	public void addPeer(String id, SocketAddress addr) {
 		remotePeers.put(id, addr);
 		log.info("OSC peer added:" + addr);
+	}
+
+	public void send(String address, Collection<?> args) {
+		send(address, args.toArray(new Object[args.size()]));
 	}
 	
 	public void send(String address, Object... args) {

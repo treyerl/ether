@@ -565,6 +565,10 @@ public final class TextUtilities {
 		return stripFileExtension(file.getName());
 	}
 
+	public static String getFileExtensionWithoutDot(File file) {
+		return getFileExtensionWithoutDot(file.getName());
+	}
+	
 	public static String getFileExtensionWithoutDot(String name) {
 		int idx = name.lastIndexOf('.');
 		return idx > 0 ? name.substring(idx + 1) : ClassUtilities.EMPTY_String;

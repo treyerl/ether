@@ -46,7 +46,7 @@ import ch.fhnw.util.TextUtilities;
 
 public interface IImageSupport {
 	enum FileFormat {
-		PNG, JPEG;
+		BMP, TIFF, PNG, JPEG, BIN;
 		
 		public static FileFormat get(File file) {
 			return get(TextUtilities.getFileExtensionWithoutDot(file.getName()).toLowerCase());
@@ -59,6 +59,13 @@ public interface IImageSupport {
 				return JPEG;
 			case "png":
 				return PNG;
+			case "bin":
+				return BIN;
+			case "bmp":
+				return BMP;
+			case "tif":
+			case "tiff":
+				return TIFF;
 			}
 			throw new IllegalArgumentException("invalid image extension: " + ext);
 		}
@@ -118,7 +125,7 @@ public interface IImageSupport {
 	 *            target height
 	 * @return new image, resized to width*height
 	 */
-	IHostImage resize(IHostImage image, int width, int height);
+	IHostImage scale(IHostImage image, int width, int height);
 
 	/**
 	 * Returns true if this image support can read files of the given mime type.

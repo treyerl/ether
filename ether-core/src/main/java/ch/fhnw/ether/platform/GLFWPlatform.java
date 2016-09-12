@@ -142,7 +142,7 @@ class GLFWPlatform implements IPlatform {
 		PointerBuffer monitors = GLFW.glfwGetMonitors();
 		IMonitor[] result = new IMonitor[monitors.limit()];
 		for(int i = 0; i < result.length; i++)
-			result[i] = new GLFWMonitor(monitors.get(i));
+			result[i] = new GLFWMonitor(monitors.get(i), i);
 		return result;
 	}
 }

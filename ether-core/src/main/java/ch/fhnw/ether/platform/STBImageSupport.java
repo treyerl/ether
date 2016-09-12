@@ -140,7 +140,7 @@ public class STBImageSupport implements IImageSupport {
 	}
 
 	@Override
-	public IHostImage resize(IHostImage image, int width, int height) {
+	public IHostImage scale(IHostImage image, int width, int height) {
 		if (image.getWidth() == width && image.getHeight() == height)
 			return image;
 

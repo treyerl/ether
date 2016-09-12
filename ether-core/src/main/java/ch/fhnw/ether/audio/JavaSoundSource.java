@@ -158,7 +158,7 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 		}
 	}
 
-	private static String[] getSources() {
+	public synchronized static String[] getSources() {
 		if(sources.isEmpty()) {
 			for(Mixer.Info mixerInfo : AudioSystem.getMixerInfo()) {
 				try(Mixer mixer = AudioSystem.getMixer(mixerInfo)) {

@@ -77,32 +77,36 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 	}
 
 	public URLVideoSource(URL url, int numPlays) throws IOException {
+		this(url, numPlays, 8);
+	}
+
+	public URLVideoSource(URL url, int numPlays, int queueSize) throws IOException {
 		try {
 			this.url    = url;
-			frameAccess = access(url, numPlays);
+			frameAccess = access(url, numPlays, queueSize);
 			init(url, 0, frameAccess.getDuration(), numPlays);
 		} catch(Throwable t) {
 			throw new IOException(t);
 		}
 	}
 
-	public URLVideoSource(URL url, double startInSec, double lengthInSec, int numPlays) throws IOException {
+	public URLVideoSource(URL url, double startInSec, double lengthInSec, int numPlays, int queueSize) throws IOException {
 		try {
 			this.url    = url;
-			frameAccess = access(url, numPlays);
+			frameAccess = access(url, numPlays, queueSize);
 			init(url, startInSec, lengthInSec, numPlays);
 		} catch(Throwable t) {
 			throw new IOException(t);
 		}
 	}
 
-	private FrameAccess access(URL url, int numPlays) throws IOException, URISyntaxException {
+	private FrameAccess access(URL url, int numPlays, int queueSize) throws IOException, URISyntaxException {
 		String mime = MIME.getContentTypeFor(url);
 		if(MIME.match(mime, MIME.MT_GIF))
 			return new GIFAccess(this, numPlays);
-		return still.canRead(mime) ? new FrameAccess(this) : USE_JCODEC ? new JCodecAccess(this, numPlays) : new XuggleAccess(this, numPlays);
+		return still.canRead(mime) ? new FrameAccess(this) : USE_JCODEC ? new JCodecAccess(this, numPlays) : new XuggleAccess(this, numPlays, queueSize);
 	}
-	
+
 	private void init(URL url, double startInSec, double lengthInSec, int numPlays) {
 		width       = frameAccess.getWidth();
 		height      = frameAccess.getHeight();
@@ -117,7 +121,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 
 	@Override
 	public String toString() {
-		return url.toString();
+		return frameAccess.toString();
 	}
 
 	@Override

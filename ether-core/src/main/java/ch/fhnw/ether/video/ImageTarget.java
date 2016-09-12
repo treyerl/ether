@@ -49,7 +49,7 @@ public class ImageTarget extends AbstractVideoTarget {
 		IHostImage videoImage = videoFrame.getHostImage();
 		sleepUntil(videoFrame.playOutTime);
 		synchronized (this) {
-			image.setSubImage(0, 0, videoImage.resize(image.getWidth(), image.getHeight()));
+			image.setSubImage(0, 0, videoImage.scale(image.getWidth(), image.getHeight()));
 		}
 	}
 }

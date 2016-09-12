@@ -60,7 +60,7 @@ public class GeometryServer {
 	private void runOSCScan(int port) {
 		try {
 			OSCServer oscServerScan = new OSCServer(port, "224.0.1.0");
-			oscServerScan.installHandler("/", new OSCHandler() {
+			oscServerScan.addHandler("/", new OSCHandler() {
 				@Override
 				public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
 					try {
@@ -109,7 +109,7 @@ public class GeometryServer {
 
 			OSCServer oscServerSun = new OSCServer(port, null);
 			// oscserver = new OSCServer(port, "224.0.1.0");
-			oscServerSun.installHandler("/", new OSCHandler() {
+			oscServerSun.addHandler("/", new OSCHandler() {
 				@Override
 				public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
 					try {

@@ -17,7 +17,7 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 
 public class GIFAccess extends FrameAccess {
 	private List<IHostImage> frames = new ArrayList<>();
-	private int              currFrame;
+	private int              frameNo  = -1;
 	private double           duration = 0;
 	private final byte[]     rgb      = new byte[4];
 	private int              width;
@@ -84,20 +84,20 @@ public class GIFAccess extends FrameAccess {
 	@Override
 	public void rewind() {
 		numPlays--;
-		currFrame = 0;
+		frameNo = 0;
 	}
 
 	@Override
 	public boolean decodeFrame() {
-		currFrame++;
-		if(currFrame >= frames.size())
+		frameNo++;
+		if(frameNo >= frames.size())
 			rewind();
 		return numPlays > 0;
 	}
 
 	@Override
 	public double getPlayOutTimeInSec() {
-		return currFrame / getFrameRate();
+		return frameNo / getFrameRate();
 	}
 
 	@Override
@@ -107,11 +107,11 @@ public class GIFAccess extends FrameAccess {
 
 	@Override
 	public IHostImage getHostImage(BlockingQueue<float[]> audioData) {
-		return frames.get(currFrame % frames.size());
+		return frameNo < 0 ? null : frames.get(frameNo % frames.size());
 	}
 
 	@Override
 	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
 		return getHostImage(audioData).createGPUImage();
-	}
+	}	
 }

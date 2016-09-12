@@ -34,9 +34,29 @@ public class SWTImageSupport extends STBImageSupport {
 		if (format == null)
 			format = FileFormat.JPEG;
 
-		writer.get().data = new ImageData[] { toImageData(image) };
-		writer.get().save(out, swtFormat(format));
-		out.close();
+		if(format == FileFormat.BIN) {
+			out.write(toRGB(image));
+		} else {
+			writer.get().data = new ImageData[] { toImageData(image) };
+			writer.get().save(out, swtFormat(format));
+			out.close();
+		}
+	}
+
+	private byte[] toRGB(IImage image) throws IOException {
+		IHostImage hostImage = null;
+		if (image instanceof IHostImage)
+			hostImage = (IHostImage)image;
+		else if (image instanceof IGPUImage)
+			hostImage = ((IGPUImage)image).createHostImage();
+		else
+			throw new IllegalArgumentException("unsupported image type");
+
+		hostImage = hostImage.convert(ComponentType.BYTE, ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
+		
+		byte[] result = new byte[hostImage.getWidth() * hostImage.getHeight() * 3];
+		hostImage.getPixels().get(result);
+		return result;
 	}
 
 	public static ImageData toImageData(IImage image) throws IOException {
@@ -47,7 +67,7 @@ public class SWTImageSupport extends STBImageSupport {
 			hostImage = ((IGPUImage)image).createHostImage();
 		else
 			throw new IllegalArgumentException("unsupported image type");
-		
+
 		hostImage = hostImage.convert(ComponentType.BYTE, hostImage.getComponentFormat().hasAlpha() ? ComponentFormat.RGBA : ComponentFormat.RGB, AlphaMode.POST_MULTIPLIED);
 
 		ByteBuffer pixels = hostImage.getPixels();
@@ -95,6 +115,12 @@ public class SWTImageSupport extends STBImageSupport {
 			return SWT.IMAGE_JPEG;
 		case PNG:
 			return SWT.IMAGE_PNG;
+		case TIFF:
+			return SWT.IMAGE_TIFF;
+		case BMP:
+			return SWT.IMAGE_BMP;
+		case BIN:
+			return SWT.IMAGE_COPY;
 		}
 		throw new IllegalArgumentException("unsupported file format: " + format);
 	}

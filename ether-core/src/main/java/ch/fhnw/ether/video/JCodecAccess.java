@@ -161,5 +161,5 @@ public final class JCodecAccess extends FrameAccess {
 	@Override
 	protected float getSampleRate() {
 		return grab.getSampleRate();
-	}
+	}	
 }

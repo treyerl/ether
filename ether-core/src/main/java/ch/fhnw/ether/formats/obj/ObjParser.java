@@ -41,11 +41,14 @@ import ch.fhnw.ether.formats.ModelFace;
 import ch.fhnw.ether.formats.ModelGroup;
 import ch.fhnw.ether.formats.ModelObject;
 import ch.fhnw.util.ArrayUtilities;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.math.Vec2;
 import ch.fhnw.util.math.Vec3;
 
 final class ObjParser {
+	private static final Log log = Log.create();
+	
 	private final ModelObject object;
 	private final boolean convertToZUp;
 
@@ -127,7 +130,7 @@ final class ObjParser {
 			// TODO: we silently ignore smoothing groups
 			break;
 		default:
-			System.out.println("Ignoring unknown OBJ key '" + words[0] + "' (line " + line + ")");
+			log.warning("Ignoring unknown OBJ key '" + words[0] + "' (line " + line + ")");
 		}
 	}
 

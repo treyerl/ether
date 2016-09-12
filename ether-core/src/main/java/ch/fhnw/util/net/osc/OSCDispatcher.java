@@ -36,38 +36,49 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ch.fhnw.util.Log;
+
 public abstract class OSCDispatcher {
+	private static final Log log = Log.create();
+	
 	private static final boolean DBG = true;
 
 	private static final OSCHandler DEFAULT_HANDLER = new OSCHandler() {
 		@Override
 		public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timetag, Object... args) {
 			if (DBG) {
-				System.out.print("[");
+				StringBuilder msg = new StringBuilder();
+				msg.append("[");
 				for (int i = 0; i < address.length; i++)
-					System.out.print((i == addrIdx ? ':' : '/') + address[i]);
-				System.out.print("(" + typeString + ")@" + timetag + ":");
+					msg.append((i == addrIdx ? ':' : '/') + address[i]);
+				msg.append("(" + typeString + ")@" + timetag + ":");
 				for (Object o : args) {
 					if (o instanceof String)
-						System.out.print('"' + o.toString() + '"');
+						msg.append('"' + o.toString() + '"');
 					else if (o instanceof byte[])
-						System.out.print('{' + OSCCommon.toHex((byte[]) o) + '}');
+						msg.append('{' + OSCCommon.toHex((byte[]) o) + '}');
 					else
-						System.out.print(o + " ");
+						msg.append(o + " ");
 				}
-				System.out.println("]");
+				msg.append("]");
+				log.info(msg.toString());
 			}
 			return null;
 		}
 	};
 
 	private OSCNode addressSpace = new OSCNode(DEFAULT_HANDLER);
-	protected int messageCount;
+	private int  messageCount;
+	private long lastMessageTime = -1;
+
+	public long getLastMessageTime() {
+		return lastMessageTime;
+	}
 
 	protected OSCDispatcher() {
 	}
 
-	public void installHandler(String address, OSCHandler handler) {
+	public void addHandler(String address, OSCHandler handler) {
 		if (address.equals("/"))
 			addressSpace.setHandler(handler);
 		else {
@@ -100,6 +111,7 @@ public abstract class OSCDispatcher {
 			}
 		} else {
 			messageCount++;
+			lastMessageTime = System.currentTimeMillis();
 			int messageStart = packet.position() - (4 * ((address.length() / 4) + 1));
 			StringBuilder typeString = new StringBuilder();
 			for (;;) {
@@ -153,7 +165,7 @@ public abstract class OSCDispatcher {
 				}
 			}
 			int messageEnd = packet.position();
-
+			
 			OSCNode node = addressSpace;
 			OSCHandler handler = node.getHandler();
 			String[] parts = OSCCommon.split(address, '/');

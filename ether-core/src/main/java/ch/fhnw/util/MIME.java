@@ -64,6 +64,7 @@ public class MIME {
     public final static String MT_PICT = type(IMAGE, PICT);
     public final static String MT_PNM  = type(IMAGE, ANYMAP);
     public final static String MT_GIF  = type(IMAGE, GIF);
+    public final static String MT_TIFF = type(IMAGE, TIFF);
     
 	public static final String MT_MP4  = type(VIDEO, MP4);
 	public static final String MT_MOV  = type(VIDEO, QUICKTIME);

@@ -39,6 +39,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 
 import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.util.IDisposable;
 
 /**
  * An IHostImage refers to an image whose pixel data remains in host memory. A host
@@ -47,7 +48,7 @@ import ch.fhnw.ether.platform.Platform;
  * @author radar
  *
  */
-public interface IHostImage extends IImage {
+public interface IHostImage extends IImage, IDisposable {
 
 	/**
 	 * Clears this image, set all pixel data to zero.
@@ -72,7 +73,7 @@ public interface IHostImage extends IImage {
 	/**
 	 * Returns a new, resized instance of this image.
 	 */
-	IHostImage resize(int width, int height);
+	IHostImage scale(int width, int height);
 
 	/**
 	 * Returns a new instance of this image, with type, format and alpha mode converted to requested values.

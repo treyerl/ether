@@ -5,4 +5,5 @@ public interface IMonitor {
 	int getY();
 	int getWidth();
 	int getHeight();
+	int getIndex();
 }

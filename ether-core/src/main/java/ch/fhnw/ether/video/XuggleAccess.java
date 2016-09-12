@@ -71,9 +71,7 @@ import ch.fhnw.util.SortedLongMap;
 import ch.fhnw.util.TextUtilities;
 
 public final class XuggleAccess extends FrameAccess implements Runnable {
-	private static final Log LOG = Log.create();
-
-	private static final int QUEUE_SZ = 8;
+	private static final Log log = Log.create();
 
 	private final IContainer                      container;
 	private       IStreamCoder                    videoCoder;
@@ -82,23 +80,25 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	private       IStream                         audioStream;
 	private       IVideoResampler                 resampler;
 	private       AudioFormat                     audioFormat;
-	private       AtomicReference<IVideoPicture>  currentPicture = new AtomicReference<>();
+	private final AtomicReference<IVideoPicture>  currentPicture = new AtomicReference<>();
 	private       double                          playOutTime    = ITimebase.ASAP;
 	private       boolean                         isKeyframe;
 	private       long                            lastTimeStamp;
 	private       long                            maxTimeStamp;
-	private       BlockingQueue<float[]>          audioData      = new LinkedBlockingQueue<>();
+	private       long                            timeOffset;
+	private final BlockingQueue<float[]>          audioData      = new LinkedBlockingQueue<>();
 	private       double                          baseTime;
 	private       Thread                          decoderThread;
-	private       SortedLongMap<IVideoPicture>    pictureQueue   = new SortedLongMap<>();
-	private       Semaphore                       pictures       = new Semaphore(0);
-	private       Semaphore                       queueSize      = new Semaphore(QUEUE_SZ);
+	private final SortedLongMap<IVideoPicture>    pictureQueue   = new SortedLongMap<>();
+	private final Semaphore                       pictures       = new Semaphore(0);
+	private final Semaphore                       queueSize;
 	private       int                             width;
 	private       int                             height;
 	private       AtomicBoolean                   doDecode       = new AtomicBoolean(false);
 	
-	public XuggleAccess(URLVideoSource src, int numPlays) throws IOException {
+	public XuggleAccess(URLVideoSource src, int numPlays, int qSize) throws IOException {
 		super(src, numPlays);
+		queueSize = new Semaphore(qSize);
 		container = IContainer.make();
 		open(src);
 	}
@@ -241,6 +241,8 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 		}
 	}
 
+	int decoded;
+	
 	@Override
 	public void run() {
 		try {
@@ -253,15 +255,18 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 						break;
 					if (picture.isComplete()) {
 						// terrible hack for fixing up screwed timestamps
+						long pt = picture.getTimeStamp();
+						if(timeOffset == 0 && pt < 0) timeOffset = -pt;
+						picture.setTimeStamp(pt + timeOffset);
 						maxTimeStamp = Math.max(maxTimeStamp, picture.getTimeStamp());
 						long correction = Math.min((maxTimeStamp - lastTimeStamp) / 2, (long)(IScheduler.SEC2US / getFrameRate()));
 						picture.setTimeStamp(lastTimeStamp + correction);
 						lastTimeStamp = picture.getTimeStamp();
 						queueSize.acquire();
 						synchronized (pictureQueue) {
-							if(pictureQueue.put(picture.getTimeStamp(), picture) == null)
+							if(pictureQueue.put(picture.getTimeStamp(), picture) == null) {
 								pictures.release();
-							else
+							} else
 								queueSize.release();
 						}
 					}
@@ -271,7 +276,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					while(offset < currentPacket.getSize()) {
 						int bytesDecoded = audioCoder.decodeAudio(samples, currentPacket, offset);
 						if (bytesDecoded < 0) {
-							LOG.warning("got error decoding audio");
+							log.warning("got error decoding audio");
 							break;
 						}
 						offset += bytesDecoded;
@@ -281,12 +286,12 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 				}
 			}
 		} catch (Throwable t) {
-			LOG.severe(t);
+			log.severe(t);
 		} finally {
 			container.close();
 		}
 	}
-
+	
 	@Override
 	public boolean decodeFrame() {
 		try {
@@ -334,12 +339,12 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					tmpPicture = IVideoPicture.make(resampler.getOutputPixelFormat(), w, h); 
 				newPic = tmpPicture;
 				if (resampler.resample(newPic, currentPicture.get()) < 0) {
-					LOG.warning("could not resample video");
+					log.warning("could not resample video");
 					return null;
 				}
 			}
 			if (newPic.getPixelType() != IPixelFormat.Type.RGB24) {
-				LOG.warning("could not decode video as RGB24 bit data");
+				log.warning("could not decode video as RGB24 bit data");
 				return null;
 			}
 			ByteBuffer dstBuffer = BufferUtils.createByteBuffer(w * h * 3);
@@ -353,7 +358,7 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 					audioData.add(this.audioData.take());
 			}
 		} catch(Throwable t) {
-			LOG.warning(t);
+			log.warning(t);
 		}
 		return result;
 	}
@@ -391,5 +396,5 @@ public final class XuggleAccess extends FrameAccess implements Runnable {
 	@Override
 	protected float getSampleRate() {
 		return audioCoder == null ? 48000 : audioCoder.getSampleRate();
-	}
+	}	
 }

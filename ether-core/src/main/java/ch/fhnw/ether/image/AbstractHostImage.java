@@ -39,7 +39,7 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.BufferUtilities;
 
 abstract class AbstractHostImage extends AbstractImage implements IHostImage {
-	private final ByteBuffer pixels;
+	private ByteBuffer pixels;
 	
 	protected AbstractHostImage(int width, int height, ComponentType componentType, ComponentFormat componentFormat, AlphaMode alphaMode) {
 		this(width, height, componentType, componentFormat, alphaMode, null);
@@ -86,8 +86,8 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 	}
 	
 	@Override
-	public final IHostImage resize(int width, int height) {
-		return Platform.get().getImageSupport().resize(this, width, height);
+	public final IHostImage scale(int width, int height) {
+		return Platform.get().getImageSupport().scale(this, width, height);
 	}
 	
 	// TODO test & optimize
@@ -135,7 +135,6 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 		return result;
 	}
 	
-	
 	@Override
 	public final IHostImage getSubImage(int x, int y, int width, int height) {
 		IHostImage image = allocate(width, height);
@@ -158,7 +157,7 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 			throw new IllegalArgumentException("sub-image too wide");
 		if (y + image.getHeight() > getHeight())
 			throw new IllegalArgumentException("sub-image too high");
-		int pixelSize = getNumBytesPerPixel();
+		int pixelSize  = getNumBytesPerPixel();
 		int srcRowSize = image.getWidth();
 		int dstRowSize = getWidth();
 		for (int i = 0; i < image.getHeight(); ++i)
@@ -282,4 +281,8 @@ abstract class AbstractHostImage extends AbstractImage implements IHostImage {
 		}		
 	}
 	
+	@Override
+	public void dispose() {
+		pixels = null; // help gc
+	}
 }

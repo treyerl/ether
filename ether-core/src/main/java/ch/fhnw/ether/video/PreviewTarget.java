@@ -37,26 +37,33 @@ import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.video.fx.AbstractVideoFX;
+import ch.fhnw.util.IDisposable;
+import ch.fhnw.util.IProgressListener;
 
-public class PreviewTarget extends AbstractVideoTarget {
+public class PreviewTarget extends AbstractVideoTarget implements IDisposable {
 	private static final int BORDER = 2;
 
-	private IHostImage    preview;
-	private boolean       init = true;
-	private int           prvN;
-	private int           prvHeight;
-	private int           prvWidth;
-	private int           x;
-	private double[]      startEnd;
-	private double        prvSkip;
-	private int           idx;
-	
+	private IHostImage              preview;
+	private boolean                 init = true;
+	private int                     prvN;
+	private int                     prvHeight;
+	private int                     prvWidth;
+	private int                     x;
+	private double[]                startEnd;
+	private double                  prvSkip;
+	private int                     idx;
+	private final IProgressListener progress;
+
 	public PreviewTarget(int width, int height) {
-		this(width, height, 0, AbstractFrameSource.LENGTH_UNKNOWN);
+		this(width, height, null);
+	}
+	
+	public PreviewTarget(int width, int height, IProgressListener progress) {
+		this(width, height, 0, AbstractFrameSource.LENGTH_UNKNOWN, progress);
 	}
 
-	public PreviewTarget(int width, int height, double...durations) {
-		this(startEnd(durations), width, height);
+	public PreviewTarget(int width, int height, IProgressListener progress, double...durations) {
+		this(startEnd(durations), width, height, progress);
 	}
 
 	private static double[] startEnd(double[] durations) {
@@ -71,12 +78,13 @@ public class PreviewTarget extends AbstractVideoTarget {
 		return result;
 	}
 
-	public PreviewTarget(int width, int height, double startInSeconds, double lengthInSeconds) {
-		this(new double[] {startInSeconds, startInSeconds+lengthInSeconds}, width, height);
+	public PreviewTarget(int width, int height, double startInSeconds, double lengthInSeconds, IProgressListener progress) {
+		this(new double[] {startInSeconds, startInSeconds+lengthInSeconds}, width, height, progress);
 	}
 
-	private PreviewTarget(double[] startEnd, int width, int height) {
+	private PreviewTarget(double[] startEnd, int width, int height, IProgressListener progress) {
 		super(Thread.MIN_PRIORITY, AbstractVideoFX.CPUFX, false);
+		this.progress = progress;
 		this.startEnd = startEnd;
 		this.preview  = IHostImage.create(width, height, ComponentType.BYTE, ComponentFormat.RGBA);
 	}
@@ -104,8 +112,9 @@ public class PreviewTarget extends AbstractVideoTarget {
 		frame = vframe.getHostImage();
 		
 		if(frame != null && x + prvWidth < preview.getWidth()) {
-			preview.setSubImage(x, 0, frame.resize(prvWidth, prvHeight));
+			preview.setSubImage(x, 0, frame.scale(prvWidth, prvHeight));
 			x += prvWidth + BORDER;
+			if(progress != null) progress.progress((float)x/(float)preview.getWidth());
 		}
 		
 		if(vframe.playOutTime >= startEnd[idx+1]) {
@@ -117,6 +126,7 @@ public class PreviewTarget extends AbstractVideoTarget {
 				prvSkip = (startEnd[idx+1]-startEnd[idx+0]) / prvN;
 				x = 0;
 			}
+			if(progress != null) progress.done();
 		} else
 			startEnd[idx] += prvSkip;
 	}
@@ -125,5 +135,9 @@ public class PreviewTarget extends AbstractVideoTarget {
 	
 	public IHostImage getPreview() {
 		return preview;
+	}
+
+	public void dispose() {
+		preview.dispose();
 	}	
 }
