@@ -127,7 +127,7 @@ public class FrameAccess implements IDisposable {
 	public void rewind() throws IOException {}
 	
 	@Override
-	public final String toString() {
+	public String toString() {
 		return getSource().getURL() + " (d=" + getDuration() + " fr=" + getFrameRate() + " fc=" + getFrameCount() + " w=" + getWidth() + " h=" + getHeight() + ")";
 	}
 }

@@ -50,17 +50,19 @@ import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewFlag;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.ether.view.IWindow.IContext;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.color.RGBA;
 
 public abstract class AbstractRenderer implements IRenderer {
-	
+	private static final Log log = Log.create();
+
 	private static final boolean DBG = false;
 
 	public static final class RenderGlobals {
 		public final Map<IAttribute, Supplier<?>> attributes = new IdentityHashMap<>();
 		public final ViewInfo viewInfo = new ViewInfo();
 		public final LightInfo lightInfo = new LightInfo();
-		
+
 		private RenderGlobals() {
 			viewInfo.getAttributes(attributes);
 			lightInfo.getAttributes(attributes);
@@ -77,15 +79,22 @@ public abstract class AbstractRenderer implements IRenderer {
 	private ShadowVolumes shadowVolumes;
 
 	public AbstractRenderer() {
-		renderThread = new Thread(this::runRenderThread, "render-thread");
-		renderThread.setDaemon(true);
-		renderThread.setPriority(Thread.MAX_PRIORITY);
-		renderThread.start();
+		this(true);
+	}
+
+	public AbstractRenderer(boolean startRenderThread) {
+		if(startRenderThread) {
+			renderThread = new Thread(this::runRenderThread, "render-thread");
+			renderThread.setDaemon(true);
+			renderThread.setPriority(Thread.MAX_PRIORITY);
+			renderThread.start();
+		} else
+			renderThread = null;
 	}
 
 	@Override
 	public ExecutionPolicy getExecutionPolicy() {
-		return ExecutionPolicy.DUAL_THREADED;
+		return renderThread == null ? ExecutionPolicy.SINGLE_THREADED : ExecutionPolicy.DUAL_THREADED;
 	}
 
 	@Override
@@ -96,15 +105,18 @@ public abstract class AbstractRenderer implements IRenderer {
 	@Override
 	public void submit(Supplier<IRenderState> supplier) {
 		try {
-			if (renderQueue.size() < MAX_RENDER_QUEUE_SIZE) {
-				final IRenderState state = supplier.get();
-				renderQueue.put(() -> render(state));
+			if(getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED) {
+				render(supplier.get());
 			} else {
-				if (DBG)
-					System.err.println("renderer: render queue full");
+				if (renderQueue.size() < MAX_RENDER_QUEUE_SIZE) {
+					renderQueue.put(() -> render(supplier.get()));
+				} else {
+					if (DBG)
+						log.info("renderer: render queue full");
+				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warning(e);
 		}
 	}
 
@@ -116,12 +128,12 @@ public abstract class AbstractRenderer implements IRenderer {
 		try (IContext ctx = GLContextManager.acquireContext()) {
 			renderState.getRenderUpdates().forEach(update -> {
 				update.update();
-    			GLError.checkWithMessage("updating");
+				GLError.checkWithMessage("updating");
 			});
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warning(e);
 		}
-		
+
 		// render all views
 		renderState.getRenderStates().forEach(targetState -> {
 			IView view = targetState.getView();
@@ -136,18 +148,18 @@ public abstract class AbstractRenderer implements IRenderer {
 				e.printStackTrace();
 			}
 		});
-		
+
 		// swap buffers for all views
 		renderState.getRenderStates().forEach(targetState -> {
 			IView view = targetState.getView();
 			IWindow window = view.getWindow();
 			if (window == null)
 				return;
-            try {
-            	window.swapBuffers();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+			try {
+				window.swapBuffers();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -164,14 +176,14 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		// culling is enabled per default, and only disabled when requested
 		GL11.glEnable(GL11.GL_CULL_FACE);
 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 
 		GL11.glViewport(0, 0, (int)view.getViewport().w, (int)view.getViewport().h);
-		
+
 		if (!view.isEnabled())
 			return;
 
@@ -183,9 +195,9 @@ public abstract class AbstractRenderer implements IRenderer {
 		render(renderState);
 		//view.getWindow().swapBuffers();
 	}
-	
+
 	protected abstract void render(IRenderTargetState state);
-	
+
 	protected void renderObjects(IRenderTargetState state, Queue pass) {
 		for (Renderable renderable : state.getRenderables()) {
 			if (renderable.getQueue() == pass) {
@@ -200,7 +212,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 		shadowVolumes.render(pass, state.getRenderables(), globals.lightInfo.getNumLights());
 	}
-	
+
 	private void runRenderThread() {
 		while (true) {
 			try {
@@ -211,7 +223,7 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 	}
 
-//	protected boolean isRenderThread() {
-//		return Thread.currentThread().equals(renderThread);
-//	}
+	//	protected boolean isRenderThread() {
+	//		return Thread.currentThread().equals(renderThread);
+	//	}
 }

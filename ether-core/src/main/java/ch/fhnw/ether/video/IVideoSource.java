@@ -36,6 +36,7 @@ public interface IVideoSource {
 	double getLengthInSeconds();
 	float  getFrameRate();
 
-	int getWidth();
-	int getHeight();	
+	int    getWidth();
+	int    getHeight();
+	long[] getShotStarts();	
 }

@@ -129,7 +129,7 @@ public class LowLevelRenderingExperiments {
 		try {
 			for (;;) {
 				INVGRenderCommand command = queue.take();
-				if (window.isDestroyed())
+				if (window.isDisposed())
 					return;
 
 				try (IContext ctx = window.acquireContext()) {

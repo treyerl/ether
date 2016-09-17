@@ -117,4 +117,9 @@ public interface IRenderManager {
 	 * is required.
 	 */
 	Runnable getRenderRunnable();
+
+	/**
+	 * Remove all object from renderer.
+	 */
+	void clear();
 }

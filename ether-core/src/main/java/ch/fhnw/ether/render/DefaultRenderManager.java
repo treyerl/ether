@@ -147,7 +147,7 @@ public class DefaultRenderManager implements IRenderManager {
 				throw new IllegalArgumentException("light already in renderer: " + light);
 			if (lights.size() == LightUniformBlock.MAX_LIGHTS)
 				throw new IllegalStateException("too many lights in renderer: " + LightUniformBlock.MAX_LIGHTS);
-			if (lights.get(0) == ILight.DEFAULT_LIGHT)
+			if (!(lights.isEmpty()) && lights.get(0) == ILight.DEFAULT_LIGHT)
 				lights.remove(0);
 			lights.add(light);
 		}
@@ -168,6 +168,15 @@ public class DefaultRenderManager implements IRenderManager {
 		void removeMesh(IMesh mesh) {
 			if (meshes.remove(mesh) == null)
 				throw new IllegalArgumentException("mesh not in renderer: " + mesh);
+			rebuildMeshes = true;
+		}
+
+
+		public void clear() {
+			lights.clear();
+			materials.clear();
+			geometries.clear();
+			meshes.clear();
 			rebuildMeshes = true;
 		}
 
@@ -370,5 +379,10 @@ public class DefaultRenderManager implements IRenderManager {
 	private void ensureSceneThread() {
 		if (controller != null)
 			controller.ensureSceneThread();
+	}
+
+	@Override
+	public void clear() {
+		sceneState.clear();
 	}
 }

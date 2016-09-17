@@ -14,6 +14,7 @@ import ch.fhnw.ether.image.IGPUImage;
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.ComponentFormat;
 import ch.fhnw.ether.image.IImage.ComponentType;
+import ch.fhnw.util.TextUtilities;
 
 public class GIFAccess extends FrameAccess {
 	private List<IHostImage> frames = new ArrayList<>();
@@ -22,7 +23,9 @@ public class GIFAccess extends FrameAccess {
 	private final byte[]     rgb      = new byte[4];
 	private int              width;
 	private int              height;
-	
+	private int              nClips;
+	private int[]            shotStarts;
+
 	public GIFAccess(URLVideoSource src, int numPlays) throws IOException, URISyntaxException {
 		super(src, numPlays);
 		ImageLoader loader = new ImageLoader();
@@ -31,12 +34,33 @@ public class GIFAccess extends FrameAccess {
 			width  = Math.max(width,  images[i].x + images[i].width); 
 			height = Math.max(height, images[i].y + images[i].height); 
 		}
+		nClips = images[0].delayTime - 10;
+		if (nClips > 0 && (int)images.length > (nClips * 2 + 1))
+			shotStarts = new int[nClips];
+		else
+			nClips = 1;
 		for(int i = 0; i < images.length; i++)
-			frames.add(convert(i == 0 ? null : frames.get(i-1), images[i]));
+			frames.add(convert(i, i == 0 ? null : frames.get(i-1), images[i]));
+		if(shotStarts != null) {
+			duration /= nClips * 1000.0;
+			duration *= images.length;
+		}
+		if(shotStarts != null)
+			for(int i = 1; i < shotStarts.length; i++)
+				shotStarts[i] += shotStarts[i-1];
 	}
 
-	private IHostImage convert(IHostImage previous, ImageData imageData) {
-		duration += imageData.delayTime / 1000.0;
+	private IHostImage convert(int idx, IHostImage previous, ImageData imageData) {
+		if(shotStarts != null) {
+			int clip = (idx - 1) / 2;
+			if(clip >= 0 && clip < nClips) {
+				if(((idx - 1) & 1) == 0) 
+					shotStarts[clip] = imageData.delayTime;
+				else
+					duration += imageData.delayTime;
+			}
+		} else
+			duration += imageData.delayTime / 1000.0;
 		IHostImage result = previous == null ? IHostImage.create(width, height, ComponentType.BYTE, ComponentFormat.RGB) : previous.copy();
 		for(int y = imageData.height; --y >= 0;)
 			for(int x = imageData.width; --x >= 0;) {
@@ -113,5 +137,13 @@ public class GIFAccess extends FrameAccess {
 	@Override
 	public IGPUImage getGPUImage(BlockingQueue<float[]> audioData) {
 		return getHostImage(audioData).createGPUImage();
-	}	
+	}
+
+	public String toString() {
+		return super.toString() + (shotStarts == null ? "" : TextUtilities.toString(shotStarts));  
+	}
+
+	public int[] getShotStarts() {
+		return shotStarts == null ? new int[] {frames.size()} : shotStarts;
+	}
 }

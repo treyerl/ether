@@ -60,7 +60,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 	private int                          width;
 	private int                          height;
 	private float                        frameRate;
-	private long                         frameCount;
+	private long                         lengthInFrames;
 	private float                        sampleRate;
 	private int                          numChannels;
 	private double                       length;
@@ -115,7 +115,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 		numChannels = frameAccess.getNumChannels();
 		start       = startInSec;
 		length      = lengthInSec;
-		frameCount  = lengthInSec == frameAccess.getDuration() ? frameAccess.getFrameCount() : (long)(lengthInSec * frameRate);
+		lengthInFrames  = lengthInSec == frameAccess.getDuration() ? frameAccess.getFrameCount() : (long)(lengthInSec * frameRate);
 		if(startInSec != 0) throw new IllegalArgumentException("startTime != 0 not implemented yet");
 	}
 
@@ -141,7 +141,7 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 
 	@Override
 	public long getLengthInFrames() {
-		return frameCount;
+		return lengthInFrames;
 	}
 
 	@Override
@@ -229,5 +229,17 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 			if(mt[1].equals(subType))
 				return MIME.type(mt[0], mt[1]);
 		return MIME.type(MIME.VIDEO, subType);
+	}
+
+	@Override
+	public long[] getShotStarts() {
+		if(frameAccess instanceof GIFAccess) {
+			int[]  starts = ((GIFAccess)frameAccess).getShotStarts();
+			long[] result = new long[starts.length];
+			for(int i = 0; i < starts.length; i++)
+				result[i] = starts[i];
+			return result;
+		}
+		else return new long[] {lengthInFrames};
 	}
 }

@@ -33,6 +33,7 @@ package ch.fhnw.ether.view;
 
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.math.Vec2;
 
 /**
@@ -40,7 +41,7 @@ import ch.fhnw.util.math.Vec2;
  * @author radar
  *
  */
-public interface IWindow {
+public interface IWindow extends IDisposable {
 	/**
 	 * Opqaue abstraction of underlying rendering context (e.g. an OpenGL context).
 	 * @see IWindow#acquireContext() for details how to acquire and release.
@@ -121,14 +122,14 @@ public interface IWindow {
 	 * 
 	 * Call from main thread only.
 	 */
-	void destroy();
+	void dispose();
 	
 	/**
 	 * Returns true if this window has been destroyed.
 	 * 
 	 * May be called from any thread.
 	 */
-	boolean isDestroyed();
+	boolean isDisposed();
 	
 	/**
 	 * Acquire this window's render context. Note that this is an

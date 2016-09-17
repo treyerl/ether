@@ -42,10 +42,12 @@ import ch.fhnw.ether.render.gl.FrameBuffer;
 import ch.fhnw.ether.render.gl.GLObject;
 import ch.fhnw.ether.render.gl.GLObject.Type;
 import ch.fhnw.ether.render.gl.Texture;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.Viewport;
 
 public final class GeometryBuffer {
-	
+	private static final Log log = Log.create();
+
 	private FrameBuffer frameBuffer;
 	private Texture positionTexture;
 	private Texture normalTexture;
@@ -87,9 +89,8 @@ public final class GeometryBuffer {
 			
 			GL20.glDrawBuffers(GL30.GL_COLOR_ATTACHMENT0);
 
-			if(!frameBuffer.isComplete()) {
-				System.out.println("Status: " + FrameBuffer.toString(frameBuffer.getStatus()));
-			}
+			if(!frameBuffer.isComplete())
+				log.severe("Status: " + FrameBuffer.toString(frameBuffer.getStatus()));
 			
 			FrameBuffer.unbind();
 		}

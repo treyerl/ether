@@ -96,7 +96,7 @@ public class DefaultView implements IView {
 	@Override
 	public void dispose() {
 		Platform.get().runOnMainThread(() -> {
-			window.destroy();
+			window.dispose();
 			window = null;
 		});
 	}

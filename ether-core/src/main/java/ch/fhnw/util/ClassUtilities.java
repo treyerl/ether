@@ -84,6 +84,7 @@ public final class ClassUtilities {
 	public static final Class<Integer>         CLS_Integer         = Integer.class;
 	public static final Class<?>               CLS_long            = long.class;
 	public static final Class<long[]>          CLS_longA           = long[].class;
+	public static final long[]                 EMPTY_longA         = new long[0];
 	public static final Class<Long>            CLS_Long            = Long.class;
 	public static final Class<?>               CLS_float           = float.class;
 	public static final Class<float[]>         CLS_floatA          = float[].class;

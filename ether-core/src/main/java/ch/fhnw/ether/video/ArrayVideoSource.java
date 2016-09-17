@@ -138,4 +138,9 @@ public class ArrayVideoSource extends AbstractFrameSource implements IVideoSourc
 		((IVideoRenderTarget)target).setFrame(this, frame);
 		frameIdx++;
 	}
+
+	@Override
+	public long[] getShotStarts() {
+		return new long[] {lengthInFrames};
+	}
 }

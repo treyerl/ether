@@ -68,6 +68,10 @@ public final class ForwardRenderer extends AbstractRenderer {
 	public ForwardRenderer() {
 	}
 
+	public ForwardRenderer(boolean startRenderThread) {
+		super(startRenderThread);
+	}
+
 	@Override
 	protected void render(IRenderTargetState state) {
 		globals.viewInfo.setCameraSpace();

@@ -129,6 +129,9 @@ final class ObjParser {
 		case "s":
 			// TODO: we silently ignore smoothing groups
 			break;
+		case "l":
+			// TODO: we silently ignore lines
+			break;
 		default:
 			log.warning("Ignoring unknown OBJ key '" + words[0] + "' (line " + line + ")");
 		}

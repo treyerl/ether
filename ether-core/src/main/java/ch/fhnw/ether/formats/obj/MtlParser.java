@@ -109,8 +109,12 @@ final class MtlParser {
 		case "map_Kd":
 			currentMaterial.setTexture(path, words[words.length - 1]);
 			break;
+		case "Ni":
+		case "d":
+		case "illum":
+			break;
 		default:
-			System.out.println("Ignoring unknown MTL key '" + words[0] + "' (line " + line + ")");
+			log.info("Ignoring unknown MTL key '" + words[0] + "' (line " + line + ")");
 		}
 	}
 }

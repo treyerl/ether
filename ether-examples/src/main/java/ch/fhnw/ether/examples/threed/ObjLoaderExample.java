@@ -67,7 +67,7 @@ public class ObjLoaderExample {
 			scene.add3DObject(new DirectionalLight(new Vec3(0, 0, 1), RGB.BLACK, RGB.WHITE));
 	
 			try {
-				final URL obj = ObjLoaderExample.class.getResource("/models/fhnw.obj");
+				final URL obj = getClass().getResource("/models/fhnw.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/aventador/aventador_red.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/demopolis/berlin_mitte_o2_o3/o2_small.obj");
 				final List<IMesh> meshes = new ArrayList<>();

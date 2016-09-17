@@ -105,6 +105,7 @@ public class DefaultController implements IController {
 
 	@Override
 	public final void setScene(IScene scene) {
+		renderManager.clear();
 		this.scene = scene;
 	}
 

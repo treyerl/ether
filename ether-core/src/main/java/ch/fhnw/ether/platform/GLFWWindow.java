@@ -163,7 +163,7 @@ final class GLFWWindow implements IWindow {
 	}
 
 	@Override
-	public void destroy() {
+	public void dispose() {
 		checkMainThread();
 
 		if (DBG)
@@ -182,7 +182,7 @@ final class GLFWWindow implements IWindow {
 	}
 
 	@Override
-	public boolean isDestroyed() {
+	public boolean isDisposed() {
 		return window == 0;
 	}
 
@@ -327,7 +327,7 @@ final class GLFWWindow implements IWindow {
 			// still handle close even if there's no listener
 			if (windowListener == null) {
 				Platform.get().runOnMainThread(() -> {
-					destroy();
+					dispose();
 				});
 				return;
 			}

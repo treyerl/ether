@@ -44,6 +44,7 @@ import com.github.sarxos.webcam.WebcamListener;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.Log;
 
@@ -174,4 +175,9 @@ public class CameraSource extends AbstractFrameSource implements IVideoSource, I
 
 	@Override
 	public void webcamOpen(WebcamEvent arg0) {}
+
+	@Override
+	public long[] getShotStarts() {
+		return ClassUtilities.EMPTY_longA;
+	}
 }

@@ -163,7 +163,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 		}
 
 		if( result==null ) {
-			throw new UnsupportedAudioFileException("could not get audio input stream from input URL");
+			throw new UnsupportedAudioFileException("could not get audio input stream from input URL:"+url);
 		}
 
 		AudioFormat format = result.getFormat();

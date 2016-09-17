@@ -149,5 +149,5 @@ public interface IMesh extends I3DObject {
 	/**
 	 * Get the number of primitives in this geometry.
 	 */
-	int getNumPrimitives();	
+	int getNumPrimitives();
 }

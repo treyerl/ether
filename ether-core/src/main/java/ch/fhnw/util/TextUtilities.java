@@ -531,7 +531,7 @@ public final class TextUtilities {
 		int idx = path.lastIndexOf('.');
 		return idx > 0 ? path.substring(0, idx) : path;
 	}
-
+	
 	public static String getFileName(String path) {
 		return path.substring(path.replace(File.separatorChar, '/').lastIndexOf('/') + 1, path.length());
 	}
