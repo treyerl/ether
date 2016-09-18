@@ -1,6 +1,12 @@
 //rootProject.name = 'ether'
 
+// libs
 include 'ether-core'
 include 'ether-mapping'
+
+// examples
 include 'ether-examples'
+
+// apps
 include 'ether-demopolis'
+include 'ether-soundium'

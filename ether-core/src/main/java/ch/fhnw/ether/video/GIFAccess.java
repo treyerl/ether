@@ -35,7 +35,7 @@ public class GIFAccess extends FrameAccess {
 			height = Math.max(height, images[i].y + images[i].height); 
 		}
 		nClips = images[0].delayTime - 10;
-		if (nClips > 0 && (int)images.length > (nClips * 2 + 1))
+		if (nClips > 0 && images.length > (nClips * 2 + 1))
 			shotStarts = new int[nClips];
 		else
 			nClips = 1;
@@ -139,6 +139,7 @@ public class GIFAccess extends FrameAccess {
 		return getHostImage(audioData).createGPUImage();
 	}
 
+	@Override
 	public String toString() {
 		return super.toString() + (shotStarts == null ? "" : TextUtilities.toString(shotStarts));  
 	}

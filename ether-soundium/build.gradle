@@ -1,16 +1,16 @@
-description = """ether-demopolis"""
+description = """ether-soundium"""
 
 apply plugin: 'application'
 
 applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
-mainClassName = "ch.fhnw.demopolis.main.Demopolis"
+mainClassName = "org.corebounce.resman.Resman"
 
 task fatjar(type: Jar) {
 	group = "Application"
 	description "Create All-in-one Jar"
 	manifest {
-        attributes 'Implementation-Title': 'Demopolis',
+        attributes 'Implementation-Title': 'Resman',
         	'Implementation-Version': project.version,
         	'Main-Class': project.mainClassName
     }
@@ -21,6 +21,4 @@ task fatjar(type: Jar) {
 
 dependencies {
     compile project(":ether-core")
-
-    compile "org.glassfish:javax.json:1.0.4"
 }

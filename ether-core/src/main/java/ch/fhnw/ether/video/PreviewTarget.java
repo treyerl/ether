@@ -137,6 +137,7 @@ public class PreviewTarget extends AbstractVideoTarget implements IDisposable {
 		return preview;
 	}
 
+	@Override
 	public void dispose() {
 		preview.dispose();
 	}	

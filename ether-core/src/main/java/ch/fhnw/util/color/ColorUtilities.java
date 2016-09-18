@@ -437,7 +437,7 @@ public final class ColorUtilities {
         int cmin = (r < g) ? r : g;
         if (b < cmin) cmin = b;
 
-        brightness = ((float) cmax) / 255.0f;
+        brightness = cmax / 255.0f;
         if (cmax != 0)
             saturation = ((float) (cmax - cmin)) / ((float) cmax);
         else

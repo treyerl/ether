@@ -118,14 +118,15 @@ public interface IWindow extends IDisposable {
 	}
 	
 	/**
-	 * Destroy this window and free all resources associated with it.
+	 * Dispose this window and free all resources associated with it.
 	 * 
 	 * Call from main thread only.
 	 */
+	@Override
 	void dispose();
 	
 	/**
-	 * Returns true if this window has been destroyed.
+	 * Returns true if this window has been disposed.
 	 * 
 	 * May be called from any thread.
 	 */

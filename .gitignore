@@ -23,3 +23,7 @@ target/
 
 # JVM Crash Dumps
 hs_err*.log
+
+# LWJGL Temp
+.lwjgl
+
