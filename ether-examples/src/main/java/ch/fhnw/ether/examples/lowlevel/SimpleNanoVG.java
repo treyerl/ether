@@ -1,4 +1,4 @@
-package ch.fhnw.ether.examples.threed;
+package ch.fhnw.ether.examples.lowlevel;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -17,7 +17,7 @@ import ch.fhnw.ether.view.IWindow.IContext;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Vec2;
 
-public class LowLevelRenderingExperiments {
+public class SimpleNanoVG {
 	interface INVGRenderCommand {
 		void render(long context);
 	}
@@ -92,13 +92,13 @@ public class LowLevelRenderingExperiments {
 	private final BlockingQueue<INVGRenderCommand> queue = new LinkedBlockingQueue<>();
 	
 	public static void main(String[] args) {
-		new LowLevelRenderingExperiments();
+		new SimpleNanoVG();
 	}
 
-	public LowLevelRenderingExperiments() {
+	public SimpleNanoVG() {
 		Platform.get().init();
 		
-		window = IWindow.create(new Vec2(500, 500), "Test Window", true);
+		window = IWindow.create(new Vec2(500, 500), "NanoVG Window", true);
 		window.setVisible(true);
 		
 		rectangle = new Rectangle(new Vec2(50, 50), new Vec2(100, 100), RGBA.RED);
