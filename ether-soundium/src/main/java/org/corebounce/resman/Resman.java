@@ -8,12 +8,16 @@ import org.corebounce.resman.Splash.SplashAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.platform.IMonitor;
@@ -25,7 +29,7 @@ import ch.fhnw.util.TextUtilities;
 
 public class Resman {
 	private static final Log log = Log.create();
-	
+
 	static private final Class<?>[] SUBSYSTEMS = {
 			Monitor.class,
 			Audio.class,
@@ -46,7 +50,7 @@ public class Resman {
 
 	public Resman(String ... args) throws InterruptedException, RenderCommandException, IOException, NoSuchAlgorithmException {
 		Display display = Display.getDefault();
-		
+
 		Preferences  prefs;
 		SplashAction about;
 		if(Platform.getOS() == OS.MACOSX) {
@@ -56,18 +60,18 @@ public class Resman {
 			about = new SplashAction();
 			prefs = new Preferences();
 		}		
-				
+
 		monitors       = new Monitor(args);
 		IMonitor  sndmMon  = monitors.getSoundiumMonitor();
 		Rectangle sndmMonR = new Rectangle(sndmMon.getX(), sndmMon.getY(), sndmMon.getWidth(), sndmMon.getHeight());
 		Splash splash = new Splash(display, sndmMonR, true);
 		splash.open();
-		
+
 		int cam = 0;
 		for(IMonitor mon : monitors.getEngineMonitors()) {
 			log.info("Engine camera " + cam++ + " assigned to monitor " + mon.getIndex() + " '" + mon + "'");
 		}
-		
+
 		float step     = 0;
 		float numSteps = 6;
 		splash.progress(++step/numSteps);
@@ -91,57 +95,66 @@ public class Resman {
 
 		new BrowserPanel(pf, osc, db).createPartControl(shell);
 		new AudioPanel(audio).createPartControl(shell);		
-		
+
 		shell.setText(VERSION);
 		shell.setLocation(sndmMonR.x, sndmMonR.y);
 		shell.setMaximized(true);
-		
+
 		if(Platform.getOS() != OS.MACOSX) {
 			final Menu m = new Menu(shell, SWT.BAR);
-			
-		    final MenuItem file = new MenuItem(m, SWT.CASCADE);
-		    file.setText("&File");
-		    final Menu filemenu = new Menu(shell, SWT.DROP_DOWN);
-		    file.setMenu(filemenu);
-		    final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
-		    exitItem.setAccelerator(SWT.CTRL + 'Q');
-		    exitItem.setText("&Quit\tCTRL+Q");
-		    exitItem.addSelectionListener(new SelectionListener() {
-		    	@Override
-		    	public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
-		    	@Override
-		    	public void widgetDefaultSelected(SelectionEvent e) {System.exit(0);}
-		    });
-		    
-		    //create a Window menu and add Child item
-		    final MenuItem window = new MenuItem(m, SWT.CASCADE);
-		    window.setText("&Window");
-		    final Menu windowmenu = new Menu(shell, SWT.DROP_DOWN);
-		    window.setMenu(windowmenu);
-		    final MenuItem prefItem = new MenuItem(windowmenu, SWT.PUSH);
-		    prefItem.setText("&Preferences");
-		    prefItem.addSelectionListener(prefs);
-		    
-		    // create a Help menu and add an about item
-		    final MenuItem help = new MenuItem(m, SWT.CASCADE);
-		    help.setText("&Help");
-		    final Menu helpmenu = new Menu(shell, SWT.DROP_DOWN);
-		    help.setMenu(helpmenu);
-		    final MenuItem aboutItem = new MenuItem(helpmenu, SWT.PUSH);
-		    aboutItem.setText("&About");
-		    aboutItem.addSelectionListener(about);
-		    
-		    shell.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
-		    shell.setMenuBar(m);
+
+			final MenuItem file = new MenuItem(m, SWT.CASCADE);
+			file.setText("&File");
+			final Menu filemenu = new Menu(shell, SWT.DROP_DOWN);
+			file.setMenu(filemenu);
+			final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
+			exitItem.setAccelerator(SWT.CTRL + 'Q');
+			exitItem.setText("&Quit\tCTRL+Q");
+			exitItem.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {System.exit(0);}
+			});
+
+			//create a Window menu and add Child item
+			final MenuItem window = new MenuItem(m, SWT.CASCADE);
+			window.setText("&Window");
+			final Menu windowmenu = new Menu(shell, SWT.DROP_DOWN);
+			window.setMenu(windowmenu);
+			final MenuItem prefItem = new MenuItem(windowmenu, SWT.PUSH);
+			prefItem.setText("&Preferences");
+			prefItem.addSelectionListener(prefs);
+
+			// create a Help menu and add an about item
+			final MenuItem help = new MenuItem(m, SWT.CASCADE);
+			help.setText("&Help");
+			final Menu helpmenu = new Menu(shell, SWT.DROP_DOWN);
+			help.setMenu(helpmenu);
+			final MenuItem aboutItem = new MenuItem(helpmenu, SWT.PUSH);
+			aboutItem.setText("&About");
+			aboutItem.addSelectionListener(about);
+
+			//setBackground(shell, display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+			shell.setMenuBar(m);
 		}
-		
+
 		shell.setVisible(true);
 		shell.addDisposeListener(event->Platform.get().exit());
-		
+
 		prefs.setParent(shell);
 		about.setParent(shell);
-		
+
 		display.timerExec(500, ()->osc.start());
+	}
+
+	private void setBackground(Composite comp, Color color) {
+		for(Control c : comp.getChildren())
+			if(c instanceof Composite)
+				setBackground((Composite)c, color);
+			else if(!(c instanceof Table))
+				c.setBackground(color);
+		comp.setBackground(color);
 	}
 
 	private static String getPrefix(Class<?> cls) {

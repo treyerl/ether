@@ -138,8 +138,6 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		toolbar(result);
 		SashForm sash = new SashForm(result, SWT.HORIZONTAL | SWT.SMOOTH);
 		sash.setLayoutData(GridDataFactory.fill(true, true));
-		if(Platform.getOS() == OS.WINDOWS)
-			sash.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
 		resList(sash);
 		slots(sash);
 		sash.setWeights(new int[] {70,30});
