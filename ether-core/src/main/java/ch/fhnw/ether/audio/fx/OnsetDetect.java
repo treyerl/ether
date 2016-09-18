@@ -44,10 +44,8 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;
 
 public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
-	private static final Parameter SENS       = new Parameter("sens",   "Sensitivity",    0f,    100f,    100-25);
 	private static final Parameter BAND_DECAY = new Parameter("bDecay", "Per band decay", 0.88f, 0.9999f, 0.9f);
 	private static final Parameter AVG_DECAY  = new Parameter("aDecay", "Average decay",  0.88f, 0.9999f, 0.999f);
-	private static final Parameter MAX_BPM    = new Parameter("bpm",    "Max. BPM",       40,    180,     130);
 
 	private static final float[] BANDS      = { 80, 2000, 6000, 13000, 16000 };
 	private static final double  CHUNK_SIZE = 0.02;
@@ -62,18 +60,14 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	private float                       flux;
 	private float                       threshold;
 	private BlockBuffer                 buffer;
-	private int                         count;
-	private double                      holdTime;
-	private double                      lastBeat;
-	private double                      avgBPM;
 
 	public OnsetDetect(BandsButterworth bands) {
-		super(SENS, BAND_DECAY, AVG_DECAY, MAX_BPM);
+		super(BAND_DECAY, AVG_DECAY);
 		this.bands = bands;
 	}
 
 	public OnsetDetect() {
-		super(SENS, BAND_DECAY, AVG_DECAY, MAX_BPM);
+		super(BAND_DECAY, AVG_DECAY);
 		this.bands = null;
 	}
 
@@ -97,12 +91,12 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 		}
 	}
 	
-	private void processBand(final int band, final float decay, final float sens) {
+	private void processBand(final int band, final float decay) {
 		float d = bandsa[band] - lastBands[band];
 		fluxBands[band] = d;
 		if(d > thresholds[band]) {
 			thresholds[band] = thresholds[band] * ATTACK + (1-ATTACK) * d;
-			flux += d / (sens * thresholds[band]);
+			flux += d / (25f * thresholds[band]);
 		}
 		else
 			thresholds[band] *= decay;
@@ -142,7 +136,6 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 	protected void run(final IAudioRenderTarget target) throws RenderCommandException {
 		final AudioFrame frame = target.getFrame();
 		final float decay = getVal(BAND_DECAY);
-		final float sens  = Math.max(0.1f, getMax(SENS) - getVal(SENS));
 		if(OnsetDetect.this.bands == null) {
 			final float[] monoSamples = frame.getMonoSamples();
 			buffer.add(monoSamples);
@@ -156,14 +149,14 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 					if(samples.length > 5) {
 						filters[band].processBand(samples);
 						bandsa[band] = AudioUtilities.energy(samples);
-						processBand(band, decay, sens);
+						processBand(band, decay);
 					}
 				}
 			}
 		} else {
 			OnsetDetect.this.bands.power(bandsa);
 			for(int band = 0; band < bandsa.length; band++)
-				processBand(band, decay, sens);
+				processBand(band, decay);
 		}
 
 		if(flux > threshold)
@@ -172,25 +165,5 @@ public class OnsetDetect extends AbstractRenderCommand<IAudioRenderTarget> {
 			threshold *= getVal(AVG_DECAY);
 
 		System.arraycopy(bandsa, 0, lastBands, 0, bandsa.length );
-
-		double hold = 60 / getVal(MAX_BPM);
-		if(frame.playOutTime > holdTime) {
-			if(onset() > 0.9f) {
-				count++;
-				holdTime = frame.playOutTime + hold;
-				double bpm = 60 / (frame.playOutTime - lastBeat);
-				avgBPM = avgBPM * 0.8 + (0.2 * bpm);
-				lastBeat = frame.playOutTime;
-			}
-		} else if(holdTime - (1.1 * hold) > frame.playOutTime)
-			holdTime = 0;
-	}
-
-	public int getOnsetCounter() {
-		return count;
-	}
-		
-	public float getBPM() {
-		return (float) avgBPM;
 	}
 }

@@ -10,6 +10,7 @@ import ch.fhnw.ether.audio.JavaSoundTarget;
 import ch.fhnw.ether.audio.URLAudioSource;
 import ch.fhnw.ether.audio.fx.AutoGain;
 import ch.fhnw.ether.audio.fx.BandsButterworth;
+import ch.fhnw.ether.audio.fx.BeatDetect;
 import ch.fhnw.ether.audio.fx.DCRemove;
 import ch.fhnw.ether.audio.fx.OnsetDetect;
 import ch.fhnw.ether.media.AbstractRenderCommand;
@@ -26,6 +27,7 @@ public class Audio extends Subsystem {
 	private final AutoGain         gain  = new AutoGain();
 	private final BandsButterworth bands = new BandsButterworth(40, 8000, 40, 5, 1);
 	private final OnsetDetect      onset = new OnsetDetect(); 
+	private final BeatDetect       beat  = new BeatDetect(gain, onset); 
 	private final JavaSoundTarget  dst   = new JavaSoundTarget();
 	private final RenderProgram<IAudioRenderTarget> audio;
 	
@@ -40,7 +42,7 @@ public class Audio extends Subsystem {
 		
 		src = url == null ? new JavaSoundSource(2, 44100, 1024) : new URLAudioSource(url);
 		
-		audio = new RenderProgram<>(src, dcrmv, gain, bands, onset);
+		audio = new RenderProgram<>(src, dcrmv, gain, bands, onset, beat);
 		
 		dst.useProgram(audio);
 		dst.start();
@@ -70,6 +72,10 @@ public class Audio extends Subsystem {
 		int i = 0;
 		for(String source : JavaSoundSource.getSources())
 			CFG_OPTIONS = ArrayUtilities.cat(CFG_OPTIONS, new String[] {"in="+i++, source});
+	}
+
+	public BeatDetect getBeat() {
+		return beat;
 	}
 
 }

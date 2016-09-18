@@ -49,10 +49,10 @@ public class OSC extends Subsystem {
 				for(int i = 0; i < power.length; i++)
 					powera[i] = Float.valueOf(power[i]);
 				send("/audio/bands", powera);
-				int counter = audio.getOnset().getOnsetCounter();
+				int counter = audio.getBeat().beatCounter();
 				if(counter != lastOnsetCounter) {
 					send("/audio/onsetCounter", counter);
-					send("/audio/bpm", audio.getOnset().getBPM());
+					send("/audio/bpm", audio.getBeat().bpm());
 					lastOnsetCounter = counter;
 				}
 			}

@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
+import ch.fhnw.ether.audio.fx.BeatDetect;
 import ch.fhnw.ether.audio.fx.OnsetDetect;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
@@ -44,14 +45,15 @@ public class AudioPanel implements PaintListener, ControlListener {
 				final int   line  = (buffer.bytesPerLine) - 3;
 				final float scale = buffer.height;
 
-				OnsetDetect onset    = audio.getOnset();
+				OnsetDetect onset   = audio.getOnset();
+				BeatDetect  beat    = audio.getBeat();
 				float[]     bands   = onset.fluxBands();
 				final int   y2bands = buffer.height / bands.length;
 
 				int flux   = (int)(onset.flux() * scale);
 				int thresh = (int)(onset.threshold() * scale);
-				if(onset.getOnsetCounter() != lastCount) {
-					lastCount = onset.getOnsetCounter();
+				if(beat.beatCounter() != lastCount) {
+					lastCount = beat.beatCounter();
 
 					for(int y = buffer.height; --y >= 0;) {
 						buffer.data[off++] = (byte) 255;
@@ -98,7 +100,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 		layout.marginWidth  = 0;
 		layout.marginHeight = 0;
 		ui.setLayout(layout);
-		ParameterWindow.createUI(ui, audio.getOnset(), false);
+		ParameterWindow.createUI(ui, audio.getBeat(), false);
 
 		canvas = new Canvas(result, SWT.NONE);
 		canvas.addPaintListener(this);

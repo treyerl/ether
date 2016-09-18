@@ -219,7 +219,7 @@ public class ParameterWindow {
 		}
 
 		public void reset() {
-			if(slider != null) cmd.setVal(p, def * S);
+			if(slider != null) cmd.setVal(p, def);
 			if(combo != null)  cmd.setVal(p, (int) def);
 		}
 
