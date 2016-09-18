@@ -50,7 +50,8 @@ import ch.fhnw.util.net.osc.OSCHandler;
 public class BrowserPanel implements SelectionListener, IChangeListener, Runnable, Comparator<Resource> {	
 	private static final Log log = Log.create();
 
-	private static final String K_RES = "res";
+	private static final String K_RES  = "res";
+	private static final String SEARCH = "search_history.txt";
 
 	private final MetaDB         db;
 	private final PreviewFactory pf;
@@ -91,7 +92,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 	private LRUList<String> loadHistory() {
 		LRUList<String> result = new LRUList<>(16);
-		try(BufferedReader in = new BufferedReader(new FileReader(new File(db.getConstraintsDir(), "search_history.txt")))) {
+		try(BufferedReader in = new BufferedReader(new FileReader(new File(db.getConstraintsDir(), SEARCH)))) {
 			for(;;) {
 				String line = in.readLine();
 				if(line == null) break;
@@ -102,7 +103,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 	}
 
 	private void storeHistory(LRUList<String> history) {
-		try(FileWriter out = new FileWriter(new File(db.getConstraintsDir(), "search_history.txt"))) {
+		try(FileWriter out = new FileWriter(new File(db.getConstraintsDir(), SEARCH))) {
 			for(int i = searchHistory.size(); --i >= 0;)
 				out.write(searchHistory.get(i) + "\n");
 		} catch(Throwable t) {}
@@ -137,6 +138,8 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		toolbar(result);
 		SashForm sash = new SashForm(result, SWT.HORIZONTAL | SWT.SMOOTH);
 		sash.setLayoutData(GridDataFactory.fill(true, true));
+		if(Platform.getOS() == OS.WINDOWS)
+			sash.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
 		resList(sash);
 		slots(sash);
 		sash.setWeights(new int[] {70,30});
@@ -215,12 +218,12 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 					}
 				}
 			}
-			
+
 			@Override
 			public void dragOver(DropTargetEvent event) {
 				event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL;
 			}
-			
+
 			@Override
 			public void drop(DropTargetEvent event) {
 				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {

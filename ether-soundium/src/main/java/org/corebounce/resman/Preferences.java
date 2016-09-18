@@ -2,13 +2,15 @@ package org.corebounce.resman;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class Preferences implements IAction {
+public class Preferences implements IAction, SelectionListener {
 	private Shell parent;
 	private Shell prefs;
 
@@ -37,5 +39,15 @@ public class Preferences implements IAction {
 	
 	public void setParent(Shell parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public void widgetSelected(SelectionEvent e) {
+		widgetDefaultSelected(e);
+	}
+
+	@Override
+	public void widgetDefaultSelected(SelectionEvent e) {
+		run();
 	}
 }

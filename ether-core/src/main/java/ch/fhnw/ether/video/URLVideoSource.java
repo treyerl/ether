@@ -51,11 +51,12 @@ import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.platform.IImageSupport;
 import ch.fhnw.ether.platform.Platform;
+import ch.fhnw.ether.platform.Platform.OS;
 import ch.fhnw.util.MIME;
 import ch.fhnw.util.TextUtilities;
 
 public class URLVideoSource extends AbstractFrameSource implements IAudioSource, IVideoSource {
-	private static final boolean USE_JCODEC = false;
+	private static final boolean USE_JCODEC = Platform.getOS() == OS.WINDOWS;
 
 	private int                          width;
 	private int                          height;
@@ -210,7 +211,9 @@ public class URLVideoSource extends AbstractFrameSource implements IAudioSource,
 		if(TYPES == null) {
 			TYPES = new HashSet<>();
 			if(USE_JCODEC) {
+				TYPES.add(MIME.MT_MOV);
 				TYPES.add(MIME.MT_MP4);
+				TYPES.add(MIME.MT_GIF);
 			} else {
 				String[][] types = MIME.getMimeTypes();
 				for(IContainerFormat fmt : IContainerFormat.getInstalledInputFormats()) {

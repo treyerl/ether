@@ -144,7 +144,8 @@ public final class MetaDB extends Subsystem {
 				missing = true;
 			}
 
-			if (res.getFile().length() != res.getSize() || res.getFile().lastModified() > res.getDate().getTime()) {
+			if (res.getFile().length() != res.getSize() || res.getFile().lastModified() > res.getDate().getTime() + 2000) { // +2000 for M$ filesystems with 2sec resolution 
+								
 				log.info("File " + res.getPath() + " changed, removing from DB");
 				missing = true;
 			}

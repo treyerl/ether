@@ -67,7 +67,7 @@ public final class PickUtilities {
 	public static float pickObject(PickMode mode, float x, float y, float w, float h, IViewCameraState vcs, I3DObject object) {
 		BoundingBox b = object.getBounds();
 		
-		if (b == null)
+		if (b == null || !(b.isValid()))
 			return Float.POSITIVE_INFINITY;
 		
 		float d = pickBoundingBox(mode, x, y, w, h, vcs, b);
@@ -113,7 +113,7 @@ public final class PickUtilities {
 		b.add(ProjectionUtilities.projectToScreen(vcs.getViewProjMatrix(), vcs.getViewport(), v));
 		b.grow(PICK_DISTANCE, PICK_DISTANCE, 0);
 
-		if (b.getMaxZ() > 0 && x > b.getMinX() && x < b.getMaxX() && y > b.getMinY() && y < b.getMaxY())
+		if (b.isValid() && b.getMaxZ() > 0 && x > b.getMinX() && x < b.getMaxX() && y > b.getMinY() && y < b.getMaxY())
 			return Math.max(0, b.getMinZ());
 
 		return Float.POSITIVE_INFINITY;

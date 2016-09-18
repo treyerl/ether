@@ -5,9 +5,14 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import org.corebounce.resman.Splash.SplashAction;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
 import ch.fhnw.ether.media.RenderCommandException;
@@ -90,6 +95,46 @@ public class Resman {
 		shell.setText(VERSION);
 		shell.setLocation(sndmMonR.x, sndmMonR.y);
 		shell.setMaximized(true);
+		
+		if(Platform.getOS() != OS.MACOSX) {
+			final Menu m = new Menu(shell, SWT.BAR);
+			
+		    final MenuItem file = new MenuItem(m, SWT.CASCADE);
+		    file.setText("&File");
+		    final Menu filemenu = new Menu(shell, SWT.DROP_DOWN);
+		    file.setMenu(filemenu);
+		    final MenuItem exitItem = new MenuItem(filemenu, SWT.PUSH);
+		    exitItem.setAccelerator(SWT.CTRL + 'Q');
+		    exitItem.setText("&Quit\tCTRL+Q");
+		    exitItem.addSelectionListener(new SelectionListener() {
+		    	@Override
+		    	public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+		    	@Override
+		    	public void widgetDefaultSelected(SelectionEvent e) {System.exit(0);}
+		    });
+		    
+		    //create a Window menu and add Child item
+		    final MenuItem window = new MenuItem(m, SWT.CASCADE);
+		    window.setText("&Window");
+		    final Menu windowmenu = new Menu(shell, SWT.DROP_DOWN);
+		    window.setMenu(windowmenu);
+		    final MenuItem prefItem = new MenuItem(windowmenu, SWT.PUSH);
+		    prefItem.setText("&Preferences");
+		    prefItem.addSelectionListener(prefs);
+		    
+		    // create a Help menu and add an about item
+		    final MenuItem help = new MenuItem(m, SWT.CASCADE);
+		    help.setText("&Help");
+		    final Menu helpmenu = new Menu(shell, SWT.DROP_DOWN);
+		    help.setMenu(helpmenu);
+		    final MenuItem aboutItem = new MenuItem(helpmenu, SWT.PUSH);
+		    aboutItem.setText("&About");
+		    aboutItem.addSelectionListener(about);
+		    
+		    shell.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_DARK_SHADOW));
+		    shell.setMenuBar(m);
+		}
+		
 		shell.setVisible(true);
 		shell.addDisposeListener(event->Platform.get().exit());
 		

@@ -2,6 +2,8 @@ package org.corebounce.resman;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -26,7 +28,7 @@ public class Splash implements IDisposable {
 		splash = new Shell(SWT.ON_TOP);
 		bar    = new ProgressBar(splash, SWT.NONE);
 		bar.setMaximum(100);
-
+		
 		Label label = new Label(splash, SWT.NONE);
 		label.setImage(image);
 
@@ -47,7 +49,9 @@ public class Splash implements IDisposable {
 		splash.pack();
 
 		Rectangle splashRect = splash.getBounds();
-				
+
+		bar.setBounds(2, splashRect.height-14, splashRect.width-6, 10);
+
 		int x = displayRect.x + (displayRect.width - splashRect.width) / 2;
 		int y = displayRect.y + (displayRect.height - splashRect.height) / 2;
 		splash.setLocation(x, y);
@@ -72,7 +76,7 @@ public class Splash implements IDisposable {
 		image.dispose();
 	}
 
-	public static class SplashAction implements IAction, Listener {
+	public static class SplashAction implements IAction, Listener, SelectionListener {
 		private Splash splash;
 		private Shell  parent;
 
@@ -94,6 +98,16 @@ public class Splash implements IDisposable {
 
 		public void setParent(Shell parent) {
 			this.parent = parent;
+		}
+		
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			widgetDefaultSelected(e);
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			run();
 		}
 	}
 }

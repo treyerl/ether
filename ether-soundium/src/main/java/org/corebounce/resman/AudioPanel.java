@@ -102,7 +102,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 		ui.setLayout(layout);
 		ParameterWindow.createUI(ui, audio.getBeat(), false);
 
-		canvas = new Canvas(result, SWT.NONE);
+		canvas = new Canvas(result,  SWT.NO_REDRAW_RESIZE | SWT.DOUBLE_BUFFERED);
 		canvas.addPaintListener(this);
 		canvas.addControlListener(this);
 		canvas.setSize(SWT.DEFAULT, buffer.get().height);
