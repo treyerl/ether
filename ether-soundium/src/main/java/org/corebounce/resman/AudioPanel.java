@@ -23,6 +23,7 @@ import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.util.Log;
+import ch.fhnw.util.math.MathUtilities;
 
 public class AudioPanel implements PaintListener, ControlListener {
 	private static final Log log = Log.create();
@@ -60,19 +61,26 @@ public class AudioPanel implements PaintListener, ControlListener {
 				final int   line  = (buffer.bytesPerLine) - 3;
 				final float scale = buffer.height;
 
-				int value  = (int)(beat.value() * scale);
-				int thresh = (int)(beat.threshold() * scale);
+				final int value  = (int)(beat.value() * scale);
+				final int thresh = (int)(beat.threshold() * scale);
+
+				final float[] fluxes  = audio.getOnset().fluxBands();
+				final float[] threshs = audio.getOnset().thresholds();
+				final int     y2bands = buffer.height / fluxes.length;
 
 				int off = x * 3;
 				for(int y = buffer.height; --y >= 0;) {
+					final int band = y / y2bands;
+										
 					byte r = 0;
 					byte g = 0;
-					byte b = 0;
+					byte b = (byte)MathUtilities.clamp(fluxes[band] > threshs[band] ? fluxes[band] * 6000 : 0, 0, 255);
 
 					if(y < value)
 						g = (byte) 200;
 					if(y == thresh)
 						r = (byte) 200;
+					
 					buffer.data[off++] = r;
 					buffer.data[off++] = g;
 					buffer.data[off++] = b;
