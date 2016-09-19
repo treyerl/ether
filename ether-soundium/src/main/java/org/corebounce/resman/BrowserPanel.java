@@ -452,6 +452,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		connectionUI = new Label(panel, SWT.NONE);
 		connectionUI.setImage(disconnectedIcon);
 		new Repeating(500, 500, ()->{
+			if(connectionUI.isDisposed()) return;
 			connectionUI.setImage(System.currentTimeMillis()-osc.lastMessageTime() > 2000 ? disconnectedIcon : connectedIcon);
 		});
 

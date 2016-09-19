@@ -189,7 +189,7 @@ public class ParameterWindow {
 			this.p      = param;
 			this.def    = cmd.getVal(param);
 			this.label  = new Label(parent, SWT.NONE);
-			this.label.setText(param.getDescription());
+			updateLabel();
 			this.label.setLayoutData(cfill());
 			switch(p.getType()) {
 			case RANGE:
@@ -236,6 +236,7 @@ public class ParameterWindow {
 				if(cmd.getVal(p) != val) {
 					slider.setSelection((int) (cmd.getVal(p) * S));
 					cmd.setVal(p, slider.getSelection() / S);
+					updateLabel();
 				}
 			}
 			if(combo != null) {
@@ -261,10 +262,16 @@ public class ParameterWindow {
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
-			if(e.getSource() == slider)
+			if(e.getSource() == slider) {
 				cmd.setVal(p, slider.getSelection() / S);
+				updateLabel();
+			}
 			else if(e.getSource() == combo)
 				cmd.setVal(p, combo.getSelectionIndex());
+		}
+		
+		void updateLabel() {
+			this.label.setText(p.getDescription() + ": " + FMT.format(cmd.getVal(p)) + "  ");
 		}
 	}
 

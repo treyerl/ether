@@ -46,7 +46,8 @@ final class SWTPlatform extends GLFWPlatform {
 
 	@Override
 	protected void exitInternal() {
-		Display.getDefault().dispose();
+		if(!(Display.getDefault().isDisposed()))
+			Display.getDefault().dispose();
 	}
 
 	@Override

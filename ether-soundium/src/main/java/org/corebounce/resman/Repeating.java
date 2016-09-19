@@ -1,28 +1,30 @@
 package org.corebounce.resman;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.swt.widgets.Display;
 
-public class Repeating implements Runnable {
-	final int delay;
+public class Repeating extends TimerTask {
+	private static final Timer timer = new Timer(true);
+	
 	final AtomicReference<Runnable> r;
 	
 	public Repeating(int initialDelay, int delay, Runnable r) {
-		this.delay = delay;
+		timer.schedule(this, initialDelay, delay);
 		this.r     = new AtomicReference<>(r);
-		Display.getDefault().timerExec(initialDelay, this);
 	}
 	
 	@Override
 	public void run() {
 		Runnable r = this.r.get();
-		if(r == null) return;
-		r.run();
-		Display.getDefault().timerExec(delay, this);
+		if(r == null) stop();
+		Display.getDefault().asyncExec(r);
 	}
 
 	public synchronized void stop() {
 		r.set(null);
+		cancel();
 	}
 }

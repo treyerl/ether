@@ -148,7 +148,7 @@ public class Resman {
 		display.timerExec(500, ()->osc.start());
 	}
 
-	private void setBackground(Composite comp, Color color) {
+	void setBackground(Composite comp, Color color) {
 		for(Control c : comp.getChildren())
 			if(c instanceof Composite)
 				setBackground((Composite)c, color);
@@ -192,6 +192,8 @@ public class Resman {
 
 	public static void main(String[] args) {
 		Display.setAppName(VERSION);
+		Display.setAppVersion(VERSION);
+		
 		try {
 			if(args.length == 0) {
 				System.out.println(help());

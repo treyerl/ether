@@ -27,13 +27,12 @@ public class Audio extends Subsystem {
 	private final AutoGain         gain  = new AutoGain();
 	private final BandsButterworth bands = new BandsButterworth(40, 8000, 40, 5, 1);
 	private final OnsetDetect      onset = new OnsetDetect(); 
-	private final BeatDetect       beat  = new BeatDetect(gain, onset); 
+	private final BeatDetect       beat  = new BeatDetect(onset); 
 	private final JavaSoundTarget  dst   = new JavaSoundTarget();
 	private final RenderProgram<IAudioRenderTarget> audio;
 	
 	public Audio(String ... args) throws RenderCommandException, IOException {
 		super(CFG_PREFIX, args);
-		
 		
 		URL url = null;
 		try {

@@ -103,7 +103,7 @@ public class AutoComplete {
 						if (display.isDisposed()) return;
 						if(event.type == SWT.FocusOut) {
 							Control control = display.getFocusControl();
-							if (control == null || (control != text && control != table))
+							if(!(popupShell.isDisposed()) && (control == null || (control != text && control != table)))
 								popupShell.setVisible(false);
 						} else if(event.type == SWT.FocusIn) {
 							Control control = display.getFocusControl();
