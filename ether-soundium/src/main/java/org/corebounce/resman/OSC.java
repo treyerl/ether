@@ -36,7 +36,8 @@ public class OSC extends Subsystem {
 			}
 		}
 		audio.addLast(new AbstractRenderCommand<IAudioRenderTarget>() {
-			int lastOnsetCounter;
+			int lastBeatCount;
+			int lastBeatCountPLL;
 
 			@Override
 			protected void run(IAudioRenderTarget target) throws RenderCommandException {
@@ -49,11 +50,16 @@ public class OSC extends Subsystem {
 				for(int i = 0; i < power.length; i++)
 					powera[i] = Float.valueOf(power[i]);
 				send("/audio/bands", powera);
-				int counter = audio.getBeat().beatCounter();
-				if(counter != lastOnsetCounter) {
-					send("/audio/onsetCounter", counter);
-					send("/audio/bpm", audio.getBeat().bpm());
-					lastOnsetCounter = counter;
+				int counter = audio.getBeat().beatCount();
+				if(counter != lastBeatCount) {
+					send("/audio/beatCount", counter);
+					lastBeatCount = counter;
+				}
+				counter = audio.getBeat().beatCountPLL();
+				if(counter != lastBeatCountPLL) {
+					send("/audio/beatCountPLL", counter);
+					send("/audio/bpm", (float)audio.getBeat().bpm());
+					lastBeatCountPLL = counter;
 				}
 			}
 		});

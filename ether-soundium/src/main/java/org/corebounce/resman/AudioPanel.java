@@ -48,7 +48,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 				BeatDetect beat   = audio.getBeat();
 
 
-				if(beat.beatCounterPLL() != lastCountPLL && trigger) {
+				if(beat.beatCountPLL() != lastCountPLL && trigger) {
 					trigger = false;
 					x       = 5;
 				}
@@ -77,7 +77,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 					byte b = (byte)MathUtilities.clamp(fluxes[band] > threshs[band] ? fluxes[band] * 6000 : 0, 0, 255);
 
 					if(y < value)
-						g = (byte) 200;
+						g = (byte) 100;
 					if(y == thresh)
 						r = (byte) 200;
 					
@@ -88,10 +88,10 @@ public class AudioPanel implements PaintListener, ControlListener {
 				}
 
 
-				if(beat.beatCounterPLL() != lastCountPLL) {
+				if(beat.beatCountPLL() != lastCountPLL) {
 					off          = x * 3;
-					lastCountPLL = beat.beatCounterPLL();
-					for(int y = 2 * buffer.height / 3; y < buffer.height; y++) {
+					lastCountPLL = beat.beatCountPLL();
+					for(int y = 0; y < buffer.height; y++) {
 						buffer.data[off++] = -1;
 						buffer.data[off++] = -1;
 						buffer.data[off++] = -1;
@@ -99,13 +99,13 @@ public class AudioPanel implements PaintListener, ControlListener {
 					}
 				} 
 
-				if(beat.beatCounter() != lastCount) {
+				if(beat.beatCount() != lastCount) {
 					off       = x * 3;
-					lastCount = beat.beatCounter();
-					for(int y = 2 * buffer.height / 3; y < buffer.height; y++) {
+					lastCount = beat.beatCount();
+					for(int y = 0; y < buffer.height; y++) {
 						buffer.data[off++] = -1;
-						buffer.data[off++] = -1;
-						buffer.data[off++] = 0;
+						buffer.data[off++] = 20;
+						buffer.data[off++] = 20;
 						off += line;
 					}
 				}
@@ -182,7 +182,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 			e.gc.drawLine(x, 0, x, 16);
 			
 			int bpm  =  (int)audio.getBeat().bpm();
-			int beat = audio.getBeat().beatCounterPLL();
+			int beat = audio.getBeat().beatCountPLL();
 			if(lastBPM != bpm) {
 				bpmUI.setText(bpm + " BPM");
 				lastBPM = bpm;
