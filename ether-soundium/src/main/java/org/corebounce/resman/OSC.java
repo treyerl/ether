@@ -11,7 +11,7 @@ import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.TextUtilities;
-import ch.fhnw.util.net.osc.OSCHandler;
+import ch.fhnw.util.net.osc.IOSCHandler;
 import ch.fhnw.util.net.osc.OSCServer;
 
 public class OSC extends Subsystem {
@@ -98,7 +98,7 @@ public class OSC extends Subsystem {
 		return server.getLastMessageTime();
 	}
 
-	public void addHandler(String address, OSCHandler handler) {
+	public void addHandler(String address, IOSCHandler handler) {
 		server.addHandler(address, handler);
 	}
 

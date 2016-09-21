@@ -31,7 +31,7 @@
 
 package ch.fhnw.util.net.osc;
 
-public interface OSCHandler {
+public interface IOSCHandler {
 	/**
 	 * @param address
 	 *            OSC address parts (without the "/")

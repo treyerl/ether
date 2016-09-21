@@ -43,7 +43,7 @@ public abstract class OSCDispatcher {
 	
 	private static final boolean DBG = true;
 
-	private static final OSCHandler DEFAULT_HANDLER = new OSCHandler() {
+	private static final IOSCHandler DEFAULT_HANDLER = new IOSCHandler() {
 		@Override
 		public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timetag, Object... args) {
 			if (DBG) {
@@ -78,7 +78,7 @@ public abstract class OSCDispatcher {
 	protected OSCDispatcher() {
 	}
 
-	public void addHandler(String address, OSCHandler handler) {
+	public void addHandler(String address, IOSCHandler handler) {
 		if (address.equals("/"))
 			addressSpace.setHandler(handler);
 		else {
@@ -167,7 +167,7 @@ public abstract class OSCDispatcher {
 			int messageEnd = packet.position();
 			
 			OSCNode node = addressSpace;
-			OSCHandler handler = node.getHandler();
+			IOSCHandler handler = node.getHandler();
 			String[] parts = OSCCommon.split(address, '/');
 			int idx = 0;
 			for (int i = 1; i < parts.length; i++) {
@@ -203,16 +203,16 @@ public abstract class OSCDispatcher {
 
 	class OSCNode {
 		private ConcurrentHashMap<String, OSCNode> children;
-		private OSCHandler handler;
+		private IOSCHandler handler;
 
 		public OSCNode() {
 		}
 
-		public OSCNode(OSCHandler handler) {
+		public OSCNode(IOSCHandler handler) {
 			setHandler(handler);
 		}
 
-		public OSCHandler getHandler() {
+		public IOSCHandler getHandler() {
 			return handler;
 		}
 
@@ -231,7 +231,7 @@ public abstract class OSCDispatcher {
 			return result;
 		}
 
-		public void setHandler(OSCHandler handler) {
+		public void setHandler(IOSCHandler handler) {
 			this.handler = handler;
 		}
 	}

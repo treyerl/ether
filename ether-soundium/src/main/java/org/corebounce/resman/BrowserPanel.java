@@ -45,7 +45,7 @@ import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.LRUList;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
-import ch.fhnw.util.net.osc.OSCHandler;
+import ch.fhnw.util.net.osc.IOSCHandler;
 
 public class BrowserPanel implements SelectionListener, IChangeListener, Runnable, Comparator<Resource> {	
 	private static final Log log = Log.create();
@@ -157,7 +157,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 		dropTarget(table);
 
-		osc.addHandler("/slots", new OSCHandler() {
+		osc.addHandler("/slots", new IOSCHandler() {
 			@Override
 			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... slots) {
 				Display.getDefault().asyncExec(()->{

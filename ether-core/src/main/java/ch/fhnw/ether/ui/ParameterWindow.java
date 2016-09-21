@@ -63,6 +63,7 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.video.IVideoSource;
+import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.TextUtilities;
 
@@ -152,14 +153,14 @@ public class ParameterWindow {
 					realTimeUI.setText(FMT.format(elapsed / IScheduler.SEC2NS));
 					actualRateUI.setText(FMT.format((IScheduler.SEC2NS * frames) / elapsed));
 				}
-				
+
 				targetTimeUI.setText(FMT.format(target.getTime()));
 
 				AbstractFrame frame = target.getFrame();
 				if(frame != null) {
 					frameTimeUI.setText(FMT.format(frame.playOutTime));
 				}
-	
+
 				relativeFramesUI.setText(Long.toString(target.getRelativeElapsedFrames()));
 				totalFramesUI.setText(Long.toString(target.getTotalElapsedFrames()));
 			}
@@ -195,8 +196,8 @@ public class ParameterWindow {
 			case RANGE:
 				try {
 					this.slider = new Slider(parent, SWT.NONE);
-					this.slider.setMinimum((int)(param.getMin() * S));
 					this.slider.setMaximum((int)(param.getMax() * S));
+					this.slider.setMinimum((int)(param.getMin() * S));
 					this.slider.setSelection((int)(cmd.getVal(p) * S));
 					this.slider.addSelectionListener(this);
 					this.slider.setLayoutData(cfill());
@@ -208,7 +209,7 @@ public class ParameterWindow {
 				}
 				break;
 			case ITEMS:
-				this.combo = new Combo(parent, SWT.NONE);
+				this.combo = new Combo(parent, SWT.READ_ONLY);
 				this.combo.setItems(param.getItems());
 				this.combo.addSelectionListener(this);
 				this.combo.select((int)(cmd.getVal(p)));
@@ -269,9 +270,10 @@ public class ParameterWindow {
 			else if(e.getSource() == combo)
 				cmd.setVal(p, combo.getSelectionIndex());
 		}
-		
+
 		void updateLabel() {
-			this.label.setText(p.getDescription() + ": " + FMT.format(cmd.getVal(p)) + "  ");
+			String[] items = cmd.getParameter(p.id()).getItems(); 
+			this.label.setText(p.getDescription() + (items == null ?  ": " + FMT.format(cmd.getVal(p)) + "  " : ClassUtilities.EMPTY_String));
 		}
 	}
 
@@ -307,10 +309,10 @@ public class ParameterWindow {
 			} else {
 				comp = new Composite(parent, SWT.NULL);
 			}
-			
+
 			comp.setLayout(new GridLayout(2, false));
 			comp.setLayoutData(hfill());
-			
+
 			for(int i = 0; i < uis.length; i++)
 				uis[i] = new ParamUI(comp, cmd, params[i]);
 

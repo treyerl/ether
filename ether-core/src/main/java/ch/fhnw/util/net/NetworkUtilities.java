@@ -82,7 +82,7 @@ public final class NetworkUtilities {
 		return result;
 	}
 
-	private static List<InetAddress> getLocalAddresses(boolean ipv4only) throws SocketException {
+	public static List<InetAddress> getLocalAddresses(boolean ipv4only) throws SocketException {
 		List<InetAddress> result = new ArrayList<>();
 		for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements();) {
 			NetworkInterface nif = e.nextElement();
@@ -126,5 +126,9 @@ public final class NetworkUtilities {
 		} catch (UnsupportedEncodingException e) {
 			return s;
 		}
+	}
+
+	public static InetAddress multicastAddress(int b, int c, int d) throws UnknownHostException {
+		return InetAddress.getByAddress(new byte[] {(byte)224, (byte)b, (byte)c, (byte)d});
 	}
 }

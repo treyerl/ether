@@ -94,4 +94,8 @@ public final class BlockBuffer {
 		s0 = 0;
 		s1 = c0.length / 2;
 	}
+
+	public int size() {
+		return c0.length;
+	}
 }

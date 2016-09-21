@@ -75,6 +75,7 @@ import ch.fhnw.util.TextUtilities;
 public class URLAudioSource extends AbstractFrameSource implements Runnable, IDisposable, IAudioSource {
 	private static final Log LOG = Log.create();
 
+	private static final int           BUFFER_SZ = 128;
 	private static final double        SEC2US = 1000000;
 	private static final MidiEvent[]   EMPTY_MidiEventA = new MidiEvent[0];
 
@@ -97,11 +98,11 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	private       Semaphore              bufSemaphore = new Semaphore(512);
 
 	public URLAudioSource(URL url) throws IOException {
-		this(url, Integer.MAX_VALUE, -128);
+		this(url, Integer.MAX_VALUE, -BUFFER_SZ);
 	}
 
 	public URLAudioSource(final URL url, final int numPlays) throws IOException {
-		this(url, numPlays, -128);
+		this(url, numPlays, -BUFFER_SZ);
 	}
 
 	public URLAudioSource(final URL url, final int numPlays, double frameSizeInSec) throws IOException {

@@ -45,8 +45,8 @@ public class UDPServer {
 	private static final int SEND_BUFFER_SIZE = 1024 * 1024;
 
 	private final InetSocketAddress address;
-	private final DatagramSocket socket;
-	private final UDPHandler handler;
+	private final DatagramSocket    socket;
+	private final UDPHandler        handler;
 
 	public UDPServer(int port, UDPHandler handler) throws IOException {
 		address = new InetSocketAddress(NetworkUtilities.getDefaultInterface(), port);

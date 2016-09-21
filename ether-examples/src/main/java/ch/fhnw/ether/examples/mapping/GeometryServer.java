@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import ch.fhnw.ether.controller.event.IEventScheduler;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.net.UDPServer;
-import ch.fhnw.util.net.osc.OSCHandler;
+import ch.fhnw.util.net.osc.IOSCHandler;
 import ch.fhnw.util.net.osc.OSCServer;
 
 // experimental and quite defunct at the moment...
@@ -60,7 +60,7 @@ public class GeometryServer {
 	private void runOSCScan(int port) {
 		try {
 			OSCServer oscServerScan = new OSCServer(port, "224.0.1.0");
-			oscServerScan.addHandler("/", new OSCHandler() {
+			oscServerScan.addHandler("/", new IOSCHandler() {
 				@Override
 				public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
 					try {
@@ -109,7 +109,7 @@ public class GeometryServer {
 
 			OSCServer oscServerSun = new OSCServer(port, null);
 			// oscserver = new OSCServer(port, "224.0.1.0");
-			oscServerSun.addHandler("/", new OSCHandler() {
+			oscServerSun.addHandler("/", new IOSCHandler() {
 				@Override
 				public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
 					try {

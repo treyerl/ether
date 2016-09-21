@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -19,7 +21,9 @@ import org.eclipse.swt.widgets.Label;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.fx.BeatDetect;
+import ch.fhnw.ether.audio.fx.BeatDetect.BeatType;
 import ch.fhnw.ether.media.AbstractRenderCommand;
+import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.util.Log;
@@ -27,7 +31,7 @@ import ch.fhnw.util.math.MathUtilities;
 
 public class AudioPanel implements PaintListener, ControlListener {
 	private static final Log log = Log.create();
-
+	
 	private final Audio                      audio;
 	private 	  AtomicReference<ImageData> buffer = new AtomicReference<>(new ImageData(1, 100, 24, new PaletteData(0xFF0000, 0x00FF00, 0x0000FF)));
 	private       Canvas                     canvasUI;
@@ -36,80 +40,105 @@ public class AudioPanel implements PaintListener, ControlListener {
 	private       int                        lastCount;
 	private       int                        lastCountPLL;
 	private       Color                      FLASH;
+	private       Color                      COL_BEAT;
 
 	public AudioPanel(Audio audio) {
 		this.audio = audio;
 
 		audio.addLast(new AbstractRenderCommand<IAudioRenderTarget>() {
-			boolean trigger = true;
+			boolean      trigger = true;
+			final byte[] beatColor     = new byte[3];
 			@Override
 			protected void run(IAudioRenderTarget target) throws RenderCommandException {
 				ImageData  buffer = AudioPanel.this.buffer.get();
 				BeatDetect beat   = audio.getBeat();
+				for(int loopcount = Math.max(1,  target.getFrame().getMonoSamples().length / 128); --loopcount >= 0;) {
 
+					if(beat.beatCountPLL() != lastCountPLL && trigger) {
+						trigger = false;
+						x       = 5;
+					}
 
-				if(beat.beatCountPLL() != lastCountPLL && trigger) {
-					trigger = false;
-					x       = 5;
-				}
+					if(x >= buffer.width || trigger) {
+						trigger = true;
+						x = 0;
+					}
 
-				if(x >= buffer.width || trigger) {
-					trigger = true;
-					x = 0;
-				}
+					final int   line  = (buffer.bytesPerLine) - 3;
+					final float scale = buffer.height;
 
-				final int   line  = (buffer.bytesPerLine) - 3;
-				final float scale = buffer.height;
+					final int value  = (int)(beat.value() * scale);
+					final int thresh = (int)(beat.threshold() * scale);
 
-				final int value  = (int)(beat.value() * scale);
-				final int thresh = (int)(beat.threshold() * scale);
+					final float[] fluxes  = audio.getOnset().fluxBands();
+					final float[] threshs = audio.getOnset().thresholds();
+					final int     y2bands = buffer.height / fluxes.length;
 
-				final float[] fluxes  = audio.getOnset().fluxBands();
-				final float[] threshs = audio.getOnset().thresholds();
-				final int     y2bands = buffer.height / fluxes.length;
+					int off = x * 3;
+					for(int y = buffer.height; --y >= 0;) {
+						final int band = MathUtilities.clamp((buffer.height-y) / y2bands, 0, fluxes.length -1);
+												
+						byte r = 0;
+						byte g = 0;
+						byte b = (byte)MathUtilities.clamp(fluxes[band] > threshs[band] ? fluxes[band] * 1000 : 0, 0, 255);
 
-				int off = x * 3;
-				for(int y = buffer.height; --y >= 0;) {
-					final int band = y / y2bands;
-										
-					byte r = 0;
-					byte g = 0;
-					byte b = (byte)MathUtilities.clamp(fluxes[band] > threshs[band] ? fluxes[band] * 6000 : 0, 0, 255);
+						if(y < value)
+							g = (byte) 100;
+						if(y == thresh)
+							r = (byte) 200;
 
-					if(y < value)
-						g = (byte) 100;
-					if(y == thresh)
-						r = (byte) 200;
+						buffer.data[off++] = r;
+						buffer.data[off++] = g;
+						buffer.data[off++] = b;
+						off += line;
+					}
 					
-					buffer.data[off++] = r;
-					buffer.data[off++] = g;
-					buffer.data[off++] = b;
-					off += line;
-				}
+					boolean vline = false;
 
+					if(beat.beatCountPLL() != lastCountPLL) {
+						lastCountPLL = beat.beatCountPLL();
+						beatColor[0] = -1;
+						beatColor[1] = -1;
+						beatColor[2] = -1;
+						vline  = true;
+					} 
 
-				if(beat.beatCountPLL() != lastCountPLL) {
-					off          = x * 3;
-					lastCountPLL = beat.beatCountPLL();
-					for(int y = 0; y < buffer.height; y++) {
-						buffer.data[off++] = -1;
-						buffer.data[off++] = -1;
-						buffer.data[off++] = -1;
+					if(beat.beatCount() != lastCount) {
+						lastCount = beat.beatCount();
+						beatColor[0] = -1;
+						beatColor[1] = -1;
+						beatColor[2] = 0;
+						vline  = true;
+					}
+
+					off = x * 3;
+					for(int y = 0; y < 4; y++) {
+						buffer.data[off++] = beatColor[0];
+						buffer.data[off++] = beatColor[1];
+						buffer.data[off++] = beatColor[2];
 						off += line;
 					}
-				} 
 
-				if(beat.beatCount() != lastCount) {
-					off       = x * 3;
-					lastCount = beat.beatCount();
-					for(int y = 0; y < buffer.height; y++) {
-						buffer.data[off++] = -1;
-						buffer.data[off++] = 20;
-						buffer.data[off++] = 20;
-						off += line;
+					if(vline) {					
+						for(int y = 0; y < buffer.height-4; y++) {
+							buffer.data[off++] = beatColor[0];
+							buffer.data[off++] = beatColor[1];
+							buffer.data[off++] = beatColor[2];
+							off += line;
+						}
 					}
+
+					decBeatColor(0);
+					decBeatColor(1);
+					decBeatColor(2);
+
+					x++;
 				}
-				x++;
+			}
+
+			private void decBeatColor(int i) {
+				int c = (beatColor[i] & 0xFF) - 2;
+				beatColor[i] = (byte)(c < 0 ? 0 : c);
 			}
 		});
 	}
@@ -117,7 +146,8 @@ public class AudioPanel implements PaintListener, ControlListener {
 	public Composite createPartControl(Composite parent) {
 		Composite result = new Composite(parent, SWT.NONE);
 
-		FLASH   = parent.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
+		FLASH    = parent.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
+		COL_BEAT = parent.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
 
 		result.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));	
 		GridLayout layout = new GridLayout(2, false);
@@ -133,7 +163,27 @@ public class AudioPanel implements PaintListener, ControlListener {
 		ui.setLayout(layout);
 		bpmUI = new Label(ui, SWT.CENTER);
 		bpmUI.setLayoutData(GridDataFactory.fill(true, false));
+		bpmUI.addMouseListener(new MouseAdapter() {
+			long lastTap;
+			@Override
+			public void mouseDown(MouseEvent e) {
+				long now = System.currentTimeMillis();
+
+				long tapTime    = now - lastTap;
+				BeatDetect beat = audio.getBeat();
+				beat.setBeat(beat.beatCountPLL()+1, BeatType.TAP, beat.frameTime() + 0.02);
+				if(tapTime < 1200) {
+					beat.setBeat(beat.beatCountPLL()+2, BeatType.TAP,       beat.frameTime() + tapTime / IScheduler.SEC2MS);
+					beat.setBeat(beat.beatCountPLL()+3, BeatType.ESTIMATED, beat.frameTime() + (2*tapTime) / IScheduler.SEC2MS);
+				} else
+					beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + 60.0 / beat.getVal(BeatDetect.BPM));
+
+				lastTap = now;
+			}
+		});
+
 		ParameterWindow.createUI(ui, audio.getBeat(), false);
+		ParameterWindow.createUI(ui, audio.getOutGain(), false);
 
 		canvasUI = new Canvas(result,  SWT.NO_REDRAW_RESIZE | SWT.DOUBLE_BUFFERED | SWT.NO_BACKGROUND);
 		canvasUI.addPaintListener(this);
@@ -158,7 +208,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 		}
 	}
 
-	int  lastBPM;
+	int  lastBar;
 	int  lastBeat;
 	long flashTimeout;
 	@Override
@@ -169,28 +219,18 @@ public class AudioPanel implements PaintListener, ControlListener {
 			ImageData buffer = this.buffer.get();
 			int       x      = this.x;
 			Image image = new Image(e.display, buffer);
-			/*
-			e.gc.drawImage(image, 
-					0,                0, x, buffer.height, 
-					buffer.width - x, 0, x, buffer.height); 
-			e.gc.drawImage(image, 
-					x, 0, buffer.width - x, buffer.height, 
-					0, 0, buffer.width - x, buffer.height);*/
+
 			e.gc.drawImage(image, 0, 0);
 			image.dispose();
 			e.gc.setForeground(FLASH);
 			e.gc.drawLine(x, 0, x, 16);
-			
-			int bpm  =  (int)audio.getBeat().bpm();
+
 			int beat = audio.getBeat().beatCountPLL();
-			if(lastBPM != bpm) {
-				bpmUI.setText(bpm + " BPM");
-				lastBPM = bpm;
-			}
 			if(lastBeat != beat) {
-				bpmUI.setBackground(FLASH);
+				bpmUI.setBackground(COL_BEAT);
 				flashTimeout = now + 100;
 				lastBeat     = beat;
+				bpmUI.setText(audio.getBeat().beatType().toString());
 			}
 			if(now > flashTimeout) {
 				bpmUI.setBackground(null);
