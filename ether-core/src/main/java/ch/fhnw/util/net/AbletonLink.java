@@ -13,15 +13,15 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.Log;
 
-public class AbeltonLink {
+public class AbletonLink {
 	private static final Log log = Log.create();
 
 	private final MulticastSocket           socket;
 	private final InetAddress               addr;
 	private       AtomicBoolean             joined = new AtomicBoolean();
-	private       List<IAbeltonLinkHandler> handlers = new ArrayList<>();
+	private       List<IAbletonLinkHandler> handlers = new ArrayList<>();
 
-	public AbeltonLink() throws IOException {
+	public AbletonLink() throws IOException {
 		socket = new MulticastSocket(20808);
 		addr   = NetworkUtilities.multicastAddress('L','N','K');
 
@@ -34,7 +34,7 @@ public class AbeltonLink {
 							byte[] buffer = new byte[socket.getReceiveBufferSize()];
 							DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 							socket.receive(packet);
-							process(new AbeltonLinkPacket(System.nanoTime() / 1000, packet));
+							process(new AbletonLinkPacket(System.nanoTime() / 1000, packet));
 						} else {
 							Thread.sleep(100);
 						}
@@ -44,26 +44,26 @@ public class AbeltonLink {
 				}
 			}
 
-		}, "Abelton Link");
+		}, "Ableton Link");
 		receiveThread.setDaemon(true);
 		receiveThread.setPriority(Thread.MAX_PRIORITY);
 		receiveThread.start();		
 	}
 
-	private void process(AbeltonLinkPacket linkPacket) {
-		IAbeltonLinkHandler[] handlers = null; 
+	private void process(AbletonLinkPacket linkPacket) {
+		IAbletonLinkHandler[] handlers = null; 
 		synchronized (this) {
-			handlers = this.handlers.toArray(new IAbeltonLinkHandler[this.handlers.size()]);
+			handlers = this.handlers.toArray(new IAbletonLinkHandler[this.handlers.size()]);
 		}
-		for(IAbeltonLinkHandler handler : handlers)
+		for(IAbletonLinkHandler handler : handlers)
 			handler.handle(linkPacket);
 	}
 
-	public synchronized void addHandler(IAbeltonLinkHandler handler) {
+	public synchronized void addHandler(IAbletonLinkHandler handler) {
 		handlers.add(handler);
 	}
 
-	public synchronized void removeHandler(IAbeltonLinkHandler handler) {
+	public synchronized void removeHandler(IAbletonLinkHandler handler) {
 		CollectionUtilities.removeAll(handlers, handler);
 	}
 
@@ -75,7 +75,7 @@ public class AbeltonLink {
 					socket.setReuseAddress(true);
 					socket.setLoopbackMode(true);
 					socket.joinGroup(addr);
-					log.info("Abelton Link group joined " + ifaddr.getHostName() + ":" + socket.getLocalPort() + " " + addr);
+					log.info("Ableton Link group joined " + ifaddr.getHostName() + ":" + socket.getLocalPort() + " " + addr);
 				} catch(Throwable t) {}
 			}
 			joined.set(true);
@@ -99,7 +99,7 @@ public class AbeltonLink {
 					socket.leaveGroup(addr);
 				} catch(Throwable t) {}
 			}
-			log.info("Abelton Link group left");
+			log.info("Ableton Link group left");
 		}
 	}
 
@@ -110,7 +110,7 @@ public class AbeltonLink {
 	public static void main(String[] args) throws IOException {
 		Platform.get().init();
 
-		AbeltonLink link = new AbeltonLink();
+		AbletonLink link = new AbletonLink();
 		link.join(true);
 		link.addHandler(packet->{
 			System.out.println(packet);

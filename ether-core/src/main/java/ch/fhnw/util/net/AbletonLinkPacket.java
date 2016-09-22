@@ -14,7 +14,7 @@ import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
-public class AbeltonLinkPacket {
+public class AbletonLinkPacket {
 	private static final Log log = Log.create();
 	
 	private final ByteBuffer buffer;
@@ -27,7 +27,7 @@ public class AbeltonLinkPacket {
 	public final NodeId         ident;
 	public final List<Payload>  payload = new ArrayList<>();
 
-	public AbeltonLinkPacket(long timestampMicros, DatagramPacket packet) throws IOException {
+	public AbletonLinkPacket(long timestampMicros, DatagramPacket packet) throws IOException {
 		this.timestampMicros = timestampMicros;
 		buffer = ByteBuffer.wrap(packet.getData(), packet.getOffset(), packet.getLength());
 		buffer.order(ByteOrder.BIG_ENDIAN);

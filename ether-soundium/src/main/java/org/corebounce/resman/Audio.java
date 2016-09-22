@@ -20,14 +20,14 @@ import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.Log;
-import ch.fhnw.util.net.AbeltonLink;
-import ch.fhnw.util.net.AbeltonLinkPacket;
-import ch.fhnw.util.net.AbeltonLinkPacket.Beats;
-import ch.fhnw.util.net.AbeltonLinkPacket.Payload;
-import ch.fhnw.util.net.AbeltonLinkPacket.Timeline;
-import ch.fhnw.util.net.IAbeltonLinkHandler;
+import ch.fhnw.util.net.AbletonLink;
+import ch.fhnw.util.net.AbletonLinkPacket;
+import ch.fhnw.util.net.AbletonLinkPacket.Beats;
+import ch.fhnw.util.net.AbletonLinkPacket.Payload;
+import ch.fhnw.util.net.AbletonLinkPacket.Timeline;
+import ch.fhnw.util.net.IAbletonLinkHandler;
 
-public class Audio extends Subsystem implements IAbeltonLinkHandler {
+public class Audio extends Subsystem implements IAbletonLinkHandler {
 	private static final Log log = Log.create();
 
 	private final IAudioSource     src;
@@ -39,7 +39,7 @@ public class Audio extends Subsystem implements IAbeltonLinkHandler {
 	private final MonitorGain      out   = new MonitorGain();
 	private final JavaSoundTarget  dst   = new JavaSoundTarget();
 	private final RenderProgram<IAudioRenderTarget> audio;
-	private final AbeltonLink      link  = new AbeltonLink();
+	private final AbletonLink      link  = new AbletonLink();
 
 	public Audio(String ... args) throws RenderCommandException, IOException {
 		super(CFG_PREFIX, args);
@@ -97,7 +97,7 @@ public class Audio extends Subsystem implements IAbeltonLinkHandler {
 	}
 
 	@Override
-	public void handle(AbeltonLinkPacket linkPacket) {
+	public void handle(AbletonLinkPacket linkPacket) {
 		for(Payload p : linkPacket.payload) {
 			if(p instanceof Timeline) {
 				final Timeline t       = (Timeline)p;
