@@ -19,6 +19,7 @@ import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.util.ArrayUtilities;
+import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.net.AbletonLink;
 import ch.fhnw.util.net.AbletonLinkPacket;
@@ -41,7 +42,7 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 	private final RenderProgram<IAudioRenderTarget> audio;
 	private final AbletonLink      link  = new AbletonLink();
 
-	public Audio(String ... args) throws RenderCommandException, IOException {
+	public Audio(IProgressListener progress, String ... args) throws RenderCommandException, IOException {
 		super(CFG_PREFIX, args);
 
 		URL url = null;
@@ -50,6 +51,9 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		} catch(Throwable t) {}
 
 		gain.setVal(AutoGain.ATTACK, 0.15f);
+		try {
+			out.setVal(MonitorGain.GAIN, Float.parseFloat(configuration.get("mon")));
+		} catch(Throwable t) {}
 
 		src = url == null ? new JavaSoundSource(2, 44100, 1024) : new URLAudioSource(url);
 
@@ -58,8 +62,10 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		dst.useProgram(audio);
 		dst.start();
 
-		link.addHandler(this);
-		link.join(true);
+		if(!("off".equals(configuration.get("link")))) {
+			link.addHandler(this);
+			link.join(true, progress);
+		}
 
 		log.info("Audio started.");
 	}
@@ -84,6 +90,8 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 	public static String[] CFG_OPTIONS = {
 			"param", "Display parameter window",
 			"in=<url>","URL of audio file",
+			"link=off", "Disable Ableton Link",
+			"mon=<gain>","Initial gain of audio monitor",
 	};
 
 	static {

@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.CollectionUtilities;
+import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
 
 public class AbletonLink {
@@ -67,9 +68,13 @@ public class AbletonLink {
 		CollectionUtilities.removeAll(handlers, handler);
 	}
 
-	public void join(boolean leafOnShutdown) throws UnknownHostException, IOException {
+	public void join(boolean leafOnShutdown, IProgressListener progress) throws UnknownHostException, IOException {
 		if(!(joined.get())) {
-			for(InetAddress ifaddr : NetworkUtilities.getLocalAddresses(false)) {
+			List<InetAddress> ifaddrs = NetworkUtilities.getLocalAddresses(true);
+			float idx = 0;
+			for(InetAddress ifaddr : ifaddrs) {
+				idx += 1;
+				if(progress != null) progress.setProgress(idx / ifaddrs.size());
 				try {
 					socket.setInterface(ifaddr);
 					socket.setReuseAddress(true);
@@ -89,6 +94,8 @@ public class AbletonLink {
 				}
 			});	
 		}
+		
+		if(progress != null) progress.done();
 	}
 
 	public void leave() throws IOException {
@@ -111,7 +118,7 @@ public class AbletonLink {
 		Platform.get().init();
 
 		AbletonLink link = new AbletonLink();
-		link.join(true);
+		link.join(true, null);
 		link.addHandler(packet->{
 			System.out.println(packet);
 		});

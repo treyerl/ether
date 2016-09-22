@@ -95,7 +95,7 @@ public abstract class AtlasTarget extends AbstractVideoTarget implements IDispos
 			} else {
 				current.setSubImage(x, y, frame.scale(tileW,tileH));
 				count++;
-				if(progress != null) progress.progress((float)count/(float)getVideoSource().getLengthInFrames());
+				if(progress != null) progress.setProgress((float)count/(float)getVideoSource().getLengthInFrames());
 				x += tileW;
 				if(x > current.getWidth()-tileW) {
 					x = 0;

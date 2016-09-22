@@ -37,7 +37,7 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;
 
 public class MonitorGain extends AbstractRenderCommand<IAudioRenderTarget> {
-	private static final Parameter GAIN = new Parameter("gain", "Monitor", 0, 2, 0);
+	public static final Parameter GAIN = new Parameter("gain", "Monitor", 0, 2, 0);
 
 	public MonitorGain() {
 		super(GAIN);

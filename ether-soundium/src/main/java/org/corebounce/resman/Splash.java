@@ -17,23 +17,24 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 import ch.fhnw.util.IDisposable;
+import ch.fhnw.util.IProgressListener;
 
-public class Splash implements IDisposable {
+public class Splash implements IDisposable, IProgressListener {
 	final Image       image;
-	final ProgressBar bar;
-	final Shell       splash;
+	final ProgressBar progressUI;
+	final Shell       shell;
 
 	public Splash(Display display, Rectangle displayRect, boolean showProgress)  {
-		image  = new Image(display, getClass().getResourceAsStream("/splash.png"));
-		splash = new Shell(SWT.ON_TOP);
-		bar    = new ProgressBar(splash, SWT.NONE);
-		bar.setMaximum(100);
+		image = new Image(display, getClass().getResourceAsStream("/splash.png"));
+		shell = new Shell(SWT.ON_TOP);
+		progressUI    = new ProgressBar(shell, SWT.NONE);
+		progressUI.setMaximum(100);
 		
-		Label label = new Label(splash, SWT.NONE);
+		Label label = new Label(shell, SWT.NONE);
 		label.setImage(image);
 
 		FormLayout layout = new FormLayout();
-		splash.setLayout(layout);
+		shell.setLayout(layout);
 
 		FormData labelData = new FormData();
 		labelData.right = new FormAttachment(100, 0);
@@ -44,27 +45,27 @@ public class Splash implements IDisposable {
 		progressData.left = new FormAttachment(0, -5);
 		progressData.right = new FormAttachment(100, 0);
 		progressData.bottom = new FormAttachment(100, 0);
-		bar.setLayoutData(progressData);
-		bar.setVisible(showProgress);
-		splash.pack();
+		progressUI.setLayoutData(progressData);
+		progressUI.setVisible(showProgress);
+		shell.pack();
 
-		Rectangle splashRect = splash.getBounds();
+		Rectangle splashRect = shell.getBounds();
 
-		bar.setBounds(2, splashRect.height-14, splashRect.width-6, 10);
+		progressUI.setBounds(2, splashRect.height-14, splashRect.width-6, 10);
 
 		int x = displayRect.x + (displayRect.width - splashRect.width) / 2;
 		int y = displayRect.y + (displayRect.height - splashRect.height) / 2;
-		splash.setLocation(x, y);
+		shell.setLocation(x, y);
 		
-		splash.open();		
-		progress(0);
+		shell.open();		
+		setProgress(0);
 	}
 
 	public void open() {
 	}
 	
-	public void progress(float f) {
-		bar.setSelection((int) (f * 100));
+	public void setProgress(float f) {
+		progressUI.setSelection((int) (f * 100));
 		long timeout = System.currentTimeMillis() + 100;
 		while(System.currentTimeMillis() < timeout)
 			Display.getDefault().readAndDispatch();		
@@ -72,7 +73,7 @@ public class Splash implements IDisposable {
 
 	@Override
 	public void dispose() {
-		splash.dispose();
+		shell.dispose();
 		image.dispose();
 	}
 
@@ -109,5 +110,13 @@ public class Splash implements IDisposable {
 		public void widgetDefaultSelected(SelectionEvent e) {
 			run();
 		}
+	}
+
+	@Override
+	public void done() {}
+
+	@Override
+	public float getProgress() {
+		return progressUI.getSelection() / 100f;
 	}
 }

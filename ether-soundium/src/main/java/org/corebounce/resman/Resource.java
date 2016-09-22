@@ -455,7 +455,7 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 	}
 	
 	@Override
-	public void progress(float progress) {
+	public void setProgress(float progress) {
 		this.progress = progress;
 	}
 

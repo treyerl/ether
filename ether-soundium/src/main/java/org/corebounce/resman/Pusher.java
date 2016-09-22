@@ -145,7 +145,7 @@ public class Pusher {
 					FloatList vn = new FloatList();
 					FloatList vt = new FloatList();
 
-					res.progress(++step/numSteps);
+					res.setProgress(++step/numSteps);
 					new ObjReader(obj).getMeshes().forEach(mesh -> {
 						meshes.add(mesh);
 						for(int i = mesh.getGeometry().getAttributes().length; --i >= 0;) {
@@ -159,7 +159,7 @@ public class Pusher {
 						}
 						bb.add(mesh.getBounds());
 					});
-					res.progress(++step/numSteps);
+					res.setProgress(++step/numSteps);
 					final Vec3    center = bb.getCenter();
 					final float[] va     = v._getArray();
 					final float   scale  = Math.max(bb.getExtentX(), Math.max(bb.getExtentY(), bb.getExtentZ())); 
@@ -168,7 +168,7 @@ public class Pusher {
 						va[i+1] = (va[i+1] - center.y) / scale;  
 						va[i+2] = (va[i+2] - center.z) / scale;  
 					}
-					res.progress(++step/numSteps);
+					res.setProgress(++step/numSteps);
 
 					writeFloats(vertices, v);
 					if(vn.size() > 0)
@@ -178,7 +178,7 @@ public class Pusher {
 						writeFloats(new File(vertices.getParentFile(), 
 								TextUtilities.getFileNameWithoutExtension(vertices) + ".vt"), vt);
 
-					res.progress(++step/numSteps);
+					res.setProgress(++step/numSteps);
 					db.sync(res);
 
 					pushGeometry(res, vertices, slot);

@@ -171,10 +171,10 @@ public class AudioPanel implements PaintListener, ControlListener {
 
 				long tapTime    = now - lastTap;
 				BeatDetect beat = audio.getBeat();
-				beat.setBeat(beat.beatCountPLL()+1, BeatType.TAP, beat.frameTime() + 0.02);
+				beat.setBeat(beat.beatCountPLL()+1, BeatType.TAP, beat.frameTime());
 				if(tapTime < 1200) {
-					beat.setBeat(beat.beatCountPLL()+2, BeatType.TAP,       beat.frameTime() + tapTime / IScheduler.SEC2MS);
-					beat.setBeat(beat.beatCountPLL()+3, BeatType.ESTIMATED, beat.frameTime() + (2*tapTime) / IScheduler.SEC2MS);
+					beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + tapTime / IScheduler.SEC2MS);
+					beat.setVal(BeatDetect.BPM, (float)(60.0 / (tapTime / IScheduler.SEC2MS)));
 				} else
 					beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + 60.0 / beat.getVal(BeatDetect.BPM));
 

@@ -1,6 +1,7 @@
 package ch.fhnw.util;
 
 public interface IProgressListener {
-	void progress(float progress);
-	void done();
+	void  setProgress(float progress);
+	void  done();
+	float getProgress();
 }

@@ -25,6 +25,7 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.platform.Platform.OS;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.Log;
+import ch.fhnw.util.Subprogress;
 import ch.fhnw.util.TextUtilities;
 
 public class Resman {
@@ -72,19 +73,21 @@ public class Resman {
 			log.info("Engine camera " + cam++ + " assigned to monitor " + mon.getIndex() + " '" + mon + "'");
 		}
 
-		float step     = 0;
-		float numSteps = 6;
-		splash.progress(++step/numSteps);
-		audio      = new Audio(args);
-		splash.progress(++step/numSteps);
+		float step       = 0;
+		float audioSteps = 3;
+		float numSteps   = 5 + audioSteps;
+		splash.setProgress(++step/numSteps);
+		audio      = new Audio(new Subprogress(splash, audioSteps / numSteps), args);
+		step += audioSteps;
 		db         = new MetaDB(args);
-		splash.progress(++step/numSteps);
+		splash.setProgress(++step/numSteps);
 		osc        = new OSC(args, audio, monitors);
-		splash.progress(++step/numSteps);
+		splash.setProgress(++step/numSteps);
 		pf         = new PreviewFactory(db);
-		splash.progress(++step/numSteps);
+		splash.setProgress(++step/numSteps);
 		resources = new Resources(db, pf, args);
-		splash.progress(++step/numSteps);
+		splash.setProgress(++step/numSteps);
+		splash.done();
 		splash.dispose();
 
 		shell = new Shell(display);

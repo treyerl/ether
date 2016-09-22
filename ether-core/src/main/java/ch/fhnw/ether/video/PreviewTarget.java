@@ -114,7 +114,7 @@ public class PreviewTarget extends AbstractVideoTarget implements IDisposable {
 		if(frame != null && x + prvWidth < preview.getWidth()) {
 			preview.setSubImage(x, 0, frame.scale(prvWidth, prvHeight));
 			x += prvWidth + BORDER;
-			if(progress != null) progress.progress((float)x/(float)preview.getWidth());
+			if(progress != null) progress.setProgress((float)x/(float)preview.getWidth());
 		}
 		
 		if(vframe.playOutTime >= startEnd[idx+1]) {
