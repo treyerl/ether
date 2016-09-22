@@ -8,7 +8,6 @@ import ch.fhnw.ether.audio.IAudioSource;
 import ch.fhnw.ether.audio.JavaSoundSource;
 import ch.fhnw.ether.audio.JavaSoundTarget;
 import ch.fhnw.ether.audio.URLAudioSource;
-import ch.fhnw.ether.audio.fx.AudioGain;
 import ch.fhnw.ether.audio.fx.AutoGain;
 import ch.fhnw.ether.audio.fx.BandsButterworth;
 import ch.fhnw.ether.audio.fx.BeatDetect;
@@ -37,7 +36,7 @@ public class Audio extends Subsystem implements IAbeltonLinkHandler {
 	private final BandsButterworth bands = new BandsButterworth(60, 8000, 40, 5, 1);
 	private final OnsetDetect      onset = new OnsetDetect(); 
 	private final BeatDetect       beatDetect  = new BeatDetect(onset);
-	private final AudioGain        out   = new AudioGain();
+	private final MonitorGain      out   = new MonitorGain();
 	private final JavaSoundTarget  dst   = new JavaSoundTarget();
 	private final RenderProgram<IAudioRenderTarget> audio;
 	private final AbeltonLink      link  = new AbeltonLink();
@@ -73,7 +72,7 @@ public class Audio extends Subsystem implements IAbeltonLinkHandler {
 		return onset;
 	}
 
-	public AudioGain getOutGain() {
+	public MonitorGain getOutGain() {
 		return out;
 	}
 
