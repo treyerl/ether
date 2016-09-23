@@ -65,12 +65,12 @@
 		 }
 	 }
 
-	 public void push(float[] values) {
-		 for(float value : values) {
+	 public void push(float[] valuesArray) {
+		 for(float value : valuesArray) {
 			 sum = sum - values[index];
 			 values[index] = value;
 			 sum = sum + value;
-			 index = (index + 1) % this.values.length;
+			 index = (index + 1) % values.length;
 		 }
 	 }
 

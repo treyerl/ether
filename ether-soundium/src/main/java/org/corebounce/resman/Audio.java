@@ -50,7 +50,10 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 			url = new URL(configuration.get("in"));
 		} catch(Throwable t) {}
 
-		gain.setVal(AutoGain.ATTACK, 0.15f);
+		gain.setVal(AutoGain.ATTACK,  0.05f);
+		gain.setVal(AutoGain.SUSTAIN, 9f);
+		gain.setVal(AutoGain.DECAY,   0.01f);
+		
 		try {
 			out.setVal(MonitorGain.GAIN, Float.parseFloat(configuration.get("mon")));
 		} catch(Throwable t) {}

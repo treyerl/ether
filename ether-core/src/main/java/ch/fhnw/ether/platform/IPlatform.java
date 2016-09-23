@@ -32,6 +32,7 @@
 package ch.fhnw.ether.platform;
 
 import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.math.Vec2;
 
 public interface IPlatform {
@@ -77,7 +78,22 @@ public interface IPlatform {
 	IImageSupport getImageSupport();
 	
 	/**
-	 * Get monitors.
+	 * Get the connected monitors.
 	 */
 	IMonitor[] getMonitors();
+	
+	/*
+	 * Add a runnable which will be executed before the platform graphics resources are disposed.
+	 */
+	void addShutdownTask(Runnable r);
+	
+	/*
+	 * Add a disposable which will be disposed before the platform graphics resources are disposed.
+	 */
+	void addShutdownTask(IDisposable d);
+
+	/*
+	 * Removes a previously installed shutdown task (runnable or disposable).
+	 */
+	void removeShutdownTask(Object o);
 }

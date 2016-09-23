@@ -4,6 +4,9 @@ package org.corebounce.resman;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import org.corebounce.resman.Splash.SplashAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -49,7 +52,7 @@ public class Resman {
 	private final Resources         resources;
 	private final Shell             shell;
 
-	public Resman(String ... args) throws InterruptedException, RenderCommandException, IOException, NoSuchAlgorithmException {
+	public Resman(String ... args) throws InterruptedException, RenderCommandException, IOException, NoSuchAlgorithmException, LineUnavailableException, UnsupportedAudioFileException {
 		Display display = Display.getDefault();
 
 		Preferences  prefs;

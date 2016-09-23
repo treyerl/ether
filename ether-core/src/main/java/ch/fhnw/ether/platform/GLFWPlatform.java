@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.platform;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -40,9 +42,13 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
+import ch.fhnw.util.CollectionUtilities;
+import ch.fhnw.util.IDisposable;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.math.Vec2;
 
 class GLFWPlatform implements IPlatform {
+	private static final Log log = Log.create();
 
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
@@ -50,6 +56,8 @@ class GLFWPlatform implements IPlatform {
 	private final IImageSupport imageSupport;
 
 	private final Thread mainThread;
+	private List<Runnable>    shutdownTasks = new ArrayList<>();
+	private List<IDisposable> disposeTasks  = new ArrayList<>();
 
 	public GLFWPlatform() {
 		this(new STBImageSupport());
@@ -131,6 +139,24 @@ class GLFWPlatform implements IPlatform {
 	}
 
 	protected void exitInternal() {
+		synchronized (disposeTasks) {
+			for(IDisposable d : disposeTasks) {
+				try {
+					d.dispose();
+				} catch(Throwable t) {
+					log.warning(t);
+				}
+			}
+		}
+		synchronized (shutdownTasks) {
+			for(Runnable r : shutdownTasks) {
+				try {
+					r.run();
+				} catch(Throwable t) {
+					log.warning(t);
+				}
+			}
+		}
 	}
 
 	protected void waitForEvents() {
@@ -144,5 +170,33 @@ class GLFWPlatform implements IPlatform {
 		for(int i = 0; i < result.length; i++)
 			result[i] = new GLFWMonitor(monitors.get(i), i);
 		return result;
+	}
+
+	@Override
+	public void addShutdownTask(Runnable r) {
+		synchronized (shutdownTasks) {
+			shutdownTasks.add(r);
+		}
+	}
+
+	@Override
+	public void addShutdownTask(IDisposable d) {
+		synchronized (disposeTasks) {
+			disposeTasks.add(d);
+		}
+	}
+
+	@Override
+	public void removeShutdownTask(Object o) {
+		if(o instanceof Runnable) {
+			synchronized (shutdownTasks) {
+				CollectionUtilities.removeAll(shutdownTasks, (Runnable)o);
+			}
+		}
+		if(o instanceof IDisposable) {
+			synchronized (disposeTasks) {
+				CollectionUtilities.removeAll(disposeTasks, (IDisposable)o);
+			}
+		}
 	}
 }

@@ -1,6 +1,10 @@
 package org.corebounce.resman;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
@@ -41,10 +45,10 @@ public class AudioPanel implements PaintListener, ControlListener {
 	private       int                        lastCountPLL;
 	private       Color                      FLASH;
 	private       Color                      COL_BEAT;
-
-	public AudioPanel(Audio audio) {
+	
+	public AudioPanel(Audio audio) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 		this.audio = audio;
-
+		
 		audio.addLast(new AbstractRenderCommand<IAudioRenderTarget>() {
 			boolean      trigger = true;
 			final byte[] beatColor     = new byte[3];

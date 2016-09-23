@@ -70,7 +70,7 @@ import ch.fhnw.util.TextUtilities;
 public class ParameterWindow {
 	public enum Flag {EXIT_ON_CLOSE,CLOSE_ON_STOP}
 
-	static final float   S            = 1000f;
+	static final float   S            = 1000000f;
 	static final int     NUM_TICKS    = 5;
 	static final int     POLL_DELAY   = 40;
 
@@ -196,9 +196,9 @@ public class ParameterWindow {
 			case RANGE:
 				try {
 					this.slider = new Slider(parent, SWT.NONE);
-					this.slider.setMaximum((int)(param.getMax() * S));
-					this.slider.setMinimum((int)(param.getMin() * S));
-					this.slider.setSelection((int)(cmd.getVal(p) * S));
+					this.slider.setMinimum(0);
+					this.slider.setMaximum(((int)S)+1);
+					this.slider.setSelection(par2sel(cmd.getVal(p), p));
 					this.slider.addSelectionListener(this);
 					this.slider.setLayoutData(cfill());
 					this.slider.setData("paramui", this);
@@ -233,10 +233,10 @@ public class ParameterWindow {
 			if(label.isDisposed()) return;
 
 			if(slider != null) {
-				float val =  slider.getSelection() / S;
+				float val =  sel2par(slider.getSelection(), p);
 				if(cmd.getVal(p) != val) {
-					slider.setSelection((int) (cmd.getVal(p) * S));
-					cmd.setVal(p, slider.getSelection() / S);
+					slider.setSelection(par2sel(cmd.getVal(p), p));
+					cmd.setVal(p, sel2par(slider.getSelection(), p));
 					updateLabel();
 				}
 			}
@@ -249,6 +249,14 @@ public class ParameterWindow {
 			}
 
 			Display.getDefault().timerExec(POLL_DELAY, this);
+		}
+
+		private int par2sel(float val, Parameter p) {
+			return (int)(((cmd.getVal(p) - cmd.getMin(p)) / (cmd.getMax(p) - cmd.getMin(p))) * S);
+		}
+
+		private float sel2par(float sel, Parameter p) {
+			return (((cmd.getMax(p)-cmd.getMin(p)) * sel) / S) + cmd.getMin(p);
 		}
 
 		@Override
@@ -264,7 +272,7 @@ public class ParameterWindow {
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			if(e.getSource() == slider) {
-				cmd.setVal(p, slider.getSelection() / S);
+				cmd.setVal(p, sel2par(slider.getSelection(), p));
 				updateLabel();
 			}
 			else if(e.getSource() == combo)

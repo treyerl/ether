@@ -64,6 +64,7 @@ public class Splash implements IDisposable, IProgressListener {
 	public void open() {
 	}
 	
+	@Override
 	public void setProgress(float f) {
 		progressUI.setSelection((int) (f * 100));
 		long timeout = System.currentTimeMillis() + 100;

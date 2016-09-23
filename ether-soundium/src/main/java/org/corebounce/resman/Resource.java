@@ -450,6 +450,7 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 		return result;
 	}
 
+	@Override
 	public float getProgress() {
 		return progress;
 	}
