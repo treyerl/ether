@@ -1,4 +1,4 @@
-package ch.fhnw.util.net;
+package ch.fhnw.util.net.link;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

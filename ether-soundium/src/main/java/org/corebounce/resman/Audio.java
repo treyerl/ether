@@ -21,12 +21,12 @@ import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
-import ch.fhnw.util.net.AbletonLink;
-import ch.fhnw.util.net.AbletonLinkPacket;
-import ch.fhnw.util.net.AbletonLinkPacket.Beats;
-import ch.fhnw.util.net.AbletonLinkPacket.Payload;
-import ch.fhnw.util.net.AbletonLinkPacket.Timeline;
-import ch.fhnw.util.net.IAbletonLinkHandler;
+import ch.fhnw.util.net.link.AbletonLink;
+import ch.fhnw.util.net.link.AbletonLinkPacket;
+import ch.fhnw.util.net.link.AbletonLinkPacket.Beats;
+import ch.fhnw.util.net.link.AbletonLinkPacket.Payload;
+import ch.fhnw.util.net.link.AbletonLinkPacket.Timeline;
+import ch.fhnw.util.net.link.IAbletonLinkHandler;
 
 public class Audio extends Subsystem implements IAbletonLinkHandler {
 	private static final Log log = Log.create();

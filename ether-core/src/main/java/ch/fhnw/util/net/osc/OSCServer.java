@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ch.fhnw.util.Log;
+import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.NetworkUtilities;
 
 public final class OSCServer extends OSCDispatcher implements OSCSender {
@@ -164,5 +165,29 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		DatagramPacket p = new DatagramPacket(packet.array(), packet.capacity());
 		p.setSocketAddress(destination);
 		sendQueue.add(p);
+	}
+	
+	public static void main(String[] args) throws IOException, InterruptedException {
+		OSCServer osc = new OSCServer(55555);
+		
+		osc.addPeer("self", osc.address);
+		
+		osc.addHandler("/hello", new IOSCHandler() {
+			@Override
+			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
+				System.out.println(
+						TextUtilities.toString("", "/", "", address, TextUtilities.NONE) + " " +
+						TextUtilities.toString("(", ",", ")", args)
+						);
+				return null;
+			}
+		});
+		
+		osc.start();
+		
+		for(int i = 0; i < 10; i++) {
+			Thread.sleep(1000);
+			osc.send("/hello", "Hello OSC", i);
+		}
 	}
 }

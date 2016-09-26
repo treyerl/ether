@@ -1,4 +1,4 @@
-package ch.fhnw.util.net;
+package ch.fhnw.util.net.link;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,6 +13,7 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
+import ch.fhnw.util.net.NetworkUtilities;
 
 public class AbletonLink {
 	private static final Log log = Log.create();
