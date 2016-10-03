@@ -31,7 +31,7 @@
 
 package ch.fhnw.ether.platform;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -56,8 +56,8 @@ class GLFWPlatform implements IPlatform {
 	private final IImageSupport imageSupport;
 
 	private final Thread mainThread;
-	private List<Runnable>    shutdownTasks = new ArrayList<>();
-	private List<IDisposable> disposeTasks  = new ArrayList<>();
+	private List<Runnable>    shutdownTasks = new LinkedList<>();
+	private List<IDisposable> disposeTasks  = new LinkedList<>();
 
 	public GLFWPlatform() {
 		this(new STBImageSupport());
@@ -140,7 +140,7 @@ class GLFWPlatform implements IPlatform {
 
 	protected void exitInternal() {
 		synchronized (disposeTasks) {
-			for(IDisposable d : disposeTasks) {
+			for(IDisposable d : disposeTasks.toArray(new IDisposable[disposeTasks.size()])) {
 				try {
 					d.dispose();
 				} catch(Throwable t) {
@@ -149,7 +149,7 @@ class GLFWPlatform implements IPlatform {
 			}
 		}
 		synchronized (shutdownTasks) {
-			for(Runnable r : shutdownTasks) {
+			for(Runnable r : shutdownTasks.toArray(new Runnable[shutdownTasks.size()])) {
 				try {
 					r.run();
 				} catch(Throwable t) {
@@ -175,14 +175,14 @@ class GLFWPlatform implements IPlatform {
 	@Override
 	public void addShutdownTask(Runnable r) {
 		synchronized (shutdownTasks) {
-			shutdownTasks.add(r);
+			shutdownTasks.add(0, r);
 		}
 	}
 
 	@Override
-	public void addShutdownTask(IDisposable d) {
+	public void addShutdownDispose(IDisposable d) {
 		synchronized (disposeTasks) {
-			disposeTasks.add(d);
+			disposeTasks.add(0, d);
 		}
 	}
 

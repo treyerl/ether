@@ -77,7 +77,7 @@ public final class RGB implements IColor, IVec3 {
 	public RGB(float[] rgb) {
 		this(rgb[0], rgb[1], rgb[2]);
 	}
-
+	
 	public RGB(Vec3 v) {
 		this(v.x, v.y, v.z);
 	}
@@ -145,6 +145,14 @@ public final class RGB implements IColor, IVec3 {
 		return (a << 24 | b << 16 | g << 8 | r);
 	}
 
+	public int toARGB32() {
+		int r = (int) (this.r * 255);
+		int g = (int) (this.g * 255);
+		int b = (int) (this.b * 255);
+		int a = 255;
+		return (a << 24 | r << 16 | g << 8 | b);
+	}	
+
 	@Override
 	public Vec3 toVec3() {
 		return new Vec3(r, g, b);
@@ -175,7 +183,7 @@ public final class RGB implements IColor, IVec3 {
 		return "rgb[" + red() + " " + green() + " " + blue() + "]";
 	}
 	
-	public static RGB mix(RGB color0 , RGB color1, float t) {
+	public static RGB lerp(RGB color0 , RGB color1, float t) {
 		float r = MathUtilities.lerp(color0.r, color1.r, t);
 		float g = MathUtilities.lerp(color0.g, color1.g, t);
 		float b = MathUtilities.lerp(color0.b, color1.b, t);
@@ -194,5 +202,5 @@ public final class RGB implements IColor, IVec3 {
 			result[i++] = v.b;
 		}
 		return result;
-	}	
+	}
 }

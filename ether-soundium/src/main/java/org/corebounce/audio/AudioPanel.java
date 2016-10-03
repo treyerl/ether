@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.audio;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.corebounce.ui.GridDataFactory;
+import org.corebounce.ui.Repeating;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -25,9 +27,7 @@ import org.eclipse.swt.widgets.Label;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.fx.BeatDetect;
-import ch.fhnw.ether.audio.fx.BeatDetect.BeatType;
 import ch.fhnw.ether.media.AbstractRenderCommand;
-import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.ui.ParameterWindow;
 import ch.fhnw.util.Log;
@@ -35,7 +35,7 @@ import ch.fhnw.util.math.MathUtilities;
 
 public class AudioPanel implements PaintListener, ControlListener {
 	private static final Log log = Log.create();
-	
+
 	private final Audio                      audio;
 	private 	  AtomicReference<ImageData> buffer = new AtomicReference<>(new ImageData(1, 100, 24, new PaletteData(0xFF0000, 0x00FF00, 0x0000FF)));
 	private       Canvas                     canvasUI;
@@ -45,10 +45,10 @@ public class AudioPanel implements PaintListener, ControlListener {
 	private       int                        lastCountPLL;
 	private       Color                      FLASH;
 	private       Color                      COL_BEAT;
-	
+
 	public AudioPanel(Audio audio) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 		this.audio = audio;
-		
+
 		audio.addLast(new AbstractRenderCommand<IAudioRenderTarget>() {
 			boolean      trigger = true;
 			final byte[] beatColor     = new byte[3];
@@ -81,7 +81,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 					int off = x * 3;
 					for(int y = buffer.height; --y >= 0;) {
 						final int band = MathUtilities.clamp((buffer.height-y) / y2bands, 0, fluxes.length -1);
-												
+
 						byte r = 0;
 						byte g = 0;
 						byte b = (byte)MathUtilities.clamp(fluxes[band] > threshs[band] ? fluxes[band] * 1000 : 0, 0, 255);
@@ -96,7 +96,7 @@ public class AudioPanel implements PaintListener, ControlListener {
 						buffer.data[off++] = b;
 						off += line;
 					}
-					
+
 					boolean vline = false;
 
 					if(beat.beatCountPLL() != lastCountPLL) {
@@ -168,22 +168,8 @@ public class AudioPanel implements PaintListener, ControlListener {
 		bpmUI = new Label(ui, SWT.CENTER);
 		bpmUI.setLayoutData(GridDataFactory.fill(true, false));
 		bpmUI.addMouseListener(new MouseAdapter() {
-			long lastTap;
 			@Override
-			public void mouseDown(MouseEvent e) {
-				long now = System.currentTimeMillis();
-
-				long tapTime    = now - lastTap;
-				BeatDetect beat = audio.getBeat();
-				beat.setBeat(beat.beatCountPLL()+1, BeatType.TAP, beat.frameTime());
-				if(tapTime < 1200) {
-					beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + tapTime / IScheduler.SEC2MS);
-					beat.setVal(BeatDetect.BPM, (float)(60.0 / (tapTime / IScheduler.SEC2MS)));
-				} else
-					beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + 60.0 / beat.getVal(BeatDetect.BPM));
-
-				lastTap = now;
-			}
+			public void mouseDown(MouseEvent e) {audio.tap();}
 		});
 
 		ParameterWindow.createUI(ui, audio.getBeat(), false);
@@ -195,8 +181,18 @@ public class AudioPanel implements PaintListener, ControlListener {
 		canvasUI.setSize(SWT.DEFAULT, buffer.get().height);
 		canvasUI.setLayoutData(GridDataFactory.fill(true, false, SWT.DEFAULT, buffer.get().height));
 
-		new Repeating(500, 16, ()->{if(valid()) canvasUI.redraw();});
-
+		new Repeating(500, 16, new Runnable() {
+			int lastBeat;
+			@Override
+			public void run() {
+				int beat = audio.getBeat().beatCountPLL();
+				if(beat != lastBeat) {
+					audio.fireBeat(beat);
+					lastBeat = beat;
+				}
+				if(valid()) canvasUI.redraw();
+			}
+		});
 		return result;
 	}
 
@@ -212,7 +208,6 @@ public class AudioPanel implements PaintListener, ControlListener {
 		}
 	}
 
-	int  lastBar;
 	int  lastBeat;
 	long flashTimeout;
 	@Override
@@ -248,4 +243,5 @@ public class AudioPanel implements PaintListener, ControlListener {
 	private boolean valid() {
 		return canvasUI != null && !canvasUI.isDisposed() && canvasUI.getSize().x > 0;
 	}
+
 }

@@ -72,6 +72,7 @@ public final class ForwardRenderer extends AbstractRenderer {
 		super(startRenderThread);
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	protected void render(IRenderTargetState state) {
 		globals.viewInfo.setCameraSpace();

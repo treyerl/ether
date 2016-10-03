@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.video;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +11,11 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.corebounce.io.OSC;
+import org.corebounce.resman.MetaDB;
+import org.corebounce.resman.PreviewFactory;
+import org.corebounce.resman.Resource;
+import org.corebounce.ui.ItemRepainer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TableItem;

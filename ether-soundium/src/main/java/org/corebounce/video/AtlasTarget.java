@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.corebounce.resman;
+package org.corebounce.video;
 
 import ch.fhnw.ether.image.IHostImage;
 import ch.fhnw.ether.image.IImage.ComponentFormat;

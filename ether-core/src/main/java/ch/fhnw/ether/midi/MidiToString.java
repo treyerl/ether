@@ -96,7 +96,7 @@ public class MidiToString {
 			result = "key pressure " + keyName(message.getData1()) + " pressure: " + message.getData2();
 			break;
 		case ShortMessage.PITCH_BEND:
-			result = "pitch wheel change " + toInt14(message.getData1(), message.getData2());
+			result = "pitch wheel change " + MidiIO.toInt14(message.getData1(), message.getData2());
 			break;
 		case 0xF0:
 			result = SYSTEM_MESSAGES[message.getChannel()];
@@ -113,7 +113,7 @@ public class MidiToString {
 				}
 				break;
 			case 0x2:
-				result += toInt14(message.getData1(), message.getData2());
+				result += MidiIO.toInt14(message.getData1(), message.getData2());
 				break;
 			case 0x3:
 				result += message.getData1();
@@ -251,15 +251,10 @@ public class MidiToString {
 		return 60000000.0f / value;
 	}
 
-	private static String keyName(int nKeyNumber) {
+	public static String keyName(int nKeyNumber) {
 		if (nKeyNumber > 127) { return "illegal value"; }
 		int nNote =
 				nKeyNumber % 12; int nOctave = nKeyNumber / 12; return
 						KEY_NAMES[nNote] + (nOctave - 1);
 	}
-
-	private static int toInt14(int nLowerPart, int nHigherPart) {
-		return (nLowerPart & 0x7F) | ((nHigherPart & 0x7F) << 7);
-	}
-
 }

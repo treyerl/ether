@@ -38,8 +38,12 @@ import javax.sound.sampled.SourceDataLine;
 import ch.fhnw.ether.media.ITimebase;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
+import ch.fhnw.util.ByteList;
+import ch.fhnw.util.Log;
 
 public final class JavaSoundTarget extends AbstractAudioTarget {
+	private static final Log log = Log.create();
+	
 	private static final float S2F = Short.MAX_VALUE;
 
 	private AudioFormat    fmt;
@@ -48,24 +52,44 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 	private int            bytesPerSample;
 	private final int      bufferSize;
 	private ITimebase      timebase;
+	private final ByteList recorder;
 	
 	/**
 	 * Create a new audio target using Java sound output.
 	 */
 	public JavaSoundTarget() {
-		this(2048);
+		this(2048, null);
 	}
-	
+
+	/**
+	 * Create a new audio target using Java sound output.
+	 * @param recorder The buffer to record to.
+	 */
+	public JavaSoundTarget(ByteList recorder) {
+		this(2048, recorder);
+	}
+
 	/**
 	 * Create a new audio target using Java sound output.
 	 *
 	 * @param bufferSize The output buffer size. Values below 2048 produce audio glitches on most platforms.
 	 */
 	public JavaSoundTarget(int bufferSize) {
+		this(bufferSize, null);
+	}
+
+	/**
+	 * Create a new audio target using Java sound output.
+	 *
+	 * @param bufferSize The output buffer size. Values below 2048 produce audio glitches on most platforms.
+	 * @param recorder The buffer to record to.
+	 */
+	public JavaSoundTarget(int bufferSize, ByteList recorder) {
 		super(Thread.MAX_PRIORITY, true);
 		this.bufferSize = bufferSize;
+		this.recorder   = recorder;
 	}
-	
+
 
 	/**
 	 * Create a new audio target using Java sound output.
@@ -76,6 +100,7 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 	public JavaSoundTarget(IAudioSource source, double bufferSize) {
 		super(Thread.MAX_PRIORITY, true);
 		this.bufferSize = (int) (source.getSampleRate() * bufferSize * source.getNumChannels() * 2);
+		this.recorder   = null;
 	}
 	
 	@Override
@@ -122,8 +147,20 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 			}
 		}
 		out.write(outBuffer, 0, outBuffer.length);
+		if(recorder != null) recorder.add(outBuffer);
 	}
 
+	@Override
+	public final void start() {
+		try {
+		if(!(out.isOpen()))
+			out.open();
+		super.start();
+		} catch(Throwable t) {
+			log.warning(t);
+		}
+	}
+	
 	@Override
 	public void stop() throws RenderCommandException {
 		super.stop();
@@ -146,5 +183,9 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 	@Override
 	public float getSampleRate() {
 		return fmt.getSampleRate();
+	}
+	
+	public AudioFormat getJavaSoundAudioFormat() {
+		return fmt;
 	}
 }

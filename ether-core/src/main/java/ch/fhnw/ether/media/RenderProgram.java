@@ -108,19 +108,19 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 		program.set(ArrayUtilities.prepend((AbstractRenderCommand<T>)source, commands));
 	}
 
-	public Update createAddFirst(AbstractRenderCommand<T> cmd) {
+	private Update createAddFirst(AbstractRenderCommand<T> cmd) {
 		return new Update(null, cmd, true);
 	}
 
-	public Update createAddLast(AbstractRenderCommand<T> cmd) {
+	private Update createAddLast(AbstractRenderCommand<T> cmd) {
 		return new Update(null, cmd, false);
 	}
 
-	public Update createRemove(AbstractRenderCommand<T> cmd) {
+	private Update createRemove(AbstractRenderCommand<T> cmd) {
 		return new Update(cmd, null, false);
 	}
 
-	public Update createReplace(AbstractRenderCommand<T> oldCmd, AbstractRenderCommand<T> newCmd) {
+	private Update createReplace(AbstractRenderCommand<T> oldCmd, AbstractRenderCommand<T> newCmd) {
 		return new Update(oldCmd, newCmd, false);
 	}
 

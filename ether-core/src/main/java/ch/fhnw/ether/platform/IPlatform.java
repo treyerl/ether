@@ -90,7 +90,7 @@ public interface IPlatform {
 	/*
 	 * Add a disposable which will be disposed before the platform graphics resources are disposed.
 	 */
-	void addShutdownTask(IDisposable d);
+	void addShutdownDispose(IDisposable d);
 
 	/*
 	 * Removes a previously installed shutdown task (runnable or disposable).

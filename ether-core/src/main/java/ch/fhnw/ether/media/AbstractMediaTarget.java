@@ -42,7 +42,7 @@ import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
 public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRenderTarget<F>> implements IRenderTarget<F> {
-	private static final Log LOG = Log.create();
+	private static final Log log = Log.create();
 
 	private   final int                     priority;
 	private   final boolean                 realTime;
@@ -63,14 +63,14 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 	}
 
 	@Override
-	public final void start() {
+	public void start() {
 		if(program == null) throw new NullPointerException("No program set for this target");
 		if(program.getFrameSource().getLengthInFrames() == 1) {
 			try {
 				setRendering(true);
 				runOneCycle();
 			} catch(Throwable e) {
-				LOG.severe(e);
+				log.severe(e);
 			}
 			setRendering(false);
 		} else {
@@ -83,7 +83,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 						runOneCycle();
 				} catch(Throwable e) {
 					setRendering(false);
-					LOG.severe(e);
+					log.severe(e);
 				}
 			}, TextUtilities.getShortClassName(this));
 			framePump.setDaemon(true);
@@ -93,7 +93,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 				startLatch.await();
 				startTime = System.nanoTime();
 			} catch (InterruptedException e) {
-				LOG.severe(e);
+				log.severe(e);
 			}
 		}
 	}
@@ -166,7 +166,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 		try {
 			Thread.sleep(1);
 		} catch (Throwable t) {
-			LOG.warning(t);
+			log.warning(t);
 		}
 	}
 
@@ -184,7 +184,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 						if(sleep > 0)
 							Thread.sleep(sleep);
 					} catch (Throwable t) {
-						LOG.warning(t);
+						log.warning(t);
 					}
 				}
 				while(getTime() <= time)
@@ -238,7 +238,7 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 			try {
 				latch.await();
 			} catch(Throwable t) {
-				AbstractMediaTarget.LOG.warning(t);
+				AbstractMediaTarget.log.warning(t);
 			}
 		}
 	}

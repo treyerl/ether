@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.soundium;
 
 import java.util.HashMap;
 import java.util.Map;

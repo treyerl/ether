@@ -42,6 +42,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -60,17 +61,21 @@ import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.Parameter;
+import ch.fhnw.ether.media.Parameter.Type;
+import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.video.IVideoSource;
-import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IDisposable;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
 public class ParameterWindow {
+	private static final Log log = Log.create();
+
 	public enum Flag {EXIT_ON_CLOSE,CLOSE_ON_STOP}
 
-	static final float   S            = 1000000f;
+	static final float   S            = 100000f;
 	static final int     NUM_TICKS    = 5;
 	static final int     POLL_DELAY   = 40;
 
@@ -178,14 +183,15 @@ public class ParameterWindow {
 	}
 
 	static class ParamUI implements SelectionListener, IDisposable, Runnable {
-		Label                    label;
-		Slider                   slider;
-		Combo                    combo;
-		AbstractRenderCommand<?> cmd;
-		Parameter                p;
-		float                    def;
+		Label          label;
+		Slider         slider;
+		Combo          combo;
+		Button         check;
+		Parametrizable cmd;
+		Parameter      p;
+		float          def;
 
-		ParamUI(Composite parent, AbstractRenderCommand<?> cmd, Parameter param) {
+		ParamUI(Composite parent, Parametrizable cmd, Parameter param) {
 			this.cmd    = cmd;
 			this.p      = param;
 			this.def    = cmd.getVal(param);
@@ -193,19 +199,19 @@ public class ParameterWindow {
 			updateLabel();
 			this.label.setLayoutData(cfill());
 			switch(p.getType()) {
+			case BITMAP:
 			case RANGE:
 				try {
 					this.slider = new Slider(parent, SWT.NONE);
 					this.slider.setMinimum(0);
-					this.slider.setMaximum(((int)S)+1);
+					this.slider.setMaximum(((int)S)+10);
 					this.slider.setSelection(par2sel(cmd.getVal(p), p));
 					this.slider.addSelectionListener(this);
 					this.slider.setLayoutData(cfill());
 					this.slider.setData("paramui", this);
 					Display.getDefault().timerExec(POLL_DELAY, this);
 				} catch(Throwable t) {
-					System.err.println(param);
-					t.printStackTrace();
+					log.warning(t);
 				}
 				break;
 			case ITEMS:
@@ -216,12 +222,28 @@ public class ParameterWindow {
 				this.combo.setLayoutData(cfill());
 				Display.getDefault().timerExec(POLL_DELAY, this);
 				break;
+			case VALUES:
+				this.combo = new Combo(parent, SWT.READ_ONLY);
+				this.combo.setItems(param.getItems());
+				this.combo.addSelectionListener(this);
+				this.combo.select(p.getValuesIndexFor(cmd.getVal(p)));
+				this.combo.setLayoutData(cfill());
+				Display.getDefault().timerExec(POLL_DELAY, this);
+				break;
+			case BOOL:
+				this.check = new Button(parent, SWT.CHECK);
+				this.check.addSelectionListener(this);
+				this.check.setSelection(cmd.getVal(p) != 0);
+				this.check.setLayoutData(cfill());
+				Display.getDefault().timerExec(POLL_DELAY, this);
+				break;
 			}
 		}
 
 		public void reset() {
 			if(slider != null) cmd.setVal(p, def);
 			if(combo != null)  cmd.setVal(p, (int) def);
+			if(check != null)  cmd.setVal(p, def);
 		}
 
 		public void zero() {
@@ -236,15 +258,29 @@ public class ParameterWindow {
 				float val =  sel2par(slider.getSelection(), p);
 				if(cmd.getVal(p) != val) {
 					slider.setSelection(par2sel(cmd.getVal(p), p));
-					cmd.setVal(p, sel2par(slider.getSelection(), p));
 					updateLabel();
 				}
 			}
 			if(combo != null) {
-				float val =  combo.getSelectionIndex();
+				if(p.getType() == Type.VALUES) {
+					float val = p.getValues()[combo.getSelectionIndex()];
+					if(cmd.getVal(p) != val) {
+						combo.select(p.getValuesIndexFor(cmd.getVal(p)));
+						cmd.setVal(p, val);
+					}
+				} else {
+					float val =  combo.getSelectionIndex();
+					if(cmd.getVal(p) != val) {
+						combo.select((int) cmd.getVal(p));
+						cmd.setVal(p, val);
+					}
+				}
+			}
+			if(check != null) {
+				float val =  check.getSelection() ? 1 : 0;
 				if(cmd.getVal(p) != val) {
-					combo.select((int) cmd.getVal(p));
-					cmd.setVal(p, combo.getSelectionIndex());
+					check.setSelection(cmd.getVal(p) != 0);
+					cmd.setVal(p, check.getSelection() ? 1 : 0);
 				}
 			}
 
@@ -275,13 +311,38 @@ public class ParameterWindow {
 				cmd.setVal(p, sel2par(slider.getSelection(), p));
 				updateLabel();
 			}
-			else if(e.getSource() == combo)
-				cmd.setVal(p, combo.getSelectionIndex());
+			else if(e.getSource() == combo) {
+				if(p.getValues() == null)
+					cmd.setVal(p, combo.getSelectionIndex());
+				else
+					cmd.setVal(p, p.getValues()[combo.getSelectionIndex()]);
+			}
+			else if(e.getSource() == check)
+				cmd.setVal(p, check.getSelection() ? 1 : 0);
 		}
 
 		void updateLabel() {
-			String[] items = cmd.getParameter(p.id()).getItems(); 
-			this.label.setText(p.getDescription() + (items == null ?  ": " + FMT.format(cmd.getVal(p)) + "  " : ClassUtilities.EMPTY_String));
+			String label = p.getDescription();
+			float  val   = cmd.getVal(p);
+			switch(p.getType()) {
+			case BITMAP:
+				if(p.getItems() == Parameter.BITMAP8)
+					label += ": " + TextUtilities.intToBits((int)(val), 8);
+				else if(p.getItems() == Parameter.BITMAP16)
+					label += ": " + TextUtilities.shortToHex((int)(val));
+				else
+					label += ": " + TextUtilities.intToHex((int)(val));
+				break;
+			case RANGE:
+				label += ": " + FMT.format(val);
+				break;
+			case BOOL:
+			case ITEMS:
+			case VALUES:
+			default:
+				break;
+			}
+			this.label.setText(label);
 		}
 	}
 
@@ -296,10 +357,10 @@ public class ParameterWindow {
 		return false;
 	}
 
-	public static Control createUI(Composite parent, AbstractRenderCommand<?> cmd, boolean asGroup) {
+	public static Control createUI(Composite parent, Parametrizable cmd, boolean asGroup) {
 		if(cmd.getClass().getName().equals(cmd.toString()) && cmd.getParameters().length == 0) {
 			Label result = new Label(parent, SWT.BORDER);
-			result.setText(cmd.toString());
+			result.setText(cmd.getGroupLabel());
 			result.setLayoutData(hfill());
 			return result;
 		}
@@ -312,7 +373,7 @@ public class ParameterWindow {
 			Composite comp;
 			if(asGroup) {
 				Group group = new Group(parent, SWT.NULL);
-				group.setText(cmd.toString());
+				group.setText(cmd.getGroupLabel());
 				comp = group;
 			} else {
 				comp = new Composite(parent, SWT.NULL);
@@ -333,13 +394,16 @@ public class ParameterWindow {
 		}
 
 		Menu menu   = new Menu(parent);
-		addMenuItem(menu, SWT.CHECK, "Enabled", cmd.isEnabled(), new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				cmd.setEnable(((MenuItem)e.getSource()).getSelection());
-				setEnablded(result, cmd.isEnabled());
-			}
-		});
+		if(cmd instanceof AbstractRenderCommand<?>) {
+			AbstractRenderCommand<?> rcmd = (AbstractRenderCommand<?>)cmd;
+			addMenuItem(menu, SWT.CHECK, "Enabled", rcmd.isEnabled(), new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					rcmd.setEnable(((MenuItem)e.getSource()).getSelection());
+					setEnablded(result, rcmd.isEnabled());
+				}
+			});
+		}
 
 		if(params.length > 0) {
 			addMenuItem(menu, SWT.NONE, "Reset", false, new SelectionAdapter() {
@@ -388,9 +452,7 @@ public class ParameterWindow {
 				f.setText("Parameters");
 
 				if(hasFlag(Flag.EXIT_ON_CLOSE, flags))
-					f.addDisposeListener((e)->{
-						System.exit(0);
-					});
+					f.addDisposeListener(e->Platform.get().exit());
 				f.setLayout(new GridLayout(2, false));
 				if(addOn != null)
 					addOn.add(f);

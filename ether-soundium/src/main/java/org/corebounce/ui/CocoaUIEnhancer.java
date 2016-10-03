@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.ui;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

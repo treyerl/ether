@@ -62,6 +62,18 @@ public class IOUtilities {
 	 * @param source
 	 *            The source stream.
 	 * @param dest
+	 *            The destination file.
+	 */
+	public static long copy(InputStream source, File dest) throws IOException {
+		return copy(source, new FileOutputStream(dest));
+	}
+
+	/**
+	 * Copy source into dest.
+	 * 
+	 * @param source
+	 *            The source stream.
+	 * @param dest
 	 *            The destination stream.
 	 */
 	public static long copy(InputStream in, OutputStream out) throws IOException {

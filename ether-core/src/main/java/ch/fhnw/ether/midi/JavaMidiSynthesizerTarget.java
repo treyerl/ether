@@ -42,14 +42,16 @@ import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.RenderCommandException;
 
 public class JavaMidiSynthesizerTarget extends AbstractMediaTarget<MidiFrame,IMidiRenderTarget> implements IMidiRenderTarget {
-	private final Synthesizer synth;
-	private final MidiChannel ch;
+	protected final Synthesizer synth;
+
+	protected JavaMidiSynthesizerTarget(Synthesizer synth, int threadPriority, boolean realTime) throws MidiUnavailableException {
+		super(threadPriority, realTime);
+		this.synth = synth;
+		synth.open();
+	}
 
 	public JavaMidiSynthesizerTarget() throws MidiUnavailableException {
-		super(Thread.MAX_PRIORITY, true);
-		synth = MidiSystem.getSynthesizer();
-		ch    = synth.getChannels()[0];
-		synth.open();
+		this(MidiSystem.getSynthesizer(), Thread.MAX_PRIORITY, true);
 	}
 
 	@Override
@@ -58,7 +60,8 @@ public class JavaMidiSynthesizerTarget extends AbstractMediaTarget<MidiFrame,IMi
 
 		for(MidiMessage msg : getFrame().messages) {
 			if(msg instanceof ShortMessage) {
-				ShortMessage sm = (ShortMessage)msg;
+				final ShortMessage sm = (ShortMessage)msg;
+				final MidiChannel  ch = synth.getChannels()[sm.getChannel()];
 				switch(sm.getCommand()) {
 				case ShortMessage.NOTE_ON:
 					ch.noteOn(sm.getData1(), sm.getData2());

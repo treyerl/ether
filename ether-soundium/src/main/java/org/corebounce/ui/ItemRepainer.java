@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.ui;
 
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.TableItem;

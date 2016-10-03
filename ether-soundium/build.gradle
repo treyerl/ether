@@ -5,7 +5,7 @@ plugins {
 description = """ether-soundium"""
 
 apply plugin: 'application'
-mainClassName = "org.corebounce.resman.Resman"
+mainClassName = "org.corebounce.soundium.Soundium"
 applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 
 dependencies {

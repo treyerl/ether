@@ -45,13 +45,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.NetworkUtilities;
 
 public final class OSCServer extends OSCDispatcher implements OSCSender {
 	private static final Log log = Log.create();
-	
+
 	private static final int RECEIVE_BUFFER_SIZE = 1024 * 1024;
 	private static final int SEND_BUFFER_SIZE = 1024 * 1024;
 
@@ -64,7 +65,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 
 	private final Thread receiveThread;
 	private final Thread sendThread;
-	
+
 	public OSCServer(int port) throws IOException {
 		this(port, null);
 	}
@@ -90,20 +91,29 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		receiveThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				log.info(Thread.currentThread().getName() + " started (" + socket.getLocalSocketAddress() + ")");
-				for (;;) {
-					try {
-						byte[] buffer = new byte[socket.getReceiveBufferSize()];
-						DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-						socket.receive(packet);
+				try {
+					StringBuilder ifaddrs = new StringBuilder();
+					for(InetAddress ifaddr : NetworkUtilities.getLocalAddresses(true))
+						ifaddrs.append(ifaddr.getHostName()).append(',');
+					ifaddrs.setLength(ifaddrs.length()-1);
+					log.info(Thread.currentThread().getName() + " started (" + ifaddrs + ":" + socket.getLocalPort() + ")");
+					for (;;) {
 						try {
-							ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
-							process(packet.getSocketAddress(), buf, OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
-						} catch (Exception e) {
-							OSCCommon.handleException(e, this);							
+							byte[] buffer = new byte[socket.getReceiveBufferSize()];
+							DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+							socket.receive(packet);
+							try {
+								ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
+								process(packet.getSocketAddress(), buf, OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
+							} catch (Exception e) {
+								OSCCommon.handleException(e, this);							
+							}
+						} catch (Throwable t) {
+							log.warning(t);
 						}
-					} catch (Exception ignored) {
 					}
+				} catch (Throwable e) {
+					log.warning(e);
 				}
 			}
 		}, "osc receiver");
@@ -144,7 +154,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		receiveThread.start();
 		sendThread.start();
 	}
-	
+
 	public void addPeer(String id, SocketAddress addr) {
 		remotePeers.put(id, addr);
 		log.info("OSC peer added:" + addr);
@@ -153,7 +163,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	public void send(String address, Collection<?> args) {
 		send(address, args.toArray(new Object[args.size()]));
 	}
-	
+
 	public void send(String address, Object... args) {
 		ByteBuffer packet = OSCMessage.getBytes(address, args);
 		for (SocketAddress destination : remotePeers.values())
@@ -166,28 +176,34 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 		p.setSocketAddress(destination);
 		sendQueue.add(p);
 	}
-	
+
 	public static void main(String[] args) throws IOException, InterruptedException {
+		Platform.get().init();
+
 		OSCServer osc = new OSCServer(55555);
-		
-		osc.addPeer("self", osc.address);
-		
+
+		//		osc.addPeer("self", osc.address);
+
 		osc.addHandler("/hello", new IOSCHandler() {
 			@Override
 			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... args) {
 				System.out.println(
 						TextUtilities.toString("", "/", "", address, TextUtilities.NONE) + " " +
-						TextUtilities.toString("(", ",", ")", args)
+								TextUtilities.toString("(", ",", ")", args)
 						);
 				return null;
 			}
 		});
-		
+
 		osc.start();
-		
+
+		Platform.get().run();
+
+		/*
+
 		for(int i = 0; i < 10; i++) {
 			Thread.sleep(1000);
 			osc.send("/hello", "Hello OSC", i);
-		}
+		}*/
 	}
 }

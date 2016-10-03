@@ -1,8 +1,12 @@
-package org.corebounce.resman;
+package org.corebounce.io;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+
+import org.corebounce.audio.Audio;
+import org.corebounce.soundium.Subsystem;
+import org.corebounce.video.Monitor;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.fx.BandsButterworth;
@@ -79,7 +83,7 @@ public class OSC extends Subsystem {
 		}, "OSC Ping");
 		t.setPriority(Thread.MIN_PRIORITY);
 		t.setDaemon(true);
-		t.start();
+		t.start();		
 	}
 
 	public void send(String oscAddr, Collection<?> values) {

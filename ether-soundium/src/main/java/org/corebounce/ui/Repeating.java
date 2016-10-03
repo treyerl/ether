@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.ui;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,7 +17,7 @@ public class Repeating extends TimerTask implements IDisposable {
 	public Repeating(int initialDelay, int delay, Runnable r) {
 		timer.schedule(this, initialDelay, delay);
 		this.r     = new AtomicReference<>(r);
-		Platform.get().addShutdownTask((IDisposable)this);
+		Platform.get().addShutdownDispose((IDisposable)this);
 	}
 	
 	@Override

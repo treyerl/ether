@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.soundium;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
