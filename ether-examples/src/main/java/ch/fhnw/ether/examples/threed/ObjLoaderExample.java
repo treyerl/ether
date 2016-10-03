@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.formats.IModelReader.Options;
 import ch.fhnw.ether.formats.obj.ObjReader;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
@@ -64,14 +65,15 @@ public class ObjLoaderExample {
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
 			
-			scene.add3DObject(new DirectionalLight(new Vec3(0, 0, 1), RGB.BLACK, RGB.WHITE));
+			scene.add3DObject(new DirectionalLight(new Vec3(1, 1, 1), RGB.BLACK, RGB.WHITE));
 	
 			try {
 				final URL obj = getClass().getResource("/models/fhnw.obj");
+				//final URL obj = new URL("file:///Users/radar/Desktop/brz_lod300.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/aventador/aventador_red.obj");
 				//final URL obj = new URL("file:///Users/radar/Desktop/demopolis/berlin_mitte_o2_o3/o2_small.obj");
 				final List<IMesh> meshes = new ArrayList<>();
-				new ObjReader(obj).getMeshes().forEach(mesh -> meshes.add(mesh));
+				new ObjReader(obj, Options.CONVERT_TO_Z_UP).getMeshes().forEach(mesh -> meshes.add(mesh));
 				System.out.println("number of meshes before merging: " + meshes.size());
 				final List<IMesh> merged = MeshUtilities.mergeMeshes(meshes);
 				System.out.println("number of meshes after merging: " + merged.size());

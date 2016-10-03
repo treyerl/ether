@@ -109,7 +109,8 @@ public abstract class AbstractRenderer implements IRenderer {
 				render(supplier.get());
 			} else {
 				if (renderQueue.size() < MAX_RENDER_QUEUE_SIZE) {
-					renderQueue.put(() -> render(supplier.get()));
+					IRenderState state = supplier.get();
+					renderQueue.put(() -> render(state));
 				} else {
 					if (DBG)
 						log.info("renderer: render queue full");
