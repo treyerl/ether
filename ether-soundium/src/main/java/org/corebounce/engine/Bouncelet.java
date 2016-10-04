@@ -1,14 +1,13 @@
-package org.corebounce.decklight;
+package org.corebounce.engine;
 
 import java.text.NumberFormat;
 import java.util.Arrays;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.ShortMessage;
 
 import org.corebounce.audio.IBeatListener;
-import org.corebounce.engine.Engine;
-import org.corebounce.engine.IBounceletUpdate;
 import org.corebounce.io.MIDI;
 import org.corebounce.io.OSC;
 import org.eclipse.swt.graphics.Image;
@@ -19,7 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.ether.midi.AbletonPush;
-import ch.fhnw.ether.midi.AbletonPush.BiColor;
+import ch.fhnw.ether.midi.AbletonPush.BiLed;
 import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.IDisposable;
@@ -52,7 +51,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 	public  final  int             id; 
 	private final  String          type; 
 	private String                 label; 
-	private RGB                    color;
+	private RGB                    color = RGB.BLACK;
 	private long                   lastUpdate;
 	private Object[]               names;
 	private Object[]               mins;
@@ -65,16 +64,25 @@ public class Bouncelet implements IDisposable, IBeatListener {
 	private       Image            ctrlImage;
 	private       float            lastActive;
 
-	public Bouncelet(OSC osc, MIDI midi, int id, String type, String label, float active, RGB color, IBounceletUpdate updateOnUi) {
+	public Bouncelet(Engine engine, OSC osc, MIDI midi, int id, String type, String label, float active, RGB color, IBounceletUpdate updateOnUi) {
 		this.id         = id;
 		this.type       = type;
 		this.label      = label;
 		setActive(active);
-		this.color      = color;
+		setColor(color);
 		this.lastUpdate = System.currentTimeMillis();
 		this.update     = updateOnUi;
 		this.osc        = osc;
 		this.push       = midi.getPush();
+		if(push != null) {
+			try {
+				push.set(pControl(), msg->{
+					if(((ShortMessage)msg).getData2() > 10) {
+						Display.getDefault().asyncExec(()->engine.select(this));
+					}
+				});
+			} catch(Throwable t) {log.warning(t);}
+		}
 	}
 
 	public boolean update(String label, float active, RGB color) {
@@ -82,6 +90,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 				!(this.label.equals(label)) ||
 				!(this.color.equals(color)) ||
 				Math.abs(lastActive - active) > 0.05;
+
 				this.label      = label;
 				setActive(active);
 				setColor(color);
@@ -96,6 +105,9 @@ public class Bouncelet implements IDisposable, IBeatListener {
 			ctrlImage = null;
 		}
 		this.color = color;
+		if(push != null) {
+			try {push.setColor(pControl(), color);} catch(Throwable t) {log.warning(t);}
+		}
 	}
 
 	public String getType() {
@@ -287,7 +299,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		}
 	}
 
-	private BiColor[] biColors = new BiColor[8];
+	private BiLed[] biColors = new BiLed[8];
 	int     beatNo;
 	@Override
 	public void beat(int beatNo) {
@@ -303,12 +315,12 @@ public class Bouncelet implements IDisposable, IBeatListener {
 					int pattern = (int)params.getVal(p);
 					for(int i = 0; i < biColors.length; i++) {
 						if((pattern & (1 << (biColors.length - 1 - i))) != 0) {
-							biColors[i] = beatNo % biColors.length == i ? BiColor.Green  : BiColor.GreenDim;
+							biColors[i] = beatNo % biColors.length == i ? BiLed.GREEN  : BiLed.GREEN_HALF;
 						} else
-							biColors[i] = beatNo % biColors.length == i ? BiColor.Orange : BiColor.OrangeDim;
+							biColors[i] = beatNo % biColors.length == i ? BiLed.AMBER : BiLed.AMBER_HALF;
 					}
 				} else 
-					Arrays.fill(biColors, BiColor.Off);
+					Arrays.fill(biColors, BiLed.OFF);
 				push.setRow0(biColors[0], biColors[1], biColors[2], biColors[3], biColors[4], biColors[5], biColors[6], biColors[7]);
 			} catch(Throwable t) {
 				log.warning(t);
@@ -360,9 +372,26 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		return "["+type+"]" + label + " " + getActive();
 	}
 
+	private PControl pControl() {
+		switch(id) {
+		case 0:  return PControl.ROW1_0;
+		case 1:  return PControl.ROW1_1;
+		case 2:  return PControl.ROW1_2;
+		case 3:  return PControl.ROW1_3;
+		case 4:  return PControl.ROW1_4;
+		case 5:  return PControl.ROW1_5;
+		case 6:  return PControl.ROW1_6;
+		case 7:  return PControl.ROW1_7;
+		default: return PControl.valueOf(id % 8, 8 - ((id - 8) / 8));
+		}
+	}
+
 	@Override
 	public void dispose() {
 		setColor(RGB.BLACK);
+		if(push != null) {
+			try {push.set(pControl(), null); } catch(Throwable t) {log.warning(t);}
+		}
 		lastUpdate = 0;
 		params     = NO_PARAMS;
 		update.clear(this);
@@ -385,7 +414,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		push.setTouchStrip(0);
 		push.setBeat(0, false);
 		push.setBeat(0, true);
-		push.setRow0(BiColor.Off, BiColor.Off, BiColor.Off, BiColor.Off, BiColor.Off, BiColor.Off, BiColor.Off, BiColor.Off);
+		push.setRow0(BiLed.OFF, BiLed.OFF, BiLed.OFF, BiLed.OFF, BiLed.OFF, BiLed.OFF, BiLed.OFF, BiLed.OFF);
 		for(PControl c : CTRLS)
 			push.set(c, null);
 	}

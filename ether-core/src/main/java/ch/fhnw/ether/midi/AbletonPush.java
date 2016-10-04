@@ -33,7 +33,6 @@ public class AbletonPush implements IMidiHandler {
 
 	public AbletonPush(int deviceIdx) throws MidiUnavailableException, IOException, InvalidMidiDataException {
 		MidiIO.init();
-
 		int liveCount = 0;
 		int userCount = 0;
 		for(MidiDevice.Info info : MidiSystem.getMidiDeviceInfo()) {
@@ -65,11 +64,11 @@ public class AbletonPush implements IMidiHandler {
 
 		for(int l = 0; l < 4; l++)
 			clearLine(l);
-		for(int y = 0; y < 8; y++)
-			for(int x = 0; x < 8; x++)
-				setControl(x, y, RGB.BLACK);
-	}
 
+		for(PControl c : PControl.values())
+			if(!(c.name().startsWith("P_")))
+				setColor(c, RGB.BLACK);
+	}
 
 	void init() throws IOException, InvalidMidiDataException, MidiUnavailableException {
 		try(BufferedReader in = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("ableton_push_init.txt")))) {
@@ -155,22 +154,31 @@ public class AbletonPush implements IMidiHandler {
 		send(new SysexMessage(msg, msg.length));
 	}
 
-	public void setControl(PControl pad, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setColor(PControl pad, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
 		if(pad.isKey())
-			setControl(pad.x, pad.y, color);
-		else
-			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), Blink.valueOf(color).ordinal()));
+			setColor(pad.x, pad.y, color);
+		else if(pad.isClipRow())
+			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), rgb2clipColor(color)));
+		else if(pad != PControl.PITCH)
+			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), Basic.valueOf(color).ordinal()));
 	}
 
-	public void setControl(PControl pad, Blink blink) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setColor(PControl pad, Basic blink) throws InvalidMidiDataException, MidiUnavailableException {
 		if(pad.isKey())
-			setControl(pad.x, pad.y, blink.color);
-		else
+			setColor(pad.x, pad.y, blink.color);
+		else if(pad != PControl.PITCH)
 			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), blink.ordinal()));
 	}
 
-	public void setControl(int x, int y, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
-		send(new ShortMessage(ShortMessage.NOTE_ON, y*8+36+x, rgb2idx(color)));
+	public void setColor(PControl pad, BiLed color) throws InvalidMidiDataException, MidiUnavailableException {
+		if(pad.isKey())
+			setColor(pad.x, pad.y, color.color);
+		else if(pad != PControl.PITCH)
+			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), color.ordinal()));
+	}
+
+	public void setColor(int x, int y, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
+		send(new ShortMessage(ShortMessage.NOTE_ON, y*8+36+x, rgb2color(color)));
 	}
 
 	private void send(MidiMessage msg) throws MidiUnavailableException {
@@ -186,6 +194,10 @@ public class AbletonPush implements IMidiHandler {
 				int cc = smsg.getData1();
 				if(cc2run[cc] != null) cc2run[cc].handle(msg);
 				break;
+			case ShortMessage.NOTE_ON:
+				int key = smsg.getData1();
+				if(key2run[key] != null) key2run[key].handle(msg);
+				break;
 			case ShortMessage.PITCH_BEND:
 				if(pitch != null) pitch.handle(smsg);
 				break;
@@ -198,7 +210,25 @@ public class AbletonPush implements IMidiHandler {
 		return new Vec3(((rgb24 >> 16) &0xFF) / 255f, ((rgb24 >> 8) &0xFF) / 255f, ((rgb24 >> 0) &0xFF) / 255f);
 	}
 
-	private static final Vec3[] PALETTE = {
+	private static final Vec3[] CLIP_COLOR_TABLE = {
+			RGB24(0),
+			RGB24(15549221), RGB24(12411136), RGB24(11569920), RGB24(8754719), 
+			RGB24(5480241),  RGB24(695438),   RGB24(31421),    RGB24(197631), 
+			RGB24(3101346),  RGB24(6441901),  RGB24(8092539),  RGB24(3947580), 
+			RGB24(16712965), RGB24(12565097), RGB24(10927616), RGB24(8046132), 
+			RGB24(4047616),  RGB24(49071),    RGB24(1090798),  RGB24(5538020), 
+			RGB24(8940772),  RGB24(10701741), RGB24(12008809), RGB24(9852725), 
+			RGB24(16149507), RGB24(12581632), RGB24(8912743),  RGB24(1769263), 
+			RGB24(2490280),  RGB24(6094824),  RGB24(1698303),  RGB24(9160191), 
+			RGB24(9611263),  RGB24(12094975), RGB24(14183652), RGB24(16726484), 
+			RGB24(16753961), RGB24(16773172), RGB24(14939139), RGB24(14402304), 
+			RGB24(12492131), RGB24(9024637),  RGB24(8962746),  RGB24(10204100), 
+			RGB24(8758722),  RGB24(13011836), RGB24(15810688), RGB24(16749734), 
+			RGB24(16753524), RGB24(16772767), RGB24(13821080), RGB24(12243060), 
+			RGB24(11119017), RGB24(13958625), RGB24(13496824), RGB24(12173795), 
+			RGB24(13482980), RGB24(13684944), RGB24(14673637), RGB24(16777215)};
+
+	private static final Vec3[] RGB_COLOR_TABLE = {
 			RGB24(0x000000), RGB24(0x1E1E1E), RGB24(0x7F7F7F), RGB24(0xFFFFFF), RGB24(0xFF4C4C), RGB24(0xFF0000), RGB24(0x590000), RGB24(0x190000),
 			RGB24(0xFFBD6C), RGB24(0xFF5400), RGB24(0x591D00), RGB24(0x271B00), RGB24(0xFFFF4C), RGB24(0xFFFF00), RGB24(0x595900), RGB24(0x191900),
 			RGB24(0x88FF4C), RGB24(0x54FF00), RGB24(0x1D5900), RGB24(0x142B00), RGB24(0x4CFF4C), RGB24(0x00FF00), RGB24(0x005900), RGB24(0x001900),
@@ -217,74 +247,99 @@ public class AbletonPush implements IMidiHandler {
 			RGB24(0xA00000), RGB24(0x350000), RGB24(0x1AD000), RGB24(0x074200), RGB24(0xB9B000), RGB24(0x3F3100), RGB24(0xB35F00), RGB24(0x4B1502),
 	};
 
-	private static final Map<RGB, Integer> RGB2IDX = new HashMap<>();
+	private static final Map<RGB, Integer> RGB2COLOR      = new HashMap<>();
+	private static final Map<RGB, Integer> RGB2CLIP_COLOR = new HashMap<>();
 
-	private static int rgb2idx(RGB rgb) {
-		Integer result = RGB2IDX.get(rgb);
-		int   minIdx  = 0;
-		float minDist = Float.MAX_VALUE; 
+	private static int rgb2color(RGB rgb) {
+		Integer result = RGB2COLOR.get(rgb);
 		Vec3  col     = rgb.toVec3();
+		int   minIdx  = 0;
+		float minDist = col.distance(RGB_COLOR_TABLE[minIdx]); 
 		if(result == null) {
-			for(int i = PALETTE.length; --i >= 0;) {
-				float d = col.distance(PALETTE[i]); 
+			for(int i = RGB_COLOR_TABLE.length; --i >= 0;) {
+				float d = col.distance(RGB_COLOR_TABLE[i]); 
 				if(d < minDist) {
 					minDist = d;
 					minIdx  = i;
 				}
 			}
 			result = Integer.valueOf(minIdx);
-			RGB2IDX.put(rgb, result);
+			RGB2COLOR.put(rgb, result);
 		}
 		return result.intValue();
 	}
 
-	public enum Blink {
-		Off(RGB.BLACK),
-		Dim(RGB.GRAY),
-		Dim_Blink(RGB.GRAY),
-		Dim_Blink_Fast(RGB.GRAY),
-		Lit(RGB.WHITE),
-		Lit_Blink(RGB.WHITE),
-		Lit_Blink_Fast(RGB.WHITE);
+	private static int rgb2clipColor(RGB rgb) {
+		Integer result = RGB2CLIP_COLOR.get(rgb);
+		int   minIdx  = 0;
+		Vec3  col     = rgb.toVec3();
+		float minDist = col.distance(CLIP_COLOR_TABLE[minIdx]); 
+		if(result == null) {
+			for(int i = CLIP_COLOR_TABLE.length; --i >= 0;) {
+				float d = col.distance(CLIP_COLOR_TABLE[i]); 
+				if(d < minDist) {
+					minDist = d;
+					minIdx  = i;
+				}
+			}
+			result = Integer.valueOf(minIdx == 0 ? 0 : minIdx + 59);
+			RGB2CLIP_COLOR.put(rgb, result);
+		}
+		return result.intValue();
+	}
+
+	public enum Basic {
+		OFF(RGB.BLACK),
+		HALF(RGB.GRAY),
+		HALF_BLINK_SLOW(RGB.GRAY),
+		HALF_BLINK_FAST(RGB.GRAY),
+		FULL(RGB.WHITE),
+		FULL_BLINK(RGB.WHITE),
+		FULL_BLINK_FAST(RGB.WHITE);
 
 		final RGB color;
 
-		Blink(RGB color) {this.color = color;}
+		Basic(RGB color) {this.color = color;}
 
-		static Blink valueOf(RGB rgb) {
+		static Basic valueOf(RGB rgb) {
 			float value = rgb.r + rgb.g + rgb.b;
-			if(value < 1)      return Off;
-			else if(value < 2) return Dim;
-			else               return Lit;
+			if(value < 1)      return OFF;
+			else if(value < 2) return HALF;
+			else               return FULL;
 		}
 	}
 
-	public enum BiColor {
-		Off,
-		RedDim,
-		RedDimBlink,
-		RedDimBlinkFast,
-		Red,
-		RedBlink,
-		RedBlinkFast,
-		OrangeDim,
-		OrangeDimBlink,
-		OrangeDimBlinkFast,
-		Orange,
-		OrangeBlink,
-		OrangeBlinkFast,
-		YellowDim,
-		YellowDimBlink,
-		YellowDimBlinkFast,
-		Yellow,
-		YellowBlink,
-		YellowBlinkFast,
-		GreenDim,
-		GreenDimBlink,
-		GreenDimBlinkFast,
-		Green,
-		GreenBlink,
-		GreenBlinkFast,
+	public enum BiLed {
+		OFF(RGB.BLACK),//0
+		RED_HALF(RGB.RED.scaleRGB(0.5f)),//1
+		RED_HALF_BLINK_SLOW(RGB.RED.scaleRGB(0.5f)),//2
+		RED_HALF_BLINK_FAST(RGB.RED.scaleRGB(0.5f)),//3
+		RED(RGB.RED),//4
+		RED_BLINK_SLOW(RGB.RED),//5
+		RED_BLINK_FAST(RGB.RED),//6
+		AMBER_HALF(RGB.ORANGE.scaleRGB(0.5f)),//7
+		AMBER_HALF_BLINK_SLOW(RGB.ORANGE.scaleRGB(0.5f)),//8
+		AMBER_HALF_BLINK_FAST(RGB.ORANGE.scaleRGB(0.5f)),//9
+		AMBER(RGB.ORANGE),//10
+		AMBER_BLINK_SLOW(RGB.ORANGE),//11
+		AMBER_BLINK_FAST(RGB.ORANGE),//12
+		YELLOW_HALF(RGB.YELLOW.scaleRGB(0.5f)),//13
+		YELLOW_HALF_BLINK_SLOW(RGB.YELLOW.scaleRGB(0.5f)),//14
+		YELLOW_HALF_BLINK_FAST(RGB.YELLOW.scaleRGB(0.5f)),//15
+		YELLOW(RGB.YELLOW),//16
+		YELLOW_BLINK_SLOW(RGB.YELLOW),//17
+		YELLOW_BLINK_FAST(RGB.YELLOW),//18
+		GREEN_HALF(RGB.GREEN.scaleRGB(0.5f)),//19
+		GREEN_HALF_BLINK_SLOW(RGB.GREEN.scaleRGB(0.5f)),//20
+		GREEN_HALF_BLINK_FAST(RGB.GREEN.scaleRGB(0.5f)),//21
+		GREEN(RGB.GREEN),//22
+		GREEN_BLINK_SLOW(RGB.GREEN),//23
+		GREEN_BLINK_FAST(RGB.GREEN);//24
+
+		final RGB color;
+
+		BiLed(RGB color) {this.color = color;}
+
 	}
 
 	public enum PControlType {
@@ -293,6 +348,7 @@ public class AbletonPush implements IMidiHandler {
 		KNOB_RELATIVE,
 		KNOB_RELATIVE_DISCRETE,
 		PITCH_WHEEL,
+		CLIP_ROW,
 	}
 
 	public enum PControl {
@@ -325,8 +381,8 @@ public class AbletonPush implements IMidiHandler {
 		ROW0_5,
 		ROW0_6,
 		ROW0_7,
-		P_1C,
-		P_1D,
+		MASTER,
+		STEP,
 		P_1E,
 		P_1F,
 
@@ -342,27 +398,27 @@ public class AbletonPush implements IMidiHandler {
 		BEAT_16t,
 		BEAT_32,
 		BEAT_32t,
-		P_2C,
-		P_2D,
-		P_2E,
-		P_2F,
+		LEFT,
+		RIGHT,
+		UP,
+		DOWN,
 
-		P_30,
-		P_31,
-		P_32,
-		P_33,
-		P_34,
-		P_35,
-		P_36,
-		P_37,
-		P_38,
-		P_39,
-		P_3A,
-		P_3B,
-		P_3C,
-		P_3D,
-		P_3E,
-		P_3F,
+		SELECT,
+		SHIFT,
+		NOTE,
+		SESSION,
+		ADD_EFFECT,
+		ADD_TRACK,
+		OCTAVE_DOWN,
+		OCTAVE_UP,
+		REPEAT,
+		ACCENT,
+		SCALES,
+		USER,
+		MUTE,
+		SOLO,
+		ENTER,
+		BACK,
 
 		P_40,
 		P_41,
@@ -379,26 +435,82 @@ public class AbletonPush implements IMidiHandler {
 		KNOB_5(PControlType.KNOB_RELATIVE),
 		KNOB_6(PControlType.KNOB_RELATIVE),
 		KNOB_7(PControlType.KNOB_RELATIVE),
-		MASTER(PControlType.KNOB_RELATIVE),
-		
+		KNOB_MASTER(PControlType.KNOB_RELATIVE),
+
 		P_50,
 		P_51,
 		P_52,
 		P_53,
 		P_54,
 		PLAY,
-		P_56,
-		P_57,
-		P_58,
-		P_59,
-		P_5A,
+		RECORD,
+		NEW,
+		DUPLICATE,
+		AUTOMATION,
+		FIXED_LENGTH,
 		P_5B,
 		P_5C,
 		P_5D,
 		P_5E,
 		P_5F,
 
-		PITCH(PControlType.PITCH_WHEEL)
+		P_60,
+		P_61,
+		P_62,
+		P_63,
+		P_64,
+		P_65,
+		ROW1_0(PControlType.CLIP_ROW),
+		ROW1_1(PControlType.CLIP_ROW),
+		ROW1_2(PControlType.CLIP_ROW),
+		ROW1_3(PControlType.CLIP_ROW),
+		ROW1_4(PControlType.CLIP_ROW),
+		ROW1_5(PControlType.CLIP_ROW),
+		ROW1_6(PControlType.CLIP_ROW),
+		ROW1_7(PControlType.CLIP_ROW),
+		DEVICE,
+		BROWSE,
+
+		TRACK,
+		CLIP,
+		VOLUME,
+		PAN_SEND,
+		QUANTIZE,
+		DOUBLE,
+		DELETE,
+		UNDO,
+		P_78,
+		P_79,
+		P_7A,
+		P_7B,
+		P_7C,
+		P_7D,
+		P_7E,
+		P_7F,
+
+		PITCH(PControlType.PITCH_WHEEL),
+
+		PAD_0_0(0,0),PAD_1_0(1,0),PAD_2_0(2,0),PAD_3_0(3,0),PAD_4_0(4,0),PAD_5_0(5,0),PAD_6_0(6,0),PAD_7_0(7,0),
+		PAD_0_1(0,1),PAD_1_1(1,1),PAD_2_1(2,1),PAD_3_1(3,1),PAD_4_1(4,1),PAD_5_1(5,1),PAD_6_1(6,1),PAD_7_1(7,1),
+		PAD_0_2(0,2),PAD_1_2(1,2),PAD_2_2(2,2),PAD_3_2(3,2),PAD_4_2(4,2),PAD_5_2(5,2),PAD_6_2(6,2),PAD_7_2(7,2),
+		PAD_0_3(0,3),PAD_1_3(1,3),PAD_2_3(2,3),PAD_3_3(3,3),PAD_4_3(4,3),PAD_5_3(5,3),PAD_6_3(6,3),PAD_7_3(7,3),
+		PAD_0_4(0,4),PAD_1_4(1,4),PAD_2_4(2,4),PAD_3_4(3,4),PAD_4_4(4,4),PAD_5_4(5,4),PAD_6_4(6,4),PAD_7_4(7,4),
+		PAD_0_5(0,5),PAD_1_5(1,5),PAD_2_5(2,5),PAD_3_5(3,5),PAD_4_5(4,5),PAD_5_5(5,5),PAD_6_5(6,5),PAD_7_5(7,5),
+		PAD_0_6(0,6),PAD_1_6(1,6),PAD_2_6(2,6),PAD_3_6(3,6),PAD_4_6(4,6),PAD_5_6(5,6),PAD_6_6(6,6),PAD_7_6(7,6),
+		PAD_0_7(0,7),PAD_1_7(1,7),PAD_2_7(2,7),PAD_3_7(3,7),PAD_4_7(4,7),PAD_5_7(5,7),PAD_6_7(6,7),PAD_7_7(7,7),
+
+		TOUCH_KNOB_0(0x00),
+		TOUCH_KNOB_1(0x01),
+		TOUCH_KNOB_2(0x02),
+		TOUCH_KNOB_3(0x03),
+		TOUCH_KNOB_4(0x04),
+		TOUCH_KNOB_5(0x05),
+		TOUCH_KNOB_6(0x06),
+		TOUCH_KNOB_7(0x07),
+		TOUCH_MASTER(0x08),
+		TOUCH_MONITOR(0x09),
+		TOUCH_TEMPO(0x0A),
+
 		;
 
 		final PControlType type;
@@ -410,12 +522,26 @@ public class AbletonPush implements IMidiHandler {
 			this.x        = -1;
 			this.y        = -1;
 		}
+		PControl(int x, int y) {
+			this.type     = PControlType.KEY;
+			this.x        = x;
+			this.y        = y;
+		}
+		PControl(int key) {
+			this.type     = PControlType.KEY;
+			this.x        = key-36;
+			this.y        = 0;
+		}
 		public boolean isKnob()     {return type == PControlType.KNOB_RELATIVE || type == PControlType.KNOB_RELATIVE_DISCRETE;}
 		public boolean isDiscrete() {return type == PControlType.BUTTON || type == PControlType.KNOB_RELATIVE_DISCRETE;}
 		public boolean isKey()      {return type == PControlType.KEY;}
+		public boolean isClipRow()  {return type == PControlType.CLIP_ROW;}
+		public int     key()        {return y*8+36+x;}
+		public static PControl valueOf(int x, int y) {return values()[PControl.PAD_0_0.ordinal()+(y*8+x)];}
 	}
 
 	private IMidiHandler[] cc2run   = new IMidiHandler[128];
+	private IMidiHandler[] key2run   = new IMidiHandler[128];
 	private IMidiHandler   pitch;
 
 	public void set(PControl pad, Parametrizable cmd, Parameter p) throws MidiUnavailableException, InvalidMidiDataException {
@@ -435,7 +561,7 @@ public class AbletonPush implements IMidiHandler {
 					case BEAT_8t:  cmd.setVal(p, -2); break;
 					case BEAT_16t: cmd.setVal(p, -4); break;
 					case BEAT_32t: cmd.setVal(p, -8); break;
-					
+
 					case ROW0_0:   pattern(cmd, p, smsg.getData2(), 0x80); break;
 					case ROW0_1:   pattern(cmd, p, smsg.getData2(), 0x40); break;
 					case ROW0_2:   pattern(cmd, p, smsg.getData2(), 0x20); break;
@@ -444,7 +570,7 @@ public class AbletonPush implements IMidiHandler {
 					case ROW0_5:   pattern(cmd, p, smsg.getData2(), 0x04); break;
 					case ROW0_6:   pattern(cmd, p, smsg.getData2(), 0x02); break;
 					case ROW0_7:   pattern(cmd, p, smsg.getData2(), 0x01); break;
-					
+
 					default:
 						int cc  = smsg.getData1();
 						int val = smsg.getData2();
@@ -462,21 +588,22 @@ public class AbletonPush implements IMidiHandler {
 				}
 			}
 		});
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), Blink.Lit.ordinal()));
+		setColor(pad, Basic.FULL);
 	}
 
 	private void pattern(Parametrizable cmd, Parameter p, int val, int mask) {
-		System.out.println((int) cmd.getVal(p) + "/" + mask + "/" + (((int) cmd.getVal(p)) ^ mask));
 		if(val > 64) cmd.setVal(p, ((int) cmd.getVal(p)) ^ mask);
 	}
-
 
 	public void set(PControl pad, IMidiHandler r) throws MidiUnavailableException, InvalidMidiDataException {
 		if(pad.type == PControlType.PITCH_WHEEL) {
 			pitch = r;
+		} else if(pad.isKey()) {
+			key2run[pad.key()] = r;
+			setColor(pad, r == null ? Basic.OFF : Basic.FULL);
 		} else {
 			cc2run[pad.ordinal()] = r;
-			setControl(pad, r == null ? Blink.Off : Blink.Lit);
+			setColor(pad, r == null ? Basic.OFF : Basic.FULL);
 		}
 	}
 
@@ -498,24 +625,36 @@ public class AbletonPush implements IMidiHandler {
 		PControl[] beats = t ? BEATS_T : BEATS;
 		if(beatValue < 1/64f) {
 			for(int i = 0; i < 4; i++) 
-				setControl(beats[i], Blink.Off);
+				setColor(beats[i], Basic.OFF);
 		} else {
 			float beat = 1f/4f;
 			for(int i = 0; i < 4; i++, beat /= 2f) {
-				if(Math.abs(beat-beatValue) < beat/4f) setControl(beats[i], Blink.Lit);
-				else								   setControl(beats[i], Blink.Dim);
+				if(Math.abs(beat-beatValue) < beat/4f) setColor(beats[i], BiLed.GREEN);
+				else								   setColor(beats[i], BiLed.AMBER_HALF);
 			}
 		}
 	}
-	
-	public void setRow0(BiColor c0, BiColor c1, BiColor c2, BiColor c3, BiColor c4, BiColor c5, BiColor c6, BiColor c7) throws MidiUnavailableException, InvalidMidiDataException {
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_0.ordinal(), c0.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_1.ordinal(), c1.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_2.ordinal(), c2.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_3.ordinal(), c3.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_4.ordinal(), c4.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_5.ordinal(), c5.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_6.ordinal(), c6.ordinal()));
-		send(new ShortMessage(ShortMessage.CONTROL_CHANGE, PControl.ROW0_7.ordinal(), c7.ordinal()));
+
+
+	public void setRow0(BiLed c0, BiLed c1, BiLed c2, BiLed c3, BiLed c4, BiLed c5, BiLed c6, BiLed c7) throws MidiUnavailableException, InvalidMidiDataException {
+		setColor(PControl.ROW0_0, c0);
+		setColor(PControl.ROW0_1, c1);
+		setColor(PControl.ROW0_2, c2);
+		setColor(PControl.ROW0_3, c3);
+		setColor(PControl.ROW0_4, c4);
+		setColor(PControl.ROW0_5, c5);
+		setColor(PControl.ROW0_6, c6);
+		setColor(PControl.ROW0_7, c7);
+	}
+
+	public void setRow1(RGB c0, RGB c1, RGB c2, RGB c3, RGB c4, RGB c5, RGB c6, RGB c7) throws MidiUnavailableException, InvalidMidiDataException {
+		setColor(PControl.ROW0_0, c0);
+		setColor(PControl.ROW0_1, c1);
+		setColor(PControl.ROW0_2, c2);
+		setColor(PControl.ROW0_3, c3);
+		setColor(PControl.ROW0_4, c4);
+		setColor(PControl.ROW0_5, c5);
+		setColor(PControl.ROW0_6, c6);
+		setColor(PControl.ROW0_7, c7);
 	}
 }

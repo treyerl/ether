@@ -1,7 +1,6 @@
 package org.corebounce.engine;
 
 import org.corebounce.audio.Audio;
-import org.corebounce.decklight.Bouncelet;
 import org.corebounce.ui.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;

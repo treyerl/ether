@@ -1,6 +1,5 @@
 package org.corebounce.io;
 
-import org.corebounce.decklight.Bouncelet;
 import org.corebounce.soundium.Soundium;
 import org.corebounce.soundium.Subsystem;
 
@@ -21,9 +20,6 @@ public class MIDI extends Subsystem {
 		try {
 			push = new AbletonPush(0);
 
-			push.setTouchStrip(TouchStrip.Host_Bar_Bottom);
-			push.setTouchStrip(0f);
-
 			if(true) {
 				push.setLine(0, Soundium.VERSION);
 				push.setLine(1, "(c) 2000-2016    corebounce.org   scheinwerfer.li");
@@ -37,7 +33,8 @@ public class MIDI extends Subsystem {
 				push.setLine(1, b.toString());
 			}
 
-			Bouncelet.clearPush(push);
+			push.setTouchStrip(TouchStrip.Host_Bar_Bottom);
+			push.setTouchStrip(0f);
 		} catch(Throwable t) {
 			log.warning(t.getMessage());
 		}

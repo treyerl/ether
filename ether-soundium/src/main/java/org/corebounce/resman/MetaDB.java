@@ -148,12 +148,16 @@ public final class MetaDB extends Subsystem {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				System.out.println("Syncing resources.");
 				listeners.clear();
-				for (Resource resource : getResources())
-					sync(resource);
+				syncDB();
 			}
 		});
+	}
+
+	public void syncDB() {
+		log.info("Syncing resources.");
+		for (Resource resource : getResources())
+			sync(resource);
 	}
 
 	private void handleResource(byte[] buffer, int count) {

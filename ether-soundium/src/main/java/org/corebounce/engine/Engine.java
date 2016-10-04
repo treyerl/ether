@@ -14,7 +14,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.corebounce.audio.Audio;
-import org.corebounce.decklight.Bouncelet;
 import org.corebounce.io.MIDI;
 import org.corebounce.io.OSC;
 import org.corebounce.resman.MetaDB;
@@ -36,7 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.ether.midi.AbletonPush;
-import ch.fhnw.ether.midi.AbletonPush.Blink;
+import ch.fhnw.ether.midi.AbletonPush.Basic;
 import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.ui.ParameterWindow;
@@ -85,14 +84,14 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 						audio.setPaused(val > 0.5f);
 
 					if(push != null)
-						push.setControl(PControl.PLAY, audio.isPaused() ? Blink.Lit_Blink : Blink.Lit);
+						push.setColor(PControl.PLAY, audio.isPaused() ? Basic.FULL_BLINK : Basic.FULL);
 				} catch(Throwable t) {log.warning(t);}
 			}
 		};
 		try { 
 			if(push != null) {
 				push.set(PControl.PLAY,   engine, PAUSED);
-				push.set(PControl.MASTER, engine, MASTER);
+				push.set(PControl.KNOB_MASTER, engine, MASTER);
 			}
 		} catch(Throwable t) {log.warning(t);}
 
@@ -147,11 +146,7 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if(table.getSelectionIndex() < 0) return;
 				Bouncelet b = (Bouncelet) table.getItem(table.getSelectionIndex()).getData(BOUNCELET);
-				String prefix = "/"+BOUNCELET+"/" + b.getId() + "/"; 
-				osc.send(prefix + "names");
-				osc.send(prefix + "mins");
-				osc.send(prefix + "maxs");
-				osc.send(prefix + "vals");
+				inspect(b);
 			}
 		});
 		table.setLinesVisible(true);
@@ -198,13 +193,32 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		sash.setWeights(new int[] {70,30});
 	}
 
+	public void select(Bouncelet b) {
+		for(int i = table.getItemCount(); --i >= 0;) {
+			if(b == table.getItem(i).getData(BOUNCELET)) {
+				table.deselectAll();
+				table.select(i);
+				break;
+			}
+		}
+		inspect(b);
+	}
+	
+	private void inspect(Bouncelet b) {
+		String prefix = "/"+BOUNCELET+"/" + b.getId() + "/"; 
+		osc.send(prefix + "names");
+		osc.send(prefix + "mins");
+		osc.send(prefix + "maxs");
+		osc.send(prefix + "vals");
+	}
+
 	public void update(int id, String type, String label, float active, RGB color) {
 		synchronized (s_bouncelets) {
 			while(id >= s_bouncelets.size()) s_bouncelets.add(null);
 			Bouncelet b = s_bouncelets.get(id);
 			boolean doSort = false;
 			if(b == null) {
-				b = new Bouncelet(osc, midi, id, type, label, active, color, inspector);
+				b = new Bouncelet(this, osc, midi, id, type, label, active, color, inspector);
 				doSort = true;
 			}
 			s_bouncelets.set(id, b);

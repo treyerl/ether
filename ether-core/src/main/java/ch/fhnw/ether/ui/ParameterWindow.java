@@ -264,16 +264,12 @@ public class ParameterWindow {
 			if(combo != null) {
 				if(p.getType() == Type.VALUES) {
 					float val = p.getValues()[combo.getSelectionIndex()];
-					if(cmd.getVal(p) != val) {
+					if(cmd.getVal(p) != val)
 						combo.select(p.getValuesIndexFor(cmd.getVal(p)));
-						cmd.setVal(p, val);
-					}
 				} else {
 					float val =  combo.getSelectionIndex();
-					if(cmd.getVal(p) != val) {
+					if(cmd.getVal(p) != val)
 						combo.select((int) cmd.getVal(p));
-						cmd.setVal(p, val);
-					}
 				}
 			}
 			if(check != null) {

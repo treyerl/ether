@@ -50,6 +50,8 @@ public final class RGB implements IColor, IVec3 {
 	public static final RGB MAGENTA = new RGB(1, 0, 1);
 	public static final RGB CYAN = new RGB(0, 1, 1);
 
+	public static final RGB ORANGE = new RGB(1, 0.6f, 0);
+
 	public static final RGB GRAY = new RGB(0.5f, 0.5f, 0.5f);
 	public static final RGB LIGHT_GRAY = new RGB(0.75f, 0.75f, 0.75f);
 	public static final RGB DARK_GRAY = new RGB(0.25f, 0.25f, 0.25f);
@@ -63,7 +65,7 @@ public final class RGB implements IColor, IVec3 {
 	public static final RGB GRAY70 = new RGB(0.7f, 0.7f, 0.7f);
 	public static final RGB GRAY80 = new RGB(0.8f, 0.8f, 0.8f);
 	public static final RGB GRAY90 = new RGB(0.9f, 0.9f, 0.9f);
-
+	
 	public final float r;
 	public final float g;
 	public final float b;
