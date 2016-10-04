@@ -33,7 +33,11 @@ package ch.fhnw.ether.platform;
 
 import org.eclipse.swt.widgets.Display;
 
+import ch.fhnw.util.Log;
+
 final class SWTPlatform extends GLFWPlatform {
+	private static final Log log = Log.create();
+	
 	public SWTPlatform() {
 		super(new SWTImageSupport());
 	}
@@ -46,9 +50,13 @@ final class SWTPlatform extends GLFWPlatform {
 
 	@Override
 	protected void exitInternal() {
-		super.exitInternal();
-		if(!(Display.getDefault().isDisposed()))
-			Display.getDefault().dispose();
+		try {
+			super.exitInternal();
+			if(!(Display.getDefault().isDisposed()))
+				Display.getDefault().dispose();
+		} catch(Throwable t) {
+			log.warning(t);
+		}
 	}
 
 	@Override

@@ -516,6 +516,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 	@Override
 	public void run() {
+		if(table.isDisposed()) return;
 		resources.clear();
 		for(Resource res : db.getResources())
 			if(show(res) && res.getPath().contains(search))

@@ -57,7 +57,7 @@ public abstract class TabPanel implements SelectionListener {
 		return label;
 	}
 	
-	public int getIndex() {
+	public int getTabIndex() {
 		return tabIdx;
 	}
 }

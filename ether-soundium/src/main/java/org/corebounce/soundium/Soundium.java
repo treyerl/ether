@@ -35,6 +35,8 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Table;
 
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.midi.AbletonPush;
+import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.platform.Platform.OS;
@@ -66,6 +68,7 @@ public class Soundium {
 	private final Shell             shell;
 	private final Resman            resman;
 	private final Engine            engine;
+	private final TabFolder         tabFolder;
 
 	public Soundium(String ... args) throws InterruptedException, RenderCommandException, IOException, NoSuchAlgorithmException, LineUnavailableException, UnsupportedAudioFileException {
 		Display display = Display.getDefault();
@@ -113,7 +116,7 @@ public class Soundium {
 		shell = new Shell(display);
 		shell.setLayout(new GridLayout());
 
-		TabFolder tabFolder = new TabFolder(shell, SWT.BORDER);
+		tabFolder = new TabFolder(shell, SWT.BORDER);
 		tabFolder.setLayoutData(GridDataFactory.fill(true, true));
 		engine = new Engine(db, audio, osc, midi);
 		engine.createTabPanel(tabFolder);
@@ -121,12 +124,12 @@ public class Soundium {
 		resman.createTabPanel(tabFolder);
 
 		//tabFolder.setSelection(resman.getIndex());
-		
+
 		shell.setText(VERSION);
 		shell.setLocation(sndmMonR.x, sndmMonR.y);
 		shell.setMaximized(true);
 		shell.setSize(1920, 500);
-		
+
 		if(Platform.getOS() != OS.MACOSX) {
 			final Menu m = new Menu(shell, SWT.BAR);
 
@@ -176,6 +179,20 @@ public class Soundium {
 
 		display.timerExec(500, osc::start);
 		display.timerExec(500, shell::forceActive);
+
+		setPush();
+	}
+
+	private void setPush() {
+		AbletonPush push = midi.getPush();
+		if(push != null) {
+			try {
+				push.set(PControl.DEVICE, msg->{Display.getDefault().asyncExec(()->tabFolder.setSelection(engine.getTabIndex()));});
+				push.set(PControl.BROWSE, msg->{Display.getDefault().asyncExec(()->tabFolder.setSelection(resman.getTabIndex()));});
+			} catch(Throwable t) {
+				log.warning(t);
+			}
+		}
 	}
 
 	private void viewMenu() {
