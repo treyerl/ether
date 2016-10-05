@@ -31,44 +31,67 @@
 
 package ch.fhnw.ether.media;
 
+import java.util.Arrays;
+
 import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
 import ch.fhnw.util.TextUtilities;
 
 public class Parameter implements IMaterialAttribute<Float> {
-	public enum Type {RANGE, ITEMS}
+	public enum Type {RANGE, ITEMS, VALUES, BOOL, BITMAP}
+
+	private static final String   ZERO     = "0";
+	private static final String   ONE      = "1";
+	private static final String[] BOOL     = {ZERO, ONE};
+	public static final  String[] BITMAP8  = {};
+	public static final  String[] BITMAP16 = {};
+	public static final  String[] BITMAP24 = {};
+	public static final  String[] BITMAP32 = {};
 
 	private final String   name;
 	private final String   description;
 	private final float    min;
 	private final float    max;
 	private final String[] items;
+	private final float[]  values;
 	private       float    val;
 	private       int      idx = -1;
 
 	public Parameter(String name, String description, float min, float max, float val) {
-		this(name, description, min, max, val, null);
+		this(name, description, min, max, val, null, null);
 	}
 
 	public Parameter(String name, String description, int val, String ... items) {
-		this(name, description, Float.MIN_VALUE, Float.MAX_VALUE, val, items);
+		this(name, description, 0, items.length, val, null, items);
 	}
 
-	public Parameter(String name, String description, float min, float max, float val, String[] items) {
+	public Parameter(String name, String description, int index, float[] values, String ... labels) {
+		this(name, description, 0, labels.length, index, values, labels);
+	}
+
+	public Parameter(String name, String description, boolean value) {
+		this(name, description, 0, 1, value ? 1 : 0, null, BOOL);
+	}
+
+	public Parameter(String name, String description, float min, float max, float val, float[] values, String[] items) {
 		if(!name.equals(TextUtilities.cleanForId(name)))
 			throw new IllegalArgumentException("Illegal (non-id) characters in name '" + name + "'");
 		this.name        = name;
 		this.description = description;
 		this.min         = min;
-		this.max         = max;
+		if     (items == BITMAP8)  this.max = 0xFF;
+		else if(items == BITMAP16) this.max = 0xFFFF;
+		else if(items == BITMAP24) this.max = 0xFFFFFF;
+		else if(items == BITMAP32) this.max = 0xFFFFFFFF;
+		else                       this.max = max;
 		this.val         = val;
+		this.values      = values;
 		this.items       = items;
 	}
 
 	private Parameter(Parameter p) {
-		this(p.name, p.description, p.min, p.max, p.val, p.items);
+		this(p.name, p.description, p.min, p.max, p.val, p.values, p.items);
 		this.idx = p.idx;
 	}
-
 
 	@Override
 	final public String toString() {
@@ -99,6 +122,18 @@ public class Parameter implements IMaterialAttribute<Float> {
 		this.val = val;
 	}
 
+	public int getValuesIndexFor(float val) {
+		int   result = 0;
+		float d      = Float.MAX_VALUE;
+		for(int i = values.length; --i >= 0;) {
+			if(Math.abs(values[i]-val) < d) {
+				d      = Math.abs(values[i]-val);
+				result = i;
+			}
+		}
+		return result;
+	}
+
 	final void setIdx(int idx) {
 		if(this.idx == idx) return;
 		if(this.idx != -1)
@@ -115,15 +150,45 @@ public class Parameter implements IMaterialAttribute<Float> {
 	}
 
 	public Type getType() {
-		return items == null ? Type.RANGE : Type.ITEMS; 
+		if(items == null)
+			return Type.RANGE;
+		else if(items == BOOL)
+			return Type.BOOL;
+		else if(items == BITMAP8 || items == BITMAP16 || items == BITMAP24 || items == BITMAP32)
+			return Type.BITMAP;
+		else if(values != null)
+			return Type.VALUES;
+		else
+			return Type.ITEMS; 
 	}
 
 	public String[] getItems() {
 		return items;
 	}
 
+	public float[] getValues() {
+		return values;
+	}
+
 	@Override
 	public String id() {
 		return name;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Parameter)) return false;
+		Parameter p = (Parameter)obj;
+		return name.equals(p.name) &&
+				description.equals(p.description) &&
+				min == p.min &&
+				max == p.max && 
+				Arrays.equals(values, p.values) &&
+				Arrays.equals(items, p.items);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 }

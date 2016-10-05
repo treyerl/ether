@@ -1,7 +1,12 @@
-package org.corebounce.resman;
+package org.corebounce.audio;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.corebounce.io.MIDI;
+import org.corebounce.soundium.Subsystem;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.IAudioSource;
@@ -18,7 +23,10 @@ import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
+import ch.fhnw.ether.midi.AbletonPush;
+import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.util.ArrayUtilities;
+import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.net.link.AbletonLink;
@@ -31,18 +39,19 @@ import ch.fhnw.util.net.link.IAbletonLinkHandler;
 public class Audio extends Subsystem implements IAbletonLinkHandler {
 	private static final Log log = Log.create();
 
-	private final IAudioSource     src;
-	private final DCRemove         dcrmv = new DCRemove();
-	private final AutoGain         gain  = new AutoGain();
-	private final BandsButterworth bands = new BandsButterworth(60, 8000, 40, 5, 1);
-	private final OnsetDetect      onset = new OnsetDetect(); 
-	private final BeatDetect       beatDetect  = new BeatDetect(onset);
-	private final MonitorGain      out   = new MonitorGain();
-	private final JavaSoundTarget  dst   = new JavaSoundTarget();
+	private final IAudioSource        src;
+	private final DCRemove            dcrmv = new DCRemove();
+	private final AutoGain            gain  = new AutoGain();
+	private final BandsButterworth    bands = new BandsButterworth(60, 8000, 40, 5, 1);
+	private final OnsetDetect         onset = new OnsetDetect(); 
+	private final BeatDetect          beatDetect  = new BeatDetect(onset);
+	private final MonitorGain         out   = new MonitorGain();
+	private final JavaSoundTarget     dst   = new JavaSoundTarget();
 	private final RenderProgram<IAudioRenderTarget> audio;
-	private final AbletonLink      link  = new AbletonLink();
+	private final AbletonLink         link  = new AbletonLink();
+	private final List<IBeatListener> s_listeners = new ArrayList<>();
 
-	public Audio(IProgressListener progress, String ... args) throws RenderCommandException, IOException {
+	public Audio(IProgressListener progress, MIDI midi, String ... args) throws RenderCommandException, IOException {
 		super(CFG_PREFIX, args);
 
 		URL url = null;
@@ -53,7 +62,8 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		gain.setVal(AutoGain.ATTACK,  0.05f);
 		gain.setVal(AutoGain.SUSTAIN, 9f);
 		gain.setVal(AutoGain.DECAY,   0.01f);
-		
+		gain.setVal(AutoGain.TARGET,  0f);
+
 		try {
 			out.setVal(MonitorGain.GAIN, Float.parseFloat(configuration.get("mon")));
 		} catch(Throwable t) {}
@@ -68,6 +78,18 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		if(!("off".equals(configuration.get("link")))) {
 			link.addHandler(this);
 			link.join(true, progress);
+		}
+
+		if(midi.getPush() != null) {
+			try {
+				AbletonPush push = midi.getPush();
+				push.set(PControl.METRONOME, beatDetect, BeatDetect.METRONOME);
+				push.set(PControl.MONITOR,   beatDetect, BeatDetect.RATIO);
+				push.set(PControl.TEMPO,     beatDetect, BeatDetect.BPM);
+				push.set(PControl.TAP,       msg->{if(msg.getMessage()[2] > 63) tap();});
+			} catch(Throwable t) {
+				log.warning(t);
+			}
 		}
 
 		log.info("Audio started.");
@@ -121,6 +143,62 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 				beatDetect.setBeat((int)beatNo+2, BeatType.ESTIMATED, originFrameTime + (t.fromBeats(new Beats(beatNo+2)) - t.timeOrigin) / IScheduler.SEC2US);
 				beatDetect.setVal(BeatDetect.BPM, (float)(60 * IScheduler.SEC2US) / (float)t.tempo.microsPerBeat);
 			}
+		}
+	}
+
+	long lastTap;
+	public void tap() {
+		long now = System.currentTimeMillis();
+
+		long tapTime    = now - lastTap;
+		BeatDetect beat = getBeat();
+		beat.setBeat(beat.beatCountPLL()+1, BeatType.TAP, beat.frameTime());
+		if(tapTime < 1200) {
+			beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + tapTime / IScheduler.SEC2MS);
+			beat.setVal(BeatDetect.BPM, (float)(60.0 / (tapTime / IScheduler.SEC2MS)));
+		} else
+			beat.setBeat(beat.beatCountPLL()+2, BeatType.ESTIMATED, beat.frameTime() + 60.0 / beat.getVal(BeatDetect.BPM));
+
+		lastTap = now;
+	}
+	
+	public void addBeatListener(IBeatListener listener) {
+		synchronized (s_listeners) {
+			s_listeners.add(listener);
+		}
+	}
+
+	public void removeBeatListener(IBeatListener listener) {
+		synchronized (s_listeners) {
+			CollectionUtilities.removeAll(s_listeners, listener);
+		}
+	}
+	
+	void fireBeat(int beatCount) {
+		IBeatListener[] blisteners = null;
+		synchronized (s_listeners) {
+			blisteners = s_listeners.toArray(new IBeatListener[s_listeners.size()]);
+		}
+		for(IBeatListener l : blisteners) {
+			try {
+				l.beat(beatCount);
+			} catch(Throwable t) {
+				log.warning(t);
+			}
+		}
+	}
+	
+	public boolean isPaused() {
+		return !(dst.isRendering());
+	}
+	
+	public void setPaused(boolean state) throws RenderCommandException {
+		if(state) {
+			if(dst.isRendering())
+				dst.stop();
+		} else {
+			if(!(dst.isRendering()))
+				dst.start();
 		}
 	}
 }

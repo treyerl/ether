@@ -49,7 +49,9 @@ public final class GeometryBuffer {
 	private static final Log log = Log.create();
 
 	private FrameBuffer frameBuffer;
+	@SuppressWarnings("unused")
 	private Texture positionTexture;
+	@SuppressWarnings("unused")
 	private Texture normalTexture;
 	private Texture colorTexture;
 	private Texture depthTexture;

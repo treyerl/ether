@@ -45,5 +45,4 @@ public interface IAudioSource {
 	default AudioFrame createAudioFrame(long sTime, float[] data) {
 		return new AudioFrame(sTime, getNumChannels(), getSampleRate(), data);
 	}
-	
 }

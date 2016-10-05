@@ -34,10 +34,14 @@ package ch.fhnw.ether.audio;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
@@ -48,12 +52,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Track;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
@@ -82,9 +89,10 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	private       double             frameSizeInSec;
 	private       int                frameSizeInBytes;
 	private final URL                url;
-	private final AudioFormat        fmt;       
-	private final long               frameCount;
+	private       AudioFormat        fmt;       
+	private       long               frameCount;
 	private int                      noteOn;
+	private AudioInputStream         midiStream;
 	private final TreeSet<MidiEvent> notes = new TreeSet<>(new Comparator<MidiEvent>() {
 		@Override
 		public int compare(MidiEvent o1, MidiEvent o2) {
@@ -112,9 +120,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 
 		try {
 			if(TextUtilities.hasFileExtension(url.getPath(), "mid")) {
-				Sequence seq = MidiSystem.getSequence(url);
-
-				send(seq, new Receiver() {
+				send(MidiSystem.getSequence(url), new Receiver() {
 					@Override
 					public void send(MidiMessage message, long timeStamp) {
 						if(message instanceof ShortMessage && (message.getMessage()[0] & 0xFF) == ShortMessage.NOTE_ON && (message.getMessage()[2] > 0))
@@ -128,51 +134,110 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 					@Override
 					public void close() {}
 				});
+				
+				getStream(url);
+			} else {
+				try (AudioInputStream in = getStream(url)) {
+					this.fmt   = in.getFormat();
+					frameCount = in.getFrameLength();
+
+					if(fmt.getSampleSizeInBits() != 16)
+						throw new IOException("Only 16 bit audio supported, got " + fmt.getSampleSizeInBits());
+					if(fmt.getEncoding() != Encoding.PCM_SIGNED)
+						throw new IOException("Only signed PCM audio supported, got " + fmt.getEncoding());
+				} catch (UnsupportedAudioFileException e) {
+					throw new IOException(e);
+				}
 			}
-		} catch(InvalidMidiDataException e) {
-			throw new IOException(e);
-		}
-
-		try (AudioInputStream in = getStream(url)) {
-			this.fmt   = in.getFormat();
-			frameCount = in.getFrameLength();
-
-			if(fmt.getSampleSizeInBits() != 16)
-				throw new IOException("Only 16 bit audio supported, got " + fmt.getSampleSizeInBits());
-			if(fmt.getEncoding() != Encoding.PCM_SIGNED)
-				throw new IOException("Only signed PCM audio supported, got " + fmt.getEncoding());
-		} catch (UnsupportedAudioFileException e) {
+		} catch (UnsupportedAudioFileException | InvalidMidiDataException e) {
 			throw new IOException(e);
 		}
 		rewind();
 	}
 
-	public static AudioInputStream getStream(URL url) throws UnsupportedAudioFileException {
-		List<AudioFileReader> providers = getAudioFileReaders();
-		AudioInputStream result = null;
-		
-		for(int i = 0; i < providers.size(); i++) {
-			AudioFileReader reader = providers.get(i);
-			try {
-				result = reader.getAudioInputStream(url);
-				break;
-			} catch (UnsupportedAudioFileException e) {
-				continue;
-			} catch(IOException e) {
-				continue;
+	private AudioInputStream openStream(Synthesizer synth, AudioFormat format, Map<String, Object> props) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		return (AudioInputStream) synth.getClass().getMethod("openStream", AudioFormat.class, Map.class).invoke(synth, format, props);
+	}
+
+	private Synthesizer findAudioSynthesizer() throws MidiUnavailableException, ClassNotFoundException {
+		Class<?> audioSynth = Class.forName("com.sun.media.sound.AudioSynthesizer");
+
+		// First check if default synthesizer is AudioSynthesizer.
+		Synthesizer synth = MidiSystem.getSynthesizer();
+		if (audioSynth.isAssignableFrom(synth.getClass())) {
+			return synth;
+		}
+
+		// If default synthesizer is not AudioSynthesizer, check others.
+		MidiDevice.Info[] midiDeviceInfo = MidiSystem.getMidiDeviceInfo();
+		for (int i = 0; i < midiDeviceInfo.length; i++) {
+			MidiDevice dev = MidiSystem.getMidiDevice(midiDeviceInfo[i]);
+			if (audioSynth.isAssignableFrom(dev.getClass())) {
+				return (Synthesizer)dev;
 			}
 		}
+		return null;
+	}
 
-		if( result==null ) {
-			throw new UnsupportedAudioFileException("could not get audio input stream from input URL:"+url);
-		}
+	public AudioInputStream getStream(URL url) throws UnsupportedAudioFileException, IOException {
+		if(midiStream != null) return midiStream;
 
-		AudioFormat format = result.getFormat();
-		if(format.getEncoding() != Encoding.PCM_SIGNED || format.getSampleSizeInBits() < 0) {
-			AudioFormat fmt = new AudioFormat(Encoding.PCM_SIGNED, format.getSampleRate(), 16, format.getChannels(), format.getChannels() * 2, format.getSampleRate(), false);
-			return AudioSystem.getAudioInputStream(fmt, result);
+		if(TextUtilities.hasFileExtension(url.getPath(), "mid")) {
+			try {
+				Sequence seq = MidiSystem.getSequence(url);
+
+				this.fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 
+						44100,
+						16,
+						1,
+						2,
+						44100,
+						false);
+
+				Synthesizer synth = findAudioSynthesizer();
+				if (synth == null)
+					throw new IOException("No AudioSynthesizer was found!");
+
+				Map<String, Object> p = new HashMap<String, Object>();
+				p.put("interpolation", "sinc");
+				p.put("max polyphony", "1024");
+				midiStream = openStream(synth, fmt, p);
+
+				frameCount = (long)((send(seq, synth.getReceiver()) + 1.0) * fmt.getFrameRate());
+				
+				return midiStream;
+			} catch(IOException e) {
+				throw e;
+			} catch(Throwable t) {
+				throw new IOException(t);
+			}
+		} else {
+			List<AudioFileReader> providers = getAudioFileReaders();
+			AudioInputStream result = null;
+
+			for(int i = 0; i < providers.size(); i++) {
+				AudioFileReader reader = providers.get(i);
+				try {
+					result = reader.getAudioInputStream(url);
+					break;
+				} catch (UnsupportedAudioFileException e) {
+					continue;
+				} catch(IOException e) {
+					continue;
+				}
+			}
+
+			if( result==null ) {
+				throw new UnsupportedAudioFileException("could not get audio input stream from input URL:"+url);
+			}
+
+			AudioFormat format = result.getFormat();
+			if(format.getEncoding() != Encoding.PCM_SIGNED || format.getSampleSizeInBits() < 0) {
+				AudioFormat fmt = new AudioFormat(Encoding.PCM_SIGNED, format.getSampleRate(), 16, format.getChannels(), format.getChannels() * 2, format.getSampleRate(), false);
+				return AudioSystem.getAudioInputStream(fmt, result);
+			}
+			return result;
 		}
-		return result;
 	}
 
 	public static AudioInputStream getStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
@@ -181,7 +246,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 		ByteList         bl     = new ByteList();
 		bl.readFully(stream);
 		byte[] buffer = bl.toArray();
-		
+
 		for(int i = providers.size(); --i >= 0; ) {
 			AudioFileReader reader = providers.get(i);
 			try {
@@ -234,12 +299,20 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 					byte[] buffer = new byte[frameSizeInBytes];
 
 					do {
+						long sampleCount = 0;
 						try (AudioInputStream in = getStream(url)) {
 							for(;;) {
 								int read = in.read(buffer);
-								if(read < 0) break;								
+								if(read < 0) break;
+								sampleCount += read / fmt.getFrameSize();
 								data.add(AudioUtilities.pcmBytes2float(fmt, buffer, read));
 								bufSemaphore.acquire();
+								if(midiStream != null && sampleCount > frameCount)  {
+									midiStream.close();
+									midiStream = null;
+									midiStream = getStream(url);
+									break;
+								}
 							}
 						}
 					} while(numPlays.decrementAndGet() > 0);
@@ -382,5 +455,9 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	public float getFrameRate() {
 		double result = (fmt.getChannels() * fmt.getSampleSizeInBits() * fmt.getFrameRate()) / (8 * frameSizeInBytes);
 		return (float)result;
+	}
+
+	public void getMidiEvents(Collection<MidiEvent> result) {
+		result.addAll(notes);
 	}
 }

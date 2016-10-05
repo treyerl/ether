@@ -65,8 +65,9 @@ public final class FileScanner implements Runnable {
 			try {
 				setStatus("Sleeping...");
 				synchronized (FileScanner.this) {
-					FileScanner.this.wait();
+					FileScanner.this.wait(10000);
 				}
+				db.syncDB();
 			} catch (Exception e) {
 				log.severe(e);
 			}
@@ -98,6 +99,6 @@ public final class FileScanner implements Runnable {
 	}
 
 	private void setStatus(String msg) {
-		log.info(msg);
+		//log.info(msg);
 	}
 }

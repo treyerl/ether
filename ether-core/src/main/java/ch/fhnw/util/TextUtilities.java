@@ -220,6 +220,13 @@ public final class TextUtilities {
 		return byteToHex(i >> 24) + byteToHex(i >> 16) + byteToHex(i >> 8) + byteToHex(i);
 	}
 
+	public static String intToBits(int i, int bitcount) {
+		StringBuilder result = new StringBuilder();
+		while(--bitcount >= 0)
+			result.append((i & (1<<bitcount)) == 0 ?'0' : '1');
+		return result.toString();
+	}
+
 	public static String charToHex(char c) {
 		return byteToHex(c >> 8) + byteToHex(c);
 	}

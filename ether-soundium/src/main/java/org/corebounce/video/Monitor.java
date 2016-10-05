@@ -1,7 +1,9 @@
-package org.corebounce.resman;
+package org.corebounce.video;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.corebounce.soundium.Subsystem;
 
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;

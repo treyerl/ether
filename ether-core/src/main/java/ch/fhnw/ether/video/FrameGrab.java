@@ -94,7 +94,9 @@ public class FrameGrab {
 	private final ThreadLocal<byte[][]>   buffers = new ThreadLocal<>();
 	private long                          seekPos = -1;
 	private final AudioFormat             audioInfo;
+	@SuppressWarnings("unused")
 	private final AudioDecoder            audioDecoder;
+	@SuppressWarnings("unused")
 	private final ByteBuffer              audioBuffer;
 
 	public FrameGrab(SeekableByteChannel in) throws IOException, JCodecException {

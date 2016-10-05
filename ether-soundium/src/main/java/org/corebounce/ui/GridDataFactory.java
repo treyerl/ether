@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

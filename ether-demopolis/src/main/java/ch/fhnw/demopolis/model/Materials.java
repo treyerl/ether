@@ -51,21 +51,21 @@ public final class Materials {
 	public final PolisMaterial sidewalkMaterial = new PolisMaterial(I3DColors.SIDEWALK);
 	
 	public void fade(float factor) {
-		groundMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.GROUND, factor));	
-		waterMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.WATER, factor));
-		blockMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.BLOCK, factor));
-		greenMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.GREEN, factor));
-		buildingMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.BUILDING, factor));
-		trainMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.TRAIN, factor));
+		groundMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.GROUND, factor));	
+		waterMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.WATER, factor));
+		blockMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.BLOCK, factor));
+		greenMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.GREEN, factor));
+		buildingMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.BUILDING, factor));
+		trainMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.TRAIN, factor));
 
-		shrubMaterial.setAmbient(RGB.mix(RGB.WHITE, I3DColors.SHRUB, factor));
-		shrubMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.SHRUB, factor));
-		treeMaterial.setAmbient(RGB.mix(RGB.WHITE, I3DColors.TREE, factor));
-		treeMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.TREE, factor));
-		trunkMaterial.setAmbient(RGB.mix(RGB.WHITE, I3DColors.TRUNK, factor));
-		trunkMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.TRUNK, factor));
+		shrubMaterial.setAmbient(RGB.lerp(RGB.WHITE, I3DColors.SHRUB, factor));
+		shrubMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.SHRUB, factor));
+		treeMaterial.setAmbient(RGB.lerp(RGB.WHITE, I3DColors.TREE, factor));
+		treeMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.TREE, factor));
+		trunkMaterial.setAmbient(RGB.lerp(RGB.WHITE, I3DColors.TRUNK, factor));
+		trunkMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.TRUNK, factor));
 		
-		sidewalkMaterial.setDiffuse(RGB.mix(I3DColors.FADED, I3DColors.SIDEWALK, factor));
+		sidewalkMaterial.setDiffuse(RGB.lerp(I3DColors.FADED, I3DColors.SIDEWALK, factor));
 	}
 
 	public PolisMaterial getFinalMaterial(IDesignEntity e) {

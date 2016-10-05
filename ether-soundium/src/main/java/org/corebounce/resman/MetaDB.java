@@ -17,9 +17,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.corebounce.soundium.Subsystem;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+
+import ch.fhnw.util.IOUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 
@@ -31,23 +37,28 @@ public final class MetaDB extends Subsystem {
 	private static final String PROPS    = "props";
 	private static final String PREVIEWS = "prevw";
 	private static final String CACHE    = "cache";
+	private static final String ICONS    = "icons";
 
 	public static final int DIGEST_LEN = 32;
 
-	final File dir;
+	private final File dir;
 
-	private File propsDir;
-	private File previewsDir;
-	private File cacheDir;
+	private final File  propsDir;
+	private final File  previewsDir;
+	private final File  cacheDir;
+	private final File  iconsDir;
 
-	private final HashMap<Integer, HashMap<String, Resource>> md2res   = new HashMap<>();
-	private final HashMap<String, Resource>                   path2res = new HashMap<>();
-	private final List<IChangeListener>                       listeners = new ArrayList<>();
-	private final HashMap<String, String> translationCache = new HashMap<String, String>();
+	private final Map<Integer, HashMap<String, Resource>> md2res           = new HashMap<>();
+	private final Map<String, Resource>                   path2res         = new HashMap<>();
+	private final List<IChangeListener>                   listeners        = new ArrayList<>();
+	private final Map<String, String>                     translationCache = new HashMap<String, String>();
+	private final Map<String, Image>                      icons48x48       = new HashMap<>();
 
 	private long modCount;
 
-	MetaDB(String ... args) throws NoSuchAlgorithmException {
+	private static final String[] DEF_ICONS = {"unknown", "Geometry", "Movie", "Bouncelet"};
+
+	public MetaDB(String ... args) throws NoSuchAlgorithmException {
 		super(CFG_PREFIX, args);
 		File dir = new File(configuration.get("path"));
 		if(!(dir.exists()) || !(dir.isDirectory())) throw new IllegalArgumentException();
@@ -59,8 +70,8 @@ public final class MetaDB extends Subsystem {
 		this.dir    = dir;
 		propsDir    = new File(dir, PROPS);
 		previewsDir = new File(dir, PREVIEWS);
-		propsDir    = new File(dir, PROPS);
 		cacheDir    = new File(dir, CACHE);
+		iconsDir    = new File(dir, ICONS);
 
 		if (!propsDir.exists())
 			propsDir.mkdirs();
@@ -80,13 +91,24 @@ public final class MetaDB extends Subsystem {
 				d.mkdirs();
 		}
 
-		// create atlas directories
+		// create cache directories
 		for (int i = 0; i < 16; i++) {
 			File d = new File(cacheDir, "" + TextUtilities.HEXTAB.charAt(i));
 			if (!d.exists())
 				d.mkdirs();
 		}
 
+		// init icons
+		for(String icon : DEF_ICONS) {
+			iconsDir.mkdir();
+			File file = new File(iconsDir, icon + "_48x48.png");
+			if(!(file.exists())) {
+				try {IOUtilities.copy(getClass().getResourceAsStream("/" + file.getName()), file);
+				} catch(Throwable t) {log.severe(t);}
+			}
+		}
+
+		// read properties
 		for (int i = 0; i < md2res.size(); i++) {
 			File bundle = new File(propsDir, TextUtilities.HEXTAB.charAt(i) + ".txt");
 			if (!bundle.exists())
@@ -126,12 +148,16 @@ public final class MetaDB extends Subsystem {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				System.out.println("Syncing resources.");
 				listeners.clear();
-				for (Resource resource : getResources())
-					sync(resource);
+				syncDB();
 			}
 		});
+	}
+
+	public void syncDB() {
+		log.info("Syncing resources.");
+		for (Resource resource : getResources())
+			sync(resource);
 	}
 
 	private void handleResource(byte[] buffer, int count) {
@@ -145,7 +171,7 @@ public final class MetaDB extends Subsystem {
 			}
 
 			if (res.getFile().length() != res.getSize() || res.getFile().lastModified() > res.getDate().getTime() + 2000) { // +2000 for M$ filesystems with 2sec resolution 
-								
+
 				log.info("File " + res.getPath() + " changed, removing from DB");
 				missing = true;
 			}
@@ -346,5 +372,23 @@ public final class MetaDB extends Subsystem {
 	public static String[] CFG_OPTIONS = {
 			"path=<path>", "Path to metadb folder",
 	};
+
+	public Image icon48x48(Display display, String key) {
+		return icon48x48(display, key, DEF_ICONS[0]);
+	}
+	
+	public Image icon48x48(Display display, String key, String defaultKey) {
+		Image result = icons48x48.get(key);
+		if(result == null) {
+			File file = new File(iconsDir, key + "_48x48.png");
+			if(!(file.exists()))
+				file = new File(iconsDir, defaultKey + "_48x48.png");
+			try {
+				result = new Image(display, new FileInputStream(file));
+				icons48x48.put(key, result);
+			} catch(Throwable t) {log.severe(t);}
+		}
+		return result;
+	}
 
 }

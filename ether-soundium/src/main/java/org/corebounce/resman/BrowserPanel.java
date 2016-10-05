@@ -10,6 +10,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.corebounce.io.OSC;
+import org.corebounce.ui.GridDataFactory;
+import org.corebounce.ui.Repeating;
+import org.corebounce.video.Pusher;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
@@ -512,6 +516,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 	@Override
 	public void run() {
+		if(table.isDisposed()) return;
 		resources.clear();
 		for(Resource res : db.getResources())
 			if(show(res) && res.getPath().contains(search))

@@ -48,5 +48,6 @@ dependencies {
 
     compile files("libs/xuggle/xuggle-xuggler-5.4.jar")
     compile files("libs/jcodec/jcodec-0.2.jar")
+    compile files("libs/mmj/mmj.jar")
     compile files("libs/plugins/plugins.jar")
 }
