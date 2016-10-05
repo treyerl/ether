@@ -142,6 +142,7 @@ public final class FloatUniformBuffer {
 			blockAlignment = Math.max(1, GL11.glGetInteger(GL31.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT) / 4);
 		}
 		int stride = (blockSize + blockAlignment - 1) - (blockSize + blockAlignment - 1) % blockAlignment;
+		//System.out.println("block size: " + blockSize + " blockAlignment: " + blockAlignment + " stride: " + stride);
 		return stride;
 	}
 

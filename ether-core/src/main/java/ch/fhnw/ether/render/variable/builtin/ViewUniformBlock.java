@@ -63,9 +63,9 @@ public final class ViewUniformBlock extends UniformBlock {
 			switch (blockIndex) {
 			case 0:
 				// 3d setup
-				buffer.put(vcs.getViewMatrix().toArray());
-				buffer.put(vcs.getViewProjMatrix().toArray());
-				buffer.put(vcs.getProjMatrix().toArray());
+				addMat4(buffer, vcs.getViewMatrix());
+				addMat4(buffer, vcs.getViewProjMatrix());
+				addMat4(buffer, vcs.getProjMatrix());
 				addMat3(buffer, vcs.getNormalMatrix());
 				break;
 			case 1:
@@ -77,10 +77,10 @@ public final class ViewUniformBlock extends UniformBlock {
 				break;
 			case 2:
 				// ortho screen space
-				Mat4 ortho = Mat4.ortho(0, vcs.getViewport().w, 0, vcs.getViewport().h, -1, 1);
+				float[] ortho = Mat4.ortho(0, vcs.getViewport().w, 0, vcs.getViewport().h, -1, 1).toArray();
 				buffer.put(ID_4X4);
-				buffer.put(ortho.toArray());
-				buffer.put(ortho.toArray());
+				buffer.put(ortho);
+				buffer.put(ortho);
 				buffer.put(PAD_12);
 				break;
 			}

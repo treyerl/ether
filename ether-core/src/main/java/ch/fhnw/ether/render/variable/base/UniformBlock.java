@@ -36,6 +36,7 @@ import java.nio.FloatBuffer;
 import ch.fhnw.ether.render.IRenderer.RendererAttribute;
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.util.math.Mat3;
+import ch.fhnw.util.math.Mat4;
 
 public class UniformBlock extends AbstractUniform<Integer> {
 	private boolean canBind = true;
@@ -68,6 +69,10 @@ public class UniformBlock extends AbstractUniform<Integer> {
 	@Override
 	public String toString() {
 		return super.toString() + "[" + isBound + "]";
+	}
+	
+	public static void addMat4(FloatBuffer buffer, Mat4 mat) {
+		buffer.put(mat.toArray());
 	}
 	
 	public static void addMat3(FloatBuffer buffer, Mat3 mat) {
