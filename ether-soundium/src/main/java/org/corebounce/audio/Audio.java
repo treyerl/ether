@@ -141,7 +141,7 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 				double beatNo          = Math.floor(beat);
 				beatDetect.setBeat((int)beatNo+1, BeatType.EXTERNAL,  originFrameTime + (t.fromBeats(new Beats(beatNo+1)) - t.timeOrigin) / IScheduler.SEC2US);
 				beatDetect.setBeat((int)beatNo+2, BeatType.ESTIMATED, originFrameTime + (t.fromBeats(new Beats(beatNo+2)) - t.timeOrigin) / IScheduler.SEC2US);
-				beatDetect.setVal(BeatDetect.BPM, (float)(60 * IScheduler.SEC2US) / (float)t.tempo.microsPerBeat);
+				beatDetect.setVal(BeatDetect.BPM, (float)(60 * IScheduler.SEC2US) / t.tempo.microsPerBeat);
 			}
 		}
 	}

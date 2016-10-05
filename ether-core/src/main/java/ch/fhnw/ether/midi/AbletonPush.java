@@ -549,7 +549,7 @@ public class AbletonPush implements IMidiHandler {
 			if(msg instanceof ShortMessage) {
 				ShortMessage smsg = (ShortMessage)msg;
 				if(smsg.getCommand() == ShortMessage.PITCH_BEND) {
-					float val   = (float)MidiIO.toInt14(smsg.getData1(), smsg.getData2()) / (float)MidiIO.MAX_14BIT;
+					float val   = MidiIO.toInt14(smsg.getData1(), smsg.getData2()) / MidiIO.MAX_14BIT;
 					cmd.setVal(p, ((cmd.getMax(p) - cmd.getMin(p)) * val) + cmd.getMin(p));
 				} else {
 					switch(pad) {
