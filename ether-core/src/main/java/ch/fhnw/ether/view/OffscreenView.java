@@ -1,5 +1,6 @@
 package ch.fhnw.ether.view;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL11;
@@ -206,4 +207,7 @@ public class OffscreenView implements IView, IWindow {
 	@Override public void setWindowListener(IWindowListener windowListener) {}
 	@Override public void setKeyListener(IKeyListener keyListener) {}
 	@Override public void setPointerListener(IPointerListener pointerListener) {}
+
+	@Override
+	public void setPointerIcon(File file, int hotX, int hotY) {}
 }

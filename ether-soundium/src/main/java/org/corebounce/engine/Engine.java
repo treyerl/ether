@@ -141,7 +141,7 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		sash.setLayoutData(GridDataFactory.fill(true, true));
 
 		if(table != null) table.dispose();
-		table = new Table(sash, SWT.V_SCROLL | SWT.MULTI);
+		table = new Table(sash, SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
 		table.setLayoutData(GridDataFactory.fill(true, true));
 		table.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 		table.addSelectionListener(new SelectionListener() {
@@ -162,7 +162,6 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 				}
 			}
 		});
-		table.setLinesVisible(true);
 		table.setHeaderVisible(true);
 		for(int i = 0; i < COLS.length; i++) {
 			TableColumn col = new TableColumn(table, SWT.NONE);
@@ -300,6 +299,7 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		}
 		if(selection == null)	table.deselectAll();
 		else					table.select(newSelectionIndex);
+		table.setLinesVisible(table.getItemCount() > 0);
 		table.redraw();
 	}
 

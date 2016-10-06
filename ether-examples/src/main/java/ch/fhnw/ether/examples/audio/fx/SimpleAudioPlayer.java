@@ -38,24 +38,27 @@ import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.JavaSoundTarget;
 import ch.fhnw.ether.audio.URLAudioSource;
 import ch.fhnw.ether.audio.fx.AudioGain;
-import ch.fhnw.ether.media.IScheduler;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.ui.ParameterWindow;
+import ch.fhnw.ether.ui.ParameterWindow.Flag;
 
 
 public class SimpleAudioPlayer {
 	public static void main(String[] args) throws IOException, RenderCommandException {
+		Platform.get().init();
+		
 		URLAudioSource                    track   = new URLAudioSource(new File(args[0]).toURI().toURL());
 		AudioGain                         gain    = new AudioGain();
 		RenderProgram<IAudioRenderTarget> program = new RenderProgram<>(track, gain);
 		
-		new ParameterWindow(program);
+		new ParameterWindow(program, Flag.EXIT_ON_CLOSE, Flag.CLOSE_ON_STOP);
 		
 		JavaSoundTarget audioOut = new JavaSoundTarget();
 		audioOut.useProgram(program);
-		audioOut.start();
-		audioOut.sleepUntil(IScheduler.NOT_RENDERING);
-		audioOut.stop();
+		audioOut.start();		
+		
+		Platform.get().run();
 	}
 }

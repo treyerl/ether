@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.controller.event;
 
+import org.lwjgl.glfw.GLFW;
+
 import ch.fhnw.ether.view.IView;
 
 /**
@@ -66,6 +68,12 @@ public interface IKeyEvent extends IEvent {
 			return repeated;
 		}
 	}
+
+	int VK_END    = GLFW.GLFW_KEY_END;
+	int VK_ENTER  = GLFW.GLFW_KEY_ENTER;
+	int VK_ESCAPE = GLFW.GLFW_KEY_ESCAPE;
+	int VK_DELETE = GLFW.GLFW_KEY_END;
+	
 	
 	/**
 	 * Returns keyboard key associated with this event.

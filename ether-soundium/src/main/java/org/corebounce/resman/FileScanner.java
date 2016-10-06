@@ -99,6 +99,6 @@ public final class FileScanner implements Runnable {
 	}
 
 	private void setStatus(String msg) {
-		//log.info(msg);
+		// log.info(msg);
 	}
 }

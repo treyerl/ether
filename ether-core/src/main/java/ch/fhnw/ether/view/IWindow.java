@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.view;
 
+import java.io.File;
+
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.IDisposable;
@@ -293,4 +295,5 @@ public interface IWindow extends IDisposable {
 		return Platform.get().createWindow(monitor, title);
 	}
 
+	void setPointerIcon(File file, int hotX, int hotY);
 }

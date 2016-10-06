@@ -1,6 +1,7 @@
 package org.corebounce.io;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 
@@ -31,19 +32,22 @@ public class OSC extends Subsystem {
 	public OSC(String[] args, Audio audio, Monitors mons) throws NumberFormatException, IOException {
 		super(CFG_PREFIX, args);
 		this.mons = mons;
-		int port = 0;
+		int port = 55556;
 		try {
 			port = Integer.parseInt(configuration.get("server"));
 		} catch(Throwable t) {}
 		server = new OSCServer(port);
-		for(int i = 0; ; i++) {
+		for(int i = -1; ; i++) {
 			try {
-				String[] peer = TextUtilities.split(configuration.get("p"+i), ':');
-				server.addPeer(configuration.get("p"+i), new InetSocketAddress(peer[0], Integer.parseInt(peer[1])));
+				String peerKey = i < 0 ? "p" : "p"+i;
+				String[] peer = TextUtilities.split(configuration.get(peerKey), ':');
+				server.addPeer(peerKey, new InetSocketAddress(peer[0], Integer.parseInt(peer[1])));
 			} catch(Throwable t) {
 				break;
 			}
 		}
+		if(server.getPeers().isEmpty())
+			server.addPeer("default", new InetSocketAddress(InetAddress.getLocalHost(), port-1));
 		audio.addLast(new AbstractRenderCommand<IAudioRenderTarget>() {
 			int lastBeatCount;
 			int lastBeatCountPLL;

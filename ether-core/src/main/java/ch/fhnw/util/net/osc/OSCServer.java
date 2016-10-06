@@ -90,14 +90,15 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 			socket.setSendBufferSize(size);
 		}
 
+		StringBuilder ifaddrs = new StringBuilder();
+		for(InetAddress ifaddr : NetworkUtilities.getLocalAddresses(true))
+			ifaddrs.append(ifaddr.getHostName()).append(',');
+		ifaddrs.setLength(ifaddrs.length()-1);
+		
 		rxThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					StringBuilder ifaddrs = new StringBuilder();
-					for(InetAddress ifaddr : NetworkUtilities.getLocalAddresses(true))
-						ifaddrs.append(ifaddr.getHostName()).append(',');
-					ifaddrs.setLength(ifaddrs.length()-1);
 					log.info(Thread.currentThread().getName() + " started (" + ifaddrs + ":" + socket.getLocalPort() + ")");
 					for (;;) {
 						try {
@@ -117,14 +118,14 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 					log.warning(e);
 				}
 			}
-		}, "osc receiver");
+		}, "OSC receiver");
 		rxThread.setDaemon(true);
 		rxThread.setPriority(Thread.MAX_PRIORITY);
 
 		txThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				log.info(Thread.currentThread().getName() + " started)");
+				log.info(Thread.currentThread().getName() + " started (" + ifaddrs + ")");
 				// every 10 packets wait 10ms to avoid UDP packet drops.
 				int count = 10;
 				int i = count;
@@ -141,7 +142,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 					}
 				}
 			}
-		}, "osc sender");
+		}, "OSC sender");
 		txThread.setDaemon(true);
 
 		processThread = new Thread(new Runnable() {
@@ -157,7 +158,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 					}
 				}
 			}
-		}, "osc sender");
+		}, "OSC processor");
 		processThread.setDaemon(true);
 		
 		OSCCommon.setExceptionHandler(new ExceptionHandler() {
@@ -177,6 +178,10 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	public void addPeer(String id, SocketAddress addr) {
 		remotePeers.put(id, addr);
 		log.info("OSC peer added:" + addr);
+	}
+
+	public Collection<SocketAddress> getPeers() {
+		return remotePeers.values();
 	}
 
 	public void send(String address, Collection<?> args) {

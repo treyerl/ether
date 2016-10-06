@@ -14,13 +14,10 @@ public class Monitors extends Subsystem {
 	public Monitors(String[] args) {
 		super(CFG_PREFIX, args);
 	}
-
-	public static String   CFG_PREFIX = "mon";
-	public static String[] CFG_OPTIONS = ClassUtilities.EMPTY_StringA;
-
+	
 	public IMonitor getSoundiumMonitor() {
-		IMonitor result = Platform.get().getMonitors()[0];
-		try {result = Platform.get().getMonitors()[Integer.parseInt(configuration.get("sndm"))];} catch(Throwable t) {}
+		IMonitor result = MONITORS[0];
+		try {result = MONITORS[Integer.parseInt(configuration.get("sndm"))];} catch(Throwable t) {}
 		return result;
 	}
 
@@ -28,19 +25,23 @@ public class Monitors extends Subsystem {
 		List<IMonitor> result = new ArrayList<>();
 		for(int cam = 0; ; cam++) {
 			try{
-				result.add(Platform.get().getMonitors()[Integer.parseInt(configuration.get("cam"+cam))]);
+				result.add(MONITORS[Integer.parseInt(configuration.get("cam"+cam))]);
 			}catch(Throwable t){
 				break;
 			}
 		}
 		if(result.isEmpty())
-			result.add(Platform.get().getMonitors()[0]);
+			result.add(MONITORS[0]);
 		return result.toArray(new IMonitor[result.size()]);
 	}
 	
+	private static final IMonitor[] MONITORS = Platform.get().getMonitors();
+	public static final String      CFG_PREFIX = "mon";
+	public static       String[]    CFG_OPTIONS = ClassUtilities.EMPTY_StringA;
+
 	static {
 		int monCount = 0;
-		for(IMonitor mon : Platform.get().getMonitors())
+		for(IMonitor mon : MONITORS)
 			CFG_OPTIONS = ArrayUtilities.cat(CFG_OPTIONS, new String[] {"sndm="+monCount++, mon.toString()});
 		StringBuilder cams = new StringBuilder("cam<n>=");
 		for(int mon = 0; mon < monCount; mon++)
@@ -49,8 +50,10 @@ public class Monitors extends Subsystem {
 		cams.setLength(0);
 		cams.append("Assign engine camera <n> to monitor <m>. Monitors:");
 		monCount = 0;
-		for(IMonitor mon : Platform.get().getMonitors())
+		for(IMonitor mon : MONITORS)
 			cams.append(" " + monCount++ + ":'" + mon.toString()+"'");
 		CFG_OPTIONS = ArrayUtilities.append(CFG_OPTIONS, cams.toString());		
 	}
+	
+	
 }

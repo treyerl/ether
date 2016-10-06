@@ -12,8 +12,9 @@ public class Resources extends Subsystem {
 	public Resources(MetaDB db, PreviewFactory pf, String ... args) {
 		super(CFG_PREFIX, args);
 
-		for(int i = 0; ; i++) {
-			String path = configuration.get("path"+i);
+		for(int i = -1; ; i++) {
+			String key = i < 0 ? "path" : "path"+i;
+			String path = configuration.get(key);
 			if(path == null) break;
 			File dir = new File(path);
 			if(dir.exists() && dir.isDirectory())

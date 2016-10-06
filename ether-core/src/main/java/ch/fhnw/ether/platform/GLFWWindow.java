@@ -31,16 +31,25 @@
 
 package ch.fhnw.ether.platform;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryUtil;
 
+import ch.fhnw.ether.image.IHostImage;
+import ch.fhnw.ether.image.IImage.AlphaMode;
+import ch.fhnw.ether.image.IImage.ComponentFormat;
+import ch.fhnw.ether.image.IImage.ComponentType;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.view.IWindow;
 import ch.fhnw.util.Log;
@@ -53,7 +62,7 @@ import ch.fhnw.util.math.Vec2;
  */
 final class GLFWWindow implements IWindow {
 	private static final Log log = Log.create();
-	
+
 	private static final boolean DBG = false;
 
 	private static final AtomicInteger NUM_WINDOWS = new AtomicInteger();
@@ -102,7 +111,7 @@ final class GLFWWindow implements IWindow {
 	public GLFWWindow(Vec2 size, String title, boolean decorated) {
 		this(null, size, title, decorated);
 	}
-	
+
 	/**
 	 * Creates a full screen window.
 	 *
@@ -473,5 +482,25 @@ final class GLFWWindow implements IWindow {
 	private void checkMainThread() {
 		if (!Platform.get().isMainThread())
 			throw new IllegalThreadStateException("must be called from main thread, but called from " + Thread.currentThread());
+	}
+
+	private static final Map<File, Long> FILE2CRSR = new HashMap<>();
+	@Override
+	public void setPointerIcon(File file, int hotX, int hotY) {
+		Long cursor = FILE2CRSR.get(file);
+		if(cursor == null) {
+			try {
+				IHostImage src = Platform.get().getImageSupport().readHost(new FileInputStream(file), ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
+				GLFWImage image = GLFWImage.malloc();
+				image.set(src.getWidth(), src.getHeight(), src.getPixels());			
+				cursor = Long.valueOf(GLFW.glfwCreateCursor(image, hotX, hotY));
+				FILE2CRSR.put(file, cursor);
+				image.free();
+			} catch(Throwable t) {
+				log.warning(t);
+			}
+		}
+		if(cursor != null)
+			GLFW.glfwSetCursor(window, cursor.longValue());
 	}
 }

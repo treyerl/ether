@@ -74,7 +74,7 @@ public class AudioVisualizer {
 	    Shell shell = new Shell(display);
 		shell.setText("Audio Visualizer");
 		shell.setLayout(new FillLayout());
-		Canvas c = new Canvas(shell, SWT.NONE);
+		Canvas c = new Canvas(shell, SWT.DOUBLE_BUFFERED | SWT.NO_BACKGROUND);
 		c.addPaintListener(e->{
 			Rectangle b = c.getBounds();
 			e.gc.fillRectangle(b);

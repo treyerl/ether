@@ -1,8 +1,6 @@
 package ch.fhnw.ether.midi;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +16,6 @@ import javax.sound.midi.SysexMessage;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.Parameter.Type;
 import ch.fhnw.ether.media.Parametrizable;
-import ch.fhnw.util.ByteList;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.MathUtilities;
@@ -73,8 +70,6 @@ public class AbletonPush implements IMidiHandler {
 
 		MidiIO.setHandler(userDevs[0], this);
 
-		//init();
-
 		setBrightness(1f);
 
 		for(int l = 0; l < 4; l++)
@@ -82,41 +77,7 @@ public class AbletonPush implements IMidiHandler {
 
 		for(PControl c : PControl.values())
 			if(!(c.name().startsWith("P_")))
-				setColor(c, RGB.BLACK);
-	}
-
-	void init() throws IOException, InvalidMidiDataException, MidiUnavailableException {
-		try(BufferedReader in = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("ableton_push_init.txt")))) {
-			for(int lineno = 1;;lineno++) {
-				MidiMessage msg;
-				String line = in.readLine();
-				if(line == null) break;
-				String[] tokens = line.split("[ ]+");
-				int  idx       = 1;
-				@SuppressWarnings("unused")
-				long timestamp = Long.parseLong(tokens[idx++]);
-				@SuppressWarnings("unused")
-				int  port      = Integer.parseInt(tokens[idx++]);
-				idx++;
-				int cmd       = Integer.parseInt(tokens[idx++]);
-				if(cmd == SysexMessage.SYSTEM_EXCLUSIVE) {
-					ByteList bl = new ByteList();
-					bl.add((byte)cmd);
-					for(;idx < tokens.length; idx++) {
-						int val = Integer.parseInt(tokens[idx]);
-						if(val > 255) throw new IOException("value (" + val + ") out of range at idx " + idx + ", line " + lineno + ":'" + line + "'");
-						bl.add((byte)val);
-					}
-					msg = new SysexMessage(bl.toArray(), bl.size());
-				} else {
-					int data1 = Integer.parseInt(tokens[idx++]);
-					int data2 = Integer.parseInt(tokens[idx++]);
-					msg = new ShortMessage(cmd, data1, data2);
-				}
-				//System.out.println(MidiToString.toString(msg));
-				MidiIO.send(userDevs[1], msg);
-			}
-		}
+				setColor(c, RGB.BLACK);		
 	}
 
 	static SysexMessage sysex(int ... data) throws InvalidMidiDataException {
@@ -663,13 +624,13 @@ public class AbletonPush implements IMidiHandler {
 	}
 
 	public void setRow1(RGB c0, RGB c1, RGB c2, RGB c3, RGB c4, RGB c5, RGB c6, RGB c7) throws MidiUnavailableException, InvalidMidiDataException {
-		setColor(PControl.ROW0_0, c0);
-		setColor(PControl.ROW0_1, c1);
-		setColor(PControl.ROW0_2, c2);
-		setColor(PControl.ROW0_3, c3);
-		setColor(PControl.ROW0_4, c4);
-		setColor(PControl.ROW0_5, c5);
-		setColor(PControl.ROW0_6, c6);
-		setColor(PControl.ROW0_7, c7);
+		setColor(PControl.ROW1_0, c0);
+		setColor(PControl.ROW1_1, c1);
+		setColor(PControl.ROW1_2, c2);
+		setColor(PControl.ROW1_3, c3);
+		setColor(PControl.ROW1_4, c4);
+		setColor(PControl.ROW1_5, c5);
+		setColor(PControl.ROW1_6, c6);
+		setColor(PControl.ROW1_7, c7);
 	}
 }

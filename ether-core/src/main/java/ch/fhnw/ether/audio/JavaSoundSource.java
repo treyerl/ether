@@ -48,6 +48,7 @@ import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.util.Pair;
+import ch.fhnw.util.TextUtilities;
 
 public class JavaSoundSource extends AbstractFrameSource implements Runnable, IAudioSource {
 	private static final float       S2F    = Short.MAX_VALUE;
@@ -95,7 +96,7 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 			}
 		}
 	}
-	
+
 	@Override
 	protected void run(IRenderTarget<?> target) throws RenderCommandException {
 		if(lastErr != null) throw new RenderCommandException(lastErr);
@@ -134,7 +135,7 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 	public double getLengthInSeconds() {
 		return LENGTH_INFINITE;
 	}
-	
+
 	@Override
 	public float getSampleRate() {
 		return sampleRate;
@@ -145,7 +146,7 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 		double result = (frameSize / getNumChannels()) * sampleRate;
 		return (float)result;
 	}
-	
+
 	@Override
 	public int getNumChannels() {
 		return nChannels;
@@ -175,5 +176,13 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 		for(Pair<Mixer.Info, Line.Info> src : sources)
 			result[idx++] = src.first.getName();
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return TextUtilities.getShortClassName(this) + ": " + line == null ?
+				sampleRate + " Hz, " + nChannels + " channels, " + frameSize + " samples/frame" :
+					line.getLineInfo().toString();
+
 	}
 }

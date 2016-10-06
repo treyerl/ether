@@ -1,5 +1,6 @@
 package org.corebounce.audio;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -56,8 +57,15 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 
 		URL url = null;
 		try {
-			url = new URL(configuration.get("in"));
+			File f = new File(configuration.get("in"));
+			if(f.isFile() && f.exists())
+				url = f.toURI().toURL();
 		} catch(Throwable t) {}
+		if(url == null) {
+			try {
+				url = new URL(configuration.get("in"));
+			} catch(Throwable t) {}
+		}
 
 		gain.setVal(AutoGain.ATTACK,  0.05f);
 		gain.setVal(AutoGain.SUSTAIN, 9f);
@@ -69,11 +77,12 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		} catch(Throwable t) {}
 
 		src = url == null ? new JavaSoundSource(2, 44100, 1024) : new URLAudioSource(url);
-
 		audio = new RenderProgram<>(src, dcrmv, gain, bands, onset, beatDetect, out);
-
 		dst.useProgram(audio);
 		dst.start();
+
+		log.info("Audio source:" + src);
+		log.info("Audio Monitor: " + dst);
 
 		if(!("off".equals(configuration.get("link")))) {
 			link.addHandler(this);
@@ -161,7 +170,7 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 
 		lastTap = now;
 	}
-	
+
 	public void addBeatListener(IBeatListener listener) {
 		synchronized (s_listeners) {
 			s_listeners.add(listener);
@@ -173,7 +182,7 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 			CollectionUtilities.removeAll(s_listeners, listener);
 		}
 	}
-	
+
 	void fireBeat(int beatCount) {
 		IBeatListener[] blisteners = null;
 		synchronized (s_listeners) {
@@ -187,11 +196,11 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 			}
 		}
 	}
-	
+
 	public boolean isPaused() {
 		return !(dst.isRendering());
 	}
-	
+
 	public void setPaused(boolean state) throws RenderCommandException {
 		if(state) {
 			if(dst.isRendering())

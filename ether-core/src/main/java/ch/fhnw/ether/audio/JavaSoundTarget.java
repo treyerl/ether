@@ -40,6 +40,7 @@ import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.util.ByteList;
 import ch.fhnw.util.Log;
+import ch.fhnw.util.TextUtilities;
 
 public final class JavaSoundTarget extends AbstractAudioTarget {
 	private static final Log log = Log.create();
@@ -81,7 +82,7 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 	/**
 	 * Create a new audio target using Java sound output.
 	 *
-	 * @param bufferSize The output buffer size. Values below 2048 produce audio glitches on most platforms.
+	 * @param bufferSize The output buffer size in bytes. Values below 2048 produce audio glitches on most platforms.
 	 * @param recorder The buffer to record to.
 	 */
 	public JavaSoundTarget(int bufferSize, ByteList recorder) {
@@ -187,5 +188,13 @@ public final class JavaSoundTarget extends AbstractAudioTarget {
 	
 	public AudioFormat getJavaSoundAudioFormat() {
 		return fmt;
+	}
+	
+	@Override
+	public String toString() {
+		return TextUtilities.getShortClassName(this) + ": " + out == null ?
+				"bufferSize:" + bufferSize + " bytes" :
+					out.getLineInfo().toString() + " (" + fmt + ")";
+
 	}
 }
