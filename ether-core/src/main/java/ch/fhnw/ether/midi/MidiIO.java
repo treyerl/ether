@@ -161,19 +161,21 @@ public class MidiIO {
 	public static void init() {
 		if(!inited.getAndSet(true)) {
 			try {
-				File tmp = File.createTempFile(MidiIO.class.getName(), ".lck");
-				MidiSystem.setLibraryPath(tmp.getParent());
-				File dst = new File(tmp.getParentFile(), "libmmj.jnilib");
-				IOUtilities.copy(MidiIO.class.getResourceAsStream("/native.osx.x64/" + dst.getName()), dst);
-				dst.setExecutable(true);
-				tmp.delete();
-				dst.deleteOnExit();
+				if(Platform.getOS() == OS.MACOSX) {
+					File tmp = File.createTempFile(MidiIO.class.getName(), ".lck");
+					MidiSystem.setLibraryPath(tmp.getParent());
+					File dst = new File(tmp.getParentFile(), "libmmj.jnilib");
+					IOUtilities.copy(MidiIO.class.getResourceAsStream("/native.osx.x64/" + dst.getName()), dst);
+					dst.setExecutable(true);
+					tmp.delete();
+					dst.deleteOnExit();
+				}
 			} catch(Throwable t) {
 				log.severe(t);
 			}
 		}
 	}
-	
+
 	public static final float MAX_14BIT = 0x3FFF;
 	public static int toInt14(int nLowerPart, int nHigherPart) {
 		return (nLowerPart & 0x7F) | ((nHigherPart & 0x7F) << 7);
