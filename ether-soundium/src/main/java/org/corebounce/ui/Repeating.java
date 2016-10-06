@@ -19,7 +19,7 @@ public class Repeating extends TimerTask implements IDisposable {
 	public Repeating(int initialDelay, int delay, Runnable r) {
 		timer.schedule(this, initialDelay, delay);
 		this.r     = new AtomicReference<>(r);
-		Platform.get().addShutdownDispose((IDisposable)this);
+		Platform.get().addShutdownDispose(this);
 	}
 	
 	@Override

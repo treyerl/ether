@@ -28,15 +28,22 @@ public class AbletonPush implements IMidiHandler {
 	private final MidiDevice[] liveDevs = new MidiDevice[2];
 	private final MidiDevice[] userDevs = new MidiDevice[2];
 
-	private static final String LIVE_PORT = "Ableton Push Live Port";
-	private static final String USER_PORT = "Ableton Push User Port";
+	private static final String ABLETON_PUSH = "Ableton Push";
+	private static final String LIVE_PORT    = ABLETON_PUSH + " Live Port";
+	private static final String USER_PORT    = ABLETON_PUSH + " User Port";
+	private static final String MIDIIN       = "MIDIIN2 ("+ABLETON_PUSH+")";
+	private static final String MIDIOUT      = "MIDIOUT2 ("+ABLETON_PUSH+")";
 
 	public AbletonPush(int deviceIdx) throws MidiUnavailableException, IOException, InvalidMidiDataException {
 		MidiIO.init();
 		int liveCount = 0;
 		int userCount = 0;
 		for(MidiDevice.Info info : MidiSystem.getMidiDeviceInfo()) {
-			if(LIVE_PORT.equals(info.getDescription())) {
+			if(ABLETON_PUSH.equals(info.getName())) {
+				if(liveCount / 2 == deviceIdx)
+					liveDevs[liveCount % 2] = MidiSystem.getMidiDevice(info);
+				liveCount++;
+			} else if(LIVE_PORT.equals(info.getDescription())) {
 				if(liveCount / 2 == deviceIdx)
 					liveDevs[liveCount % 2] = MidiSystem.getMidiDevice(info);
 				liveCount++;
@@ -44,6 +51,14 @@ public class AbletonPush implements IMidiHandler {
 			else if(USER_PORT.equals(info.getDescription())) {
 				if(userCount / 2 == deviceIdx)
 					userDevs[userCount % 2] = MidiSystem.getMidiDevice(info);
+				userCount++;
+			} else if(MIDIIN.equals(info.getName())) {
+				if(userCount / 2 == deviceIdx)
+					userDevs[0] = MidiSystem.getMidiDevice(info);
+				userCount++;
+			} else if(MIDIOUT.equals(info.getName())) {
+				if(userCount / 2 == deviceIdx)
+					userDevs[1] = MidiSystem.getMidiDevice(info);
 				userCount++;
 			}
 		}
@@ -549,7 +564,7 @@ public class AbletonPush implements IMidiHandler {
 			if(msg instanceof ShortMessage) {
 				ShortMessage smsg = (ShortMessage)msg;
 				if(smsg.getCommand() == ShortMessage.PITCH_BEND) {
-					float val   = (float)MidiIO.toInt14(smsg.getData1(), smsg.getData2()) / (float)MidiIO.MAX_14BIT;
+					float val   = MidiIO.toInt14(smsg.getData1(), smsg.getData2()) / MidiIO.MAX_14BIT;
 					cmd.setVal(p, ((cmd.getMax(p) - cmd.getMin(p)) * val) + cmd.getMin(p));
 				} else {
 					switch(pad) {
