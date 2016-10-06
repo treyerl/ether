@@ -205,4 +205,9 @@ public final class RGB implements IColor, IVec3 {
 		}
 		return result;
 	}
+
+	public float brightness() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

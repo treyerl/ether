@@ -155,9 +155,10 @@ public final class MetaDB extends Subsystem {
 	}
 
 	public void syncDB() {
-		log.info("Syncing resources.");
+		boolean synced = false;
 		for (Resource resource : getResources())
-			sync(resource);
+			synced |= sync(resource);
+		if(synced) log.info("Resources synced.");
 	}
 
 	private void handleResource(byte[] buffer, int count) {
@@ -297,10 +298,10 @@ public final class MetaDB extends Subsystem {
 		}
 	}
 
-	public void sync(Resource res) {
+	public boolean sync(Resource res) {
 		synchronized (this) {
 			if (!res.needsSync())
-				return;
+				return false;
 			try(BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(getPropsFile(res.getMD5())))) {
 				synchronized (md2res) {
 					for (Resource r :  md2res.get(res.getIndex()).values()) {
@@ -313,6 +314,7 @@ public final class MetaDB extends Subsystem {
 		}
 		for(IChangeListener l : listeners)
 			l.metaDBchanged();
+		return true;
 	}
 
 	public File translatePath(String path) {
@@ -376,7 +378,7 @@ public final class MetaDB extends Subsystem {
 	public Image icon48x48(Display display, String key) {
 		return icon48x48(display, key, DEF_ICONS[0]);
 	}
-	
+
 	public Image icon48x48(Display display, String key, String defaultKey) {
 		Image result = icons48x48.get(key);
 		if(result == null) {

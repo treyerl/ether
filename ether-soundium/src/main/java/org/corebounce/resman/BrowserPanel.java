@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.corebounce.engine.Engine;
 import org.corebounce.io.OSC;
 import org.corebounce.ui.GridDataFactory;
 import org.corebounce.ui.Repeating;
@@ -57,6 +59,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 	private static final String K_RES  = "res";
 	private static final String SEARCH = "search_history.txt";
 
+	private final Engine         engine;
 	private final MetaDB         db;
 	private final PreviewFactory pf;
 	private final OSC            osc;
@@ -84,7 +87,8 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 	private       boolean        showGeometry = false;
 	private final Pusher         pusher;
 
-	public BrowserPanel(PreviewFactory pf, OSC osc, MetaDB db) {
+	public BrowserPanel(Engine engine, PreviewFactory pf, OSC osc, MetaDB db) {
+		this.engine        = engine;
 		this.db            = db;
 		this.pf            = pf;
 		this.osc           = osc;
@@ -158,48 +162,64 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		table.addListener(SWT.KeyDown, event->focusSearch(event));
 
 		itemPainter(table);
-
 		dropTarget(table);
 
-		osc.addHandler("/slots", new IOSCHandler() {
+		osc.addHandler("/state", new IOSCHandler() {
+			private AtomicReference<Object[]> args       = new AtomicReference<Object[]>(ClassUtilities.EMPTY_ObjectA);
+			private AtomicBoolean             slotsUpdate = new AtomicBoolean();
+			
 			@Override
-			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object... slots) {
-				Display.getDefault().asyncExec(()->{
-					if(table.isDisposed()) return;
-					boolean changed = false;
-					Display display = Display.getDefault();
-					for(int i = table.getItemCount(); --i >= slots.length / 2;) {
-						table.getItem(i).dispose();
-						changed = true;
-					}
-					for(int i = 0; i < slots.length; i += 2) {
-						String slot = slots[i+0].toString();
-						String md5  = slots[i+1].toString();
-						int tidx = i/2;
-						TableItem item = null;
-						if(tidx < table.getItemCount()) {
-							item = table.getItem(tidx);
-							if(!(item.getText().equals(slot))) {
+			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object ... cargs) {
+				this.args.set(cargs);
+
+				if(!(slotsUpdate.getAndSet(true))) {
+					Display.getDefault().asyncExec(()->{
+						if(table.isDisposed()) return;
+
+						final Object[] args = this.args.get();
+
+						boolean changed = false;
+						Display display = Display.getDefault();
+						if(args.length / 2 != table.getItemCount()) {
+							for(int i = table.getItemCount(); --i >= args.length / 2;) {
+								table.getItem(i).dispose();
+								changed = true;
+							}
+						}
+						engine.setMaster(((Number)args[0]).floatValue());
+						for(int i = 1; i < args.length; i += 2) {
+							String slot = args[i+0].toString();
+							String md5  = args[i+1].toString();
+							int tidx = i/2;
+							TableItem item = null;
+							if(tidx < table.getItemCount()) {
+								item = table.getItem(tidx);
+								if(!(item.getText().equals(slot))) {
+									item.setText(slot);
+									changed = true;
+								}
+							} else {
+								item = new TableItem(table, SWT.NONE);
 								item.setText(slot);
 								changed = true;
 							}
-						} else {
-							item = new TableItem(table, SWT.NONE);
-							item.setText(slot);
-							changed = true;
+							if(item != null) {
+								if(md5.length() > 8) {
+									Resource res = db.getResourceForMD(md5);
+									if(res != null)
+										changed |= setItem(display, item, res, false);
+								} else {
+									changed |= item.getImage() != null;
+									item.setImage((Image)null);
+								}
+							}
 						}
-						if(item != null) {
-							if(md5.length() > 8) {
-								Resource res = db.getResourceForMD(md5);
-								if(res != null)
-									setItem(display, item, res, false);
-							} else item.setImage((Image)null);
-							changed = true;
+						if(changed) {
+							table.redraw();
 						}
-					}
-					if(changed)
-						table.redraw();
-				});
+						slotsUpdate.set(false);
+					});
+				}
 				return null;
 			}
 		});
@@ -215,9 +235,8 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 					event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
 				}
 				for (int i = 0, n = event.dataTypes.length; i < n; i++) {
-					if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i])) {
+					if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i]))
 						event.currentDataType = event.dataTypes[i];
-					}
 				}
 			}
 
@@ -249,10 +268,17 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		});
 	}
 
-	private void setItem(Display display, TableItem item, Resource res, boolean setLabel) {
-		if(setLabel) item.setText(res.getLabel());
+	private boolean setItem(Display display, TableItem item, Resource res, boolean setLabel) {
+		boolean changed = false;
+		if(setLabel) {
+			changed |= !(res.getLabel().equals(item.getText()));
+			item.setText(res.getLabel());
+		}
 		item.setData(K_RES, res);
-		item.setImage(pf.getPreviewImage(res, display));
+		Image prevw = pf.getPreviewImage(res, display);
+		changed |= item.getImage() != prevw;
+		item.setImage(prevw);
+		return changed;
 	}
 
 	private void resList(Composite parent) {

@@ -10,8 +10,8 @@ import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.ClassUtilities;
 
-public class Monitor extends Subsystem {
-	public Monitor(String[] args) {
+public class Monitors extends Subsystem {
+	public Monitors(String[] args) {
 		super(CFG_PREFIX, args);
 	}
 

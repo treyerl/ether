@@ -59,13 +59,15 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	private final InetSocketAddress address;
 	private final DatagramSocket socket;
 
-	private final BlockingQueue<DatagramPacket> sendQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<DatagramPacket> txQueue = new LinkedBlockingQueue<>();
+	private final BlockingQueue<DatagramPacket> rxQueue = new LinkedBlockingQueue<>();
 
 	private final Map<String, SocketAddress> remotePeers = new ConcurrentHashMap<>();
 
-	private final Thread receiveThread;
-	private final Thread sendThread;
-
+	private final Thread rxThread;
+	private final Thread processThread;
+	private final Thread txThread;
+	
 	public OSCServer(int port) throws IOException {
 		this(port, null);
 	}
@@ -88,7 +90,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 			socket.setSendBufferSize(size);
 		}
 
-		receiveThread = new Thread(new Runnable() {
+		rxThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -103,8 +105,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 							DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 							socket.receive(packet);
 							try {
-								ByteBuffer buf = ByteBuffer.wrap(packet.getData(), 0, packet.getLength());
-								process(packet.getSocketAddress(), buf, OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
+								rxQueue.put(packet);
 							} catch (Exception e) {
 								OSCCommon.handleException(e, this);							
 							}
@@ -117,10 +118,10 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 				}
 			}
 		}, "osc receiver");
-		receiveThread.setDaemon(true);
-		receiveThread.setPriority(Thread.MAX_PRIORITY);
+		rxThread.setDaemon(true);
+		rxThread.setPriority(Thread.MAX_PRIORITY);
 
-		sendThread = new Thread(new Runnable() {
+		txThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				log.info(Thread.currentThread().getName() + " started)");
@@ -129,19 +130,36 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 				int i = count;
 				for (;;) {
 					try {
-						DatagramPacket packet = sendQueue.take();
+						DatagramPacket packet = txQueue.take();
 						socket.send(packet);
-						if (i-- == 0) {
+						if (i-- <= 0) {
 							i = count;
 							Thread.sleep(10);
 						}
-					} catch (Exception ignored) {
+					} catch (Throwable t) {
+						log.warning(t);
 					}
 				}
 			}
 		}, "osc sender");
-		sendThread.setDaemon(true);
+		txThread.setDaemon(true);
 
+		processThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				log.info(Thread.currentThread().getName() + " started)");
+				for (;;) {
+					try {
+						DatagramPacket packet = rxQueue.take();
+						process(packet.getSocketAddress(), ByteBuffer.wrap(packet.getData(), 0, packet.getLength()), OSCCommon.TIMETAG_IMMEDIATE, OSCServer.this);
+					} catch (Throwable t) {
+						log.warning(t);
+					}
+				}
+			}
+		}, "osc sender");
+		processThread.setDaemon(true);
+		
 		OSCCommon.setExceptionHandler(new ExceptionHandler() {
 			@Override
 			public void exception(Throwable t, Object source) {
@@ -151,8 +169,9 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	}
 
 	public void start() {
-		receiveThread.start();
-		sendThread.start();
+		rxThread.start();
+		txThread.start();
+		processThread.start();
 	}
 
 	public void addPeer(String id, SocketAddress addr) {
@@ -174,7 +193,7 @@ public final class OSCServer extends OSCDispatcher implements OSCSender {
 	public void send(SocketAddress destination, ByteBuffer packet) {
 		DatagramPacket p = new DatagramPacket(packet.array(), packet.capacity());
 		p.setSocketAddress(destination);
-		sendQueue.add(p);
+		txQueue.add(p);
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {

@@ -6,7 +6,7 @@ import java.util.Collection;
 
 import org.corebounce.audio.Audio;
 import org.corebounce.soundium.Subsystem;
-import org.corebounce.video.Monitor;
+import org.corebounce.video.Monitors;
 
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.fx.BandsButterworth;
@@ -14,18 +14,23 @@ import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.util.ClassUtilities;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.net.osc.IOSCHandler;
 import ch.fhnw.util.net.osc.OSCServer;
 
 public class OSC extends Subsystem {
+	private static final Log log = Log.create();
+
 	private final OSCServer server;
 	private       String[]  slots  = ClassUtilities.EMPTY_StringA;
 	private       float[]   power  = ClassUtilities.EMPTY_floatA;
 	private       Object[]  powera = ClassUtilities.EMPTY_ObjectA;
+	private final Monitors  mons;
 
-	public OSC(String[] args, Audio audio, Monitor mons) throws NumberFormatException, IOException {
+	public OSC(String[] args, Audio audio, Monitors mons) throws NumberFormatException, IOException {
 		super(CFG_PREFIX, args);
+		this.mons = mons;
 		int port = 0;
 		try {
 			port = Integer.parseInt(configuration.get("server"));
@@ -71,19 +76,28 @@ public class OSC extends Subsystem {
 		Thread t = new Thread(()->{
 			for(;;) {
 				try {
-					Object[] monitors  = new Object[mons.getEngineMonitors().length];
-					int i = 0;
-					for(IMonitor mon : mons.getEngineMonitors()) {
-						monitors[i++] = mon.getIndex();
-					}
-					send("/slots", monitors);
+					queryState();
 					Thread.sleep(1000);
-				} catch(Throwable e) {}
+				} catch(Throwable e) {
+					log.warning(e);
+				}
 			}
 		}, "OSC Ping");
 		t.setPriority(Thread.MIN_PRIORITY);
 		t.setDaemon(true);
 		t.start();		
+	}
+
+	public synchronized void queryState() {
+		try {
+			Object[] monitors  = new Object[mons.getEngineMonitors().length];
+			int i = 0;
+			for(IMonitor mon : mons.getEngineMonitors())
+				monitors[i++] = mon.getIndex();
+			send("/state", monitors);
+		} catch(Throwable e) {
+			log.warning(e);
+		}
 	}
 
 	public void send(String oscAddr, Collection<?> values) {

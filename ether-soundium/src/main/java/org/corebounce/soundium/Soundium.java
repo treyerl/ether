@@ -18,7 +18,7 @@ import org.corebounce.resman.Resources;
 import org.corebounce.soundium.Splash.SplashAction;
 import org.corebounce.ui.CocoaUIEnhancer;
 import org.corebounce.ui.GridDataFactory;
-import org.corebounce.video.Monitor;
+import org.corebounce.video.Monitors;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -49,7 +49,7 @@ public class Soundium {
 	private static final Log log = Log.create();
 
 	static private final Class<?>[] SUBSYSTEMS = {
-			Monitor.class,
+			Monitors.class,
 			Audio.class,
 			MetaDB.class,
 			OSC.class,
@@ -59,7 +59,7 @@ public class Soundium {
 
 	public static final String VERSION = "Soundium Nouveau";
 
-	private final Monitor           monitors;
+	private final Monitors           monitors;
 	private final Audio             audio;
 	private final OSC               osc;
 	private final MetaDB            db;
@@ -83,7 +83,7 @@ public class Soundium {
 			prefs = new Preferences();
 		}		
 
-		monitors       = new Monitor(args);
+		monitors       = new Monitors(args);
 		IMonitor  sndmMon  = monitors.getSoundiumMonitor();
 		Rectangle sndmMonR = new Rectangle(sndmMon.getX(), sndmMon.getY(), sndmMon.getWidth(), sndmMon.getHeight());
 		Splash splash = new Splash(display, sndmMonR, true);
@@ -120,10 +120,9 @@ public class Soundium {
 		tabFolder.setLayoutData(GridDataFactory.fill(true, true));
 		engine = new Engine(db, audio, osc, midi);
 		engine.createTabPanel(tabFolder);
-		resman = new Resman(audio, osc, db, pf);
+		resman = new Resman(engine, audio, osc, db, pf);
 		resman.createTabPanel(tabFolder);
-
-		//tabFolder.setSelection(resman.getIndex());
+		tabFolder.setSelection(resman.getTabIndex());
 
 		shell.setText(VERSION);
 		shell.setLocation(sndmMonR.x, sndmMonR.y);

@@ -190,8 +190,10 @@ public class ParameterWindow {
 		Parametrizable cmd;
 		Parameter      p;
 		float          def;
+		Composite      parent;
 
 		ParamUI(Composite parent, Parametrizable cmd, Parameter param) {
+			this.parent = parent;
 			this.cmd    = cmd;
 			this.p      = param;
 			this.def    = cmd.getVal(param);
@@ -278,6 +280,12 @@ public class ParameterWindow {
 					check.setSelection(cmd.getVal(p) != 0);
 					cmd.setVal(p, check.getSelection() ? 1 : 0);
 				}
+			}
+
+			if(parent instanceof Group) {
+				Group g = (Group)parent;
+				if(!(cmd.getGroupLabel().equals(g.getText())))
+					g.setText(cmd.getGroupLabel());
 			}
 
 			Display.getDefault().timerExec(POLL_DELAY, this);

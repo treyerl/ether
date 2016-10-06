@@ -56,7 +56,6 @@ public class Pusher {
 		this.pf  = pf;
 	}
 
-
 	private File atlasFile(File atlas, int idx) {
 		if(idx == 0) return atlas;
 		String ext = "." + TextUtilities.getFileExtensionWithoutDot(atlas);
@@ -81,31 +80,32 @@ public class Pusher {
 				values.add(Integer.valueOf((int)frameNo));
 		} else
 			values.add(Integer.valueOf(res.getProperty(Resource.TILE_N)));
-		osc.send("/slots/" + slot + "/texture", values); 
-		res.incrementUseCount();
-		db.sync(res);
+		oscSend(res, slot, "texture", values.toArray()); 
 	}
 
 	private void pushImage(Resource res, int slot) {
-		osc.send("/slots/" + slot + "/texture",  
+		oscSend(res, slot, "texture",  
 				res.getFile().toURI().toASCIIString(),
 				res.getMD5(),
 				Integer.valueOf(res.getProperty(PreviewFactory.P_WIDTH)),
 				Integer.valueOf(res.getProperty(PreviewFactory.P_HEIGHT)),
 				Integer.valueOf(1), 
 				Integer.valueOf(1));
-		res.incrementUseCount();
-		db.sync(res);
 	}
 
 	private void pushGeometry(Resource res, File vertices, int slot) {
-		osc.send("/slots/" + slot + "/geometry",  
+		oscSend(res, slot, "geometry",  
 				vertices.toURI().toASCIIString(),
 				res.getMD5());
-		res.incrementUseCount();
-		db.sync(res);
 	}
 
+	private void oscSend(Resource res, int slot, String type, Object ... args) {
+		osc.send("/slots/" + slot + "/" + type, args);
+		res.incrementUseCount();
+		db.sync(res);
+		osc.queryState();
+	}
+	
 	public void pushResource(TableItem item, Resource res, int slot) {
 		try {
 			if(MIME.match(res.getMimeType(), MIME.X_GEOMETRY+"/*")) {
@@ -123,14 +123,23 @@ public class Pusher {
 					pushImage(res, slot);
 				} else if(numFrames > 1) {
 					File atlas = db.getCacheFile(res.getMD5(), "bin");
-					if(atlas.exists()) {
+					if(atlas.exists() && hasTilingProperties(res)) {
 						pushMovie(res, atlas, slot);
 						return;
 					}
 					generateAtlas(item, res, slot, atlas);
 				}
 			}
-		} catch(Throwable t) {}
+		} catch(Throwable t) {
+			log.warning(t);
+		}
+	}
+
+	private boolean hasTilingProperties(Resource res) {
+		return 
+				res.getProperty(Resource.TILE_H) != null &&
+				res.getProperty(Resource.TILE_W) != null &&
+				res.getProperty(Resource.TILE_N) != null;
 	}
 
 	private void generateGeometry(TableItem item, Resource res, int slot, File vertices) {
@@ -258,8 +267,10 @@ public class Pusher {
 				}
 				Display.getDefault().asyncExec(()->{
 					repainer.stop();
-					item.setImage(pf.getPreviewImage(res, Display.getDefault()));
-					item.getParent().redraw();
+					if(!(item.isDisposed())) {
+						item.setImage(pf.getPreviewImage(res, Display.getDefault()));
+						item.getParent().redraw();
+					}
 				});
 			}
 		};

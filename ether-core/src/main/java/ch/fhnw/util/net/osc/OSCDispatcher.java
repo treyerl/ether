@@ -181,7 +181,7 @@ public abstract class OSCDispatcher {
 				} else
 					break;
 			}
-
+			
 			Object[] reply = handler.handle(parts, idx + 1, typeString, timetag, args);
 			if (reply != null) {
 				byte[] request = new byte[messageEnd - messageStart];

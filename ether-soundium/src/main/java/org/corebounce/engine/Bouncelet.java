@@ -29,9 +29,9 @@ import ch.fhnw.util.color.RGB;
 public class Bouncelet implements IDisposable, IBeatListener {
 	private static final Log log = Log.create();
 
-	private static final String ACTIVE     = "active";
-	private static final String BPM_DOWNER = "BPM_downer";
-	private static final String PATTERN    = "pattern";
+	public static final String ACTIVE     = "active";
+	public static final String BPM_DOWNER = "BPM_downer";
+	public static final String PATTERN    = "pattern";
 	private static final String INSPECTOR  = "Inspector";
 
 	private static final Parametrizable NO_PARAMS = new Parametrizable(INSPECTOR);
@@ -47,22 +47,22 @@ public class Bouncelet implements IDisposable, IBeatListener {
 			PControl.KNOB_7,	
 	};
 
-	private static Bouncelet       lastOnPush;
-	public  final  int             id; 
-	private final  String          type; 
-	private String                 label; 
-	private RGB                    color = RGB.BLACK;
-	private long                   lastUpdate;
-	private Object[]               names;
-	private Object[]               mins;
-	private Object[]               maxs;
-	private Object[]               vals;
-	private Parametrizable         params = new Parametrizable(INSPECTOR, new Parameter(ACTIVE, ACTIVE, 0, 1, 1));
-	private final IBounceletUpdate update;
-	private final OSC              osc;
-	private final AbletonPush      push;
-	private       Image            ctrlImage;
-	private       float            lastActive;
+	private static  Bouncelet       lastOnPush;
+	public  final   int             id; 
+	private final   String          type; 
+	private         String          label; 
+	private         RGB             color = RGB.BLACK;
+	protected       long            lastUpdate;
+	private         Object[]        names;
+	private         Object[]        mins;
+	private         Object[]        maxs;
+	private         Object[]        vals;
+	private         Parametrizable  params = new Parametrizable(INSPECTOR, new Parameter(ACTIVE, ACTIVE, 0, 1, 1));
+	protected final IBounceletUpdate update;
+	protected final OSC              osc;
+	private   final AbletonPush      push;
+	private         Image            ctrlImage;
+	private         float            lastActive;
 
 	public Bouncelet(Engine engine, OSC osc, MIDI midi, int id, String type, String label, float active, RGB color, IBounceletUpdate updateOnUi) {
 		this.id         = id;
@@ -78,7 +78,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 			try {
 				push.set(pControl(), msg->{
 					if(((ShortMessage)msg).getData2() > 10) {
-						Display.getDefault().asyncExec(()->engine.select(this));
+						Display.getDefault().asyncExec(()->engine.select(this, false));
 					}
 				});
 			} catch(Throwable t) {log.warning(t);}
@@ -157,10 +157,10 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		return id;
 	}
 
-	public void setNames(Object[] args) {names = args; updateParams();}
-	public void setMins(Object[] args)  {mins  = args; updateParams();}
-	public void setMaxs(Object[] args)  {maxs  = args; updateParams();}
-	public void setVals(Object[] args)  {vals  = args; updateParams();}
+	public void setNames(Object ... args) {names = args; updateParams();}
+	public void setMins(Object ... args)  {mins  = args; updateParams();}
+	public void setMaxs(Object ... args)  {maxs  = args; updateParams();}
+	public void setVals(Object ... args)  {vals  = args; updateParams();}
 
 	private static final NumberFormat FMT = TextUtilities.decimalFormat(2);
 	private void updateParams() {
@@ -187,15 +187,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 
 			ArrayUtilities.reverseArrayRange(ps, 0, ps.length);
 
-			params = new Parametrizable(INSPECTOR, ps) {
-				@Override
-				public void setVal(Parameter p, float val) {
-					lastUpdate = System.currentTimeMillis();
-					super.setVal(p, val);
-					updateDecklight(p, val);
-					updatePush();
-				}
-			};
+			params = createParams(ps);
 
 			names = null;
 			mins  = null;
@@ -208,7 +200,19 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		}		
 	}
 
-	private void updateDecklight(Parameter p, float val) {
+	protected Parametrizable createParams(Parameter[] ps) {
+		return new Parametrizable(INSPECTOR, ps) {
+			@Override
+			public void setVal(Parameter p, float val) {
+				lastUpdate = System.currentTimeMillis();
+				super.setVal(p, val);
+				updateDecklight(p, val);
+				updatePush();
+			}
+		};
+	}
+	
+	protected void updateDecklight(Parameter p, float val) {
 		osc.send("/" + Engine.BOUNCELET + "/" + id + "/" + p.getName(), val);
 	}
 
@@ -258,7 +262,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		}
 	}
 
-	private void updatePush() {
+	protected void updatePush() {
 		if(push != null) {
 			int idx = 0;
 			try {

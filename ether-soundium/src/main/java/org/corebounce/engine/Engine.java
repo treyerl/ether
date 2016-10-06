@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -65,13 +67,14 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 	private final OSC             osc;
 	private final MIDI            midi;
 	private final Parametrizable  engine;
+	private       MultiSelection  multiSelection;
 
 	public Engine(MetaDB db, Audio audio, OSC osc, MIDI midi) {
 		super("Engine");
-		this.db     = db;
-		this.audio  = audio;
-		this.osc    = osc;
-		this.midi   = midi;
+		this.db             = db;
+		this.audio          = audio;
+		this.osc            = osc;
+		this.midi           = midi;
 
 		AbletonPush push = midi.getPush();
 		this.engine = new Parametrizable("Engine", MASTER, PAUSED) {
@@ -111,9 +114,12 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		pollTimer.cancel();
 	}
 
-	private static final String[] COLS   = {"Control", "Type", "Name", "Active"};
-	private static final int[]    WIDTHS = {56,        56,     250,    120}; 
+	private static final String[] COLS   = {"", "Control", "Type", "Name", "Active"};
+	private static final int[]    WIDTHS = {8,   56,        250,    250,    50}; 
 	private static final Comparator<?>[] CMPS = {
+			new Comparator<Bouncelet>() {@Override public int compare(Bouncelet b1, Bouncelet b2) {return Float.compare(b1.getColor().brightness(), b2.getColor().brightness());};},
+			new Comparator<Bouncelet>() {@Override public int compare(Bouncelet b1, Bouncelet b2) {return -Float.compare(b1.getColor().brightness(), b2.getColor().brightness());};},
+
 			new Comparator<Bouncelet>() {@Override public int compare(Bouncelet b1, Bouncelet b2) {return Integer.compare(b1.id, b2.id);};},
 			new Comparator<Bouncelet>() {@Override public int compare(Bouncelet b1, Bouncelet b2) {return -Integer.compare(b1.id, b2.id);};},
 
@@ -144,9 +150,16 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				if(table.getSelectionIndex() < 0) return;
-				Bouncelet b = (Bouncelet) table.getItem(table.getSelectionIndex()).getData(BOUNCELET);
-				inspect(b);
+				TableItem[] selection = table.getSelection();
+				if(selection.length == 0) {
+					inspector.clear(inspector.getCurrent());
+					return;
+				} else if(selection.length == 1) {
+					Bouncelet b = (Bouncelet) table.getItem(table.getSelectionIndex()).getData(BOUNCELET);
+					inspect(b);
+				} else {
+					inspect(multiSelection);
+				}
 			}
 		});
 		table.setLinesVisible(true);
@@ -189,27 +202,38 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 				msgUI.selectAll();
 			}
 		});
-		
+
 		sash.setWeights(new int[] {70,30});
+
+		multiSelection = new MultiSelection(this, osc, midi, inspector);
+		multiSelection.setTable(table);
 	}
 
-	public void select(Bouncelet b) {
+	public void select(Bouncelet b, boolean add) {
+		if(!(add)) 
+			table.deselectAll();
 		for(int i = table.getItemCount(); --i >= 0;) {
 			if(b == table.getItem(i).getData(BOUNCELET)) {
-				table.deselectAll();
 				table.select(i);
 				break;
 			}
 		}
 		inspect(b);
 	}
-	
+
 	private void inspect(Bouncelet b) {
-		String prefix = "/"+BOUNCELET+"/" + b.getId() + "/"; 
-		osc.send(prefix + "names");
-		osc.send(prefix + "mins");
-		osc.send(prefix + "maxs");
-		osc.send(prefix + "vals");
+		if(b instanceof MultiSelection) {
+			b.setNames(Bouncelet.PATTERN, Bouncelet.BPM_DOWNER, Bouncelet.ACTIVE);
+			b.setMins(0f, -8f, 0f);
+			b.setMaxs(255f, 8f, 1f);
+			b.setVals(255f, 1f, 0.5f);
+		} else {
+			String prefix = "/"+BOUNCELET+"/" + b.getId() + "/"; 
+			osc.send(prefix + "names");
+			osc.send(prefix + "mins");
+			osc.send(prefix + "maxs");
+			osc.send(prefix + "vals");
+		}
 	}
 
 	public void update(int id, String type, String label, float active, RGB color) {
@@ -279,16 +303,24 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		table.redraw();
 	}
 
+	private static final Map<RGB, Color> rgb2color = new HashMap<>();
 	private static final NumberFormat FMT = TextUtilities.decimalFormat(2);
 	private void updateItem(Display display, Bouncelet b) {
 		TableItem item = b2i.get(b);
 		if(!(item.isDisposed())) {
-			item.setImage(0, b.getControllerImage(display));
-			item.setImage(1, db.icon48x48(display, b.getType(), "Bouncelet"));
-			item.setText(2, b.getLabel());
-			item.setForeground(2, display.getSystemColor(SWT.COLOR_WHITE));
-			item.setText(3, FMT.format(b.getActive()));
-			item.setForeground(3, display.getSystemColor(SWT.COLOR_WHITE));
+			RGB   rgb   = b.getColor();
+			Color color = rgb2color.get(rgb);
+			if(color == null) {
+				color = new Color(display, (int)(rgb.r * 255f), (int)(rgb.g * 255f), (int)(rgb.b * 255f));
+				rgb2color.put(rgb, color);
+			}
+			item.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+			item.setBackground(0, color);
+			item.setImage(1, b.getControllerImage(display));
+			item.setImage(2, db.icon48x48(display, b.getType(), "Bouncelet"));
+			item.setText(2, b.getType());
+			item.setText(3, b.getLabel());
+			item.setText(4, FMT.format(b.getActive()));
 		}
 	}
 
@@ -326,6 +358,9 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		}
 	}
 
+	public void setMaster(float val) {
+		engine.setVal(MASTER, val);
+	}
 
 	public void setPaused(boolean state) {
 		engine.setVal(PAUSED, state ? 1 : 0);

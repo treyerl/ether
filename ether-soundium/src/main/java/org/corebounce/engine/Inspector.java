@@ -14,14 +14,14 @@ public class Inspector extends Composite implements IBounceletUpdate {
 	private final Audio audio;
 	
 	private Bouncelet current;
-
+	
 	public Inspector(Audio audio, Composite parent) {
 		super(parent, SWT.NONE);
 		this.audio = audio;
 		setLayoutData(GridDataFactory.fill(true, true));
 		setLayout(new GridLayout(2,false));
 	}
-
+	
 	@Override
 	public void update(Bouncelet b) {
 		if(current == b) return;
@@ -35,11 +35,15 @@ public class Inspector extends Composite implements IBounceletUpdate {
 
 	@Override
 	public void clear(Bouncelet b) {
-		if(current == b) {
+		if(current != null && current == b) {
 			audio.removeBeatListener(b);
 			for(Control c : getChildren())
 				c.dispose();
 			current = null;
 		}
-	}	
+	}
+	
+	public Bouncelet getCurrent() {
+		return current;
+	}
 }
