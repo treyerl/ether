@@ -141,7 +141,7 @@ public class SimpleNanoVG {
 					GL11.glViewport(0, 0, (int) v.x, (int) v.y);
 	
 					if (nvgContext == 0) {
-						nvgContext = NanoVGGL3.nvgCreateGL3(0);
+						nvgContext = NanoVGGL3.nnvgCreateGL3(0);
 						color = NVGColor.create();
 						NanoVG.nvgRGBAf(1f, 0.8f, 0f, 1f, color);
 					}
