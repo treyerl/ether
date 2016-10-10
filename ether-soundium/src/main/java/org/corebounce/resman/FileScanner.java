@@ -11,7 +11,7 @@ import ch.fhnw.util.Log;
 public final class FileScanner implements Runnable {
 	private static final Log log = Log.create();
 
-	private static final String[] IGNORE_EXT = { ".db", ".html", ".swf", ".ini", ".cbr", ".constraints" };
+	private static final String[] IGNORE_EXT = { ".db", ".html", ".swf", ".ini", ".cbr", ".constraints", ".bak"};
 
 	private static int threadCount;
 

@@ -1,4 +1,4 @@
-package org.corebounce.resman;
+package org.corebounce.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class AutoComplete {
 				if (string.length() == 0) {
 					popupShell.setVisible(false);
 				} else {
-					Rectangle textBounds = text.getDisplay().map(text.getShell(), null, text.getBounds());
+					Rectangle textBounds = text.getDisplay().map(text, null, text.getBounds());
 					popupShell.setBounds(textBounds.x, textBounds.y + textBounds.height, textBounds.width, table.getItemHeight() * table.getItemCount());
 					popupShell.setVisible(true);
 					String prefix = text.getText();

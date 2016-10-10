@@ -24,6 +24,7 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
+import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.MIME;
@@ -41,34 +42,28 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 	public static final String MIME_TYPE   = "mimeType";
 	public static final String USE_COUNT   = "useCount";
 	public static final String DUP         = "dup";
-	public static final String TILE_W      = "tileW";
-	public static final String TILE_H      = "tileH";
-	public static final String TILE_N      = "tileN";
-	public static final String SHOT_STARTS = "shots";
 
 	private static final DateFormat GMT_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'GMT'", Locale.US);
 
-	private static ArrayList<String> PROPERTIES = new ArrayList<String>();
-	private static HashSet<String> DEFAULT_PROPERTIES = new HashSet<String>();
+	private static List<String> PROPERTIES         = new ArrayList<>();
+	private static List<String> USER_PROPERTIES    = new ArrayList<>();
+	private static Set<String>  DEFAULT_PROPERTIES = new HashSet<>();
 
-	private final SortedMap<String, String> properties = new TreeMap<String, String>();
+	private final SortedMap<String, String> properties = new TreeMap<>();
 
 	private final File file;
 	private final String path;
 	private final String md5;
-	private final int index;
-	private final long size;
-	private final Date date;
+	private final int    index;
+	private final long   size;
+	private final Date   date;
 	private final String mimeType;
-	private       float progress = -1;
-	
-	private String previewMD5 = "";
-
-	private int useCount;
-	private Set<String> tags;
-	private Set<File> duplicates;
-
-	private boolean needsSync;
+	private       float  progress = -1;
+	private String       previewMD5 = ClassUtilities.EMPTY_String;
+	private int          useCount;
+	private Set<String>  tags;
+	private Set<File>    duplicates;
+	private boolean      needsSync;
 
 	static {
 		DEFAULT_PROPERTIES.add(PATH);
@@ -76,15 +71,11 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 		DEFAULT_PROPERTIES.add(SIZE);
 		DEFAULT_PROPERTIES.add(MIME_TYPE);
 		DEFAULT_PROPERTIES.add(USE_COUNT);
-		registerProperty(TILE_W);
-		registerProperty(TILE_H);
-		registerProperty(TILE_N);
-		registerProperty(NAME);
-		registerProperty(MIME_TYPE);
-		registerProperty(SIZE);
-		registerProperty(DATE);
-		registerProperty(USE_COUNT);
-		registerProperty(SHOT_STARTS);
+		registerProperty(NAME, true);
+		registerProperty(MIME_TYPE, true);
+		registerProperty(SIZE, true);
+		registerProperty(DATE, true);
+		registerProperty(USE_COUNT, true);
 
 		GMT_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
@@ -195,8 +186,10 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 		needsSync = true;
 	}
 
-	public static void registerProperty(String property) {
+	public static void registerProperty(String property, boolean isUser) {
 		PROPERTIES.add(property);
+		if(isUser)
+			USER_PROPERTIES.add(property);
 	}
 
 	public String getProperty(String key) {
@@ -236,6 +229,10 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 
 	public static List<String> getProperties() {
 		return PROPERTIES;
+	}
+
+	public static List<String> getUserProperties() {
+		return USER_PROPERTIES;
 	}
 
 	public double getDoubleProperty(String key) {
@@ -467,14 +464,14 @@ public final class Resource implements Comparable<Resource>, IProgressListener {
 
 	public long[] getShotStarts() {
 		try {
-			String[] shots = TextUtilities.split(getProperty(SHOT_STARTS), ',');
+			String[] shots = TextUtilities.split(getProperty(PreviewFactory.P_SHOT_STARTS), ',');
 			long[] result = new long[shots.length];
 			for(int i = 0; i < shots.length; i++)
 				result[i] = Long.parseLong(shots[i]);
 			return result;
 		} catch(Throwable t0) {
 			try {
-				return new long[] {0, Long.parseLong(getProperty(TILE_N))};
+				return new long[] {0, Long.parseLong(getProperty(PreviewFactory.P_TILE_N))};
 			} catch(Throwable t1) {
 				return new long[1];
 			}

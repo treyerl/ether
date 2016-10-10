@@ -48,7 +48,7 @@ public class Smooth {
 		max *= 0.99;
 		for(float v : values)
 			max = Math.max(max, v);
-		if(max == 0) max = 0.1f;
+		if(max == 0 || Double.isNaN(max)) max = 0.1f;
 		
 		if(lastUpdate > 0) {
 			float gain = (float)Math.pow(decay, time - lastUpdate);

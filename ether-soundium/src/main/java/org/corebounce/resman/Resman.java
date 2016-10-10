@@ -1,10 +1,5 @@
 package org.corebounce.resman;
 
-import java.io.IOException;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import org.corebounce.audio.Audio;
 import org.corebounce.audio.AudioPanel;
 import org.corebounce.engine.Engine;
@@ -12,7 +7,11 @@ import org.corebounce.io.OSC;
 import org.corebounce.soundium.TabPanel;
 import org.eclipse.swt.widgets.Composite;
 
+import ch.fhnw.util.Log;
+
 public class Resman extends TabPanel {
+	private static final Log log = Log.create();
+
 	private final Engine            engine;
 	private final Audio             audio;
 	private final OSC               osc;
@@ -29,8 +28,12 @@ public class Resman extends TabPanel {
 	}
 
 	@Override
-	protected void fillContent(Composite panel) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+	protected void fillContent(Composite panel) {
 		new BrowserPanel(engine, pf, osc, db).createPartControl(panel);
-		new AudioPanel(audio).createPartControl(panel);
+		try {
+			new AudioPanel(audio).createPartControl(panel);
+		} catch(Throwable t) {
+			log.warning(t);
+		}
 	}
 }

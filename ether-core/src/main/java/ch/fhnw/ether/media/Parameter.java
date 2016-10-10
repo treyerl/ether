@@ -34,6 +34,7 @@ package ch.fhnw.ether.media;
 import java.util.Arrays;
 
 import ch.fhnw.ether.scene.mesh.material.IMaterial.IMaterialAttribute;
+import ch.fhnw.util.EnumUtilities;
 import ch.fhnw.util.TextUtilities;
 
 public class Parameter implements IMaterialAttribute<Float> {
@@ -70,6 +71,10 @@ public class Parameter implements IMaterialAttribute<Float> {
 
 	public Parameter(String name, String description, boolean value) {
 		this(name, description, 0, 1, value ? 1 : 0, null, BOOL);
+	}
+
+	public  <E extends Enum<E>> Parameter(String name, String description, int ordinal, Class<E> enumCls) {
+		this(name, description, 0, EnumUtilities.toStringArrayName(enumCls).length, ordinal, null, EnumUtilities.toStringArrayName(enumCls));
 	}
 
 	public Parameter(String name, String description, float min, float max, float val, float[] values, String[] items) {

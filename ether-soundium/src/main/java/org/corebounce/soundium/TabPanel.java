@@ -1,10 +1,6 @@
 package org.corebounce.soundium;
 
-import java.io.IOException;
-
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
+import org.corebounce.ui.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -22,7 +18,7 @@ public abstract class TabPanel implements SelectionListener {
 		this.label = label;
 	}
 
-	public TabItem createTabPanel(TabFolder folder) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+	public TabItem createTabPanel(TabFolder folder) {
 		this.folder = folder;
 		tabIdx   = folder.getItemCount();
 
@@ -32,7 +28,8 @@ public abstract class TabPanel implements SelectionListener {
 		layout.marginWidth  = 0;
 		layout.marginHeight = 0;
 		panel.setLayout(layout);
-
+		panel.setLayoutData(GridDataFactory.fill(true, true));
+		
 		fillContent(panel);
 		
 		TabItem result = new TabItem(folder, SWT.NONE);
@@ -41,7 +38,7 @@ public abstract class TabPanel implements SelectionListener {
 		return result;
 	}
 
-	protected abstract void fillContent(Composite panel) throws LineUnavailableException, IOException, UnsupportedAudioFileException;
+	protected abstract void fillContent(Composite panel);
 	
 	@Override
 	public void widgetSelected(SelectionEvent e) {

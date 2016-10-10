@@ -180,9 +180,9 @@ public class JavaSoundSource extends AbstractFrameSource implements Runnable, IA
 
 	@Override
 	public String toString() {
-		return TextUtilities.getShortClassName(this) + ": " + line == null ?
+		return TextUtilities.getShortClassName(this) + ": " + ((line == null || line.getLineInfo() == null)  ?
 				sampleRate + " Hz, " + nChannels + " channels, " + frameSize + " samples/frame" :
-					line.getLineInfo().toString();
+					line.getLineInfo().toString());
 
 	}
 }

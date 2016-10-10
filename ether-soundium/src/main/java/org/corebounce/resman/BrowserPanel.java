@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.corebounce.engine.Engine;
 import org.corebounce.io.OSC;
+import org.corebounce.ui.AutoComplete;
 import org.corebounce.ui.GridDataFactory;
 import org.corebounce.ui.Repeating;
 import org.corebounce.video.Pusher;
@@ -466,7 +467,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		sortDirectionUI.addSelectionListener(this);
 
 		sortKeyUI = new Combo(panel, SWT.READ_ONLY);
-		for(String prop : Resource.getProperties())
+		for(String prop : Resource.getUserProperties())
 			sortKeyUI.add(prop);
 		sortKeyUI.select(0);
 		sortKeyUI.addSelectionListener(this);
@@ -530,7 +531,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		else if(src == moviesUI)   showMovies   = moviesUI.getSelection();
 		else if(src == imagesUI)   showImages   = imagesUI.getSelection();
 		else if(src == geometryUI) showGeometry = geometryUI.getSelection();
-		else if(src == fontsUI)   showFonts     = fontsUI.getSelection();
+		else if(src == fontsUI)    showFonts    = fontsUI.getSelection();
 		run();
 	}
 

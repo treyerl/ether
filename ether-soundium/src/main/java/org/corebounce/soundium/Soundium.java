@@ -11,6 +11,7 @@ import org.corebounce.audio.Audio;
 import org.corebounce.engine.Engine;
 import org.corebounce.io.MIDI;
 import org.corebounce.io.OSC;
+import org.corebounce.io.PushPanel;
 import org.corebounce.resman.MetaDB;
 import org.corebounce.resman.PreviewFactory;
 import org.corebounce.resman.Resman;
@@ -36,12 +37,12 @@ import org.eclipse.swt.widgets.Table;
 
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.midi.AbletonPush;
+import ch.fhnw.ether.midi.AbletonPush.Basic;
 import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.ether.platform.IMonitor;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.platform.Platform.OS;
 import ch.fhnw.util.ClassUtilities;
-import ch.fhnw.util.IProgressListener;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.Subprogress;
 import ch.fhnw.util.TextUtilities;
@@ -60,7 +61,7 @@ public class Soundium {
 
 	public static final String VERSION = "Soundium Nouveau";
 
-	private final Monitors           monitors;
+	private final Monitors          monitors;
 	private final Audio             audio;
 	private final OSC               osc;
 	private final MetaDB            db;
@@ -69,6 +70,7 @@ public class Soundium {
 	private final Shell             shell;
 	private final Resman            resman;
 	private final Engine            engine;
+	private final PushPanel         push;
 	private final TabFolder         tabFolder;
 
 	public Soundium(String ... args) throws InterruptedException, RenderCommandException, IOException, NoSuchAlgorithmException, LineUnavailableException, UnsupportedAudioFileException {
@@ -121,16 +123,24 @@ public class Soundium {
 
 		tabFolder = new TabFolder(shell, SWT.BORDER);
 		tabFolder.setLayoutData(GridDataFactory.fill(true, true));
+
 		engine = new Engine(db, audio, osc, midi);
 		engine.createTabPanel(tabFolder);
+
+		if(midi.getPush() != null) {
+			push = new PushPanel(engine);
+			push.createTabPanel(tabFolder);
+		} else push = null;
+
 		resman = new Resman(engine, audio, osc, db, pf);
 		resman.createTabPanel(tabFolder);
+
 		tabFolder.setSelection(resman.getTabIndex());
 
 		shell.setText(VERSION);
 		shell.setLocation(sndmMonR.x, sndmMonR.y);
 		shell.setMaximized(true);
-		shell.setSize(1920, 500);
+		//shell.setSize(1920, 500);
 
 		if(Platform.getOS() != OS.MACOSX) {
 			final Menu m = new Menu(shell, SWT.BAR);
@@ -188,11 +198,22 @@ public class Soundium {
 	private void setPush() {
 		AbletonPush push = midi.getPush();
 		if(push != null) {
-			try {
-				push.set(PControl.DEVICE, msg->{Display.getDefault().asyncExec(()->tabFolder.setSelection(engine.getTabIndex()));});
-				push.set(PControl.BROWSE, msg->{Display.getDefault().asyncExec(()->tabFolder.setSelection(resman.getTabIndex()));});
-			} catch(Throwable t) {
-				log.warning(t);
+			push.set(PControl.DEVICE, ()->{
+				push.setColor(PControl.DEVICE, Basic.FULL);
+				push.setColor(PControl.BROWSE, Basic.HALF);
+				Display.getDefault().asyncExec(()->tabFolder.setSelection(this.push.getTabIndex()));
+			});
+			push.set(PControl.BROWSE, ()->{
+				push.setColor(PControl.DEVICE, Basic.HALF);
+				push.setColor(PControl.BROWSE, Basic.FULL);
+				Display.getDefault().asyncExec(()->tabFolder.setSelection(resman.getTabIndex()));
+			});
+			if(tabFolder.getSelectionIndex() == this.push.getTabIndex()) {
+				push.setColor(PControl.DEVICE, Basic.FULL);
+				push.setColor(PControl.BROWSE, Basic.HALF);
+			} else if(tabFolder.getSelectionIndex() == resman.getTabIndex()) {
+				push.setColor(PControl.DEVICE, Basic.HALF);
+				push.setColor(PControl.BROWSE, Basic.FULL);
 			}
 		}
 	}
@@ -202,14 +223,18 @@ public class Soundium {
 		view.setText("&View");
 		Menu viewmenu = new Menu(shell, SWT.DROP_DOWN);
 		view.setMenu(viewmenu);
-		MenuItem resmanItem = new MenuItem(viewmenu, SWT.PUSH);
-		resmanItem.setText("&"+resman.getLabel()+"\tCTRL+R");
-		resmanItem.setAccelerator(SWT.CTRL + 'R');
-		resmanItem.addSelectionListener(resman);
+
+		addItem(viewmenu, engine, 'E');
+		if(push != null)
+			addItem(viewmenu, push, 'D');
+		addItem(viewmenu, resman, 'R');
+	}
+
+	private void addItem(Menu viewmenu, TabPanel tab, char accel) {
 		MenuItem engineItem = new MenuItem(viewmenu, SWT.PUSH);
-		engineItem.setText("&"+engine.getLabel()+"\tCTRL+E");
-		engineItem.setAccelerator(SWT.CTRL + 'E');
-		engineItem.addSelectionListener(engine);
+		engineItem.setText("&"+tab.getLabel()+"\tCTRL+"+accel);
+		engineItem.setAccelerator(SWT.CTRL + accel);
+		engineItem.addSelectionListener(tab);
 	}
 
 	void setBackground(Composite comp, Color color) {

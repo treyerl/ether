@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiDevice;
@@ -16,12 +17,15 @@ import javax.sound.midi.SysexMessage;
 import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.Parameter.Type;
 import ch.fhnw.ether.media.Parametrizable;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.math.MathUtilities;
 import ch.fhnw.util.math.Vec3;
 
 public class AbletonPush implements IMidiHandler {
+	private static final Log log = Log.create();
+
 	private final MidiDevice[] liveDevs = new MidiDevice[2];
 	private final MidiDevice[] userDevs = new MidiDevice[2];
 
@@ -30,6 +34,10 @@ public class AbletonPush implements IMidiHandler {
 	private static final String USER_PORT    = ABLETON_PUSH + " User Port";
 	private static final String MIDIIN       = "MIDIIN2 ("+ABLETON_PUSH+")";
 	private static final String MIDIOUT      = "MIDIOUT2 ("+ABLETON_PUSH+")";
+
+	private static final int VELOCITY_THRESHOLD = 10;
+
+	private final Thread MIDIProc;
 
 	public AbletonPush(int deviceIdx) throws MidiUnavailableException, IOException, InvalidMidiDataException {
 		MidiIO.init();
@@ -77,22 +85,39 @@ public class AbletonPush implements IMidiHandler {
 
 		for(PControl c : PControl.values())
 			if(!(c.name().startsWith("P_")))
-				setColor(c, RGB.BLACK);		
+				setColor(c, RGB.BLACK);
+
+		MIDIProc = new Thread(this::processMIDI);
+		MIDIProc.start();
 	}
 
-	static SysexMessage sysex(int ... data) throws InvalidMidiDataException {
-		byte[] msg = new byte[data.length];
-		for(int i = 0; i < msg.length; i++)
-			msg[i] = (byte) data[i];
-		return new SysexMessage(msg, msg.length);
+	static SysexMessage sysex(int ... data) {
+		try {
+			byte[] msg = new byte[data.length];
+			for(int i = 0; i < msg.length; i++)
+				msg[i] = (byte) data[i];
+			return new SysexMessage(msg, msg.length);
+		} catch(Throwable t) {
+			log.warning(t);
+			return null;
+		}
 	}
 
-	public void setBrightness(float value) throws MidiUnavailableException, InvalidMidiDataException {
+	static ShortMessage shortm(int cmd, int data0, int data1) {
+		try {
+			return new ShortMessage(cmd, data0, data1);
+		} catch(Throwable t) {
+			log.warning(t);
+			return null;
+		}
+	}
+
+	public void setBrightness(float value) {
 		send(sysex(SysexMessage.SYSTEM_EXCLUSIVE,71,127,21,124,0,1,MathUtilities.clamp((int)(value*127), 0, 127),SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE));
 	}
 
-	public void clearLine(int line) throws InvalidMidiDataException, MidiUnavailableException {
-		MidiIO.send(userDevs[1], sysex(SysexMessage.SYSTEM_EXCLUSIVE,71,127,21,28+line,0,0,SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE));
+	public void clearLine(int line) {
+		send(sysex(SysexMessage.SYSTEM_EXCLUSIVE,71,127,21,28+line,0,0,SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE));
 	}
 
 	public enum TouchStrip {
@@ -107,58 +132,67 @@ public class AbletonPush implements IMidiHandler {
 		Point,
 	};
 
-	public void setTouchStrip(TouchStrip conf) throws MidiUnavailableException, InvalidMidiDataException {
+	public void setTouchStrip(TouchStrip conf) {
 		send(sysex(SysexMessage.SYSTEM_EXCLUSIVE,71,127,21,99,0,1,conf.ordinal(),SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE));
 	}
 
-	public void setLine(int line, String text) throws InvalidMidiDataException, MidiUnavailableException {
-		byte[] msg = new byte[77];
-		Arrays.fill(msg, (byte)' ');
-		int idx = 0;
-		msg[idx++] = (byte) SysexMessage.SYSTEM_EXCLUSIVE;
-		msg[idx++] = 71;
-		msg[idx++] = 127;
-		msg[idx++] = 21;
-		msg[idx++] = (byte) (24+line);
-		msg[idx++] = 0;
-		msg[idx++] = 69;
-		msg[idx++] = 0;
-		for(int i = 0; i < Math.min(68,  text.length()); i++)
-			msg[idx++] = (byte) (text.charAt(i) & 0x7F);
-		msg[msg.length-1] = (byte) 247;
+	public void setLine(int line, String text) {
+		try {
+			byte[] msg = new byte[77];
+			Arrays.fill(msg, (byte)' ');
+			int idx = 0;
+			msg[idx++] = (byte) SysexMessage.SYSTEM_EXCLUSIVE;
+			msg[idx++] = 71;
+			msg[idx++] = 127;
+			msg[idx++] = 21;
+			msg[idx++] = (byte) (24+line);
+			msg[idx++] = 0;
+			msg[idx++] = 69;
+			msg[idx++] = 0;
+			for(int i = 0; i < Math.min(68,  text.length()); i++)
+				msg[idx++] = (byte) (text.charAt(i) & 0x7F);
+			msg[msg.length-1] = (byte) 247;
 
-		send(new SysexMessage(msg, msg.length));
+			send(new SysexMessage(msg, msg.length));
+		} catch(Throwable t) {
+			log.warning(t);
+		}
 	}
 
-	public void setColor(PControl pad, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setColor(PControl pad, RGB color) {
 		if(pad.isKey())
 			setColor(pad.x, pad.y, color);
 		else if(pad.isClipRow())
-			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), rgb2clipColor(color)));
+			send(shortm(ShortMessage.CONTROL_CHANGE, pad.ordinal(), rgb2clipColor(color)));
 		else if(pad != PControl.PITCH)
-			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), Basic.valueOf(color).ordinal()));
+			send(shortm(ShortMessage.CONTROL_CHANGE, pad.ordinal(), Basic.valueOf(color).ordinal()));
 	}
 
-	public void setColor(PControl pad, Basic blink) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setColor(PControl pad, Basic blink) {
 		if(pad.isKey())
 			setColor(pad.x, pad.y, blink.color);
 		else if(pad != PControl.PITCH)
-			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), blink.ordinal()));
+			send(shortm(ShortMessage.CONTROL_CHANGE, pad.ordinal(), blink.ordinal()));
 	}
 
-	public void setColor(PControl pad, BiLed color) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setColor(PControl pad, BiLed color)  {
 		if(pad.isKey())
 			setColor(pad.x, pad.y, color.color);
 		else if(pad != PControl.PITCH)
-			send(new ShortMessage(ShortMessage.CONTROL_CHANGE, pad.ordinal(), color.ordinal()));
+			send(shortm(ShortMessage.CONTROL_CHANGE, pad.ordinal(), color.ordinal()));
 	}
 
-	public void setColor(int x, int y, RGB color) throws InvalidMidiDataException, MidiUnavailableException {
-		send(new ShortMessage(ShortMessage.NOTE_ON, y*8+36+x, rgb2color(color)));
+	public void setColor(int x, int y, RGB color) {
+		send(shortm(ShortMessage.NOTE_ON, y*8+36+x, rgb2color(color)));
 	}
 
-	private void send(MidiMessage msg) throws MidiUnavailableException {
-		MidiIO.send(userDevs[1], msg);
+	private void send(MidiMessage msg) {
+		try {
+			if(msg == null) return;
+			MidiIO.send(userDevs[1], msg);
+		} catch(Throwable t) {
+			log.warning(t);
+		}
 	}
 
 	@Override
@@ -175,11 +209,26 @@ public class AbletonPush implements IMidiHandler {
 				if(key2run[key] != null) key2run[key].handle(msg);
 				break;
 			case ShortMessage.PITCH_BEND:
-				if(pitch != null) pitch.handle(smsg);
+				pitchBend.set(smsg);
+				synchronized (processMidi) {processMidi.notifyAll();}
 				break;
 			}
 		}
 		System.out.println(MidiToString.toString(msg));
+	}
+
+	private Object                        processMidi = new Object();
+	private AtomicReference<ShortMessage> pitchBend   = new AtomicReference<>();
+	void processMIDI() {
+		for(;;) {
+			synchronized (processMidi) {
+				try {processMidi.wait(100);} catch (Throwable t) {log.warning(t);}
+			}
+			for(ShortMessage smsg = pitchBend.getAndSet(null); smsg != null && pitch.get() != null; smsg = pitchBend.getAndSet(null)) {
+				IMidiHandler pitch = this.pitch.get();
+				if(pitch != null) pitch.handle(smsg); 
+			}
+		}
 	}
 
 	private static Vec3 RGB24(int rgb24) {
@@ -312,7 +361,7 @@ public class AbletonPush implements IMidiHandler {
 		GREEN_BLINK_SLOW(RGB.GREEN),//23
 		GREEN_BLINK_FAST(RGB.GREEN);//24
 
-		final RGB color;
+		public final RGB color;
 
 		BiLed(RGB color) {this.color = color;}
 
@@ -516,88 +565,109 @@ public class AbletonPush implements IMidiHandler {
 		public static PControl valueOf(int x, int y) {return values()[PControl.PAD_0_0.ordinal()+(y*8+x)];}
 	}
 
-	private IMidiHandler[] cc2run   = new IMidiHandler[128];
-	private IMidiHandler[] key2run   = new IMidiHandler[128];
-	private IMidiHandler   pitch;
+	private IMidiHandler[] cc2run               = new IMidiHandler[128];
+	private IMidiHandler[] key2run              = new IMidiHandler[128];
+	private AtomicReference<IMidiHandler> pitch = new AtomicReference<>();
 
-	public void set(PControl pad, Parametrizable cmd, Parameter p) throws MidiUnavailableException, InvalidMidiDataException {
-		set(pad, msg->{
+	public IMidiHandler set(PControl pad, Parametrizable cmd, Parameter p) {
+		return set(pad, cmd, p, null);
+	}
+
+	private static final int PITCH_ZERO_ZONE = 700;
+	public IMidiHandler set(PControl pad, Parametrizable cmd, Parameter p, Float constVal) {
+		setColor(pad, Basic.FULL);
+		return set(pad, msg->{
 			if(msg instanceof ShortMessage) {
 				ShortMessage smsg = (ShortMessage)msg;
 				if(smsg.getCommand() == ShortMessage.PITCH_BEND) {
-					float val   = MidiIO.toInt14(smsg.getData1(), smsg.getData2()) / MidiIO.MAX_14BIT;
+					int   val14 = MidiIO.toInt14(smsg.getData1(), smsg.getData2()) - PITCH_ZERO_ZONE;
+					if(val14 < 0) val14 = 0;
+					float val   = val14 / (MidiIO.MAX_14BIT -PITCH_ZERO_ZONE);
 					cmd.setVal(p, ((cmd.getMax(p) - cmd.getMin(p)) * val) + cmd.getMin(p));
 				} else {
 					switch(pad) {
-					case BEAT_4:   cmd.setVal(p, 1); break;
-					case BEAT_8:   cmd.setVal(p, 2); break;
-					case BEAT_16:  cmd.setVal(p, 4); break;
-					case BEAT_32:  cmd.setVal(p, 8); break;
-					case BEAT_4t:  cmd.setVal(p, -1); break;
-					case BEAT_8t:  cmd.setVal(p, -2); break;
-					case BEAT_16t: cmd.setVal(p, -4); break;
-					case BEAT_32t: cmd.setVal(p, -8); break;
-
-					case ROW0_0:   pattern(cmd, p, smsg.getData2(), 0x80); break;
-					case ROW0_1:   pattern(cmd, p, smsg.getData2(), 0x40); break;
-					case ROW0_2:   pattern(cmd, p, smsg.getData2(), 0x20); break;
-					case ROW0_3:   pattern(cmd, p, smsg.getData2(), 0x10); break;
-					case ROW0_4:   pattern(cmd, p, smsg.getData2(), 0x08); break;
-					case ROW0_5:   pattern(cmd, p, smsg.getData2(), 0x04); break;
-					case ROW0_6:   pattern(cmd, p, smsg.getData2(), 0x02); break;
-					case ROW0_7:   pattern(cmd, p, smsg.getData2(), 0x01); break;
+					case ROW1_0:   pattern(cmd, p, smsg.getData2(), 0x80); break;
+					case ROW1_1:   pattern(cmd, p, smsg.getData2(), 0x40); break;
+					case ROW1_2:   pattern(cmd, p, smsg.getData2(), 0x20); break;
+					case ROW1_3:   pattern(cmd, p, smsg.getData2(), 0x10); break;
+					case ROW1_4:   pattern(cmd, p, smsg.getData2(), 0x08); break;
+					case ROW1_5:   pattern(cmd, p, smsg.getData2(), 0x04); break;
+					case ROW1_6:   pattern(cmd, p, smsg.getData2(), 0x02); break;
+					case ROW1_7:   pattern(cmd, p, smsg.getData2(), 0x01); break;
 
 					default:
 						int cc  = smsg.getData1();
 						int val = smsg.getData2();
-						if(p.getType() == Type.BOOL && val > 64)
-							cmd.setVal(p, cmd.getVal(p) == 0 ? cmd.getMax(p) : cmd.getMin(p));
-						else if(PControl.values()[cc].isKnob()) {
-							if(PControl.values()[cc].isDiscrete()) {
-								cmd.setVal(p, Math.round(cmd.getVal(p)));
-								cmd.incVal(p, val < 64 ? val : val-128, 1);
-							} else
-								cmd.incVal(p, val < 64 ? val : val-128);
+						if(constVal != null && val > VELOCITY_THRESHOLD) {
+							cmd.setVal(p, constVal.floatValue());
+						} else {
+							if(p.getType() == Type.BOOL && val > VELOCITY_THRESHOLD)
+								cmd.setVal(p, cmd.getVal(p) == 0 ? cmd.getMax(p) : cmd.getMin(p));
+							else if(PControl.values()[cc].isKnob()) {
+								if(PControl.values()[cc].isDiscrete()) {
+									cmd.setVal(p, Math.round(cmd.getVal(p)));
+									cmd.incVal(p, val < 64 ? val : val-128, 1);
+								} else
+									cmd.incVal(p, val < 64 ? val : val-128);
+							}
 						}
 						break;
 					}
 				}
 			}
 		});
-		setColor(pad, Basic.FULL);
 	}
 
 	private void pattern(Parametrizable cmd, Parameter p, int val, int mask) {
-		if(val > 64) cmd.setVal(p, ((int) cmd.getVal(p)) ^ mask);
+		if(val > VELOCITY_THRESHOLD) cmd.setVal(p, ((int) cmd.getVal(p)) ^ mask);
 	}
 
-	public void set(PControl pad, IMidiHandler r) throws MidiUnavailableException, InvalidMidiDataException {
+	public IMidiHandler set(PControl pad, IMidiHandler r) {
+		return set(pad, r, false);
+	}
+
+	public IMidiHandler set(PControl pad, IMidiHandler r, boolean remove) {
 		if(pad.type == PControlType.PITCH_WHEEL) {
-			pitch = r;
+			pitch.set(remove ? null : r);
 		} else if(pad.isKey()) {
+			if(remove && key2run[pad.key()] != r) return key2run[pad.key()]; 
 			key2run[pad.key()] = r;
-			setColor(pad, r == null ? Basic.OFF : Basic.FULL);
+			setColor(pad, (r == null || remove) ? Basic.OFF : Basic.FULL);
 		} else {
+			if(remove && cc2run[pad.ordinal()] != r) return cc2run[pad.ordinal()]; 
 			cc2run[pad.ordinal()] = r;
-			setColor(pad, r == null ? Basic.OFF : Basic.FULL);
+			setColor(pad, (r == null || remove) ? Basic.OFF : Basic.FULL);
 		}
+		return r;
+	}
+
+	public IMidiHandler set(PControl pad, Runnable r) {
+		return set(pad,  msg->{if(msg.getMessage()[2] > VELOCITY_THRESHOLD) r.run();});
+	}
+
+	public void remove(PControl pad) {
+		remove(pad, null);
+	}
+
+	public void remove(PControl pad, IMidiHandler handler) {
+		set(pad, handler, true);
 	}
 
 	public String sliderText(float v) {
 		StringBuilder result = new StringBuilder(TextUtilities.repeat((char)6, 8));
 		int i = (int) (v * 15);
-		result.setCharAt(i/2, (char)(i % 2 == 0 ? 3 : 4));
+		if(i < 16) result.setCharAt(i/2, (char)(i % 2 == 0 ? 3 : 4));
 		return result.toString();
 	}
 
-	public void setTouchStrip(float value) throws MidiUnavailableException, InvalidMidiDataException {
-		send(new ShortMessage(ShortMessage.PITCH_BEND, 0, (int) (value * 127)));
+	public void setTouchStrip(float value) {
+		send(shortm(ShortMessage.PITCH_BEND, 0, (int) (value * 127)));
 	}
 
 	private static final PControl[] BEATS   = {PControl.BEAT_4,  PControl.BEAT_8,  PControl.BEAT_16,  PControl.BEAT_32};
 	private static final PControl[] BEATS_T = {PControl.BEAT_4t, PControl.BEAT_8t, PControl.BEAT_16t, PControl.BEAT_32t};
 
-	public void setBeat(float beatValue, boolean t) throws InvalidMidiDataException, MidiUnavailableException {
+	public void setBeat(float beatValue, boolean t) {
 		PControl[] beats = t ? BEATS_T : BEATS;
 		if(beatValue < 1/64f) {
 			for(int i = 0; i < 4; i++) 
@@ -612,7 +682,7 @@ public class AbletonPush implements IMidiHandler {
 	}
 
 
-	public void setRow0(BiLed c0, BiLed c1, BiLed c2, BiLed c3, BiLed c4, BiLed c5, BiLed c6, BiLed c7) throws MidiUnavailableException, InvalidMidiDataException {
+	public void setRow0(BiLed c0, BiLed c1, BiLed c2, BiLed c3, BiLed c4, BiLed c5, BiLed c6, BiLed c7) {
 		setColor(PControl.ROW0_0, c0);
 		setColor(PControl.ROW0_1, c1);
 		setColor(PControl.ROW0_2, c2);
@@ -623,7 +693,7 @@ public class AbletonPush implements IMidiHandler {
 		setColor(PControl.ROW0_7, c7);
 	}
 
-	public void setRow1(RGB c0, RGB c1, RGB c2, RGB c3, RGB c4, RGB c5, RGB c6, RGB c7) throws MidiUnavailableException, InvalidMidiDataException {
+	public void setRow1(RGB c0, RGB c1, RGB c2, RGB c3, RGB c4, RGB c5, RGB c6, RGB c7) {
 		setColor(PControl.ROW1_0, c0);
 		setColor(PControl.ROW1_1, c1);
 		setColor(PControl.ROW1_2, c2);

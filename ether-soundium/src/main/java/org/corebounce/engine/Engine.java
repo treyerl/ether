@@ -1,6 +1,5 @@
 package org.corebounce.engine;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,10 +10,9 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import org.corebounce.audio.Audio;
+import org.corebounce.audio.MonitorGain;
+import org.corebounce.engine.Bouncelet.PatternStyle;
 import org.corebounce.io.MIDI;
 import org.corebounce.io.OSC;
 import org.corebounce.resman.MetaDB;
@@ -41,6 +39,7 @@ import ch.fhnw.ether.midi.AbletonPush.Basic;
 import ch.fhnw.ether.midi.AbletonPush.PControl;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.ui.ParameterWindow;
+import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
@@ -52,22 +51,23 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 
 	public  static final String BOUNCELET     = "bouncelet";
 	public  static final String OSC_ENGINE    = "/engine/";
-	private static final long   POLL_INTERVAL = 250;
+	private static final long   POLL_INTERVAL = 500;
 
 	private static final Parameter MASTER = new Parameter("master", "Master", 0, 1, 1);
 	private static final Parameter PAUSED = new Parameter("pause",  "Paused", false);
 
-	private final List<Bouncelet> s_bouncelets     = new ArrayList<>();
-	private final Map<Bouncelet,  TableItem> b2i = new IdentityHashMap<>();
-	private Table                 table;
-	private Inspector             inspector;
-	private Timer                 pollTimer = new Timer();
-	private final MetaDB          db;
-	private final Audio           audio;
-	private final OSC             osc;
-	private final MIDI            midi;
-	private final Parametrizable  engine;
-	private       MultiSelection  multiSelection;
+	private final List<Bouncelet>       s_bouncelets   = new ArrayList<>();
+	private final List<IEngineListener> listeners = new ArrayList<>();
+	private final Map<Bouncelet, TableItem> b2i = new IdentityHashMap<>();
+	private Table                       table;
+	private Inspector                   inspector;
+	private Timer                       pollTimer = new Timer();
+	private final MetaDB                db;
+	private final Audio                 audio;
+	private final OSC                   osc;
+	private final MIDI                  midi;
+	private final Parametrizable        engine;
+	private       MultiSelection        multiSelection;
 
 	public Engine(MetaDB db, Audio audio, OSC osc, MIDI midi) {
 		super("Engine");
@@ -93,8 +93,23 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		};
 		try { 
 			if(push != null) {
-				push.set(PControl.PLAY,   engine, PAUSED);
+				push.set(PControl.PLAY,        engine, PAUSED);
 				push.set(PControl.KNOB_MASTER, engine, MASTER);
+				push.set(PControl.MASTER, ()->{
+					try {
+						push.setColor(PControl.VOLUME, Basic.HALF);
+						push.setColor(PControl.MASTER, Basic.FULL);
+						push.set(PControl.KNOB_MASTER, engine, MASTER);
+					} catch(Throwable t) {log.warning(t);}
+				});
+				push.set(PControl.VOLUME, ()->{
+					try {
+						push.setColor(PControl.MASTER, Basic.HALF);
+						push.setColor(PControl.VOLUME, Basic.FULL);
+						push.set(PControl.KNOB_MASTER, audio.getOutGain(), MonitorGain.GAIN);
+					} catch(Throwable t) {log.warning(t);}
+				});
+				push.setColor(PControl.VOLUME, Basic.HALF);
 			}
 		} catch(Throwable t) {log.warning(t);}
 
@@ -134,7 +149,7 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 	};
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void fillContent(Composite panel) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+	protected void fillContent(Composite panel) {
 		Display display = Display.getDefault();
 
 		SashForm sash = new SashForm(panel, SWT.HORIZONTAL | SWT.SMOOTH);
@@ -208,8 +223,8 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		multiSelection.setTable(table);
 	}
 
-	public void select(Bouncelet b, boolean add) {
-		if(!(add)) 
+	public void select(Bouncelet b, boolean extendSelection) {
+		if(!(extendSelection)) 
 			table.deselectAll();
 		for(int i = table.getItemCount(); --i >= 0;) {
 			if(b == table.getItem(i).getData(BOUNCELET)) {
@@ -222,10 +237,10 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 
 	private void inspect(Bouncelet b) {
 		if(b instanceof MultiSelection) {
-			b.setNames(Bouncelet.PATTERN, Bouncelet.BPM_DOWNER, Bouncelet.ACTIVE);
-			b.setMins(0f, -8f, 0f);
-			b.setMaxs(255f, 8f, 1f);
-			b.setVals(255f, 1f, 0.5f);
+			b.setNames(Bouncelet.ACTIVE, Bouncelet.BPM_DOWNER, Bouncelet.PATTERN, Bouncelet.PATTERN_STYLE);
+			b.setMins(0f, -8f, 0f,   0f);
+			b.setMaxs(1f,  8f, 255f, PatternStyle.values().length);
+			b.setVals(1f,  1f, 255f, 0f);
 		} else {
 			String prefix = "/"+BOUNCELET+"/" + b.getId() + "/"; 
 			osc.send(prefix + "names");
@@ -233,22 +248,46 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			osc.send(prefix + "maxs");
 			osc.send(prefix + "vals");
 		}
+		Bouncelet[] selection = new Bouncelet[table.getSelectionCount()];
+		int i = 0;
+		for(TableItem item : table.getSelection())
+			selection[i++] = (Bouncelet)item.getData(BOUNCELET);
+		for(IEngineListener l : listeners) {
+			try {
+				l.selectionChanged(selection);
+			} catch(Throwable t) {
+				log.warning(t);
+			}
+		}
 	}
 
 	public void update(int id, String type, String label, float active, RGB color) {
+		Bouncelet[] bouncelets = null;
+		boolean changed = false;
 		synchronized (s_bouncelets) {
 			while(id >= s_bouncelets.size()) s_bouncelets.add(null);
 			Bouncelet b = s_bouncelets.get(id);
-			boolean doSort = false;
 			if(b == null) {
 				b = new Bouncelet(this, osc, midi, id, type, label, active, color, inspector);
-				doSort = true;
+				changed = true;
 			}
 			s_bouncelets.set(id, b);
 			if(b.getType().equals(type))
-				doSort |= b.update(label, active, color);
-			if(doSort)
+				changed |= b.update(label, active, color);
+			if(changed) {
 				sort();
+				if(!(listeners.isEmpty()))
+					bouncelets = s_bouncelets.toArray(new Bouncelet[s_bouncelets.size()]);
+			}
+		}
+		if(changed) {
+			for(IEngineListener l : listeners) {
+				try {
+					l.bounceletsChanged(bouncelets);
+				} catch(Throwable t) {
+					log.warning(t);
+				}
+			}
 		}
 	}
 
@@ -297,23 +336,18 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			updateItem(display, b);
 			i++;
 		}
-		if(selection == null)	table.deselectAll();
-		else					table.select(newSelectionIndex);
+		if(selection == null) table.deselectAll();
+		else				  table.select(newSelectionIndex);
 		table.setLinesVisible(table.getItemCount() > 0);
 		table.redraw();
 	}
 
-	private static final Map<RGB, Color> rgb2color = new HashMap<>();
 	private static final NumberFormat FMT = TextUtilities.decimalFormat(2);
 	private void updateItem(Display display, Bouncelet b) {
 		TableItem item = b2i.get(b);
 		if(!(item.isDisposed())) {
 			RGB   rgb   = b.getColor();
-			Color color = rgb2color.get(rgb);
-			if(color == null) {
-				color = new Color(display, (int)(rgb.r * 255f), (int)(rgb.g * 255f), (int)(rgb.b * 255f));
-				rgb2color.put(rgb, color);
-			}
+			Color color = rgb2color(display, rgb);
 			item.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
 			item.setBackground(0, color);
 			item.setImage(1, b.getControllerImage(display));
@@ -322,6 +356,16 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			item.setText(3, b.getLabel());
 			item.setText(4, FMT.format(b.getActive()));
 		}
+	}
+
+	private static final Map<RGB, Color> rgb2color = new HashMap<>();
+	public static Color rgb2color(Display display, RGB rgb) {
+		Color color = rgb2color.get(rgb);
+		if(color == null) {
+			color = new Color(display, (int)(rgb.r * 255f), (int)(rgb.g * 255f), (int)(rgb.b * 255f));
+			rgb2color.put(rgb, color);
+		}
+		return color;
 	}
 
 	@Override
@@ -364,5 +408,13 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 
 	public void setPaused(boolean state) {
 		engine.setVal(PAUSED, state ? 1 : 0);
+	}
+
+	public void addEngineListener(IEngineListener l) {
+		listeners.add(l);
+	}
+
+	public void removeEngineListner(IEngineListener l) {
+		CollectionUtilities.removeAll(listeners, l);
 	}
 }

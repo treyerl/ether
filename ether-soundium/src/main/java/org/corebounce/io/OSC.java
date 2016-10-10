@@ -43,7 +43,7 @@ public class OSC extends Subsystem {
 				String[] peer = TextUtilities.split(configuration.get(peerKey), ':');
 				server.addPeer(peerKey, new InetSocketAddress(peer[0], Integer.parseInt(peer[1])));
 			} catch(Throwable t) {
-				break;
+				if(i > 0) break;
 			}
 		}
 		if(server.getPeers().isEmpty())

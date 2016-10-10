@@ -58,15 +58,21 @@ public final class MathUtilities {
 	}
 
 	public static int clamp(int value, int min, int max) {
-		return Math.max(min, Math.min(max, value));
+		if(value < min)      return min;
+		else if(value > max) return max;
+		else                 return value;
 	}
 
 	public static float clamp(float value, float min, float max) {
-		return Math.max(min, Math.min(max, value));
+		if(value < min || Float.isNaN(value)) return min;
+		else if(value > max)                  return max;
+		else                                  return value;
 	}
 
 	public static double clamp(double value, double min, double max) {
-		return Math.max(min, Math.min(max, value));
+		if(value < min || Double.isNaN(value)) return min;
+		else if(value > max)                   return max;
+		else                                   return value;
 	}
 	
 	public static float wrap(float v) {

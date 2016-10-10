@@ -95,7 +95,7 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 				push.set(PControl.METRONOME, beatDetect, BeatDetect.METRONOME);
 				push.set(PControl.MONITOR,   beatDetect, BeatDetect.RATIO);
 				push.set(PControl.TEMPO,     beatDetect, BeatDetect.BPM);
-				push.set(PControl.TAP,       msg->{if(msg.getMessage()[2] > 63) tap();});
+				push.set(PControl.TAP,       this::tap);
 			} catch(Throwable t) {
 				log.warning(t);
 			}
@@ -209,5 +209,5 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 			if(!(dst.isRendering()))
 				dst.start();
 		}
-	}
+	}	
 }

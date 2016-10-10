@@ -56,6 +56,7 @@ import ch.fhnw.ether.video.URLVideoSource;
 import ch.fhnw.ether.view.IView.Config;
 import ch.fhnw.ether.view.IView.ViewType;
 import ch.fhnw.ether.view.OffscreenView;
+import ch.fhnw.util.IOUtilities;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.MIME;
 import ch.fhnw.util.TextUtilities;
@@ -99,21 +100,31 @@ public class PreviewFactory {
 	public static final String P_TEXTURE_COORDS = "textureCoords";
 	public static final String P_FACES          = "faces";
 	public static final String P_FONT_NAME      = "fontName";
+	public static final String P_HAS_ALPHA      = "alpha";
+	public static final String P_TILE_W         = "tileW";
+	public static final String P_TILE_H         = "tileH";
+	public static final String P_TILE_N         = "tileN";
+	public static final String P_SHOT_STARTS    = "shots";
 
 	static {
-		Resource.registerProperty(P_WIDTH);
-		Resource.registerProperty(P_HEIGHT);
-		Resource.registerProperty(P_FRAMES);
-		Resource.registerProperty(P_COLOR);
-		Resource.registerProperty(P_HUE);
-		Resource.registerProperty(P_SATURATION);
-		Resource.registerProperty(P_BRIGHTNESS);
-		Resource.registerProperty(P_DEPTH);
-		Resource.registerProperty(P_VERTICES);
-		Resource.registerProperty(P_NORMALS);
-		Resource.registerProperty(P_TEXTURE_COORDS);
-		Resource.registerProperty(P_FACES);
-		Resource.registerProperty(P_FONT_NAME);
+		Resource.registerProperty(P_WIDTH, true);
+		Resource.registerProperty(P_HEIGHT, true);
+		Resource.registerProperty(P_FRAMES, true);
+		Resource.registerProperty(P_COLOR, true);
+		Resource.registerProperty(P_HUE, true);
+		Resource.registerProperty(P_SATURATION, true);
+		Resource.registerProperty(P_BRIGHTNESS, true);
+		Resource.registerProperty(P_DEPTH, false);
+		Resource.registerProperty(P_VERTICES, false);
+		Resource.registerProperty(P_NORMALS, true);
+		Resource.registerProperty(P_TEXTURE_COORDS, false);
+		Resource.registerProperty(P_FACES, false);
+		Resource.registerProperty(P_FONT_NAME, true);
+		Resource.registerProperty(P_HAS_ALPHA, true);
+		Resource.registerProperty(P_TILE_W, false);
+		Resource.registerProperty(P_TILE_H, false);
+		Resource.registerProperty(P_TILE_N, false);
+		Resource.registerProperty(P_SHOT_STARTS, false);
 	}
 
 	public PreviewFactory(MetaDB metadb) {
@@ -404,6 +415,20 @@ public class PreviewFactory {
 		resource.putProperty(P_WIDTH,  image.getWidth());
 		resource.putProperty(P_HEIGHT, image.getHeight());
 		resource.putProperty(P_FRAMES, 1);
+		resource.putProperty(P_HAS_ALPHA, image.getComponentFormat() == ComponentFormat.RGBA);
+		if(image.getComponentFormat() != ComponentFormat.RGBA && image.getComponentFormat() != ComponentFormat.RGB) {
+			File tmp = new File(resource.getFile().getParentFile(), resource.getFile().getName() + ".bak");
+			IOUtilities.moveFile(resource.getFile(), tmp, true);
+			try {
+				log.info("Converting '" + resource.getFile().getName() + "' from " + image.getComponentFormat() + " to " + ComponentFormat.RGB);
+				image = image.convert(image.getComponentType(), ComponentFormat.RGB, image.getAlphaMode());
+				store(image, resource.getFile());
+			} catch(Throwable t) {
+				IOUtilities.moveFile(tmp, resource.getFile(), false);
+			} finally {
+				tmp.delete();
+			}
+		}
 		result = LOADER.scale(image, (STRIP_HEIGHT * image.getWidth()) / image.getHeight(), STRIP_HEIGHT);
 		return result;
 	}
@@ -469,7 +494,7 @@ public class PreviewFactory {
 
 	private void store(IHostImage preview, File file) {
 		try {
-			LOADER.write(preview, new FileOutputStream(file), FileFormat.PNG);
+			LOADER.write(preview, new FileOutputStream(file), FileFormat.get(file));
 		} catch(Throwable t) {
 			log.warning("Can't store " + file, t);
 		}
