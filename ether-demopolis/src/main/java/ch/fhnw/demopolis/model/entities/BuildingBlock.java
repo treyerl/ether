@@ -413,7 +413,6 @@ public final class BuildingBlock extends AbstractDesignEntity {
 		if (b == null)
 			return bs;
 
-		bs.remove(b);
 		Vec3 v0 = b.lot.get(0);
 		Vec3 u = b.lot.getU();
 		Vec3 v = b.lot.getV();
@@ -427,6 +426,14 @@ public final class BuildingBlock extends AbstractDesignEntity {
 
 		float du = Line.fromRay(v0, v).distance(position) / eu;
 		float dv = Line.fromRay(v0, u).distance(position) / ev;
+		
+		// dont allow splitting of gaps
+		if (eu <= SPLIT_GAP_WIDTH || ev <= SPLIT_GAP_WIDTH)
+			return bs;
+		
+		// ok, ready to split building
+		bs.remove(b);
+
 		if (du < 0.2f && eu > MIN_LOT_WIDTH) {
 			plane0 = new Plane(v0.add(u.scale(eu / 2 + SPLIT_GAP_WIDTH / 2)), u);
 			plane1 = new Plane(v0.add(u.scale(eu / 2 - SPLIT_GAP_WIDTH / 2)), u);
@@ -450,13 +457,15 @@ public final class BuildingBlock extends AbstractDesignEntity {
 		} else {
 			// center = dont split
 		}
-
+		
 		if (plane0 == null) {
 			bs.add(new Building(b.lot, b.id, type));
 		} else {
 			try {
 				Pair<Polygon, Polygon> split0 = b.lot.split(plane0);
 				Pair<Polygon, Polygon> split1 = split0.second.split(plane1);
+				if (split0.first == null || split1.first == null || split1.second == null)
+					throw new Exception();
 				bs.add(new Building(split0.first, first, b.type));
 				bs.add(new Building(split1.first, b.id + "_m", BuildingType.NO_BUILDING));
 				bs.add(new Building(split1.second, second, type));
