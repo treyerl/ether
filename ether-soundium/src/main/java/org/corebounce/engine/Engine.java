@@ -68,6 +68,8 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 	private final MIDI                  midi;
 	private final Parametrizable        engine;
 	private       MultiSelection        multiSelection;
+	private       boolean               muted;
+	private       float                 muteMaster;
 
 	public Engine(MetaDB db, Audio audio, OSC osc, MIDI midi) {
 		super("Engine");
@@ -82,36 +84,39 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			public void setVal(Parameter p, float val) {
 				super.setVal(p, val);
 				osc.send(OSC_ENGINE + p.getName(), val);
-				try {
-					if(p.equals(PAUSED))
-						audio.setPaused(val > 0.5f);
+				if(p.equals(PAUSED))
+					audio.setPaused(val > 0.5f);
 
-					if(push != null)
-						push.setColor(PControl.PLAY, audio.isPaused() ? Basic.FULL_BLINK : Basic.FULL);
-				} catch(Throwable t) {log.warning(t);}
+				if(push != null)
+					push.setColor(PControl.PLAY, audio.isPaused() ? Basic.FULL_BLINK : Basic.FULL);
 			}
 		};
-		try { 
-			if(push != null) {
-				push.set(PControl.PLAY,        engine, PAUSED);
-				push.set(PControl.KNOB_MASTER, engine, MASTER);
-				push.set(PControl.MASTER, ()->{
-					try {
-						push.setColor(PControl.VOLUME, Basic.HALF);
-						push.setColor(PControl.MASTER, Basic.FULL);
-						push.set(PControl.KNOB_MASTER, engine, MASTER);
-					} catch(Throwable t) {log.warning(t);}
-				});
-				push.set(PControl.VOLUME, ()->{
-					try {
-						push.setColor(PControl.MASTER, Basic.HALF);
-						push.setColor(PControl.VOLUME, Basic.FULL);
-						push.set(PControl.KNOB_MASTER, audio.getOutGain(), MonitorGain.GAIN);
-					} catch(Throwable t) {log.warning(t);}
-				});
+		if(push != null) {
+			push.set(PControl.PLAY,        engine, PAUSED);
+			push.set(PControl.KNOB_MASTER, engine, MASTER);
+			push.set(PControl.MASTER, ()->{
 				push.setColor(PControl.VOLUME, Basic.HALF);
-			}
-		} catch(Throwable t) {log.warning(t);}
+				push.setColor(PControl.MASTER, Basic.FULL);
+				push.set(PControl.KNOB_MASTER, engine, MASTER);
+			});
+			push.set(PControl.VOLUME, ()->{
+				push.setColor(PControl.MASTER, Basic.HALF);
+				push.setColor(PControl.VOLUME, Basic.FULL);
+				push.set(PControl.KNOB_MASTER, audio.getOutGain(), MonitorGain.GAIN);
+			});
+			push.setColor(PControl.VOLUME, Basic.HALF);
+			push.set(PControl.MUTE, ()->{
+				if(muted) {
+					push.setColor(PControl.MUTE, Basic.FULL);
+					setMaster(muteMaster);
+					muted = false;
+				} else {
+					push.setColor(PControl.MUTE, Basic.FULL_BLINK);
+					muteMaster = setMaster(0);
+					muted = true;
+				}
+			});
+		}
 
 		osc.addHandler("/" + BOUNCELET, this);
 		pollTimer.schedule(new TimerTask() {
@@ -162,20 +167,8 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		table.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
-
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				TableItem[] selection = table.getSelection();
-				if(selection.length == 0) {
-					inspector.clear(inspector.getCurrent());
-					return;
-				} else if(selection.length == 1) {
-					Bouncelet b = (Bouncelet) table.getItem(table.getSelectionIndex()).getData(BOUNCELET);
-					inspect(b);
-				} else {
-					inspect(multiSelection);
-				}
-			}
+			public void widgetDefaultSelected(SelectionEvent e) {selectionChanged();}
 		});
 		table.setHeaderVisible(true);
 		for(int i = 0; i < COLS.length; i++) {
@@ -184,16 +177,20 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 			col.setWidth(WIDTHS[i]);
 			final int idx = i;
 			col.addListener(SWT.Selection, e->{
-				TableColumn column = (TableColumn) e.widget;
-				if(table.getSortColumn() != column) {
-					table.setSortColumn(column);
-					if(table.getSortDirection() != SWT.UP && table.getSortDirection() != SWT.DOWN)
-						table.setSortDirection(SWT.UP);
-				} else {
-					table.setSortDirection(table.getSortDirection() == SWT.UP ? SWT.DOWN : SWT.UP);
+				try {
+					TableColumn column = (TableColumn) e.widget;
+					if(table.getSortColumn() != column) {
+						table.setSortColumn(column);
+						if(table.getSortDirection() != SWT.UP && table.getSortDirection() != SWT.DOWN)
+							table.setSortDirection(SWT.UP);
+					} else {
+						table.setSortDirection(table.getSortDirection() == SWT.UP ? SWT.DOWN : SWT.UP);
+					}
+					cmp = (Comparator<Bouncelet>) CMPS[idx*2+(table.getSortDirection() == SWT.UP ? 1 : 0)];
+					sort();
+				} catch(Throwable t) {
+					log.warning(t);
 				}
-				cmp = (Comparator<Bouncelet>) CMPS[idx*2+(table.getSortDirection() == SWT.UP ? 1 : 0)];
-				sort();
 			});
 		}
 
@@ -223,6 +220,23 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		multiSelection.setTable(table);
 	}
 
+	private void selectionChanged() {
+		try {
+			TableItem[] selection = table.getSelection();
+			if(selection.length == 0) {
+				inspector.clear(inspector.getCurrent());
+				return;
+			} else if(selection.length == 1) {
+				Bouncelet b = (Bouncelet) table.getItem(table.getSelectionIndex()).getData(BOUNCELET);
+				inspect(b);
+			} else {
+				inspect(multiSelection);
+			}
+		} catch(Throwable t) {
+			log.warning(t);
+		}
+	}
+
 	public void select(Bouncelet b, boolean extendSelection) {
 		if(!(extendSelection)) 
 			table.deselectAll();
@@ -232,7 +246,18 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 				break;
 			}
 		}
-		inspect(b);
+		selectionChanged();
+	}
+
+	public void deselect(Bouncelet bouncelet) {
+		int index = 0;
+		for(TableItem item : table.getItems()) {
+			Bouncelet b = (Bouncelet)item.getData(BOUNCELET);
+			if(b == bouncelet)
+				table.deselect(index);
+			index++;
+		}
+		selectionChanged();
 	}
 
 	private void inspect(Bouncelet b) {
@@ -280,13 +305,16 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 					bouncelets = s_bouncelets.toArray(new Bouncelet[s_bouncelets.size()]);
 			}
 		}
-		if(changed) {
-			for(IEngineListener l : listeners) {
-				try {
-					l.bounceletsChanged(bouncelets);
-				} catch(Throwable t) {
-					log.warning(t);
-				}
+		if(changed)
+			fireBounceletsChanged(bouncelets);
+	}
+
+	private void fireBounceletsChanged(Bouncelet[] bouncelets) {
+		for(IEngineListener l : listeners) {
+			try {
+				l.bounceletsChanged(bouncelets);
+			} catch(Throwable t) {
+				log.warning(t);
 			}
 		}
 	}
@@ -304,6 +332,9 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 						Display.getDefault().asyncExec(()->{
 							item.dispose();	
 							b.dispose();
+							synchronized (s_bouncelets) {
+								fireBounceletsChanged(s_bouncelets.toArray(new Bouncelet[s_bouncelets.size()]));
+							}
 						});
 					}
 					b2i.remove(b);
@@ -402,12 +433,16 @@ public class Engine extends TabPanel implements IOSCHandler, IDisposable {
 		}
 	}
 
-	public void setMaster(float val) {
+	public float setMaster(float val) {
+		float result = engine.getVal(MASTER);
 		engine.setVal(MASTER, val);
+		return result;
 	}
 
-	public void setPaused(boolean state) {
+	public boolean setPaused(boolean state) {
+		boolean result = engine.getVal(PAUSED) > 0.5f;
 		engine.setVal(PAUSED, state ? 1 : 0);
+		return result;
 	}
 
 	public void addEngineListener(IEngineListener l) {

@@ -13,9 +13,12 @@ import ch.fhnw.ether.media.Parameter;
 import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IdentityHashSet;
+import ch.fhnw.util.Log;
 import ch.fhnw.util.color.RGB;
 
 public class MultiSelection extends Bouncelet implements SelectionListener {
+	private static final Log log = Log.create();
+
 	private Table          table;
 	private Set<Bouncelet> s_selection = new IdentityHashSet<>();
 
@@ -63,32 +66,36 @@ public class MultiSelection extends Bouncelet implements SelectionListener {
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
-		synchronized (s_selection) {
-			s_selection.clear();
-			if(table != null) {
-				TableItem[] selection = table.getSelection();
-				String label = selection.length + (selection.length == 1 ? " Bouncelet" : " Bouncelets");
-				if(selection.length == 0) {
-					update.clear(this);
-				} else {
-					float active  = 0;
-					float red     = 0;
-					float green   = 0;
-					float blue    = 0;
-					for(TableItem item : selection) {
-						Bouncelet b = (Bouncelet) item.getData(Engine.BOUNCELET);
-						RGB       c = b.getColor();
-						red   += c.r;
-						green += c.g;
-						blue  += c.b;
-						active += b.getActive();
-						s_selection.add(b);
+		try {
+			synchronized (s_selection) {
+				s_selection.clear();
+				if(table != null) {
+					TableItem[] selection = table.getSelection();
+					String label = selection.length + (selection.length == 1 ? " Bouncelet" : " Bouncelets");
+					if(selection.length == 0) {
+						update.clear(this);
+					} else {
+						float active  = 0;
+						float red     = 0;
+						float green   = 0;
+						float blue    = 0;
+						for(TableItem item : selection) {
+							Bouncelet b = (Bouncelet) item.getData(Engine.BOUNCELET);
+							RGB       c = b.getColor();
+							red   += c.r;
+							green += c.g;
+							blue  += c.b;
+							active += b.getActive();
+							s_selection.add(b);
+						}
+						update(label, active / selection.length, new RGB(red / selection.length, green / selection.length, blue / selection.length));
 					}
-					update(label, active / selection.length, new RGB(red / selection.length, green / selection.length, blue / selection.length));
+				} else {
+					update.clear(this);
 				}
-			} else {
-				update.clear(this);
 			}
+		} catch(Throwable t) {
+			log.warning(t);
 		}
 	}
 }

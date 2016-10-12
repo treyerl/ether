@@ -57,6 +57,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 	private         Object[]         vals;
 	private         Parametrizable   params = new Parametrizable(INSPECTOR, new Parameter(ACTIVE, ACTIVE, 0, 1, 1));
 	protected final IBounceletUpdate update;
+	protected final Engine           engine;
 	protected final OSC              osc;
 	private   final AbletonPush      push;
 	private         Image            ctrlImage;
@@ -69,6 +70,7 @@ public class Bouncelet implements IDisposable, IBeatListener {
 		this.label      = label;
 		this.lastUpdate = System.currentTimeMillis();
 		this.update     = updateOnUi;
+		this.engine     = engine;
 		this.osc        = osc;
 		this.push       = midi.getPush();
 		if(id >= 0 && push != null)
@@ -155,31 +157,36 @@ public class Bouncelet implements IDisposable, IBeatListener {
 	private static final NumberFormat FMT = TextUtilities.decimalFormat(2);
 	private void updateParams() {
 		if(names != null && mins != null && maxs != null && vals != null) {
-			Parameter[] ps = new Parameter[names.length];
-			for(int i = 0; i < names.length; i++) {
-				String name = names[i].toString();
-				if(BPM_DOWNER.equals(name)) {
-					int count = (int)(toFloat(maxs[i]) - toFloat(mins[i]));
-					float[] dVals    = new float[count];
-					String[] dLabels = new String[count];
-					int val = (int)toFloat(mins[i]);
-					for(int v = 0; v < count; v++, val++) {
-						if(val == 0) val++;
-						dVals[v]   = val;
-						dLabels[v] = Integer.toString(val);
-					}
-					ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), dVals, dLabels);
-				} else if(PATTERN_STYLE.equals(name)) {
-					ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), PatternStyle.class);
-				} else if(PATTERN.equals(name)) {
-					ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), Parameter.BITMAP8);
-				} else
-					ps[i] = new Parameter(name, format(name), toFloat(mins[i]), toFloat(maxs[i]), toFloat(vals[i]));
+			if(params == null || params.getParameters().length < 4) {
+				Parameter[] ps = new Parameter[names.length];
+				for(int i = 0; i < names.length; i++) {
+					String name = names[i].toString();
+					if(BPM_DOWNER.equals(name)) {
+						int count = (int)(toFloat(maxs[i]) - toFloat(mins[i]));
+						float[] dVals    = new float[count];
+						String[] dLabels = new String[count];
+						int val = (int)toFloat(mins[i]);
+						for(int v = 0; v < count; v++, val++) {
+							if(val == 0) val++;
+							dVals[v]   = val;
+							dLabels[v] = Integer.toString(val);
+						}
+						ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), dVals, dLabels);
+					} else if(PATTERN_STYLE.equals(name)) {
+						ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), PatternStyle.class);
+					} else if(PATTERN.equals(name)) {
+						ps[i] = new Parameter(name, format(name), (int)toFloat(vals[i]), Parameter.BITMAP8);
+					} else
+						ps[i] = new Parameter(name, format(name), toFloat(mins[i]), toFloat(maxs[i]), toFloat(vals[i]));
+				}
+
+				ArrayUtilities.reverseArrayRange(ps, 0, ps.length);
+
+				params = createParams(ps);
+			} else {
+				for(int i = 0; i < names.length; i++)
+					params.setVal(names[i].toString(), ((Number)vals[i]).floatValue());
 			}
-
-			ArrayUtilities.reverseArrayRange(ps, 0, ps.length);
-
-			params = createParams(ps);
 
 			names = null;
 			mins  = null;
@@ -206,6 +213,10 @@ public class Bouncelet implements IDisposable, IBeatListener {
 
 	protected void updateDecklight(Parameter p, float val) {
 		osc.send("/" + Engine.BOUNCELET + "/" + id + "/" + p.getName(), val);
+	}
+
+	protected void updateDecklight(String endpoint) {
+		osc.send("/" + Engine.BOUNCELET + "/" + id + "/" + endpoint);
 	}
 
 	private void setPush() {
@@ -256,6 +267,8 @@ public class Bouncelet implements IDisposable, IBeatListener {
 					.append(center(getLabel().toUpperCase(), 15)
 							.append((char)2)
 							.toString()) +  "[Toggle] [Flash ][Linear] [Smooth]");
+			push.set(PControl.UNDO, this::reset);
+
 			updatePush();
 		}
 	}
@@ -426,7 +439,6 @@ public class Bouncelet implements IDisposable, IBeatListener {
 			push.remove(c);
 	}
 
-
 	private void setActive(float active) {
 		params.setVal(ACTIVE, active);
 	}
@@ -437,5 +449,9 @@ public class Bouncelet implements IDisposable, IBeatListener {
 
 	public boolean isDisposed() {
 		return params == NO_PARAMS;
+	}
+
+	public void reset() {
+		updateDecklight("__reset__");
 	}
 }

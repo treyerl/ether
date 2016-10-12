@@ -89,6 +89,9 @@ public class PushPanel extends TabPanel implements PaintListener, IEngineListene
 					e.gc.setBackground(Engine.rgb2color(display, RGB.GRAY90));
 					e.gc.fillRoundRectangle(px+2, py+2+actHeight-((int)(actHeight * b.getActive())), 8, (int)(actHeight * b.getActive()), 4, 4);
 					e.gc.drawRoundRectangle(px+2, py+2, 8, actHeight, 4, 4);
+				} else {
+					e.gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
+					e.gc.drawText(Integer.toString(y*8+x), px+14, py+2);
 				}
 			}
 		}
@@ -129,5 +132,7 @@ public class PushPanel extends TabPanel implements PaintListener, IEngineListene
 		this.selection.clear();
 		for(Bouncelet b : selection)
 			this.selection.set(b.id);
+		if(!(canvas.isDisposed()))
+			canvas.redraw();
 	}
 }

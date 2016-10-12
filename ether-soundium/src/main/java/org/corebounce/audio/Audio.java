@@ -201,13 +201,17 @@ public class Audio extends Subsystem implements IAbletonLinkHandler {
 		return !(dst.isRendering());
 	}
 
-	public void setPaused(boolean state) throws RenderCommandException {
-		if(state) {
-			if(dst.isRendering())
-				dst.stop();
-		} else {
-			if(!(dst.isRendering()))
-				dst.start();
+	public void setPaused(boolean state) {
+		try {
+			if(state) {
+				if(dst.isRendering())
+					dst.stop();
+			} else {
+				if(!(dst.isRendering()))
+					dst.start();
+			}
+		} catch(Throwable t) {
+			log.warning(t);
 		}
 	}	
 }

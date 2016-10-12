@@ -168,7 +168,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		osc.addHandler("/state", new IOSCHandler() {
 			private AtomicReference<Object[]> args       = new AtomicReference<Object[]>(ClassUtilities.EMPTY_ObjectA);
 			private AtomicBoolean             slotsUpdate = new AtomicBoolean();
-			
+
 			@Override
 			public Object[] handle(String[] address, int addrIdx, StringBuilder typeString, long timestamp, Object ... cargs) {
 				this.args.set(cargs);
@@ -232,12 +232,16 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		target.addDropListener(new DropTargetAdapter() {
 			@Override
 			public void dragEnter(DropTargetEvent event) {
-				if (event.detail == DND.DROP_DEFAULT) {
-					event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
-				}
-				for (int i = 0, n = event.dataTypes.length; i < n; i++) {
-					if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i]))
-						event.currentDataType = event.dataTypes[i];
+				try {
+					if (event.detail == DND.DROP_DEFAULT) {
+						event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
+					}
+					for (int i = 0, n = event.dataTypes.length; i < n; i++) {
+						if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i]))
+							event.currentDataType = event.dataTypes[i];
+					}
+				} catch(Throwable t) {
+					log.warning(t);
 				}
 			}
 
@@ -248,38 +252,47 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 			@Override
 			public void drop(DropTargetEvent event) {
-				if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
-					DropTarget target = (DropTarget) event.widget;
-					Table table = (Table) target.getControl();
-					int selection  = table.getItemCount();
-					for(int i = table.getItemCount(); --i >= 0;)
-						if(table.getItem(i) == event.item)
-							selection = i;
-					for(String path : TextUtilities.split((String) event.data, ';')) {
-						Resource res = db.getResourceForPath(path);
-						if(res != null && selection < table.getItemCount()) {
-							TableItem item = table.getItem(selection);
-							setItem(event.display, item, res, false);
-							pusher.pushResource(item, res, selection);
-							selection++;
+				try {
+					if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+						DropTarget target = (DropTarget) event.widget;
+						Table table = (Table) target.getControl();
+						int selection  = table.getItemCount();
+						for(int i = table.getItemCount(); --i >= 0;)
+							if(table.getItem(i) == event.item)
+								selection = i;
+						for(String path : TextUtilities.split((String) event.data, ';')) {
+							Resource res = db.getResourceForPath(path);
+							if(res != null && selection < table.getItemCount()) {
+								TableItem item = table.getItem(selection);
+								setItem(event.display, item, res, false);
+								pusher.pushResource(item, res, selection);
+								selection++;
+							}
 						}
 					}
+				} catch(Throwable t) {
+					log.warning(t);
 				}
+
 			}
 		});
 	}
 
 	private boolean setItem(Display display, TableItem item, Resource res, boolean setLabel) {
-		boolean changed = false;
-		if(setLabel) {
-			changed |= !(res.getLabel().equals(item.getText()));
-			item.setText(res.getLabel());
+		try {
+			boolean changed = false;
+			if(setLabel) {
+				changed |= !(res.getLabel().equals(item.getText()));
+				item.setText(res.getLabel());
+			}
+			item.setData(K_RES, res);
+			Image prevw = pf.getPreviewImage(res, display);
+			changed |= item.getImage() != prevw;
+			item.setImage(prevw);
+			return changed;
+		} catch(Throwable t) {
+			return true;
 		}
-		item.setData(K_RES, res);
-		Image prevw = pf.getPreviewImage(res, display);
-		changed |= item.getImage() != prevw;
-		item.setImage(prevw);
-		return changed;
 	}
 
 	private void resList(Composite parent) {
@@ -296,10 +309,14 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 	}
 
 	private void focusSearch(Event event) {
-		if(Character.isLetterOrDigit(event.character)) {
-			searchFieldUI.setFocus();
-			event.widget = searchFieldUI;
-			searchFieldUI.getDisplay().asyncExec(()->searchFieldUI.getDisplay().post(event));
+		try {
+			if(Character.isLetterOrDigit(event.character)) {
+				searchFieldUI.setFocus();
+				event.widget = searchFieldUI;
+				searchFieldUI.getDisplay().asyncExec(()->searchFieldUI.getDisplay().post(event));
+			}
+		} catch(Throwable t) {
+			log.warning(t);
 		}
 	}
 
@@ -308,23 +325,27 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 			ToolTip tooltip = null; 
 			@Override
 			public void handleEvent(Event event) { 
-				if(event.type == SWT.KeyDown ); 
-				else if(event.type == SWT.Dispose); 
-				else if(event.type == SWT.MouseMove){ 
-					if(tooltip != null)
-						tooltip.dispose(); 
-				} 
-				else if(event.type == SWT.MouseHover && BrowserPanel.this.tooltip) { 
-					TableItem item = table.getItem(new Point(event.x,event.y)); 
-					if(item != null){ 
-						Resource  res  = (Resource) item.getData(K_RES);
-						if(res != null) {
-							tooltip = new ToolTip(table.getShell(), SWT.BALLOON | SWT.ICON_INFORMATION);
-							tooltip.setMessage(res.listProperties()); 
-							tooltip.setVisible(true);
-						} 
-					}
-				} 
+				try {
+					if(event.type == SWT.KeyDown ); 
+					else if(event.type == SWT.Dispose); 
+					else if(event.type == SWT.MouseMove){ 
+						if(tooltip != null)
+							tooltip.dispose(); 
+					} 
+					else if(event.type == SWT.MouseHover && BrowserPanel.this.tooltip) { 
+						TableItem item = table.getItem(new Point(event.x,event.y)); 
+						if(item != null){ 
+							Resource  res  = (Resource) item.getData(K_RES);
+							if(res != null) {
+								tooltip = new ToolTip(table.getShell(), SWT.BALLOON | SWT.ICON_INFORMATION);
+								tooltip.setMessage(res.listProperties()); 
+								tooltip.setVisible(true);
+							} 
+						}
+					} 
+				} catch(Throwable t) {
+					log.warning(t);
+				}				
 			} 
 		}; 
 
@@ -341,16 +362,20 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		source.addDragListener(new DragSourceAdapter() {
 			@Override
 			public void dragSetData(DragSourceEvent event) {
-				// Get the selected items in the drag source
-				DragSource ds = (DragSource) event.widget;
-				Table table = (Table) ds.getControl();
-				StringBuffer buff = new StringBuffer();
-				for(TableItem item : table.getSelection()) {
-					Resource res = (Resource)item.getData(K_RES);
-					if(res != null)
-						buff.append(res.getPath()).append(';');
+				try {
+					// Get the selected items in the drag source
+					DragSource ds = (DragSource) event.widget;
+					Table table = (Table) ds.getControl();
+					StringBuffer buff = new StringBuffer();
+					for(TableItem item : table.getSelection()) {
+						Resource res = (Resource)item.getData(K_RES);
+						if(res != null)
+							buff.append(res.getPath()).append(';');
+					}
+					event.data = buff.toString();
+				} catch(Throwable t) {
+					log.warning(t);
 				}
-				event.data = buff.toString();
 			}
 		});
 	}
@@ -361,55 +386,60 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 			@Override
 			public void handleEvent(Event event) {
-				TableItem item = (TableItem)event.item;
+				try {
+					TableItem item = (TableItem)event.item;
 
-				switch(event.type) {		
-				case SWT.MeasureItem: {
-					event.x       = 0;
-					event.width   = table.getClientArea().width;
-					event.height  = PreviewFactory.STRIP_HEIGHT + event.gc.textExtent(item.getText()).y;
-					break;
-				}
-				case SWT.PaintItem: {
-					GC       gc   = event.gc;
+					switch(event.type) {		
+					case SWT.MeasureItem: {
+						event.x       = 0;
+						event.width   = table.getClientArea().width;
+						event.height  = PreviewFactory.STRIP_HEIGHT + event.gc.textExtent(item.getText()).y;
+						break;
+					}
+					case SWT.PaintItem: {
+						GC       gc   = event.gc;
 
-					event.width   = table.getClientArea().width;
+						event.width   = table.getClientArea().width;
 
-					gc.setClipping(0, event.y, event.width, event.height);
-					gc.setBackground(event.display.getSystemColor(SWT.COLOR_BLACK));
-					event.gc.fillRectangle(0, event.y, event.width, event.height);
-					if((event.detail & SWT.SELECTED) != 0) {
-						gc.setBackground(event.display.getSystemColor(SWT.COLOR_LIST_SELECTION));
-						int svAlpha = gc.getAlpha();
-						gc.setAlpha(64);
+						gc.setClipping(0, event.y, event.width, event.height);
+						gc.setBackground(event.display.getSystemColor(SWT.COLOR_BLACK));
 						event.gc.fillRectangle(0, event.y, event.width, event.height);
-						gc.setAlpha(svAlpha);
-					}
-
-					String text      = item.getText(event.index);
-					Point  size      = event.gc.textExtent(text);					
-					int    offset2   = event.height - (size.y + 2);
-					gc.setForeground(event.display.getSystemColor(SWT.COLOR_WHITE));
-					gc.drawText(text, 0, event.y + offset2, true);
-					if(item.getImage() != null)
-						gc.drawImage(item.getImage(), 0, event.y);
-					else {
-						Resource res = (Resource)item.getData(K_RES); 
-						if(res != null && res.getProgress() >= 0) {
-							gc.setBackground(event.display.getSystemColor(SWT.COLOR_GRAY));
-							int off = 5;
-							int sz  = PreviewFactory.STRIP_HEIGHT - (2*off);
-							gc.fillArc(off,  event.y + off, sz, sz, 90, (int)(-360 * res.getProgress()));
-							gc.drawOval(off, event.y + off, sz, sz);
+						if((event.detail & SWT.SELECTED) != 0) {
+							gc.setBackground(event.display.getSystemColor(SWT.COLOR_LIST_SELECTION));
+							int svAlpha = gc.getAlpha();
+							gc.setAlpha(64);
+							event.gc.fillRectangle(0, event.y, event.width, event.height);
+							gc.setAlpha(svAlpha);
 						}
+
+						String text      = item.getText(event.index);
+						Point  size      = event.gc.textExtent(text);					
+						int    offset2   = event.height - (size.y + 2);
+						gc.setForeground(event.display.getSystemColor(SWT.COLOR_WHITE));
+						gc.drawText(text, 0, event.y + offset2, true);
+						if(item.getImage() != null)
+							gc.drawImage(item.getImage(), 0, event.y);
+						else {
+							Resource res = (Resource)item.getData(K_RES); 
+							if(res != null && res.getProgress() >= 0) {
+								gc.setBackground(event.display.getSystemColor(SWT.COLOR_GRAY));
+								int off = 5;
+								int sz  = PreviewFactory.STRIP_HEIGHT - (2*off);
+								gc.fillArc(off,  event.y + off, sz, sz, 90, (int)(-360 * res.getProgress()));
+								gc.drawOval(off, event.y + off, sz, sz);
+							}
+						}
+						break;
 					}
-					break;
+					case SWT.EraseItem: {
+						event.detail &= UPDATE_MASK;
+						break;
+					}
+					}
+				} catch(Throwable t) {
+					log.warning(t);
 				}
-				case SWT.EraseItem: {
-					event.detail &= UPDATE_MASK;
-					break;
-				}
-				}
+
 			}
 		};
 		table.addListener(SWT.MeasureItem, paintListener);
@@ -505,34 +535,39 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
-		Object src = e.getSource();
-		if(src == searchFieldUI) {
-			search = searchFieldUI.getText();
-			searchHistory.used(search);
-			storeHistory(searchHistory);
-			searchComplete.clear();
-			for(String item : searchHistory)
-				searchComplete.addItem(item);
-			searchComplete.setVisible(false);
-		}
-		else if(src == sortKeyUI)  
-			sort = sortKeyUI.getText();
-		else if(src == tooltipUI)
-			tooltip = tooltipUI.getSelection();
-		else if(src == sortDirectionUI) {
-			if(sortDirectionUI.getImage() == sortAscendingIcon) {
-				sortDirectionUI.setImage(sortDescendingIcon);
-				sortDir = -1;
-			} else {
-				sortDirectionUI.setImage(sortAscendingIcon);
-				sortDir = 1;
+		try {
+			Object src = e.getSource();
+			if(src == searchFieldUI) {
+				search = searchFieldUI.getText();
+				searchHistory.used(search);
+				storeHistory(searchHistory);
+				searchComplete.clear();
+				for(String item : searchHistory)
+					searchComplete.addItem(item);
+				searchComplete.setVisible(false);
 			}
-		} 
-		else if(src == moviesUI)   showMovies   = moviesUI.getSelection();
-		else if(src == imagesUI)   showImages   = imagesUI.getSelection();
-		else if(src == geometryUI) showGeometry = geometryUI.getSelection();
-		else if(src == fontsUI)    showFonts    = fontsUI.getSelection();
-		run();
+			else if(src == sortKeyUI)  
+				sort = sortKeyUI.getText();
+			else if(src == tooltipUI)
+				tooltip = tooltipUI.getSelection();
+			else if(src == sortDirectionUI) {
+				if(sortDirectionUI.getImage() == sortAscendingIcon) {
+					sortDirectionUI.setImage(sortDescendingIcon);
+					sortDir = -1;
+				} else {
+					sortDirectionUI.setImage(sortAscendingIcon);
+					sortDir = 1;
+				}
+			} 
+			else if(src == moviesUI)   showMovies   = moviesUI.getSelection();
+			else if(src == imagesUI)   showImages   = imagesUI.getSelection();
+			else if(src == geometryUI) showGeometry = geometryUI.getSelection();
+			else if(src == fontsUI)    showFonts    = fontsUI.getSelection();
+			run();
+		} catch(Throwable t) {
+			log.warning(t);
+		}
+
 	}
 
 	@Override

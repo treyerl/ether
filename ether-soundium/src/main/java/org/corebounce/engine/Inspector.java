@@ -3,9 +3,13 @@ package org.corebounce.engine;
 import org.corebounce.audio.Audio;
 import org.corebounce.ui.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 
 import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.ether.ui.ParameterWindow;
@@ -29,7 +33,19 @@ public class Inspector extends Composite implements IBounceletUpdate {
 		current = b;
 		audio.addBeatListener(b);
 		Parametrizable p = b.getParameters();
-		ParameterWindow.createUI(this, p, true);
+		Composite paramUI = (Composite)ParameterWindow.createUI(this, p, true);;
+		new Label(paramUI, SWT.NONE);
+		Button resetUI = new Button(paramUI, SWT.NONE);
+		resetUI.setText("Reset");
+		resetUI.setLayoutData(GridDataFactory.fill(true, false));
+		resetUI.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {widgetDefaultSelected(e);}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if(current != null) current.reset();
+			}
+		});
 		layout();
 	}
 
