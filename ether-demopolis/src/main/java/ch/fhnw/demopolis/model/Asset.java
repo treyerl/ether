@@ -29,13 +29,18 @@
 
 package ch.fhnw.demopolis.model;
 
+import java.io.File;
 import java.net.URL;
 
 public final class Asset {
 	public static URL get(String name) {
-		URL url = Asset.class.getResource("/assets/" + name);
-		if (url == null)
+		try {
+			URL url = name.startsWith("/") ? new File(name).toURI().toURL() : Asset.class.getResource("/assets/" + name);
+			if (url == null)
+				throw new IllegalArgumentException("no such asset: " + name);
+			return url;
+		} catch (Exception e) {
 			throw new IllegalArgumentException("no such asset: " + name);
-		return url;
+		}
 	}
 }

@@ -33,7 +33,7 @@ import ch.fhnw.util.color.RGB;
 
 public interface I3DColors {
 	float LOW = 0.5f;
-	float DIM = 0.5f; // 0.75
+	float DIM = 0.5f;
 	float HI = 2.0f;
 	
 	RGB AMBIENT_HI	= new RGB(1, 1, 1);

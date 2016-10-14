@@ -31,6 +31,7 @@ package ch.fhnw.demopolis.main;
 
 import java.io.IOException;
 
+import ch.fhnw.demopolis.config.BerlinBRZScenario;
 import ch.fhnw.demopolis.config.BerlinScenario;
 import ch.fhnw.demopolis.model.IScenario;
 import ch.fhnw.demopolis.model.Model;
@@ -53,11 +54,15 @@ public class Demopolis {
 			
 		boolean alexanderplatzOnly = false;
 		boolean fullscreen = false;
-		if (args.length == 2) {
+		String brzModelPath = null;
+		if (args.length >= 2) {
 			if (args[0].equals("ap"))
 				alexanderplatzOnly = true;
 			if (args[1].equals("true"))
 				fullscreen = true;
+		}
+		if (args.length >= 3) {
+			brzModelPath = args[2];
 		}
 		
 		try {
@@ -73,7 +78,7 @@ public class Demopolis {
 			t.setDaemon(true);
 			t.start();
 
-			new Demopolis(alexanderplatzOnly, fullscreen);
+			new Demopolis(alexanderplatzOnly, fullscreen, brzModelPath);
 			
 			Platform.get().run();
 		} catch (Exception e) {
@@ -82,8 +87,8 @@ public class Demopolis {
 		}	
 	}
 
-	public Demopolis(boolean alexanderplatzOnly, boolean fullscreen) throws IOException {
-		final IScenario scenario = new BerlinScenario(alexanderplatzOnly);
+	public Demopolis(boolean alexanderplatzOnly, boolean fullscreen, String brzPath) throws IOException {
+		final IScenario scenario = brzPath == null ? new BerlinScenario(alexanderplatzOnly) : new BerlinBRZScenario(alexanderplatzOnly, brzPath);
 		final Model model = new Model(scenario);
 		final UI gui = new UI(model);
 
