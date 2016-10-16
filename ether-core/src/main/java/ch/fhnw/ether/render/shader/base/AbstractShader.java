@@ -49,8 +49,8 @@ public abstract class AbstractShader implements IShader {
 	
 	public static final String INLINE = "/*__inline__*/\n"; 
 
-	// important: keep this in sync with Primitive enum in IGeometry
-	public static final int[] MODE = { GL11.GL_POINTS, GL11.GL_LINES, GL11.GL_LINE_STRIP, GL11.GL_LINE_LOOP, GL11.GL_TRIANGLES };
+	// important: keep this in sync with Primitive enum in IMesh
+	public static final int[] MODE = { GL11.GL_POINTS, GL11.GL_LINES, GL11.GL_LINE_STRIP, GL11.GL_LINE_LOOP, GL11.GL_TRIANGLES, GL11.GL_TRIANGLE_STRIP, GL11.GL_TRIANGLE_FAN };
 
 	private final Class<?>  root;
 	private final String    name;

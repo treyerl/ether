@@ -232,7 +232,7 @@ public class Population {
 	}
 
 	private static IMesh instantiate(IMesh mesh, float x, float y, float rot) {
-		IMesh instance = mesh.getInstance();
+		IMesh instance = mesh.createInstance();
 		instance.setTransform(Mat4.trs(x, y, I3DConfig.LAYER_2, 0, 0, rot, 1, 1, 1));
 		return instance;
 	}

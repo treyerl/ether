@@ -135,6 +135,8 @@ public final class ShaderBuilder {
 		case LINE_LOOP:
 			return new LineShader(attributes, mesh.getType());
 		case TRIANGLES:
+		case TRIANGLE_STRIP:
+		case TRIANGLE_FAN:
 			if (material instanceof ColorMaterial || material instanceof ColorMapMaterial) {
 				return new UnshadedTriangleShader(attributes);
 			} else if (material instanceof ShadedMaterial) {
