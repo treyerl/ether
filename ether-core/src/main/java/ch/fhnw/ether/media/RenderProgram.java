@@ -101,7 +101,7 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 	public RenderProgram(IVideoSource source, AbstractRenderCommand<T> ... commands) {
 		program.set(ArrayUtilities.prepend((AbstractRenderCommand<T>)source, commands));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public RenderProgram(IMidiSource source, AbstractRenderCommand<T> ... commands) {
@@ -157,7 +157,7 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 			if(update.isRemove())
 				update.remove(tmp);
 		}
-		
+
 		setProgram(tmp);
 	}
 
@@ -186,10 +186,12 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 		}, "disposing:" + removed).start();
 
 		T t = target.get();
-		for(AbstractRenderCommand<T> command : newProgram) {
-			try {command.init(t);} catch(Throwable e) {log.severe(e);};
+		if(t != null) {
+			for(AbstractRenderCommand<T> command : newProgram) {
+				try {command.init(t);} catch(Throwable e) {log.severe(e);};
+			}
 		}
-		
+
 		this.program.set(newProgram);
 	}
 
@@ -211,7 +213,7 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 				return (AbstractFrameSource)command;
 		return null;
 	}
-	
+
 	public void setTarget(T target) throws RenderCommandException {
 		if(target != null && this.target.get() != null)
 			throw new RenderCommandException("Cannot replace target '" + this.target + "'  by '" + target + "'");
