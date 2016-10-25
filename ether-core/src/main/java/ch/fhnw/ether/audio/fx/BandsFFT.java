@@ -32,7 +32,6 @@
  import java.util.Arrays;
 
 import ch.fhnw.ether.audio.AudioUtilities;
-import ch.fhnw.ether.audio.FFT;
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.Smooth;
 import ch.fhnw.ether.media.AbstractRenderCommand;

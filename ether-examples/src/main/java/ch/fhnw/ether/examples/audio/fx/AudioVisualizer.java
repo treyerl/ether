@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import ch.fhnw.ether.audio.AudioUtilities.Window;
-import ch.fhnw.ether.audio.FFT;
 import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.audio.IAudioSource;
 import ch.fhnw.ether.audio.JavaSoundTarget;
@@ -51,6 +50,7 @@ import ch.fhnw.ether.audio.URLAudioSource;
 import ch.fhnw.ether.audio.fx.AutoGain;
 import ch.fhnw.ether.audio.fx.BandsButterworth;
 import ch.fhnw.ether.audio.fx.DCRemove;
+import ch.fhnw.ether.audio.fx.FFT;
 import ch.fhnw.ether.audio.fx.PitchDetect;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;

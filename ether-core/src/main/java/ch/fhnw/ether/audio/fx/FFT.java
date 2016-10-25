@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.audio;
+package ch.fhnw.ether.audio.fx;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -37,7 +37,10 @@ import java.util.List;
 
 import org.jtransforms.fft.FloatFFT_1D;
 
+import ch.fhnw.ether.audio.AudioFrame;
 import ch.fhnw.ether.audio.AudioUtilities.Window;
+import ch.fhnw.ether.audio.BlockBuffer;
+import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.util.IModifier;

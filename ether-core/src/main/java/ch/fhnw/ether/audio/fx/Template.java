@@ -42,11 +42,11 @@ import ch.fhnw.ether.media.RenderCommandException;
  * @author sschubiger
  *
  */
-public class TemplateStateless extends AbstractRenderCommand<IAudioRenderTarget> {
+public class Template extends AbstractRenderCommand<IAudioRenderTarget> {
 	/* Expose a runtime parameter */
 	private static final Parameter PARAM = new Parameter("p", "Some Param", 0, 1, 0);
 
-	public TemplateStateless() {
+	public Template() {
 		/* Pass all your params to the super class. */
 		super(PARAM);
 	}
