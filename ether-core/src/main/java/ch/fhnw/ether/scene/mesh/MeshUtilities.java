@@ -32,6 +32,7 @@
 package ch.fhnw.ether.scene.mesh;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -313,7 +314,7 @@ public final class MeshUtilities {
 	 * Merges a list of meshes by material. Note that materials are compared by
 	 * reference.
 	 */
-	public static List<IMesh> mergeMeshes(List<IMesh> meshes) {
+	public static List<IMesh> mergeMeshes(Collection<IMesh> meshes) {
 		int maxNumAttributes = 0;
 		for (IMesh mesh : meshes)
 			maxNumAttributes = Math.max(maxNumAttributes, mesh.getMaterial().getRequiredAttributes().length);

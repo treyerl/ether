@@ -73,7 +73,7 @@ public class DefaultRenderManager implements IRenderManager {
 	private static final class SceneMeshState {
 		Renderable renderable;
 	}
-	
+
 	private static final class RenderUpdate implements IRenderUpdate {
 		public final Renderable renderable;
 		public final Object[] materialData;
@@ -82,7 +82,7 @@ public class DefaultRenderManager implements IRenderManager {
 		public RenderUpdate(Renderable renderable, IMesh mesh, boolean materialChanged, boolean geometryChanged) {
 			this.renderable = renderable;
 			if (materialChanged)
-				materialData = mesh.getMaterial().getData();	
+				materialData = mesh.getMaterial().getData();
 			else
 				materialData = null;
 
@@ -91,7 +91,7 @@ public class DefaultRenderManager implements IRenderManager {
 			else
 				geometryData = null;
 		}
-		
+
 		@Override
 		public void update() {
 			renderable.update(materialData, geometryData);
@@ -104,7 +104,7 @@ public class DefaultRenderManager implements IRenderManager {
 		final Set<IMaterial> materials = Collections.newSetFromMap(new IdentityHashMap<>());
 		final Set<IGeometry> geometries = Collections.newSetFromMap(new IdentityHashMap<>());
 		final Map<IMesh, SceneMeshState> meshes = new IdentityHashMap<>();
-		
+
 		List<Renderable> renderables = new ArrayList<>();
 
 		boolean rebuildMeshes = false;
@@ -171,7 +171,6 @@ public class DefaultRenderManager implements IRenderManager {
 			rebuildMeshes = true;
 		}
 
-
 		public void clear() {
 			lights.clear();
 			materials.clear();
@@ -210,7 +209,7 @@ public class DefaultRenderManager implements IRenderManager {
 				boolean geometryChanged;
 				if (state.renderable == null) {
 					// TODO: optionally we could do the first update() on
-					// drawable already here, using a shared context 
+					// drawable already here, using a shared context
 					// (thus, shaders would be compiled on scene thread)
 					state.renderable = renderer.createRenderable(mesh);
 					materialChanged = true;
@@ -231,17 +230,15 @@ public class DefaultRenderManager implements IRenderManager {
 			// second loop required to update flags
 			materials.forEach(material -> material.getUpdater().clear());
 			geometries.forEach(geometry -> geometry.getUpdater().clear());
-			
+
 			// seal collections
 			final List<Renderable> renderRenderables = Collections.unmodifiableList(renderables);
 			final List<IRenderUpdate> renderUpdates = Collections.unmodifiableList(updates);
 
-			
 			// 2. add lights to render state
 			// currently updates are not checked, we simply update everything
 			final List<ILight> renderLights = Collections.unmodifiableList(new ArrayList<>(lights));
 
-			
 			// 3. set view matrices for each updated camera, add to render state
 			final List<IRenderTargetState> targets = new ArrayList<>();
 			views.forEach((view, svs) -> {
@@ -257,22 +254,22 @@ public class DefaultRenderManager implements IRenderManager {
 					public IViewCameraState getViewCameraState() {
 						return svs.viewCameraState;
 					}
-					
+
 					@Override
 					public List<Renderable> getRenderables() {
 						return renderRenderables;
 					}
-					
+
 					@Override
 					public List<ILight> getLights() {
 						return renderLights;
 					}
 				});
 			});
-			
+
 			// second loop required to update flags
 			views.forEach((view, svs) -> svs.camera.getUpdater().clear());
-			
+
 			// seal collections
 			final List<IRenderTargetState> renderTargets = Collections.unmodifiableList(targets);
 
@@ -367,22 +364,20 @@ public class DefaultRenderManager implements IRenderManager {
 	}
 
 	@Override
-	public Runnable getRenderRunnable() {
-		return () -> {
-			ensureSceneThread();
-			if (sceneState.views.isEmpty())
-				return;
-			renderer.submit(() -> sceneState.create(renderer));
-		};
+	public void update() {
+		ensureSceneThread();
+		if (!sceneState.views.isEmpty() && renderer.ready())
+			renderer.submit(sceneState.create(renderer));
+	}
+
+	@Override
+	public void clear() {
+		ensureSceneThread();
+		sceneState.clear();
 	}
 
 	private void ensureSceneThread() {
 		if (controller != null)
 			controller.ensureSceneThread();
-	}
-
-	@Override
-	public void clear() {
-		sceneState.clear();
 	}
 }

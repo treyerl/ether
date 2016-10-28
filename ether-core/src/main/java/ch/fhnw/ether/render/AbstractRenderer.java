@@ -56,8 +56,6 @@ import ch.fhnw.util.color.RGBA;
 public abstract class AbstractRenderer implements IRenderer {
 	private static final Log log = Log.create();
 
-	private static final boolean DBG = false;
-
 	public static final class RenderGlobals {
 		public final Map<IAttribute, Supplier<?>> attributes = new IdentityHashMap<>();
 		public final ViewInfo viewInfo = new ViewInfo();
@@ -101,20 +99,22 @@ public abstract class AbstractRenderer implements IRenderer {
 	public Renderable createRenderable(IMesh mesh) {
 		return new Renderable(mesh, globals.attributes);
 	}
+	
+	@Override
+	public boolean ready() {
+		if (getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED)
+			return true;
+		else 
+			return renderQueue.size() < MAX_RENDER_QUEUE_SIZE;
+	}
 
 	@Override
-	public void submit(Supplier<IRenderState> supplier) {
+	public void submit(IRenderState state) {
 		try {
-			if(getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED) {
-				render(supplier.get());
+			if (getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED) {
+				render(state);
 			} else {
-				if (renderQueue.size() < MAX_RENDER_QUEUE_SIZE) {
-					IRenderState state = supplier.get();
-					renderQueue.put(() -> render(state));
-				} else {
-					if (DBG)
-						log.info("renderer: render queue full");
-				}
+				renderQueue.put(() -> render(state));
 			}
 		} catch (Exception e) {
 			log.warning(e);

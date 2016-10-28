@@ -113,10 +113,9 @@ public interface IRenderManager {
 	void removeMesh(IMesh mesh);
 
 	/**
-	 * Returns runnable to be run at the end of a scene time frame when repaint
-	 * is required.
+	 * Update render state and submit to renderer if necessary.
 	 */
-	Runnable getRenderRunnable();
+	void update();
 
 	/**
 	 * Remove all object from renderer.
