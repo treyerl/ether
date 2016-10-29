@@ -46,33 +46,36 @@ import ch.fhnw.util.Log;
 
 public abstract class AbstractShader implements IShader {
 	private static final Log LOG = Log.create();
-	
-	public static final String INLINE = "/*__inline__*/\n"; 
+
+	public static final String INLINE = "/*__inline__*/\n";
 
 	// important: keep this in sync with Primitive enum in IMesh
-	public static final int[] MODE = { GL11.GL_POINTS, GL11.GL_LINES, GL11.GL_LINE_STRIP, GL11.GL_LINE_LOOP, GL11.GL_TRIANGLES, GL11.GL_TRIANGLE_STRIP, GL11.GL_TRIANGLE_FAN };
+	public static final int[] MODE = { 
+			GL11.GL_POINTS, GL11.GL_LINES, GL11.GL_LINE_STRIP, GL11.GL_LINE_LOOP,
+			GL11.GL_TRIANGLES, GL11.GL_TRIANGLE_STRIP, GL11.GL_TRIANGLE_FAN 
+	};
 
-	private final Class<?>  root;
-	private final String    name;
-	private final String[]  source;
+	private final Class<?> root;
+	private final String name;
+	private final String[] source;
 	private final Primitive type;
-	private       Program   program;
+	private Program program;
 
 	private List<IShaderUniform<?>> uniforms = new ArrayList<>();
 	private List<IShaderArray<?>> arrays = new ArrayList<>();
 
 	protected AbstractShader(Class<?> root, String name, String source, Primitive type) {
-		this.root   = root;
-		this.name   = name;
-		this.source = new String[] {source};
-		this.type   = type;
+		this.root = root;
+		this.name = name;
+		this.source = new String[] { source };
+		this.type = type;
 	}
 
 	protected AbstractShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
-		this.root   = root;
-		this.name   = name;
-		this.source = new String[] {vert, frag, geom};
-		this.type   = type;
+		this.root = root;
+		this.name = name;
+		this.source = new String[] { vert, frag, geom };
+		this.type = type;
 	}
 
 	@Override
@@ -86,7 +89,7 @@ public abstract class AbstractShader implements IShader {
 			String vertShader;
 			String fragShader;
 			String geomShader;
-			if(source.length == 1) {
+			if (source.length == 1) {
 				vertShader = source[0] + "_vert.glsl";
 				fragShader = source[0] + "_frag.glsl";
 				geomShader = source[0] + "_geom.glsl";
@@ -107,7 +110,8 @@ public abstract class AbstractShader implements IShader {
 
 	@Override
 	public final void enable() {
-		// enable program & uniforms (set uniforms, enable textures, change gl state)
+		// enable program & uniforms (set uniforms, enable textures, change gl
+		// state)
 		program.enable();
 		uniforms.forEach(attr -> attr.enable(program));
 	}

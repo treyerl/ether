@@ -42,6 +42,9 @@ import org.lwjgl.opengl.GL11;
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.render.gl.GLError;
+import ch.fhnw.ether.render.gl.Texture;
+import ch.fhnw.ether.render.shader.IShader;
+import ch.fhnw.ether.render.shader.base.AbstractPostShader;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -207,6 +210,21 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 	}
 
+	protected void renderPostObjects(IRenderTargetState state, Queue pass, Texture colorMap, Texture depthMap) {
+		for (Renderable renderable : state.getRenderables()) {
+			if (renderable.getQueue() == pass) {
+				// XXX: set color/depth map to renderable's shader
+				IShader shader = renderable.getShader();
+				if (shader instanceof AbstractPostShader) {
+					((AbstractPostShader)shader).setMaps(colorMap, depthMap);
+					renderable.render();
+				} else {
+					// XXX warn?? fail? we should be able to test for this case much earlier in a flexible way
+				}
+			}
+		}
+	}
+	
 	protected void renderShadowVolumes(IRenderTargetState state, Queue pass) {
 		if (shadowVolumes == null) {
 			shadowVolumes = new ShadowVolumes(globals.attributes);

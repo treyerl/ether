@@ -48,6 +48,7 @@ import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.light.ILight;
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.view.IView;
@@ -106,6 +107,7 @@ public class DefaultRenderManager implements IRenderManager {
 		final Map<IMesh, SceneMeshState> meshes = new IdentityHashMap<>();
 
 		List<Renderable> renderables = new ArrayList<>();
+		boolean hasPost = false;
 
 		boolean rebuildMeshes = false;
 
@@ -194,11 +196,14 @@ public class DefaultRenderManager implements IRenderManager {
 			final List<IRenderUpdate> updates = new ArrayList<>();
 			if (rebuildMeshes) {
 				renderables = new ArrayList<>();
+				hasPost = false;
 				materials.clear();
 				geometries.clear();
 				meshes.forEach((mesh, state) -> {
 					materials.add(mesh.getMaterial());
 					geometries.add(mesh.getGeometry());
+					if (mesh.getQueue() == Queue.POST)
+						hasPost = true;
 				});
 			}
 			meshes.forEach((mesh, state) -> {
@@ -264,6 +269,11 @@ public class DefaultRenderManager implements IRenderManager {
 					public List<ILight> getLights() {
 						return renderLights;
 					}
+
+					@Override
+					public boolean hasPost() {
+						return hasPost;
+					}
 				});
 			});
 
@@ -284,7 +294,7 @@ public class DefaultRenderManager implements IRenderManager {
 				@Override
 				public List<IRenderTargetState> getRenderStates() {
 					return renderTargets;
-				}
+				}				
 			};
 		}
 	}

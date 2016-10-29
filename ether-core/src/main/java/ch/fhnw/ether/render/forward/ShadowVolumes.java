@@ -95,7 +95,7 @@ public final class ShadowVolumes {
 			volumeShader.update(null);
 			volumeShader.enable();
 			for (Renderable renderable : renderables) {
-				if (renderable.containsFlag(Flag.DONT_CAST_SHADOW))
+				if (renderable.hasFlag(Flag.DONT_CAST_SHADOW))
 					continue;
 				if (renderable.getQueue() != pass)
 					continue;

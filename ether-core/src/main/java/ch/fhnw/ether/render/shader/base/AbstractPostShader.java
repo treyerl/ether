@@ -29,77 +29,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.render;
+package ch.fhnw.ether.render.shader.base;
 
-import java.util.List;
+import ch.fhnw.ether.render.gl.Texture;
+import ch.fhnw.ether.render.variable.base.SamplerUniform;
+import ch.fhnw.ether.render.variable.builtin.ColorMapArray;
+import ch.fhnw.ether.render.variable.builtin.PositionArray;
+import ch.fhnw.ether.render.variable.builtin.ViewUniformBlock;
+import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 
-import ch.fhnw.ether.scene.attribute.AbstractAttribute;
-import ch.fhnw.ether.scene.camera.IViewCameraState;
-import ch.fhnw.ether.scene.light.ILight;
-import ch.fhnw.ether.scene.mesh.IMesh;
-import ch.fhnw.ether.view.IView;
-
-/**
- * Simple rendering interface.
- *
- * @author radar
- */
-public interface IRenderer {
-	enum ExecutionPolicy {
-		SINGLE_THREADED, DUAL_THREADED, MULTI_THREADED
+public abstract class AbstractPostShader extends AbstractShader {
+	
+	private final SamplerUniform colorMapUniform;
+	private final SamplerUniform depthMapUniform;
+	
+	protected AbstractPostShader(Class<?> root, String name, String source, Primitive type) {
+		super(root, name, source, type);
+		colorMapUniform = null;
+		depthMapUniform = null;
+		addUniforms();
 	}
 
-	interface IRenderUpdate {
-		void update();
+	protected AbstractPostShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
+		super(root, name, vert, frag, geom, type);
+		colorMapUniform = null;
+		depthMapUniform = null;
+		addUniforms();
 	}
 
-	interface IRenderTargetState {
-		IView getView();
-
-		IViewCameraState getViewCameraState();
-
-		List<ILight> getLights();
-
-		List<Renderable> getRenderables();
+	public void setMaps(Texture colorMap, Texture depthMap) {
+		// this wont work right now... colorMapUniform.setSupplier(() -> colorMap);
+		// TODO Auto-generated method stub
+	}
+	
+	private void addUniforms() {
+		addArray(new PositionArray());
+		addArray(new ColorMapArray());
 		
-		boolean hasPost();
+		addUniform(colorMapUniform);
+		addUniform(depthMapUniform);
+
+		addUniform(new ViewUniformBlock());
 	}
-
-	interface IRenderState {
-		List<IRenderUpdate> getRenderUpdates();
-
-		List<IRenderTargetState> getRenderStates();
-	}
-
-	final class RendererAttribute<T> extends AbstractAttribute<T> {
-		public RendererAttribute(String id) {
-			super(id);
-		}
-	}
-
-	/**
-	 * Returns execution policy of this renderer.
-	 */
-	ExecutionPolicy getExecutionPolicy();
-
-	/**
-	 * Returns true if renderer is ready to accept a new render state, i.e.
-	 * calling submit() will not block.
-	 */
-	boolean ready();
-
-	/**
-	 * Called from a client (usually a render manager) to submit a render state.
-	 * Depending on execution policy, submit waits until rendering is complete
-	 * (single threaded) or defers rendering to other threads (dual threaded,
-	 * multi threaded) if they are ready.
-	 */
-	void submit(IRenderState state);
-
-	/**
-	 * Create new renderable from given mesh. Usually called from render manager
-	 * on scene thread.
-	 */
-	Renderable createRenderable(IMesh mesh);
-
 }
