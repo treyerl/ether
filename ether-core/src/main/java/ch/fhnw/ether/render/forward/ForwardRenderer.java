@@ -114,6 +114,7 @@ public final class ForwardRenderer extends AbstractRenderer {
 		
 		//---- POST QUEUE (IF ANY POST RENDERABLES)
 		if (state.hasPost()) {
+			globals.viewInfo.setOrthoDeviceSpace();
 			postBuffer.unbind();
 			renderPostObjects(state, Queue.POST, postBuffer.getColorMap(), postBuffer.getDepthMap());
 		}

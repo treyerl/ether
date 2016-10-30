@@ -74,14 +74,14 @@ public final class GeometryBuffer {
 			frameBuffer.bind();
 			
 			colorTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, colorTexture.getGlObject().getId());
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)colorTexture.getGPUHandle());
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
 			frameBuffer.attach(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
 			
 			depthTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthTexture.getGlObject().getId());
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)depthTexture.getGPUHandle());
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, (ByteBuffer)null);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);

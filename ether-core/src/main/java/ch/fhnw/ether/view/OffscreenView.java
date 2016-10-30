@@ -125,7 +125,7 @@ public class OffscreenView implements IView, IWindow {
 			colorTexture = IGPUImage.create(width, height, ComponentType.BYTE, ComponentFormat.RGBA);
 			frameBuffer.attach(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
 			depthTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthTexture.getGlObject().getId());
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)depthTexture.getGPUHandle());
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, (ByteBuffer)null);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);

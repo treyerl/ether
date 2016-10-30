@@ -55,7 +55,7 @@ import ch.fhnw.ether.scene.mesh.material.EmptyMaterial;
 import ch.fhnw.util.color.RGBA;
 
 public final class ShadowVolumes {
-	private static final IMesh OVERLAY_MESH = new DefaultMesh(Primitive.TRIANGLES, new EmptyMaterial(), DefaultGeometry.createV(MeshUtilities.DEFAULT_QUAD_TRIANGLES));
+	private static final IMesh OVERLAY_MESH = new DefaultMesh(Primitive.TRIANGLES, new EmptyMaterial(), DefaultGeometry.createV(MeshUtilities.UNIT_QUAD_TRIANGLES));
 
 	private ShadowVolumeShader volumeShader;
 	private Renderable overlay;

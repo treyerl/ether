@@ -220,6 +220,7 @@ public abstract class AbstractRenderer implements IRenderer {
 					renderable.render();
 				} else {
 					// XXX warn?? fail? we should be able to test for this case much earlier in a flexible way
+					renderable.render();
 				}
 			}
 		}

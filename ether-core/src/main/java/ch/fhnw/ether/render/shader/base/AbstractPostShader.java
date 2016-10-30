@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.render.shader.base;
 
+import org.lwjgl.opengl.GL11;
+
 import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.ether.render.variable.base.SamplerUniform;
 import ch.fhnw.ether.render.variable.builtin.ColorMapArray;
@@ -45,21 +47,24 @@ public abstract class AbstractPostShader extends AbstractShader {
 	
 	protected AbstractPostShader(Class<?> root, String name, String source, Primitive type) {
 		super(root, name, source, type);
-		colorMapUniform = null;
-		depthMapUniform = null;
+		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
+		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
 		addUniforms();
 	}
 
 	protected AbstractPostShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
 		super(root, name, vert, frag, geom, type);
-		colorMapUniform = null;
-		depthMapUniform = null;
+		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
+		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
 		addUniforms();
 	}
 
 	public void setMaps(Texture colorMap, Texture depthMap) {
-		// this wont work right now... colorMapUniform.setSupplier(() -> colorMap);
-		// TODO Auto-generated method stub
+		// XXX kind of hacky that we need to explicitly call update here, there should be a better way...
+		colorMapUniform.setSupplier(() -> colorMap);
+		colorMapUniform.update(null);
+		depthMapUniform.setSupplier(() -> depthMap);
+		depthMapUniform.update(null);
 	}
 	
 	private void addUniforms() {
@@ -70,5 +75,7 @@ public abstract class AbstractPostShader extends AbstractShader {
 		addUniform(depthMapUniform);
 
 		addUniform(new ViewUniformBlock());
+		
+		setMaps(null, null);
 	}
 }
