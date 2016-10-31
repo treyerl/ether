@@ -45,7 +45,7 @@ import ch.fhnw.ether.view.IView;
  * - foreach viewport
  * -- only use geometry assigned to this viewport
  * 
- * - foreach pass
+ * - foreach pass/queue
  * -- setup opengl params specific to pass
  * 
  * - foreach material
