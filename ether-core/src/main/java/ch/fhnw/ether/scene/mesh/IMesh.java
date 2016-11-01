@@ -47,8 +47,9 @@ import ch.fhnw.util.math.Mat4;
  */
 public interface IMesh extends I3DObject {
 
+	// TODO: extend to concept of "queues" with a more flexible and extensible scheme
 	enum Queue {
-		DEPTH, TRANSPARENCY, OVERLAY, DEVICE_SPACE_OVERLAY, SCREEN_SPACE_OVERLAY
+		DEPTH, TRANSPARENCY, POST, OVERLAY, DEVICE_SPACE_OVERLAY, SCREEN_SPACE_OVERLAY
 	}
 
 	enum Flag {

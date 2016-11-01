@@ -31,17 +31,21 @@
 
 package ch.fhnw.ether.render.forward;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.AbstractRenderer;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
+import ch.fhnw.ether.view.IView;
 
 /*
  * General flow:
  * - foreach viewport
  * -- only use geometry assigned to this viewport
  * 
- * - foreach pass
+ * - foreach pass/queue
  * -- setup opengl params specific to pass
  * 
  * - foreach material
@@ -65,6 +69,8 @@ import ch.fhnw.ether.scene.mesh.IMesh.Queue;
  */
 public final class ForwardRenderer extends AbstractRenderer {
 
+	private final Map<IView, PostBuffer> postBuffers = new IdentityHashMap<>();
+	
 	public ForwardRenderer() {
 	}
 
@@ -75,9 +81,22 @@ public final class ForwardRenderer extends AbstractRenderer {
 	@SuppressWarnings("unused")
 	@Override
 	protected void render(IRenderTargetState state) {
-		globals.viewInfo.setCameraSpace();
+		
+		//---- PREPARE POST QUEUE IF NECESSARY
+		PostBuffer postBuffer = null;
+		if (state.hasPost()) {
+			postBuffer = postBuffers.get(state.getView());
+			if (postBuffer == null) {
+				postBuffer = new PostBuffer();
+				postBuffers.put(state.getView(), postBuffer);
+			}
+			postBuffer.update(state);
+			postBuffer.bind();
+			postBuffer.clear();
+		}
 
-		// 1. DEPTH QUEUE (DEPTH WRITE&TEST ENABLED, BLEND OFF)
+		//---- DEPTH QUEUE (DEPTH WRITE&TEST ENABLED, BLEND OFF)
+		globals.viewInfo.setCameraSpace();
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_POLYGON_OFFSET_FILL);
 		GL11.glPolygonOffset(1, 3);
@@ -87,24 +106,33 @@ public final class ForwardRenderer extends AbstractRenderer {
 		if (false)
 			renderShadowVolumes(state, Queue.DEPTH);
 
-		// 2. TRANSPARENCY QUEUE (DEPTH WRITE DISABLED, DEPTH TEST ENABLED, BLEND ON)
+		//---- TRANSPARENCY QUEUE (DEPTH WRITE DISABLED, DEPTH TEST ENABLED, BLEND ON)
+		globals.viewInfo.setCameraSpace();
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glDepthMask(false);
 		renderObjects(state, Queue.TRANSPARENCY);
+		
+		//---- POST QUEUE (IF ANY POST RENDERABLES)
+		if (state.hasPost()) {
+			globals.viewInfo.setOrthoDeviceSpace();
+			postBuffer.unbind();
+			renderPostObjects(state, Queue.POST, postBuffer.getColorMap(), postBuffer.getDepthMap());
+		}
 
-		// 3. OVERLAY QUEUE (DEPTH WRITE&TEST DISABLED, BLEND ON)
+		//---- OVERLAY QUEUE (DEPTH WRITE&TEST DISABLED, BLEND ON)
+		globals.viewInfo.setCameraSpace();
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		renderObjects(state, Queue.OVERLAY);
 
-		// 4. DEVICE SPACE OVERLAY QUEUE (DEPTH WRITE&TEST DISABLED, BLEND ON)
+		//---- DEVICE SPACE OVERLAY QUEUE (DEPTH WRITE&TEST DISABLED, BLEND ON)
 		globals.viewInfo.setOrthoDeviceSpace();
 		renderObjects(state, Queue.DEVICE_SPACE_OVERLAY);
 
-		// 5. SCREEN SPACE OVERLAY QUEUE(DEPTH WRITE&TEST DISABLED, BLEND ON)
+		//---- SCREEN SPACE OVERLAY QUEUE(DEPTH WRITE&TEST DISABLED, BLEND ON)
 		globals.viewInfo.setOrthoScreenSpace();
 		renderObjects(state, Queue.SCREEN_SPACE_OVERLAY);
 
-		// 6. CLEANUP: RETURN TO DEFAULTS
+		//---- CLEANUP: RETURN TO DEFAULTS
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDepthMask(true);
 	}

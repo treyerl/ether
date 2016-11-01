@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.render.deferred;
+package ch.fhnw.ether.render.forward;
 
 import java.nio.ByteBuffer;
 
@@ -45,21 +45,25 @@ import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.Viewport;
 
-public final class GeometryBuffer {
+// TODO: add stencil buffer (in case we're using shadow volumes)
+public final class PostBuffer {
 	private static final Log log = Log.create();
 
 	private FrameBuffer frameBuffer;
-	@SuppressWarnings("unused")
-	private Texture positionTexture;
-	@SuppressWarnings("unused")
-	private Texture normalTexture;
-	private Texture colorTexture;
-	private Texture depthTexture;
+	private Texture colorMap;
+	private Texture depthMap;
 	private int width;
 	private int height;
 
-	public GeometryBuffer() {
-
+	public PostBuffer() {
+	}
+	
+	public Texture getColorMap() {
+		return colorMap;
+	}
+	
+	public Texture getDepthMap() {
+		return depthMap;
 	}
 	
 	public void update(IRenderTargetState state) {
@@ -73,19 +77,19 @@ public final class GeometryBuffer {
 			
 			frameBuffer.bind();
 			
-			colorTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)colorTexture.getGPUHandle());
+			colorMap = new Texture(new GLObject(Type.TEXTURE), width, height);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)colorMap.getGPUHandle());
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer)null);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-			frameBuffer.attach(GL30.GL_COLOR_ATTACHMENT0, colorTexture);
+			frameBuffer.attach(GL30.GL_COLOR_ATTACHMENT0, colorMap);
 			
-			depthTexture = new Texture(new GLObject(Type.TEXTURE), width, height);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)depthTexture.getGPUHandle());
+			depthMap = new Texture(new GLObject(Type.TEXTURE), width, height);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, (int)depthMap.getGPUHandle());
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_DEPTH_COMPONENT, width, height, 0, GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, (ByteBuffer)null);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-			frameBuffer.attach(GL30.GL_DEPTH_ATTACHMENT, depthTexture);
+			frameBuffer.attach(GL30.GL_DEPTH_ATTACHMENT, depthMap);
 			
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
 			
@@ -98,12 +102,16 @@ public final class GeometryBuffer {
 		}
 	}
 
-	public void enable() {
+	public void bind() {
 		frameBuffer.bind();
 	}
 	
-	public void disable() {
+	public void unbind() {
 		FrameBuffer.unbind();
+	}
+	
+	public void clear() {
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);		
 	}
 	
 	public void blit() {

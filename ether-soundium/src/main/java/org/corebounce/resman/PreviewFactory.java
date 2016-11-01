@@ -370,7 +370,7 @@ public class PreviewFactory {
 						scene.add3DObject(m);
 					}
 				}
-				controller.getRenderManager().getRenderRunnable().run();					
+				controller.getRenderManager().update();					
 
 				resource.putProperty(P_WIDTH,          fmt.format(bb.getMaxX() - bb.getMinX()));
 				resource.putProperty(P_HEIGHT,         fmt.format(bb.getMaxY() - bb.getMinY()));

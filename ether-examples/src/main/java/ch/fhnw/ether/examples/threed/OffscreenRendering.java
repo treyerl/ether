@@ -76,7 +76,7 @@ public class OffscreenRendering {
 					}
 				}
 				log.info("Rending scene to texture");
-				controller.getRenderManager().getRenderRunnable().run();
+				controller.getRenderManager().update();
 				
 				File out = new File("preview.png");
 				log.info("Writing texture to '" + out.getAbsolutePath() + "'");

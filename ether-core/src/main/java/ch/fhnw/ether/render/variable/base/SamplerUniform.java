@@ -36,24 +36,24 @@ import java.util.function.Supplier;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
-import ch.fhnw.ether.image.IGPUImage;
+import ch.fhnw.ether.image.IGPUTexture;
 import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.scene.attribute.ITypedAttribute;
 
-public class SamplerUniform extends AbstractUniform<IGPUImage> {
+public class SamplerUniform extends AbstractUniform<IGPUTexture> {
 	private final int unit;
 	private final int target;
-	private IGPUImage sampler;
+	private IGPUTexture sampler;
 	
-	public SamplerUniform(ITypedAttribute<IGPUImage> attribute, String shaderName, int unit, int target) {
+	public SamplerUniform(ITypedAttribute<IGPUTexture> attribute, String shaderName, int unit, int target) {
 		this(attribute.id(), shaderName, unit, target, null);
 	}
 
-	public SamplerUniform(ITypedAttribute<IGPUImage> attribute, String shaderName, int unit, int target, Supplier<IGPUImage> supplier) {
+	public SamplerUniform(ITypedAttribute<IGPUTexture> attribute, String shaderName, int unit, int target, Supplier<IGPUTexture> supplier) {
 		this(attribute.id(), shaderName, unit, target, supplier);
 	}
 
-	public SamplerUniform(String id, String shaderName, int unit, int target, Supplier<IGPUImage> supplier) {
+	public SamplerUniform(String id, String shaderName, int unit, int target, Supplier<IGPUTexture> supplier) {
 		super(id, shaderName, supplier);
 		this.unit = unit;
 		this.target = target;

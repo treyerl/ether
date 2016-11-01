@@ -259,7 +259,7 @@ public abstract class AbstractVideoFX extends AbstractRenderCommand<IVideoRender
 			for(Uniform<?> u : uniformsfrag)
 				attrs[idx++] = u;
 			this.material   = new FxMaterial(attrs);
-			this.quad       = new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVM(MeshUtilities.DEFAULT_QUAD_TRIANGLES, MeshUtilities.DEFAULT_QUAD_TEX_COORDS));
+			this.quad       = new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVM(MeshUtilities.UNIT_QUAD_TRIANGLES, MeshUtilities.UNIT_QUAD_TEX_COORDS));
 			this.renderable = new Renderable(quad, null);
 		} else if(this instanceof IVideoCPUFX) {
 			this.uniformsvert = null;

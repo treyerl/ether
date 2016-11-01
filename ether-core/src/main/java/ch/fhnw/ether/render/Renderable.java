@@ -67,7 +67,7 @@ public final class Renderable {
 	}
 
 	public void render() {
-		boolean disableCulling = containsFlag(Flag.DONT_CULL_FACE);
+		boolean disableCulling = hasFlag(Flag.DONT_CULL_FACE);
 		if (disableCulling)
 			GL11.glDisable(GL11.GL_CULL_FACE);
 		shader.enable();
@@ -77,16 +77,20 @@ public final class Renderable {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 	}
 	
+	public IShader getShader() {
+		return shader;
+	}
+	
+	public IVertexBuffer getBuffer() {
+		return buffer;
+	}
+
 	public IMesh.Queue getQueue() {
 		return queue;
 	}
 
-	public boolean containsFlag(IMesh.Flag flag) {
+	public boolean hasFlag(IMesh.Flag flag) {
 		return flags.contains(flag);
-	}
-
-	public IVertexBuffer getBuffer() {
-		return buffer;
 	}
 
 	@Override

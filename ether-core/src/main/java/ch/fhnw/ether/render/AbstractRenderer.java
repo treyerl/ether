@@ -42,6 +42,9 @@ import org.lwjgl.opengl.GL11;
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.render.gl.GLError;
+import ch.fhnw.ether.render.gl.Texture;
+import ch.fhnw.ether.render.shader.IShader;
+import ch.fhnw.ether.render.shader.base.AbstractPostShader;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -55,8 +58,6 @@ import ch.fhnw.util.color.RGBA;
 
 public abstract class AbstractRenderer implements IRenderer {
 	private static final Log log = Log.create();
-
-	private static final boolean DBG = false;
 
 	public static final class RenderGlobals {
 		public final Map<IAttribute, Supplier<?>> attributes = new IdentityHashMap<>();
@@ -101,20 +102,22 @@ public abstract class AbstractRenderer implements IRenderer {
 	public Renderable createRenderable(IMesh mesh) {
 		return new Renderable(mesh, globals.attributes);
 	}
+	
+	@Override
+	public boolean ready() {
+		if (getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED)
+			return true;
+		else 
+			return renderQueue.size() < MAX_RENDER_QUEUE_SIZE;
+	}
 
 	@Override
-	public void submit(Supplier<IRenderState> supplier) {
+	public void submit(IRenderState state) {
 		try {
-			if(getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED) {
-				render(supplier.get());
+			if (getExecutionPolicy() == ExecutionPolicy.SINGLE_THREADED) {
+				render(state);
 			} else {
-				if (renderQueue.size() < MAX_RENDER_QUEUE_SIZE) {
-					IRenderState state = supplier.get();
-					renderQueue.put(() -> render(state));
-				} else {
-					if (DBG)
-						log.info("renderer: render queue full");
-				}
+				renderQueue.put(() -> render(state));
 			}
 		} catch (Exception e) {
 			log.warning(e);
@@ -207,6 +210,22 @@ public abstract class AbstractRenderer implements IRenderer {
 		}
 	}
 
+	protected void renderPostObjects(IRenderTargetState state, Queue pass, Texture colorMap, Texture depthMap) {
+		for (Renderable renderable : state.getRenderables()) {
+			if (renderable.getQueue() == pass) {
+				// XXX: set color/depth map to renderable's shader
+				IShader shader = renderable.getShader();
+				if (shader instanceof AbstractPostShader) {
+					((AbstractPostShader)shader).setMaps(colorMap, depthMap);
+					renderable.render();
+				} else {
+					// XXX warn?? fail? we should be able to test for this case much earlier in a flexible way
+					renderable.render();
+				}
+			}
+		}
+	}
+	
 	protected void renderShadowVolumes(IRenderTargetState state, Queue pass) {
 		if (shadowVolumes == null) {
 			shadowVolumes = new ShadowVolumes(globals.attributes);

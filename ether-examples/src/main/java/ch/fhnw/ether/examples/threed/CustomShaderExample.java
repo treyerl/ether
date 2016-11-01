@@ -54,15 +54,23 @@ import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewType;
 
 public final class CustomShaderExample {
-	public static final class ExampleCustomMaterial extends AbstractMaterial implements ICustomMaterial {
+	static final class CustomMaterial extends AbstractMaterial implements ICustomMaterial {
+		private static class Shader extends AbstractShader {
+			public Shader() {
+				super(CustomShaderExample.class, "custom_shader_example.custom_shader", "/shaders/custom_shader", Primitive.TRIANGLES);
+				addArray(new PositionArray());
+				addArray(new ColorArray());
 
-		private final IShader shader;
+				addUniform(new ViewUniformBlock());
+				addUniform(new FloatUniform("custom.red_gain", "redGain"));
+			}
+		}
+
+		private final IShader shader = new Shader();
 		private float redGain;
 
-		public ExampleCustomMaterial(ExampleCustomShader shader, float redGain) {
+		public CustomMaterial(float redGain) {
 			super(provide(new MaterialAttribute<Float>("custom.red_gain")), require(IGeometry.POSITION_ARRAY));
-
-			this.shader = shader;
 			this.redGain = redGain;
 		}
 
@@ -86,17 +94,6 @@ public final class CustomShaderExample {
 		}
 	}
 
-	public static class ExampleCustomShader extends AbstractShader {
-		public ExampleCustomShader() {
-			super(CustomShaderExample.class, "custom_shader_example.custom_shader", "/shaders/custom_shader", Primitive.TRIANGLES);
-			addArray(new PositionArray());
-			addArray(new ColorArray());
-
-			addUniform(new ViewUniformBlock());
-			addUniform(new FloatUniform("custom.red_gain", "redGain"));
-		}
-	}
-
 	public static void main(String[] args) {
 		new CustomShaderExample();
 	}
@@ -106,7 +103,7 @@ public final class CustomShaderExample {
 		float[] colors = { 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1 };
 
 		DefaultGeometry g = DefaultGeometry.createVC(vertices, colors);
-		return new DefaultMesh(Primitive.TRIANGLES, new ExampleCustomMaterial(new ExampleCustomShader(), 2f), g);
+		return new DefaultMesh(Primitive.TRIANGLES, new CustomMaterial(2f), g);
 	}
 
 	private IMesh mesh;
@@ -130,7 +127,7 @@ public final class CustomShaderExample {
 			scene.add3DObject(mesh);
 		});
 		controller.animate((time, interval) -> {
-			((ExampleCustomMaterial) mesh.getMaterial()).setRedGain((float) Math.sin(time) + 1);
+			((CustomMaterial) mesh.getMaterial()).setRedGain((float) Math.sin(time) + 1);
 		});
 		
 		Platform.get().run();

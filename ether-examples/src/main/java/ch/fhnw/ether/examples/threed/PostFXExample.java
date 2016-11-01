@@ -35,56 +35,34 @@ import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.render.shader.IShader;
-import ch.fhnw.ether.render.shader.base.AbstractShader;
-import ch.fhnw.ether.render.variable.base.Mat4FloatUniform;
-import ch.fhnw.ether.render.variable.builtin.PositionArray;
+import ch.fhnw.ether.render.shader.base.AbstractPostShader;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
-import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.MeshUtilities;
-import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.AbstractMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
-import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewType;
-import ch.fhnw.util.math.Mat4;
-import ch.fhnw.util.math.Vec3;
 
-public final class CustomViewShaderExample {
-	static final class CustomMaterial extends AbstractMaterial implements ICustomMaterial {
-		private static class Shader extends AbstractShader {
-			public Shader() {
-				super(CustomViewShaderExample.class, "custom_shader_example.custom_view_shader", "/shaders/custom_view_shader", Primitive.LINES);
-				addArray(new PositionArray());
-
-				addUniform(new Mat4FloatUniform("custom.mvp", "mvp"));
+public final class PostFXExample {
+	public static final class PostMaterial extends AbstractMaterial implements ICustomMaterial {
+		private static class PostShader extends AbstractPostShader {
+			public PostShader() {
+				super(PostFXExample.class, "post_fx_example.post_shader", "/shaders/post_shader", Primitive.TRIANGLES);
 			}
 		}
 
+		private final IShader shader = new PostShader();
 
-		private final IShader shader = new Shader();
-		private float rotation;
-
-		public CustomMaterial(float rotation) {
-			super(provide(new MaterialAttribute<Mat4>("custom.mvp")), require(IGeometry.POSITION_ARRAY));
-			this.rotation = rotation;
+		public PostMaterial() {
+			super(provide(), require(IGeometry.POSITION_ARRAY, IGeometry.COLOR_MAP_ARRAY));
 		}
 
-		public float getRotation() {
-			return rotation;
-		}
-
-		public void setRotation(float rotation) {
-			this.rotation = rotation;
-			updateRequest();
-		}
-		
 		@Override
 		public IShader getShader() {
 			return shader;
@@ -92,42 +70,27 @@ public final class CustomViewShaderExample {
 
 		@Override
 		public Object[] getData() {
-			Mat4 rot = Mat4.rotate(rotation, Vec3.Z);
-			Mat4 view = Mat4.lookAt(new Vec3(0, 10, 10), Vec3.ZERO, Vec3.Z);
-			Mat4 proj = Mat4.perspective(45, 1, 1, 100);
-			Mat4 mvp = Mat4.multiply(proj, view, rot);
-			return data(mvp);
+			return data();
 		}
 	}
 
 	public static void main(String[] args) {
-		new CustomViewShaderExample();
+		new PostFXExample();
 	}
 
-	private IMesh mesh;
-
-	// Setup the whole thing
-	public CustomViewShaderExample() {
-		// Init platform
+	public PostFXExample() {
 		Platform.get().init();
 		
-		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
-			// Create view
 			new DefaultView(controller, 100, 100, 500, 500, new IView.Config(ViewType.INTERACTIVE_VIEW, 0, new IView.ViewFlag[0]), "Test");
 
-			// Create scene and add triangle
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
-			
-			IGeometry geometry = DefaultGeometry.createV(MeshUtilities.UNIT_CUBE_EDGES);
-			IMaterial material = new CustomMaterial(0);
-			mesh = new DefaultMesh(Primitive.LINES, material, geometry, Queue.DEPTH);
-			scene.add3DObject(mesh);
-		});
-		controller.animate((time, interval) -> {
-			((CustomMaterial) mesh.getMaterial()).setRotation((float) Math.sin(time) * 360);
+
+			scene.add3DObject(MeshUtilities.createCube());
+
+			scene.add3DObject(MeshUtilities.createQuad(new PostMaterial(), Queue.POST, IMesh.NO_FLAGS));
 		});
 		
 		Platform.get().run();
