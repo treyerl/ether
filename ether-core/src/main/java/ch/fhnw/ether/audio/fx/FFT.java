@@ -56,7 +56,6 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 	private       BlockBuffer   buffer;
 	private       int           fftSize;
 	private       int           fftSize2;
-	private       int           fftSize4;
 	private final List<float[]> spectrum = new LinkedList<>();
 	private       float[]       block;
 	private       float         sRate;
@@ -70,12 +69,12 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 	protected void init(IAudioRenderTarget target) {
 		sRate    = target.getSampleRate();
 		fftSize  = MathUtilities.nextPowerOfTwo((int)(sRate / minFreq));
-		fftSize4 = fftSize / 4;
+		fftSize2 = fftSize / 2;
 		LOG.info("FFT of " + fftSize + " at " + sRate + " Hz");
 		fft      = new FloatFFT_1D(fftSize);
 		buffer   = new BlockBuffer(fftSize, true, windowType);
 		block    = new float[fftSize];
-		power    = new float[fftSize4];
+		power    = new float[fftSize2];
 		pcm1     = new float[fftSize];
 		pcm1rd   = fftSize2;
 		pcm0rd   = fftSize;
@@ -180,7 +179,7 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 
 			fft.realForward(block);
 			spectrum.add(block);
-			final int lim = block.length / 2;
+			final int lim = block.length;
 			for(int i = 0; i < lim; i+= 2) {
 				final float  re = block[i+0];
 				final float  im = block[i+1];
