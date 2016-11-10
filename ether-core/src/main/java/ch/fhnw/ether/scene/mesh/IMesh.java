@@ -47,8 +47,9 @@ import ch.fhnw.util.math.Mat4;
  */
 public interface IMesh extends I3DObject {
 
+	// TODO: extend to concept of "queues" with a more flexible and extensible scheme
 	enum Queue {
-		DEPTH, TRANSPARENCY, OVERLAY, DEVICE_SPACE_OVERLAY, SCREEN_SPACE_OVERLAY
+		DEPTH, TRANSPARENCY, POST, OVERLAY, DEVICE_SPACE_OVERLAY, SCREEN_SPACE_OVERLAY
 	}
 
 	enum Flag {
@@ -61,7 +62,9 @@ public interface IMesh extends I3DObject {
 		LINES("lines", 2), 
 		LINE_STRIP("line_strip", 1),
 		LINE_LOOP("line_loop", 1),
-		TRIANGLES("triangles", 3);
+		TRIANGLES("triangles", 3),
+		TRIANGLE_STRIP("triangle_strip", 1),
+		TRIANGLE_FAN("triangle_fan", 1);
 		
 		private final String name;
 		private final int numVertices;
@@ -89,9 +92,9 @@ public interface IMesh extends I3DObject {
 	
 	/**
 	 * Return a new instance of this mesh, that is, a shallow copy of material
-	 * and geometry, but independent position and transform.
+	 * and geometry, but with independent position and transform.
 	 */
-	IMesh getInstance();
+	IMesh createInstance();
 
 	/**
 	 * Get this mesh's queue.

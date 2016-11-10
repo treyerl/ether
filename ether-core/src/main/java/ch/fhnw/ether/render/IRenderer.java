@@ -32,7 +32,6 @@
 package ch.fhnw.ether.render;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import ch.fhnw.ether.scene.attribute.AbstractAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
@@ -62,11 +61,13 @@ public interface IRenderer {
 		List<ILight> getLights();
 
 		List<Renderable> getRenderables();
+		
+		boolean hasPost();
 	}
 
 	interface IRenderState {
 		List<IRenderUpdate> getRenderUpdates();
-		
+
 		List<IRenderTargetState> getRenderStates();
 	}
 
@@ -81,13 +82,24 @@ public interface IRenderer {
 	 */
 	ExecutionPolicy getExecutionPolicy();
 
-	Renderable createRenderable(IMesh mesh);
+	/**
+	 * Returns true if renderer is ready to accept a new render state, i.e.
+	 * calling submit() will not block.
+	 */
+	boolean ready();
 
 	/**
 	 * Called from a client (usually a render manager) to submit a render state.
 	 * Depending on execution policy, submit waits until rendering is complete
 	 * (single threaded) or defers rendering to other threads (dual threaded,
-	 * multi threaded).
+	 * multi threaded) if they are ready.
 	 */
-	void submit(Supplier<IRenderState> supplier);
+	void submit(IRenderState state);
+
+	/**
+	 * Create new renderable from given mesh. Usually called from render manager
+	 * on scene thread.
+	 */
+	Renderable createRenderable(IMesh mesh);
+
 }

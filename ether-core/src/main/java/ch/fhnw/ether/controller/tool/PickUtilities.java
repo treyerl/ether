@@ -91,6 +91,9 @@ public final class PickUtilities {
 			return pickLineStripOrLoop(mode, x, y, w, h, vcs, data, true);
 		case TRIANGLES:
 			return pickTriangles(mode, x, y, w, h, vcs, data);
+		case TRIANGLE_STRIP:
+		case TRIANGLE_FAN:
+			throw new UnsupportedOperationException("picking of triangle strips and fans currently unsupported");
 		}
 		return Float.POSITIVE_INFINITY;
 	}

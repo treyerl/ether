@@ -39,20 +39,20 @@ import ch.fhnw.demopolis.model.entities.IDesignEntity;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
 
-public final class BerlinScenario implements IScenario {
-	private static final Vec3 AP_MIN = new Vec3(-155, -340, -10);
-	private static final Vec3 AP_MAX = new Vec3(945, 780, 200);
-	private static final Vec3 AP_RF_MIN = new Vec3(-400, -720, -10);
-	private static final Vec3 AP_RF_MAX = new Vec3(600, 770, 200);
+public class BerlinScenario implements IScenario {
+	protected static final Vec3 AP_MIN = new Vec3(-155, -340, -10);
+	protected static final Vec3 AP_MAX = new Vec3(945, 780, 200);
+	protected static final Vec3 AP_RF_MIN = new Vec3(-400, -720, -10);
+	protected static final Vec3 AP_RF_MAX = new Vec3(600, 770, 200);
 	
-	private static final String STATIC_GROUND = "berlin3d/ground_static.obj";
-	private static final String STATIC_WATER = "berlin3d/water_static.obj";
-	private static final String STATIC_BLOCKS = "berlin3d/blocks_static.obj";
-	private static final String STATIC_GREEN = "berlin3d/green_static.obj";
-	private static final String STATIC_BUILDINGS = "berlin3d/buildings_static.obj";
-	private static final String STATIC_TRAIN = "berlin3d/train_static.obj";
+	protected static final String STATIC_GROUND = "berlin3d/ground_static.obj";
+	protected static final String STATIC_WATER = "berlin3d/water_static.obj";
+	protected static final String STATIC_BLOCKS = "berlin3d/blocks_static.obj";
+	protected static final String STATIC_GREEN = "berlin3d/green_static.obj";
+	protected static final String STATIC_BUILDINGS = "berlin3d/buildings_static.obj";
+	protected static final String STATIC_TRAIN = "berlin3d/train_static.obj";
 	
-	private static final IDesignEntity[] BLOCKS_AP = {
+	protected static final IDesignEntity[] BLOCKS_AP = {
 		IScenario.block("berlin3d/blocks/block_bl_19.obj"),
 		IScenario.block("berlin3d/blocks/block_bl_20.obj"),
 		IScenario.block("berlin3d/blocks/block_bl_21.obj"),
@@ -88,7 +88,7 @@ public final class BerlinScenario implements IScenario {
 		IScenario.block("berlin3d/blocks/block_s_45.obj"),
 	};
 
-	private static final IDesignEntity[] BLOCKS_RF = {
+	protected static final IDesignEntity[] BLOCKS_RF = {
 		IScenario.block("berlin3d/blocks/block_bl_01.obj"),
 		IScenario.block("berlin3d/blocks/block_bl_02.obj"),
 		IScenario.block("berlin3d/blocks/block_bl_03.obj"),
@@ -141,7 +141,7 @@ public final class BerlinScenario implements IScenario {
 		IScenario.block("berlin3d/blocks/block_s_25.obj"),
 	};
 	
-	private static final IDesignEntity[] BLOCKS_NOP  = {
+	protected static final IDesignEntity[] BLOCKS_NOP  = {
 		IScenario.block("berlin3d/blocks/block_nop_04.obj"),
 		IScenario.block("berlin3d/blocks/block_nop_01.obj"),
 		IScenario.block("berlin3d/blocks/block_nop_02.obj"),
@@ -152,7 +152,7 @@ public final class BerlinScenario implements IScenario {
 		IScenario.block("berlin3d/blocks/block_nop_08.obj"),		
 	};
 	
-	private static final IDesignEntity[] BUILDINGS_AP = {
+	protected static final IDesignEntity[] BUILDINGS_AP = {
 		IScenario.building("berlin3d/buildings/building_bd_19.obj"),
 		IScenario.building("berlin3d/buildings/building_bd_20.obj"),
 		IScenario.building("berlin3d/buildings/building_bd_21.obj"),
@@ -167,7 +167,7 @@ public final class BerlinScenario implements IScenario {
 		IScenario.building("berlin3d/buildings/building_bd_30.obj"),
 	};
 
-	private static final IDesignEntity[] BUILDINGS_RF = {
+	protected static final IDesignEntity[] BUILDINGS_RF = {
 		IScenario.building("berlin3d/buildings/building_bd_02.obj"),
 		IScenario.building("berlin3d/buildings/building_bd_03.obj"),
 		IScenario.building("berlin3d/buildings/building_bd_05.obj"),
@@ -183,12 +183,12 @@ public final class BerlinScenario implements IScenario {
 		IScenario.building("berlin3d/buildings/building_bd_18.obj"),
 	};
 	
-	private static final IDesignEntity[] BUILDINGS_NOP = {
+	protected static final IDesignEntity[] BUILDINGS_NOP = {
 		IScenario.building("berlin3d/buildings/building_nop_01.obj"),
 		IScenario.building("berlin3d/buildings/building_nop_02.obj"),		
 	};
 	
-	private final boolean alexanderplatzOnly;
+	protected final boolean alexanderplatzOnly;
 	
 	public BerlinScenario(boolean alexanderplatzOnly) {
 		this.alexanderplatzOnly = alexanderplatzOnly;

@@ -44,11 +44,11 @@ public class Smooth {
 		this.decay  = decayInSecs;
 	}
 
-	public void update(double time, float ... values) {
+	public synchronized void update(double time, float ... values) {
 		max *= 0.99;
 		for(float v : values)
 			max = Math.max(max, v);
-		if(max == 0 || Double.isNaN(max)) max = 0.1f;
+		if(max == 0 || Double.isNaN(max)) max = 0.01f;
 		
 		if(lastUpdate > 0) {
 			float gain = (float)Math.pow(decay, time - lastUpdate);
@@ -62,7 +62,7 @@ public class Smooth {
 		}
 	}
 	
-	public float get(int band) {
+	public synchronized float get(int band) {
 		return values[band];
 	}
 
@@ -70,7 +70,7 @@ public class Smooth {
 		return values.length;
 	}
 
-	public float[] get(float[] values) {
+	public synchronized float[] get(float[] values) {
 		System.arraycopy(this.values, 0, values, 0, Math.min(values.length, this.values.length));
 		return values;
 	}

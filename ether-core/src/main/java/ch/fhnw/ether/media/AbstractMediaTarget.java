@@ -273,4 +273,8 @@ public abstract class AbstractMediaTarget<F extends AbstractFrame, T extends IRe
 	public final boolean isRealTime() {
 		return timebase == null ? realTime : timebase.isRealTime();
 	}
+	
+	public RenderProgram<T> getProgram() {
+		return program;
+	}
 }

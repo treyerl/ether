@@ -55,6 +55,8 @@ import ch.fhnw.ether.controller.tool.ITool;
 import ch.fhnw.ether.controller.tool.NavigationTool;
 import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.IScene;
+import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IWindow.PointerMode;
 import ch.fhnw.util.AutoDisposer;
@@ -331,7 +333,14 @@ public class UI {
 	}
 	
 	private void dumpStatus(String where) {
-		if (DBG)
-			System.err.println(where + ": " + controller.getScene().get3DObjects().size() + " objects in scene");
+		if (DBG) {
+			int numObjects = controller.getScene().get3DObjects().size();
+			int numTriangles = 0;
+			for (IMesh mesh : controller.getScene().getMeshes()) {
+				if (mesh.getType() == Primitive.TRIANGLES)
+					numTriangles += mesh.getNumPrimitives();
+			}
+			System.err.println(where + ": " + numObjects + " objects in scene (" + numTriangles + " triangles)");
+		}
 	}
 }

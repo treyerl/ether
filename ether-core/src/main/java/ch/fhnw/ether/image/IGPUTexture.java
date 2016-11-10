@@ -29,40 +29,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.render.variable.builtin;
+package ch.fhnw.ether.image;
 
-import java.util.function.Supplier;
-
-import org.lwjgl.opengl.GL11;
-
-import ch.fhnw.ether.image.IGPUTexture;
-import ch.fhnw.ether.render.variable.base.SamplerUniform;
-import ch.fhnw.ether.scene.mesh.material.IMaterial;
-
-public final class ColorMapUniform extends SamplerUniform {
-	private static final String DEFAULT_SHADER_NAME = "colorMap";
-
-	public ColorMapUniform() {
-		this(DEFAULT_SHADER_NAME);
-	}
-
-	public ColorMapUniform(String shaderName) {
-		this(shaderName, null);
-	}
-
-	public ColorMapUniform(String shaderName, int unit) {
-		this(shaderName, unit, null);
-	}
-
-	public ColorMapUniform(Supplier<IGPUTexture> supplier) {
-		this(DEFAULT_SHADER_NAME, supplier);
-	}
-
-	public ColorMapUniform(String shaderName, Supplier<IGPUTexture> supplier) {
-		super(IMaterial.COLOR_MAP, shaderName, 0, GL11.GL_TEXTURE_2D, supplier);
-	}
-	
-	public ColorMapUniform(String shaderName, int unit, Supplier<IGPUTexture> supplier) {
-		super(IMaterial.COLOR_MAP, shaderName, unit, GL11.GL_TEXTURE_2D, supplier);
-	}
+/**
+ * Very basic interface for opaque GPU texture buffers.
+ * 
+ * @author radar
+ *
+ */
+public interface IGPUTexture {
+	/**
+	 * Get GPU resource handle of this image (i.e., in the case of OpenGL the texture ID).
+	 */
+	long getGPUHandle();
 }

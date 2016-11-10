@@ -160,7 +160,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		Table table = new Table(parent, SWT.V_SCROLL);
 		table.setLayoutData(GridDataFactory.fill(true, true));
 		table.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		table.addListener(SWT.KeyDown, event->focusSearch(event));
+		table.addListener(SWT.KeyDown, save(event->focusSearch(event)));
 
 		itemPainter(table);
 		dropTarget(table);
@@ -300,12 +300,21 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		table = new Table(parent, SWT.VIRTUAL| SWT.V_SCROLL);
 		table.setLayoutData(GridDataFactory.fill(true, true));
 		table.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		table.addListener(SWT.SetData, event->setItem(event.display, (TableItem) event.item, resources.get(event.index), true));
-		table.addListener(SWT.KeyDown, event->focusSearch(event));
+		table.addListener(SWT.SetData, save(event->setItem(event.display, (TableItem) event.item, resources.get(event.index), true)));
+		table.addListener(SWT.KeyDown, save(event->focusSearch(event)));
 
 		dragSource(table);
 		itemPainter(table);
 		tooltips(table); 
+	}
+
+	private static Listener save(Listener listner) {
+		return new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				try {listner.handleEvent(event);} catch(Throwable t) {log.warning(t);}
+			}
+		};
 	}
 
 	private void focusSearch(Event event) {
@@ -321,33 +330,29 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 	}
 
 	private void tooltips(Table table) {
-		Listener tableListener = new Listener(){ 
+		Listener tableListener = save(new Listener(){ 
 			ToolTip tooltip = null; 
 			@Override
 			public void handleEvent(Event event) { 
-				try {
-					if(event.type == SWT.KeyDown ); 
-					else if(event.type == SWT.Dispose); 
-					else if(event.type == SWT.MouseMove){ 
-						if(tooltip != null)
-							tooltip.dispose(); 
-					} 
-					else if(event.type == SWT.MouseHover && BrowserPanel.this.tooltip) { 
-						TableItem item = table.getItem(new Point(event.x,event.y)); 
-						if(item != null){ 
-							Resource  res  = (Resource) item.getData(K_RES);
-							if(res != null) {
-								tooltip = new ToolTip(table.getShell(), SWT.BALLOON | SWT.ICON_INFORMATION);
-								tooltip.setMessage(res.listProperties()); 
-								tooltip.setVisible(true);
-							} 
-						}
-					} 
-				} catch(Throwable t) {
-					log.warning(t);
-				}				
+				if(event.type == SWT.KeyDown ); 
+				else if(event.type == SWT.Dispose); 
+				else if(event.type == SWT.MouseMove){ 
+					if(tooltip != null)
+						tooltip.dispose(); 
+				} 
+				else if(event.type == SWT.MouseHover && BrowserPanel.this.tooltip) { 
+					TableItem item = table.getItem(new Point(event.x,event.y)); 
+					if(item != null){ 
+						Resource  res  = (Resource) item.getData(K_RES);
+						if(res != null) {
+							tooltip = new ToolTip(table.getShell(), SWT.BALLOON | SWT.ICON_INFORMATION);
+							tooltip.setMessage(res.listProperties()); 
+							tooltip.setVisible(true);
+						} 
+					}
+				} 
 			} 
-		}; 
+		}); 
 
 		table.addListener(SWT.MouseHover, tableListener); 
 		table.addListener(SWT.MouseMove,  tableListener); 
@@ -382,66 +387,57 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 
 	private void itemPainter(Table table) {
 		final int UPDATE_MASK = ~(Platform.getOS() == OS.WINDOWS ? SWT.FOREGROUND | SWT.SELECTED | SWT.HOT : SWT.FOREGROUND);
-		Listener paintListener = new Listener() {
+		Listener paintListener = save(event->{
+			TableItem item = (TableItem)event.item;
 
-			@Override
-			public void handleEvent(Event event) {
-				try {
-					TableItem item = (TableItem)event.item;
+			switch(event.type) {		
+			case SWT.MeasureItem: {
+				event.x       = 0;
+				event.width   = table.getClientArea().width;
+				event.height  = PreviewFactory.STRIP_HEIGHT + event.gc.textExtent(item.getText()).y;
+				break;
+			}
+			case SWT.PaintItem: {
+				GC       gc   = event.gc;
 
-					switch(event.type) {		
-					case SWT.MeasureItem: {
-						event.x       = 0;
-						event.width   = table.getClientArea().width;
-						event.height  = PreviewFactory.STRIP_HEIGHT + event.gc.textExtent(item.getText()).y;
-						break;
-					}
-					case SWT.PaintItem: {
-						GC       gc   = event.gc;
+				event.width   = table.getClientArea().width;
 
-						event.width   = table.getClientArea().width;
-
-						gc.setClipping(0, event.y, event.width, event.height);
-						gc.setBackground(event.display.getSystemColor(SWT.COLOR_BLACK));
-						event.gc.fillRectangle(0, event.y, event.width, event.height);
-						if((event.detail & SWT.SELECTED) != 0) {
-							gc.setBackground(event.display.getSystemColor(SWT.COLOR_LIST_SELECTION));
-							int svAlpha = gc.getAlpha();
-							gc.setAlpha(64);
-							event.gc.fillRectangle(0, event.y, event.width, event.height);
-							gc.setAlpha(svAlpha);
-						}
-
-						String text      = item.getText(event.index);
-						Point  size      = event.gc.textExtent(text);					
-						int    offset2   = event.height - (size.y + 2);
-						gc.setForeground(event.display.getSystemColor(SWT.COLOR_WHITE));
-						gc.drawText(text, 0, event.y + offset2, true);
-						if(item.getImage() != null)
-							gc.drawImage(item.getImage(), 0, event.y);
-						else {
-							Resource res = (Resource)item.getData(K_RES); 
-							if(res != null && res.getProgress() >= 0) {
-								gc.setBackground(event.display.getSystemColor(SWT.COLOR_GRAY));
-								int off = 5;
-								int sz  = PreviewFactory.STRIP_HEIGHT - (2*off);
-								gc.fillArc(off,  event.y + off, sz, sz, 90, (int)(-360 * res.getProgress()));
-								gc.drawOval(off, event.y + off, sz, sz);
-							}
-						}
-						break;
-					}
-					case SWT.EraseItem: {
-						event.detail &= UPDATE_MASK;
-						break;
-					}
-					}
-				} catch(Throwable t) {
-					log.warning(t);
+				gc.setClipping(0, event.y, event.width, event.height);
+				gc.setBackground(event.display.getSystemColor(SWT.COLOR_BLACK));
+				event.gc.fillRectangle(0, event.y, event.width, event.height);
+				if((event.detail & SWT.SELECTED) != 0) {
+					gc.setBackground(event.display.getSystemColor(SWT.COLOR_LIST_SELECTION));
+					int svAlpha = gc.getAlpha();
+					gc.setAlpha(64);
+					event.gc.fillRectangle(0, event.y, event.width, event.height);
+					gc.setAlpha(svAlpha);
 				}
 
+				String text      = item.getText(event.index);
+				Point  size      = event.gc.textExtent(text);					
+				int    offset2   = event.height - (size.y + 2);
+				gc.setForeground(event.display.getSystemColor(SWT.COLOR_WHITE));
+				gc.drawText(text, 0, event.y + offset2, true);
+				if(item.getImage() != null)
+					gc.drawImage(item.getImage(), 0, event.y);
+				else {
+					Resource res = (Resource)item.getData(K_RES); 
+					if(res != null && res.getProgress() >= 0) {
+						gc.setBackground(event.display.getSystemColor(SWT.COLOR_GRAY));
+						int off = 5;
+						int sz  = PreviewFactory.STRIP_HEIGHT - (2*off);
+						gc.fillArc(off,  event.y + off, sz, sz, 90, (int)(-360 * res.getProgress()));
+						gc.drawOval(off, event.y + off, sz, sz);
+					}
+				}
+				break;
 			}
-		};
+			case SWT.EraseItem: {
+				event.detail &= UPDATE_MASK;
+				break;
+			}
+			}
+		});
 		table.addListener(SWT.MeasureItem, paintListener);
 		table.addListener(SWT.PaintItem,   paintListener);
 		table.addListener(SWT.EraseItem,   paintListener);
@@ -538,7 +534,7 @@ public class BrowserPanel implements SelectionListener, IChangeListener, Runnabl
 		try {
 			Object src = e.getSource();
 			if(src == searchFieldUI) {
-				search = searchFieldUI.getText();
+				search = searchFieldUI.getText().trim();
 				searchHistory.used(search);
 				storeHistory(searchHistory);
 				searchComplete.clear();

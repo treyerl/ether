@@ -29,40 +29,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.render.variable.builtin;
-
-import java.util.function.Supplier;
+package ch.fhnw.ether.render.shader.base;
 
 import org.lwjgl.opengl.GL11;
 
-import ch.fhnw.ether.image.IGPUTexture;
+import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.ether.render.variable.base.SamplerUniform;
-import ch.fhnw.ether.scene.mesh.material.IMaterial;
+import ch.fhnw.ether.render.variable.builtin.ColorMapArray;
+import ch.fhnw.ether.render.variable.builtin.PositionArray;
+import ch.fhnw.ether.render.variable.builtin.ViewUniformBlock;
+import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 
-public final class ColorMapUniform extends SamplerUniform {
-	private static final String DEFAULT_SHADER_NAME = "colorMap";
-
-	public ColorMapUniform() {
-		this(DEFAULT_SHADER_NAME);
+public abstract class AbstractPostShader extends AbstractShader {
+	
+	private final SamplerUniform colorMapUniform;
+	private final SamplerUniform depthMapUniform;
+	
+	protected AbstractPostShader(Class<?> root, String name, String source, Primitive type) {
+		super(root, name, source, type);
+		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
+		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
+		addUniforms();
 	}
 
-	public ColorMapUniform(String shaderName) {
-		this(shaderName, null);
+	protected AbstractPostShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
+		super(root, name, vert, frag, geom, type);
+		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
+		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
+		addUniforms();
 	}
 
-	public ColorMapUniform(String shaderName, int unit) {
-		this(shaderName, unit, null);
-	}
-
-	public ColorMapUniform(Supplier<IGPUTexture> supplier) {
-		this(DEFAULT_SHADER_NAME, supplier);
-	}
-
-	public ColorMapUniform(String shaderName, Supplier<IGPUTexture> supplier) {
-		super(IMaterial.COLOR_MAP, shaderName, 0, GL11.GL_TEXTURE_2D, supplier);
+	public void setMaps(Texture colorMap, Texture depthMap) {
+		// XXX kind of hacky that we need to explicitly call update here, there should be a better way...
+		colorMapUniform.setSupplier(() -> colorMap);
+		colorMapUniform.update(null);
+		depthMapUniform.setSupplier(() -> depthMap);
+		depthMapUniform.update(null);
 	}
 	
-	public ColorMapUniform(String shaderName, int unit, Supplier<IGPUTexture> supplier) {
-		super(IMaterial.COLOR_MAP, shaderName, unit, GL11.GL_TEXTURE_2D, supplier);
+	private void addUniforms() {
+		addArray(new PositionArray());
+		addArray(new ColorMapArray());
+		
+		addUniform(colorMapUniform);
+		addUniform(depthMapUniform);
+
+		addUniform(new ViewUniformBlock());
+		
+		setMaps(null, null);
 	}
 }

@@ -145,7 +145,7 @@ public final class DefaultMesh implements IMesh {
 	// IMesh implementation
 
 	@Override
-	public IMesh getInstance() {
+	public IMesh createInstance() {
 		return new DefaultMesh(this);
 	}
 	

@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.render.gl;
 
+import ch.fhnw.ether.image.IGPUTexture;
+
 // XXX REVISE - purely use for GL purposes
 
 /**
@@ -38,7 +40,7 @@ package ch.fhnw.ether.render.gl;
  *
  * @author radar
  */
-public class Texture {
+public class Texture implements IGPUTexture {
 	private GLObject glObject;
 	private int      width;
 	private int      height;
@@ -57,12 +59,13 @@ public class Texture {
 		return height;
 	}
 
-	public GLObject getGlObject() {
-		return glObject;
+	@Override
+	public long getGPUHandle() {
+		return glObject.getId();
 	}
 
 	@Override
 	public String toString() {
-		return "texture[w=" + getWidth() + " h=" + getHeight() + " id=" + getGlObject().getId() + "]";
+		return "texture[w=" + getWidth() + " h=" + getHeight() + " id=" + getGPUHandle() + "]";
 	}
 }

@@ -48,13 +48,8 @@ import ch.fhnw.ether.platform.Platform;
  * @author radar
  *
  */
-public interface IGPUImage extends IImage {
+public interface IGPUImage extends IImage, IGPUTexture {
 	IGPUImage TRANSPARENT_1x1 = create(1, 1, ComponentType.BYTE, ComponentFormat.RGBA, AlphaMode.POST_MULTIPLIED);
-	
-	/**
-	 * Get GPU resource handle of this image (i.e., in the case of OpenGL the texture ID).
-	 */
-	long getGPUHandle();
 	
 	/**
 	 * Create host image from GPU image. Note that this operation may be expensive.

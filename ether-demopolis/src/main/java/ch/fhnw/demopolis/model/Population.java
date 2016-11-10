@@ -218,7 +218,7 @@ public class Population {
 				-w, 0, 0, w, 0, 0, w, 0, h,
 				-w, 0, 0, w, 0, h, -w, 0, h
 		};
-		float[] t = MeshUtilities.DEFAULT_QUAD_TEX_COORDS;
+		float[] t = MeshUtilities.UNIT_QUAD_TEX_COORDS;
 		return new DefaultMesh(Primitive.TRIANGLES, new MaskMaterial(texture), DefaultGeometry.createVM(v, t), Flag.DONT_CULL_FACE);
 	}
 	
@@ -232,7 +232,7 @@ public class Population {
 	}
 
 	private static IMesh instantiate(IMesh mesh, float x, float y, float rot) {
-		IMesh instance = mesh.getInstance();
+		IMesh instance = mesh.createInstance();
 		instance.setTransform(Mat4.trs(x, y, I3DConfig.LAYER_2, 0, 0, rot, 1, 1, 1));
 		return instance;
 	}

@@ -92,7 +92,7 @@ public class DefaultController implements IController {
 
 	public DefaultController(IRenderer renderer, float fps) {
 		this.renderManager = new DefaultRenderManager(this, renderer);
-		this.scheduler = new DefaultEventScheduler(renderManager.getRenderRunnable(), fps);
+		this.scheduler = new DefaultEventScheduler(() -> renderManager.update(), fps);
 		run(time -> {
 			this.tool = new NavigationTool(this, new PickTool(this));
 		});

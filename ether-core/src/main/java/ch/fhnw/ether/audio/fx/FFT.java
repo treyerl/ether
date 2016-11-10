@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.audio;
+package ch.fhnw.ether.audio.fx;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -37,7 +37,11 @@ import java.util.List;
 
 import org.jtransforms.fft.FloatFFT_1D;
 
+import ch.fhnw.ether.audio.AudioFrame;
+import ch.fhnw.ether.audio.AudioUtilities;
 import ch.fhnw.ether.audio.AudioUtilities.Window;
+import ch.fhnw.ether.audio.BlockBuffer;
+import ch.fhnw.ether.audio.IAudioRenderTarget;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.util.IModifier;
@@ -57,10 +61,16 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 	private       float[]       block;
 	private       float         sRate;
 	private       float[]       power;
+	private       float         energy;
 	private       float[]       pcm0;
 	private       int           pcm0rd;
 	private       float[]       pcm1;
 	private       int           pcm1rd;
+
+	public FFT(float minFreq, Window windowType) {
+		this.minFreq    = minFreq;
+		this.windowType = windowType;
+	}
 
 	@Override
 	protected void init(IAudioRenderTarget target) {
@@ -160,23 +170,20 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 			modifier.modify(spectrum);
 	}
 
-	public FFT(float minFreq, Window windowType) {
-		this.minFreq    = minFreq;
-		this.windowType = windowType;
-	}
-
 	@Override
 	protected void run(final IAudioRenderTarget target) throws RenderCommandException {
 		final AudioFrame frame = target.getFrame();
 		buffer.add(frame.getMonoSamples());
-		int nBlocks = 0;
+		int  nBlocks = 0;
+		float energy = 0;
 		for(block = buffer.nextBlock(); block  != null; block = buffer.nextBlock()) {
 			if(nBlocks == 0)
 				Arrays.fill(power, 0f);
 
+			energy += AudioUtilities.energy(block);
 			fft.realForward(block);
 			spectrum.add(block);
-			final int lim = block.length / 2;
+			final int lim = block.length;
 			for(int i = 0; i < lim; i+= 2) {
 				final float  re = block[i+0];
 				final float  im = block[i+1];
@@ -188,8 +195,9 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 
 		if(nBlocks > 0) {
 			float div = nBlocks;
-			for(int i = 0; i < power.length; i++)
-				power[i] /= div;
+			for(int i = 0; i < this.power.length; i++)
+				this.power[i] /= div;
+			this.energy = energy / div;
 		}
 	}	
 
@@ -199,5 +207,9 @@ public class FFT extends AbstractRenderCommand<IAudioRenderTarget> {
 
 	public float getMinFreq() {
 		return minFreq;
+	}
+
+	public double energy() {
+		return energy;
 	}
 }

@@ -36,7 +36,6 @@ public interface I3DConfig {
 	float LAYER_0 = 0.0f;
 	float LAYER_1 = 0.1f;
 	float LAYER_2 = 0.2f;
-	float LAYER_3 = 0.3f;
 	
 	float DEFAULT_FOV = 45;
 	float DEFAULT_NEAR = 5;

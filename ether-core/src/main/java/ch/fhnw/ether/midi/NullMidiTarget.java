@@ -29,42 +29,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package ch.fhnw.ether.audio.fx;
+package ch.fhnw.ether.midi;
 
-import ch.fhnw.ether.audio.AudioFrame;
-import ch.fhnw.ether.audio.IAudioRenderTarget;
-import ch.fhnw.ether.media.AbstractRenderCommand;
-import ch.fhnw.ether.media.Parameter;
+import javax.sound.midi.MidiUnavailableException;
+
+import ch.fhnw.ether.media.AbstractMediaTarget;
 import ch.fhnw.ether.media.RenderCommandException;
 
-/**
- * This is an empty template for an audio command without state. 
- * @author sschubiger
- *
- */
-public class TemplateStateless extends AbstractRenderCommand<IAudioRenderTarget> {
-	/* Expose a runtime parameter */
-	private static final Parameter PARAM = new Parameter("p", "Some Param", 0, 1, 0);
-
-	public TemplateStateless() {
-		/* Pass all your params to the super class. */
-		super(PARAM);
+public class NullMidiTarget extends AbstractMediaTarget<MidiFrame,IMidiRenderTarget> implements IMidiRenderTarget {
+	public NullMidiTarget(boolean realTime) throws MidiUnavailableException {
+		super(Thread.MIN_PRIORITY, realTime);
 	}
-	
-	@SuppressWarnings("unused")
+
+	public NullMidiTarget() throws MidiUnavailableException {
+		this(true);
+	}
+
 	@Override
-	protected void run(final IAudioRenderTarget target) throws RenderCommandException {
-		final float      param     = getVal(PARAM);                // Get the param value
-		final AudioFrame frame     = target.getFrame(); // Get audio frame to process
-		final float[]    samples   = frame.samples;                // Get the samples in the frame
-		final int        nChannels = frame.nChannels;              // Get the number of channels (1=Mono, 2=Stereo, ...)
-		for(int i = 0; i < samples.length; i += nChannels)
-			for(int c = 0; c < nChannels; c++) {
-				// do some audio processing here
-			}
-		/* If you modified the frame, signal it to the system.
-		 * It updates internal data structures and caches if necessary. 
-		 */
-		frame.modified();
+	public void render() throws RenderCommandException {
+		sleepUntil(getFrame().playOutTime);
 	}
 }

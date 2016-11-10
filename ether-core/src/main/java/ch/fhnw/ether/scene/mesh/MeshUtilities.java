@@ -32,6 +32,7 @@
 package ch.fhnw.ether.scene.mesh;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,8 +56,25 @@ import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Vec3;
 
 public final class MeshUtilities {
-
+	
 	//@formatter:off
+
+	public static final float[] UNIT_QUAD_TRIANGLES = { 
+			-1, -1, 0,   1, -1, 0,    1, 1, 0,
+			-1, -1, 0,   1,  1, 0,   -1, 1, 0 
+	};
+
+	public static final float[] UNIT_QUAD_NORMALS = { 
+			0, 0, 1, 	0, 0, 1, 	0, 0, 1,
+			0, 0, 1, 	0, 0, 1, 	0, 0, 1
+	};
+
+	public static final float[] UNIT_QUAD_TEX_COORDS = { 
+			0, 0, 	1, 0, 	1, 1,
+			0, 0, 	1, 1, 	0, 1 
+	};
+	
+
 	public static final float[] UNIT_CUBE_TRIANGLES = {
 			// bottom
 			-0.5f, -0.5f, -0.5f, -0.5f, +0.5f, -0.5f, +0.5f, +0.5f, -0.5f,
@@ -133,36 +151,42 @@ public final class MeshUtilities {
 			0, 0, 1, 1, 0, 1,
 	};
 
-	public static final float[] DEFAULT_QUAD_TRIANGLES = { 
-			-1, -1, 0,   1, -1, 0,    1, 1, 0,
-			-1, -1, 0,   1,  1, 0,   -1, 1, 0 
-	};
-
-	public static final float[] DEFAULT_QUAD_NORMALS = { 
-			0, 0, 1, 0, 0, 1, 0, 0, 1,
-			0, 0, 1, 0, 0, 1, 0, 0, 1
-	};
-
-	public static final float[] DEFAULT_QUAD_TEX_COORDS = { 
-			0, 0, 1, 0, 1, 1,
-			0, 0, 1, 1, 0, 1 
-	};
-	
 	public static final float[] DEFAULT_UP_NORMAL = {
 		0, 0, 1
 	};
+	
 	//@formatter:on
+	
+	public static IMesh createQuad() {
+		return createQuad(new ColorMaterial(RGBA.WHITE), Queue.DEPTH, IMesh.NO_FLAGS);
+	}
+
+	public static IMesh createQuad(IMaterial material) {
+		return createQuad(material, Queue.DEPTH, IMesh.NO_FLAGS);
+	}
+
+	public static IMesh createQuad(IMaterial material, Queue queue, Set<Flag> flags) {
+		float[] v = UNIT_QUAD_TRIANGLES;
+		float[] n = UNIT_QUAD_NORMALS;
+		float[] m = UNIT_QUAD_TEX_COORDS;
+		IGeometry g = requireTexCoords(material) ? DefaultGeometry.createVNM(v, n, m) :  DefaultGeometry.createVN(v, n);
+		return new DefaultMesh(Primitive.TRIANGLES, material, g, queue, flags);
+	}
 
 	public static IMesh createCube() {
-		return createCube(new ColorMaterial(RGBA.WHITE));
+		return createCube(new ColorMaterial(RGBA.WHITE), Queue.DEPTH, IMesh.NO_FLAGS);
 	}
 
 	public static IMesh createCube(IMaterial material) {
+		return createCube(material, Queue.DEPTH, IMesh.NO_FLAGS);
+	}
+
+	public static IMesh createCube(IMaterial material, Queue queue, Set<Flag> flags) {
 		float[] v = UNIT_CUBE_TRIANGLES;
 		float[] n = UNIT_CUBE_NORMALS;
 		float[] m = UNIT_CUBE_TEX_COORDS;
 		IGeometry g = requireTexCoords(material) ? DefaultGeometry.createVNM(v, n, m) :  DefaultGeometry.createVN(v, n);
-		return new DefaultMesh(Primitive.TRIANGLES, material, g, Flag.DONT_CAST_SHADOW);
+		return new DefaultMesh(Primitive.TRIANGLES, material, g, queue, flags);
 	}
 	
 	public static IMesh createDisk(int n) {
@@ -263,8 +287,8 @@ public final class MeshUtilities {
 		float e = extent;
 		float z = 0;
 		float[] v = { -e, -e, z, e, -e, z, e, e, z, -e, -e, z, e, e, z, -e, e, z };
-		float[] n = DEFAULT_QUAD_NORMALS;
-		float[] m = DEFAULT_QUAD_TEX_COORDS;
+		float[] n = UNIT_QUAD_NORMALS;
+		float[] m = UNIT_QUAD_TEX_COORDS;
 		IGeometry g = requireTexCoords(material) ? DefaultGeometry.createVNM(v, n, m) :  DefaultGeometry.createVN(v, n);
 		return new DefaultMesh(Primitive.TRIANGLES, material, g, Flag.DONT_CAST_SHADOW);
 	}
@@ -272,7 +296,7 @@ public final class MeshUtilities {
 	public static IMesh createScreenRectangle(float x0, float y0, float x1, float y1, RGBA color, IGPUImage colorMap) {
 		IMaterial material = colorMap == null ? new ColorMaterial(color) : new ColorMapMaterial(color, colorMap);
 		float[] vertices = { x0, y0, 0, x1, y0, 0, x1, y1, 0, x0, y0, 0, x1, y1, 0, x0, y1, 0 };
-		return new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVNM(vertices, DEFAULT_QUAD_NORMALS, DEFAULT_QUAD_TEX_COORDS), Queue.SCREEN_SPACE_OVERLAY);
+		return new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVNM(vertices, UNIT_QUAD_NORMALS, UNIT_QUAD_TEX_COORDS), Queue.SCREEN_SPACE_OVERLAY);
 	}
 	
 	private static boolean requireTexCoords(IMaterial material) {
@@ -313,7 +337,7 @@ public final class MeshUtilities {
 	 * Merges a list of meshes by material. Note that materials are compared by
 	 * reference.
 	 */
-	public static List<IMesh> mergeMeshes(List<IMesh> meshes) {
+	public static List<IMesh> mergeMeshes(Collection<IMesh> meshes) {
 		int maxNumAttributes = 0;
 		for (IMesh mesh : meshes)
 			maxNumAttributes = Math.max(maxNumAttributes, mesh.getMaterial().getRequiredAttributes().length);
