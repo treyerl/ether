@@ -68,14 +68,14 @@ public class Pusher {
 		List<Object> values = new ArrayList<>();
 		values.add(atlas.toURI().toASCIIString());
 		values.add(res.getMD5());
-		values.add(Integer.valueOf(res.getProperty(Resource.TILE_W)));
-		values.add(Integer.valueOf(res.getProperty(Resource.TILE_H)));
+		values.add(Integer.valueOf(res.getProperty(PreviewFactory.P_TILE_W)));
+		values.add(Integer.valueOf(res.getProperty(PreviewFactory.P_TILE_H)));
 		values.add(Integer.valueOf(numURI));
 		if(MIME.match(res.getMimeType(), MIME.MT_GIF)) {
 			for(long frameNo : res.getShotStarts())
 				values.add(Integer.valueOf((int)frameNo));
 		} else
-			values.add(Integer.valueOf(res.getProperty(Resource.TILE_N)));
+			values.add(Integer.valueOf(res.getProperty(PreviewFactory.P_TILE_N)));
 		osc.send("/slots/" + slot + "/texture", values); 
 		res.incrementUseCount();
 		db.sync(res);
@@ -235,14 +235,14 @@ public class Pusher {
 
 					if(error[0] != null) throw error[0];
 
-					res.putProperty(Resource.TILE_W, target.getTileWidth());
-					res.putProperty(Resource.TILE_H, target.getTileHeight());
-					res.putProperty(Resource.TILE_N, target.getNumTiles());
+					res.putProperty(PreviewFactory.P_TILE_W, target.getTileWidth());
+					res.putProperty(PreviewFactory.P_TILE_H, target.getTileHeight());
+					res.putProperty(PreviewFactory.P_TILE_N, target.getNumTiles());
 					StringBuilder shotStarts = new StringBuilder();
 					for(long frameNo : target.getShotStarts())
 						shotStarts.append(Long.valueOf(frameNo)).append(',');
 					shotStarts.setLength(shotStarts.length()-1);
-					res.putProperty(Resource.SHOT_STARTS, shotStarts.toString());
+					res.putProperty(PreviewFactory.P_SHOT_STARTS, shotStarts.toString());
 					target.dispose();
 					db.sync(res);
 					AutoDisposer.runGC();

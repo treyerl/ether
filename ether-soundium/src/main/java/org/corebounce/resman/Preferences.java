@@ -1,5 +1,6 @@
 package org.corebounce.resman;
 
+import org.corebounce.soundium.Soundium;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,11 +20,11 @@ public class Preferences implements IAction, SelectionListener {
 		Display display = Display.getDefault();
 		
 		prefs = parent == null ? new Shell(display) : new Shell(parent);
-		prefs.setText(Resman.VERSION + " command line arguments");
+		prefs.setText(Soundium.VERSION + " command line arguments");
 		prefs.setLayout(new FillLayout());
 
 		Text t = new Text(prefs, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.READ_ONLY);
-		t.setText(Resman.help());
+		t.setText(Soundium.help());
 				
 		prefs.pack();
 		
