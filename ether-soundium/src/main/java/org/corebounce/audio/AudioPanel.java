@@ -7,7 +7,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.corebounce.ui.GridDataFactory;
-import org.corebounce.ui.Repeating;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -30,6 +29,7 @@ import ch.fhnw.ether.audio.fx.BeatDetect;
 import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.ui.ParameterWindow;
+import ch.fhnw.ether.ui.Repeating;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.math.MathUtilities;
 
