@@ -1,6 +1,8 @@
 package ch.fhnw.ether.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -12,7 +14,7 @@ import ch.fhnw.ether.media.AbstractRenderCommand;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.platform.Platform;
 
-public class PlotWindow implements PaintListener {
+public class PlotWindow implements PaintListener, MouseListener {
 	private Canvas                         canvasUI;
 	private Shell                          shell;
 	private final AbstractRenderCommand<?> cmd;
@@ -27,6 +29,7 @@ public class PlotWindow implements PaintListener {
 				shell.setLayout(new FillLayout());
 				canvasUI = new Canvas(shell, SWT.DOUBLE_BUFFERED | SWT.NO_BACKGROUND);
 				canvasUI.addPaintListener(PlotWindow.this);
+				canvasUI.addMouseListener(PlotWindow.this);
 				canvasUI.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 				shell.pack();
 				shell.setSize(800, shell.getSize().y);
@@ -52,5 +55,26 @@ public class PlotWindow implements PaintListener {
 			height += p.getPlotHeight();
 		}
 		return height;
+	}
+
+	@Override
+	public void mouseDoubleClick(MouseEvent e) {}
+
+	@Override
+	public void mouseDown(MouseEvent e) {
+		setPausePlot(cmd, true);
+	}
+
+	@Override
+	public void mouseUp(MouseEvent e) {	
+		setPausePlot(cmd, false);
 	}	
+
+	private void setPausePlot(AbstractRenderCommand<?> cmd, boolean pause) {
+		if(cmd instanceof RenderProgram<?>) {
+			for(AbstractRenderCommand<?> c : ((RenderProgram<?>)cmd).getProgram())
+				setPausePlot(c, pause);
+		} else if(cmd instanceof IPlotable)
+			cmd.setPausePlot(pause);
+	}
 }
