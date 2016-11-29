@@ -15,7 +15,6 @@ import org.corebounce.engine.Engine;
 import org.corebounce.io.OSC;
 import org.corebounce.ui.AutoComplete;
 import org.corebounce.ui.GridDataFactory;
-import org.corebounce.ui.Repeating;
 import org.corebounce.video.Pusher;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
