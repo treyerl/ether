@@ -41,6 +41,13 @@ public class PlotWindow implements PaintListener, MouseListener {
 
 	@Override
 	public void paintControl(PaintEvent e) {
+		if(cmd instanceof RenderProgram<?>) {
+			RenderProgram<?> prog = (RenderProgram<?>)cmd;
+			if(!(prog.getTarget().isRendering())) {
+				shell.dispose();
+				return;
+			}
+		}
 		int h = shell.getSize().y - shell.getClientArea().height;
 		shell.setSize(shell.getSize().x, h + plot(cmd, e, 0));
 	}
