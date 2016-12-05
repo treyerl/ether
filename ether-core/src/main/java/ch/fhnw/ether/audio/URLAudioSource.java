@@ -134,7 +134,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 					@Override
 					public void close() {}
 				});
-				
+
 				getStream(url);
 			} else {
 				try (AudioInputStream in = getStream(url)) {
@@ -204,7 +204,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 				midiStream = openStream(synth, fmt, p);
 
 				frameCount = (long)((send(seq, synth.getReceiver()) + 1.0) * fmt.getFrameRate());
-				
+
 				return midiStream;
 			} catch(IOException e) {
 				throw e;
@@ -412,11 +412,15 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 								| ((data[1] & 0xff) << 8) | (data[2] & 0xff);
 					}
 			} else {
-				if (recv != null)
-					recv.send(msg, curtime);
+				if(recv != null)
+					sendMidiMsg(recv, msg, curtime);
 			}
 		}
 		return curtime / SEC2US;
+	}
+
+	protected void sendMidiMsg(Receiver  recv, MidiMessage msg, long time) {
+		recv.send(msg, time);
 	}
 
 	public int getNumNotes() {
