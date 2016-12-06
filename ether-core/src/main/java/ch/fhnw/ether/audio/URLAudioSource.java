@@ -104,7 +104,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	private final AtomicInteger          numPlays     = new AtomicInteger();
 	private       long                   samples;
 	private       Semaphore              bufSemaphore = new Semaphore(512);
-
+	
 	public URLAudioSource(URL url) throws IOException {
 		this(url, Integer.MAX_VALUE, -BUFFER_SZ);
 	}
@@ -324,12 +324,18 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	@Override
 	protected void run(IRenderTarget<?> target) throws RenderCommandException {
 		try {
-			final float[] outData = data.take();
-			bufSemaphore.release();
-			AudioFrame frame = createAudioFrame(samples, outData);
-			frame.setLast(data.isEmpty() && numPlays.get() <= 0);
-			((IAudioRenderTarget)target).setFrame(this, frame);
-			samples += outData.length;
+			final float[] outData = data.poll(1000, TimeUnit.MILLISECONDS);
+			if(outData != null) {
+				bufSemaphore.release();
+				AudioFrame frame = createAudioFrame(samples, outData);
+				frame.setLast(data.isEmpty() && numPlays.get() <= 0);
+				((IAudioRenderTarget)target).setFrame(this, frame);
+				samples += outData.length;
+			} else {
+				AudioFrame frame = createAudioFrame(samples, new float[512]);
+				frame.setLast(true);
+				((IAudioRenderTarget)target).setFrame(this, frame);
+			}
 		} catch(Throwable t) {
 			throw new RenderCommandException(t);
 		}
