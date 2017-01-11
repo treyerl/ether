@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -51,6 +52,20 @@ import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
 
 public class URLMidiSource extends AbstractFrameSource implements IMidiSource {
+	public static final Comparator<MidiEvent> MIDI_EVWNT_CMP = new Comparator<MidiEvent>() {
+		@Override
+		public int compare(MidiEvent o1, MidiEvent o2) {
+			int   result  = (int) (o1.getTick() - o2.getTick());
+			if(result == 0) 
+				result = o1.getMessage().getMessage()[0] - o2.getMessage().getMessage()[0];
+			if(result == 0) 
+				result = o1.getMessage().getMessage()[1] - o2.getMessage().getMessage()[1];
+			if(result == 0) 
+				result = o1.getMessage().getMessage()[2] - o2.getMessage().getMessage()[2];
+			return result;
+		}
+	};
+	
 	private final Sequence          seq;
 	private final URL               url;
 	private final long              frameCount;

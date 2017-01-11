@@ -38,7 +38,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +71,7 @@ import javax.sound.sampled.spi.AudioFileReader;
 import ch.fhnw.ether.media.AbstractFrameSource;
 import ch.fhnw.ether.media.IRenderTarget;
 import ch.fhnw.ether.media.RenderCommandException;
+import ch.fhnw.ether.midi.URLMidiSource;
 import ch.fhnw.util.ByteList;
 import ch.fhnw.util.ClassUtilities;
 import ch.fhnw.util.IDisposable;
@@ -93,13 +93,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	private       long               frameCount;
 	private int                      noteOn;
 	private AudioInputStream         midiStream;
-	private final TreeSet<MidiEvent> notes = new TreeSet<>(new Comparator<MidiEvent>() {
-		@Override
-		public int compare(MidiEvent o1, MidiEvent o2) {
-			int   result  = (int) (o1.getTick() - o2.getTick());
-			return result == 0 ? o1.getMessage().getMessage()[1] - o2.getMessage().getMessage()[1] : result;
-		}
-	});
+	private final TreeSet<MidiEvent> notes = new TreeSet<>(URLMidiSource.MIDI_EVWNT_CMP);
 	private final BlockingQueue<float[]> data = new LinkedBlockingQueue<>();
 	private final AtomicInteger          numPlays     = new AtomicInteger();
 	private       long                   samples;
@@ -113,13 +107,17 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 		this(url, numPlays, -BUFFER_SZ);
 	}
 
+	private boolean isMidi(URL url) {
+		return TextUtilities.hasFileExtension(url.getPath(), "mid") || TextUtilities.hasFileExtension(url.getPath(), "midi");
+	}
+	
 	public URLAudioSource(final URL url, final int numPlays, double frameSizeInSec) throws IOException {
 		this.url            = url;
 		this.numPlays.set(numPlays);
 		this.frameSizeInSec = frameSizeInSec;
 
 		try {
-			if(TextUtilities.hasFileExtension(url.getPath(), "mid")) {
+			if(isMidi(url)) {
 				send(MidiSystem.getSequence(url), new Receiver() {
 					@Override
 					public void send(MidiMessage message, long timeStamp) {
@@ -182,7 +180,7 @@ public class URLAudioSource extends AbstractFrameSource implements Runnable, IDi
 	public AudioInputStream getStream(URL url) throws UnsupportedAudioFileException, IOException {
 		if(midiStream != null) return midiStream;
 
-		if(TextUtilities.hasFileExtension(url.getPath(), "mid")) {
+		if(isMidi(url)) {
 			try {
 				Sequence seq = MidiSystem.getSequence(url);
 
