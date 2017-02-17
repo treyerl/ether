@@ -30,7 +30,8 @@
  */package ch.fhnw.ether.scene;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.light.ILight;
@@ -40,21 +41,39 @@ import ch.fhnw.ether.scene.mesh.IMesh;
 public interface IScene {
 	void add3DObject(I3DObject object);
 
-	void add3DObjects(I3DObject... objects);
-	
-	void add3DObjects(Collection<? extends I3DObject> objects);
+		default void add3DObjects(I3DObject... objects){
+			for (I3DObject object: objects) 
+				add3DObject(object);
+		}
+		
+		default void add3DObjects(Collection<? extends I3DObject> objects){
+			for (I3DObject object: objects) 
+				add3DObject(object);
+		}
 
 	void remove3DObject(I3DObject object);
 
-	void remove3DObjects(I3DObject... objects);
+		default void remove3DObjects(I3DObject... objects){
+			for (I3DObject object: objects) 
+				remove3DObject(object);
+		}
+		
+		default void remove3DObjects(Collection<? extends I3DObject> objects){
+			for (I3DObject object: objects) 
+				remove3DObject(object);
+		}
+
+	Collection<I3DObject> get3DObjects();
 	
-	void remove3DObjects(Collection<? extends I3DObject> objects);
-
-	List<I3DObject> get3DObjects();
-
-	List<ICamera> getCameras();
-
-	List<ILight> getLights();
-
-	List<IMesh> getMeshes();
+		default Set<ICamera> getCameras() {
+			return get3DObjects().stream().filter(p -> p instanceof ICamera).map(p -> (ICamera) p).collect(Collectors.toSet());		
+		}
+	
+		default Set<ILight> getLights() {
+			return get3DObjects().stream().filter(p -> p instanceof ILight).map(p -> (ILight) p).collect(Collectors.toSet());		
+		}
+	
+		default Set<IMesh> getMeshes() {
+			return get3DObjects().stream().filter(p -> p instanceof IMesh).map(p -> (IMesh) p).collect(Collectors.toSet());		
+		}
 }

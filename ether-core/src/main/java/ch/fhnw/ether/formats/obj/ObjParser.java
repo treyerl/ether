@@ -77,7 +77,7 @@ final class ObjParser {
 		parse(object.getResource().openStream());
 	}
 
-	private void parse(InputStream input) {
+	public void parse(InputStream input) {
 		int line = 1;
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(input))) {
 			for (String string = null; (string = in.readLine()) != null;) {

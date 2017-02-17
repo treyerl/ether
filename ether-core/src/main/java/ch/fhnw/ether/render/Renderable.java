@@ -54,7 +54,7 @@ public final class Renderable {
 
 	public Renderable(IShader shader, IMesh mesh, Map<IAttribute, Supplier<?>> globals) {
 		this.shader = ShaderBuilder.create(shader, mesh, globals);
-		this.buffer = new VertexBuffer(this.shader, mesh.getGeometry().getAttributes());
+		this.buffer = new VertexBuffer(this.shader, mesh);
 		this.queue = mesh.getQueue();
 		this.flags = mesh.getFlags();
 	}

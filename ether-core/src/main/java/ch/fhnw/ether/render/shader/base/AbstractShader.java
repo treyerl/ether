@@ -122,7 +122,7 @@ public abstract class AbstractShader implements IShader {
 		arrays.forEach(attr -> attr.enable(program, buffer));
 
 		int mode = MODE[type.ordinal()];
-		GL11.glDrawArrays(mode, 0, buffer.getNumVertices());
+		buffer.draw(mode);
 
 		arrays.forEach(attr -> attr.disable(program, buffer));
 		buffer.unbind();

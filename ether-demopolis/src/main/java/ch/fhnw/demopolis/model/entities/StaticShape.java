@@ -68,7 +68,7 @@ public final class StaticShape extends AbstractDesignEntity {
 	@Override
 	public List<IMesh> getMeshes() {
 		if (meshes == null) {
-			meshes = object.getMeshes(material);
+			meshes = object.getMeshes(material, name -> name);
 			for (IMesh mesh : meshes) 
 				mesh.setPosition(new Vec3(0, 0, I3DConfig.LAYER_1));
 		}

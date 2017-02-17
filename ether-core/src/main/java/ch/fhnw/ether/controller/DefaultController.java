@@ -257,6 +257,12 @@ public class DefaultController implements IController {
 		getCamera(view).getUpdater().request();
 		tool.refresh(view);
 	}
+	
+	@Override
+	public void viewRepositioned(IView view){
+		if (DBG)
+			System.out.println("view repositioned " + view);
+	}
 
 	// called if current camera changed
 	@Override

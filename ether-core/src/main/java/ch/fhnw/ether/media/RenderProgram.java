@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ch.fhnw.ether.audio.IAudioSource;
 import ch.fhnw.ether.midi.IMidiSource;
-import ch.fhnw.ether.video.IVideoSource;
+//import ch.fhnw.ether.video.IVideoSource;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.CollectionUtilities;
 import ch.fhnw.util.IDisposable;
@@ -96,11 +96,11 @@ public class RenderProgram<T extends IRenderTarget<?>> extends AbstractRenderCom
 		program.set(ArrayUtilities.prepend((AbstractRenderCommand<T>)source, commands));
 	}
 
-	@SuppressWarnings("unchecked")
-	@SafeVarargs
-	public RenderProgram(IVideoSource source, AbstractRenderCommand<T> ... commands) {
-		program.set(ArrayUtilities.prepend((AbstractRenderCommand<T>)source, commands));
-	}
+//	@SuppressWarnings("unchecked")
+//	@SafeVarargs
+//	public RenderProgram(IVideoSource source, AbstractRenderCommand<T> ... commands) {
+//		program.set(ArrayUtilities.prepend((AbstractRenderCommand<T>)source, commands));
+//	}
 
 	@SuppressWarnings("unchecked")
 	@SafeVarargs

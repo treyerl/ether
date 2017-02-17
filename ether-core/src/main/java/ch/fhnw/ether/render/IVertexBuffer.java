@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.render;
 
+import org.lwjgl.opengl.GL11;
+
 public interface IVertexBuffer {
 	
 	int getNumVertices();
@@ -38,6 +40,10 @@ public interface IVertexBuffer {
 	void bind();
 
 	void unbind();
+	
+	default public void draw(int mode){
+		GL11.glDrawArrays(mode, 0, getNumVertices());
+	}
 
 	void enableAttribute(int bufferIndex, int shaderIndex);
 

@@ -34,6 +34,8 @@ package ch.fhnw.ether.scene.mesh;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.lwjgl.opengl.GL11;
+
 import ch.fhnw.ether.scene.I3DObject;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
@@ -153,4 +155,16 @@ public interface IMesh extends I3DObject {
 	 * Get the number of primitives in this geometry.
 	 */
 	int getNumPrimitives();
+	
+	boolean isVisible();
+	
+	void setVisible(boolean visible);
+	
+	/**Allows a mesh to override the drawing procedure; useful for toggle visibility of objects
+	 * @param mode
+	 * @param numVertices
+	 */
+	default void draw(int mode, int numVertices) {
+		GL11.glDrawArrays(mode, 0, numVertices);
+	}
 }

@@ -32,6 +32,7 @@
 package ch.fhnw.ether.formats;
 
 import java.util.List;
+import java.util.function.Function;
 
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
@@ -45,6 +46,6 @@ public interface IModelReader {
 	
 	List<IMesh> getMeshes();
 	
-	List<IMesh> getMeshes(IMaterial material);
+	List<IMesh> getMeshes(IMaterial material, Function<String, String> namingPattern);
 
 }

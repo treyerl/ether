@@ -51,6 +51,7 @@ import ch.fhnw.ether.scene.light.ILight;
 import ch.fhnw.ether.scene.light.ILight.LightSource;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
+import ch.fhnw.ether.scene.mesh.IMutableMesh;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.view.IView;
@@ -90,7 +91,10 @@ public class DefaultRenderManager implements IRenderManager {
 				materialData = null;
 
 			if (geometryChanged)
-				geometryData = mesh.getTransformedGeometryData();
+				if (mesh instanceof IMutableMesh)
+					geometryData = ((IMutableMesh) mesh).getUpdatedTransformedGeometryData();
+				else
+					geometryData = mesh.getTransformedGeometryData();
 			else
 				geometryData = null;
 		}

@@ -110,7 +110,7 @@ class GLFWPlatform implements IPlatform {
 			errorCallback.free();
 			// XXX commented out for now, seems to frequently lead to crashes...
 			// GLFW.glfwTerminate();
-			System.exit(0);
+//			System.exit(0);
 		}
 	}
 

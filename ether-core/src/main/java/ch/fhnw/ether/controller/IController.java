@@ -201,6 +201,8 @@ public interface IController {
 	void viewLostFocus(IView view);
 	
 	void viewResized(IView view);
+	
+	void viewRepositioned(IView view);
 
 	void viewChanged(IView view);
 

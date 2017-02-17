@@ -55,6 +55,7 @@ import ch.fhnw.ether.audio.fx.PitchDetect;
 import ch.fhnw.ether.media.RenderCommandException;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.ui.ParameterWindow;
+import ch.fhnw.ether.ui.ParameterWindow.Flag;
 import ch.fhnw.util.TextUtilities;
 
 public class AudioVisualizer {
@@ -98,7 +99,7 @@ public class AudioVisualizer {
 		
 		RenderProgram<IAudioRenderTarget> audio = new RenderProgram<>(src, /*sin,*/ dcrmv, gain, fft, bands, pitch /*, robo, ifft*/);
 
-		new ParameterWindow(audio);
+		new ParameterWindow(audio, Flag.EXIT_ON_CLOSE, Flag.CLOSE_ON_STOP);
 
 		audioOut.useProgram(audio);
 		audioOut.start();

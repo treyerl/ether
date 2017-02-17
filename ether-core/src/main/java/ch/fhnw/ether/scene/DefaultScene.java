@@ -35,11 +35,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.render.IRenderManager;
-import ch.fhnw.ether.scene.camera.ICamera;
 import ch.fhnw.ether.scene.light.ILight;
 import ch.fhnw.ether.scene.mesh.IMesh;
 
@@ -108,21 +106,6 @@ public class DefaultScene implements IScene {
 	@Override
 	public final List<I3DObject> get3DObjects() {
 		return Collections.unmodifiableList(objects);
-	}
-
-	@Override
-	public final List<ICamera> getCameras() {
-		return objects.stream().filter(p -> p instanceof ICamera).map(p -> (ICamera) p).collect(Collectors.toList());		
-	}
-
-	@Override
-	public final List<ILight> getLights() {
-		return objects.stream().filter(p -> p instanceof ILight).map(p -> (ILight) p).collect(Collectors.toList());		
-	}
-
-	@Override
-	public final List<IMesh> getMeshes() {
-		return objects.stream().filter(p -> p instanceof IMesh).map(p -> (IMesh) p).collect(Collectors.toList());		
 	}
 
 	protected final IController getController() {

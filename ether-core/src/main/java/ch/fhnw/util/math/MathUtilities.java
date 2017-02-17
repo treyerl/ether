@@ -137,6 +137,20 @@ public final class MathUtilities {
 	static public boolean isEqual(float a, float b, float tolerance) {
 		return Math.abs(a - b) <= tolerance;
 	}
+	
+	
+	/**
+	 * @param value
+	 * 				value to be tested
+	 * @param min
+	 * 				lower bound of range
+	 * @param max
+	 * 				upper bound of range
+	 * @return
+	 */
+	static public boolean isInRange(double value, double min, double max) {
+		return (value>= min) && (value<= max);
+	}
 
 	/**
 	 * Calculates the length of a vector [x, y].
@@ -164,7 +178,19 @@ public final class MathUtilities {
 	public static float length(float x, float y, float z, float w) {
 		return (float) Math.sqrt(x * x + y * y + z * z + w * w);
 	}
-
+	
+	public static float squaredLength(float x, float y){
+		return x * x + y * y;
+	}
+	
+	public static float squaredLength(float x, float y, float z){
+		return x * x + y * y + z * z;
+	}
+	
+	public static float squaredLength(float x, float y, float z, float w){
+		return x * x + y * y + z * z + w * w;
+	}
+	
 	/**
 	 * Calculates the dot product between two vectors [x, y].
 	 * 

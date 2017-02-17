@@ -33,6 +33,8 @@ package ch.fhnw.ether.examples.tools;
 
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
+import ch.fhnw.ether.controller.tool.ITool;
+import ch.fhnw.ether.platform.Platform;
 import ch.fhnw.ether.scene.DefaultScene;
 import ch.fhnw.ether.scene.IScene;
 import ch.fhnw.ether.scene.camera.Camera;
@@ -49,6 +51,7 @@ public final class CustomToolExample {
 	}
 
 	public CustomToolExample() {
+		Platform.get().init();
 		// Create controller
 		IController controller = new DefaultController();
 		controller.run(time -> {
@@ -74,7 +77,7 @@ public final class CustomToolExample {
 			controller.setCamera(view, camera);
 			
 			// Create UI
-			//ITool areaTool = new AreaTool(controller);
+//			ITool areaTool = new AreaTool(controller);
 //			UI ui = controller.getUI();
 //			ui.addWidget(new Slider(0, 4, "SLIDER", "Slider", 0.3f, (slider, v) -> System.out.println("Slider " + slider.getValue())));
 //			ui.addWidget(new Button(0, 3, "PICK", "Pick Tool (1)", GLFW.GLFW_KEY_1, (button, v) -> controller.setTool(new NavigationTool(controller, new PickTool(controller)))));
@@ -84,5 +87,6 @@ public final class CustomToolExample {
 //			}));
 //			ui.addWidget(new Button(0, 0, "Quit", "Quit", GLFW.GLFW_KEY_ESCAPE, (button, v) -> System.exit(0)));			
 		});
+		Platform.get().run();
 	}
 }

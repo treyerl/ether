@@ -75,7 +75,7 @@ public class OffscreenRendering {
 						scene.add3DObject(m);
 					}
 				}
-				log.info("Rending scene to texture");
+				log.info("Rendering scene to texture");
 				controller.getRenderManager().update();
 				
 				File out = new File("preview.png");

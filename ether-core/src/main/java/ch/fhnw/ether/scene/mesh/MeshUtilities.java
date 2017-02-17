@@ -48,12 +48,15 @@ import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
 import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
+import ch.fhnw.ether.scene.mesh.material.LineMaterial;
+import ch.fhnw.ether.scene.mesh.material.PointMaterial;
 import ch.fhnw.ether.scene.mesh.material.ShadedMaterial;
 import ch.fhnw.util.ArrayUtilities;
 import ch.fhnw.util.FloatList;
 import ch.fhnw.util.color.RGB;
 import ch.fhnw.util.color.RGBA;
 import ch.fhnw.util.math.Vec3;
+import ch.fhnw.util.math.geometry.Polygon;
 
 public final class MeshUtilities {
 	
@@ -297,6 +300,55 @@ public final class MeshUtilities {
 		IMaterial material = colorMap == null ? new ColorMaterial(color) : new ColorMapMaterial(color, colorMap);
 		float[] vertices = { x0, y0, 0, x1, y0, 0, x1, y1, 0, x0, y0, 0, x1, y1, 0, x0, y1, 0 };
 		return new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVNM(vertices, UNIT_QUAD_NORMALS, UNIT_QUAD_TEX_COORDS), Queue.SCREEN_SPACE_OVERLAY);
+	}
+	
+	public static IMesh createLines(List<Vec3> linePoints, float width){
+		return createLines(linePoints, new LineMaterial(RGBA.BLACK).setWidth(width), Queue.TRANSPARENCY, IMesh.NO_FLAGS);
+	}
+	
+	public static IMesh createLines(List<Vec3> linePoints, LineMaterial lineMaterial){
+		return createLines(linePoints, lineMaterial, Queue.TRANSPARENCY, IMesh.NO_FLAGS);
+	}
+	
+	public static IMesh createLines(List<Vec3> linePoints, LineMaterial lineMaterial, Queue queue, Flag flag, Flag...flags){
+		return new DefaultMesh(Primitive.LINES, lineMaterial, 
+				DefaultGeometry.createV(Vec3.toArray(linePoints)), queue, flag, flags);
+	}
+	
+	/**Creates a DefaultMesh representing lines. Takes a list of start-end,start-end,start-end, etc. points
+	 * @param linePoints list of Vec3 in format lines[start1, end1, start2, end2]
+	 * @param material IMaterial
+	 * @param queue Queue
+	 * @param flags Set&lt;Flag&gt;
+	 * @return
+	 */
+	public static IMesh createLines(List<Vec3> linePoints, LineMaterial material, Queue queue, Set<Flag> flags) {
+		return new DefaultMesh(Primitive.LINES, material, 
+						DefaultGeometry.createV(Vec3.toArray(linePoints)), queue, flags);
+	}
+	
+	public static IMesh createPoints(List<Vec3> points, RGBA rgba, float radius){
+		return createPoints(points, new PointMaterial(rgba, radius), Queue.DEPTH, IMesh.NO_FLAGS);
+	}
+	
+	public static IMesh createPoints(List<Vec3> points, RGBA rgba, float radius, Queue queue, Flag flag, Flag...flags){
+		IGeometry g = DefaultGeometry.createV(Vec3.toArray(points));
+		return new DefaultMesh(Primitive.POINTS, new PointMaterial(rgba, radius), g, queue, flag, flags);
+	}
+	
+	public static IMesh createPoints(List<Vec3> points, IMaterial material, Queue queue, Set<Flag> flags){
+		IGeometry g = DefaultGeometry.createV(Vec3.toArray(points));
+		return new DefaultMesh(Primitive.POINTS, material, g, queue, flags);
+	}
+	
+	public static IMesh createPoints(List<Vec3> points, IMaterial material, Queue queue, Flag flag, Flag...flags ){
+		IGeometry g = DefaultGeometry.createV(Vec3.toArray(points));
+		return new DefaultMesh(Primitive.POINTS, material, g, queue, flag, flags);
+	}
+	
+	public static IMesh createPolygon(Polygon shape, IMaterial material, Queue queue, Set<Flag> flags){
+		IGeometry geometry = DefaultGeometry.createVN(shape.getTriangleVertices(), null);
+		return new DefaultMesh(Primitive.TRIANGLES, material, geometry, flags);
 	}
 	
 	private static boolean requireTexCoords(IMaterial material) {

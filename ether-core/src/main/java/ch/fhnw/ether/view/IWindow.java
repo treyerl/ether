@@ -70,6 +70,8 @@ public interface IWindow extends IDisposable {
 		void windowFocusChanged(IWindow window, boolean focused);
 
 		void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize);
+		
+		void windowRepositioned(IWindow window, Vec2 windowPosition);
 	}
 	
 	interface IKeyListener {
@@ -100,7 +102,8 @@ public interface IWindow extends IDisposable {
 		@Override public void windowCloseRequest(IWindow window) {}
 		@Override public void windowRefresh(IWindow window) {}
 		@Override public void windowFocusChanged(IWindow window, boolean focused) {}
-		@Override public void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize) {}		
+		@Override public void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize) {}
+		@Override public void windowRepositioned(IWindow window, Vec2 windowSize) {}
 	}
 	
 	class KeyAdapter implements IKeyListener {

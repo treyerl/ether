@@ -65,7 +65,7 @@ import ch.fhnw.ether.media.Parameter.Type;
 import ch.fhnw.ether.media.Parametrizable;
 import ch.fhnw.ether.media.RenderProgram;
 import ch.fhnw.ether.platform.Platform;
-import ch.fhnw.ether.video.IVideoSource;
+//import ch.fhnw.ether.video.IVideoSource;
 import ch.fhnw.util.IDisposable;
 import ch.fhnw.util.Log;
 import ch.fhnw.util.TextUtilities;
@@ -97,8 +97,8 @@ public class ParameterWindow {
 		private Label            lenSecsUI;
 		private Label            channelsUI;
 		private Label            sRateUI;
-		private Label            widthUI;
-		private Label            heightUI;
+//		private Label            widthUI;
+//		private Label            heightUI;
 		private Group            composite;
 		private long             startTime;
 		private long             startFrames;
@@ -124,10 +124,10 @@ public class ParameterWindow {
 				channelsUI = add("Channels");
 				sRateUI    = add("Sampling Rate");
 			}
-			if(src instanceof IVideoSource) {
-				widthUI   = add("Width");
-				heightUI  = add("Height");
-			}
+//			if(src instanceof IVideoSource) {
+//				widthUI   = add("Width");
+//				heightUI  = add("Height");
+//			}
 			update(true);
 		}
 
@@ -142,10 +142,10 @@ public class ParameterWindow {
 					channelsUI.setText(Integer.toString(((IAudioSource)src).getNumChannels()));
 					sRateUI.setText(FMT.format(((IAudioSource)src).getSampleRate()));
 				}
-				if(src instanceof IVideoSource) {
-					widthUI.setText(Integer.toString(((IVideoSource)src).getWidth()));
-					heightUI.setText(Integer.toString(((IVideoSource)src).getHeight()));
-				}
+//				if(src instanceof IVideoSource) {
+//					widthUI.setText(Integer.toString(((IVideoSource)src).getWidth()));
+//					heightUI.setText(Integer.toString(((IVideoSource)src).getHeight()));
+//				}
 			}
 			IRenderTarget<?> target = program.getTarget(); 
 			if(target != null) {

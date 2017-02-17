@@ -61,6 +61,7 @@ package ch.fhnw.ether.formats;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Function;
 
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
@@ -85,8 +86,8 @@ public abstract class AbstractModelReader implements IModelReader {
 	}
 	
 	@Override
-	public final List<IMesh> getMeshes(IMaterial material) {
-		return object.getMeshes(material);
+	public final List<IMesh> getMeshes(IMaterial material, Function<String, String> namingPattern) {
+		return object.getMeshes(material, namingPattern);
 	}
 
 	protected EnumSet<Options> getOptions() {

@@ -224,7 +224,7 @@ public class Population {
 	
 	private static IMesh getVehicleMesh(String asset) throws IOException {
 		PolisMaterial material = new PolisMaterial(RGB.BLACK, RGB.GRAY80);
-		List<IMesh> meshes = new ObjReader(Asset.get(asset), ObjReader.Options.CONVERT_TO_Z_UP).getMeshes(material);
+		List<IMesh> meshes = new ObjReader(Asset.get(asset), ObjReader.Options.CONVERT_TO_Z_UP).getMeshes(material, name -> name);
 		meshes = MeshUtilities.mergeMeshes(meshes);
 		if (meshes.size() != 1)
 			throw new IllegalArgumentException("cannot merge meshes into a single mesh");

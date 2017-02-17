@@ -77,7 +77,7 @@ public class StaticEnvironment {
 	private static IMesh getMesh(String[] assets, IMaterial material) throws IOException {
 		List<IMesh> meshes = new ArrayList<>();
 		for (String asset : assets) {
-			meshes.addAll(new ObjReader(Asset.get(asset), ObjReader.Options.CONVERT_TO_Z_UP).getMeshes(material));
+			meshes.addAll(new ObjReader(Asset.get(asset), ObjReader.Options.CONVERT_TO_Z_UP).getMeshes(material, name -> name));
 		}
 		meshes = MeshUtilities.mergeMeshes(meshes);
 		if (meshes.size() != 1)

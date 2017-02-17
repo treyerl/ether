@@ -75,7 +75,7 @@ public final class StaticModel extends AbstractDesignEntity {
 	@Override
 	public List<IMesh> getMeshes() {
 		if (meshes == null)
-			meshes = object.getMeshes(material);
+			meshes = object.getMeshes(material, name -> name);
 		return meshes;
 	}
 	

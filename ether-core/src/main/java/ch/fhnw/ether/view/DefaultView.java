@@ -168,7 +168,14 @@ public class DefaultView implements IView {
 		@Override
 		public void windowResized(IWindow window, Vec2 windowSize, Vec2 framebufferSize) {
 			viewport = new Viewport(0, 0, framebufferSize.x, framebufferSize.y);
+			window.setSize(windowSize);
 			runOnSceneThread(time -> controller.viewResized(DefaultView.this));
+		}
+		
+		@Override 
+		public void windowRepositioned(IWindow window, Vec2 windowPosition){
+			window.setPosition(windowPosition);
+			runOnSceneThread(time -> controller.viewRepositioned(DefaultView.this));
 		}
 	};
 

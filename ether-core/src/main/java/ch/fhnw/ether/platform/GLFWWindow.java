@@ -398,12 +398,14 @@ final class GLFWWindow implements IWindow {
 				log.debug("window position request: " + title);
 
 			windowPosition = new Vec2(xpos, ypos);
+			if (windowListener != null)
+				windowListener.windowRepositioned(GLFWWindow.this, windowPosition);
 		});
 
 		GLFW.glfwSetWindowSizeCallback(window, (w, width, height) -> {
 			if (DBG)
 				log.debug("window resize: " + title + " " + width + " " + height);
-
+			
 			// note: we're currently not using this callback, since window
 			// size is explicitly fetched in framebuffer callback.
 		});
@@ -414,6 +416,8 @@ final class GLFWWindow implements IWindow {
 
 			GLFW.glfwGetWindowSize(w, INT_ARRAY_0, INT_ARRAY_1);
 			windowSize = new Vec2(INT_ARRAY_0[0], INT_ARRAY_1[0]);
+			GLFW.glfwGetWindowPos(w, INT_ARRAY_0, INT_ARRAY_1);
+			windowPosition = new Vec2(INT_ARRAY_0[0], INT_ARRAY_1[0]);
 			framebufferSize = new Vec2(width, height);
 
 			if (windowListener == null)

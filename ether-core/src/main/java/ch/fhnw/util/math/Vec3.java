@@ -90,21 +90,39 @@ public final class Vec3 implements IVec3 {
 	public float length() {
 		return MathUtilities.length(x, y, z);
 	}
+	
+	public float squaredLength() {
+		return MathUtilities.squaredLength(x, y, z);
+	}
 
 	public float distance(Vec3 v) {
-		return (float) Math.sqrt((v.x - x) * (v.x - x) + (v.y - y) * (v.y - y) + (v.z - z) * (v.z - z));
+		return (float) Math.sqrt(squaredDistance(v));
+	}
+	
+	public float squaredDistance(Vec3 v) {
+		return (float) (v.x - x) * (v.x - x) + (v.y - y) * (v.y - y) + (v.z - z) * (v.z - z);
 	}
 
 	public Vec3 add(Vec3 v) {
 		return new Vec3(x + v.x, y + v.y, z + v.z);
 	}
+	
+	public Vec3 add(float n) {
+		return new Vec3(x + n, y + n, z + n);
+	}
 
 	public Vec3 subtract(Vec3 v) {
 		return new Vec3(x - v.x, y - v.y, z - v.z);
 	}
+	
+	public Vec3 subtract(float n) {
+		return new Vec3(x - n, y - n, z - n);
+	}
 
 	public Vec3 scale(float s) {
-		return new Vec3(x * s, y * s, z * s);
+		if (Float.isFinite(s))
+			return new Vec3(x * s, y * s, z * s);
+		else return this;
 	}
 
 	public Vec3 negate() {
@@ -157,7 +175,7 @@ public final class Vec3 implements IVec3 {
 
 	@Override
 	public String toString() {
-		return String.format("[% .2f,% .2f,% .2f]", x, y, z);
+		return String.format("[% .5f,% .5f,% .5f]", x, y, z);
 	}
 	
 	public static Vec3 lerp(Vec3 v0, Vec3 v1, float t) {

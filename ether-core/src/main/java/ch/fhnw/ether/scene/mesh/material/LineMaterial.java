@@ -55,18 +55,20 @@ public final class LineMaterial extends AbstractMaterial {
 		return color;
 	}
 
-	public final void setColor(RGBA color) {
+	public final LineMaterial setColor(RGBA color) {
 		this.color = color;
 		updateRequest();
+		return this;
 	}
 
 	public final float getWidth() {
 		return width;
 	}
 
-	public final void setWidth(float width) {
+	public final LineMaterial setWidth(float width) {
 		this.width = width;
 		updateRequest();
+		return this;
 	}
 
 	@Override

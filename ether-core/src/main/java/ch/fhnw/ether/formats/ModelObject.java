@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
@@ -53,7 +54,7 @@ import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
 import ch.fhnw.util.math.tessellator.Triangulation;
 
-public final class ModelObject {
+public class ModelObject {
 	private final URL resource;
 
 	private final List<Vec3> vertices = new ArrayList<>();
@@ -145,10 +146,10 @@ public final class ModelObject {
 	}
 	
 	public List<IMesh> getMeshes() {
-		return getMeshes(null);
+		return getMeshes(null, groupName -> TextUtilities.getFileName(getResource().getFile()) + "/" + groupName);
 	}
 
-	public List<IMesh> getMeshes(IMaterial requestedMaterial) {
+	public List<IMesh> getMeshes(IMaterial requestedMaterial, Function<String, String> namingPattern) {
 		final List<IMesh> meshes = new ArrayList<>();
 
 		List<Vec3> vertices = getVertices();
@@ -219,10 +220,13 @@ public final class ModelObject {
 				geometry = DefaultGeometry.createVN(tv, tn);
 
 			DefaultMesh mesh = new DefaultMesh(Primitive.TRIANGLES, material, geometry);
-			String filename = TextUtilities.getFileName(getResource().getFile());
-			mesh.setName(filename + '/' + group.getName());
+			mesh.setName(namingPattern.apply(group.getName()));
 			meshes.add(mesh);
 		}
 		return meshes;		
+	}
+	
+	public String getMeshName(ModelGroup group){
+		return TextUtilities.getFileName(getResource().getFile()) + '/' + group.getName();
 	}
 }

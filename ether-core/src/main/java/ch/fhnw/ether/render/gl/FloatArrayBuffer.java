@@ -33,6 +33,7 @@ package ch.fhnw.ether.render.gl;
 
 import java.nio.FloatBuffer;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import ch.fhnw.ether.render.gl.GLObject.Type;
@@ -46,9 +47,9 @@ import ch.fhnw.util.BufferUtilities;
 
 // TODO: switch to arrays instead of using float buffer (or offer both methods)?
 
-public final class FloatArrayBuffer implements IArrayBuffer {
-	private GLObject vbo;
-	private int size;
+public class FloatArrayBuffer implements IArrayBuffer {
+	protected GLObject vbo;
+	protected int size;
 
 	public FloatArrayBuffer() {
 	}
@@ -75,18 +76,18 @@ public final class FloatArrayBuffer implements IArrayBuffer {
 	}
 
 	@Override
-	public void bind() {
+	final public void bind() {
 		if (size > 0)
 			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo.getId());
 	}
 
 	@Override
-	public int size() {
+	final public int size() {
 		return size;
 	}
 
 	@Override
-	public boolean isEmpty() {
+	final public boolean isEmpty() {
 		return size == 0;
 	}
 }

@@ -47,7 +47,7 @@ import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 import ch.fhnw.util.math.geometry.BoundingBox;
 
-public final class DefaultMesh implements IMesh {
+public class DefaultMesh implements IMesh {
 	private final Primitive type;
 	private final Queue queue;
 	private final Set<Flag> flags;
@@ -56,6 +56,7 @@ public final class DefaultMesh implements IMesh {
 	private Vec3 position = Vec3.ZERO;
 	private Mat4 transform = Mat4.ID;
 	private BoundingBox bb;
+	private boolean visible = true;
 
 	private String name = "unnamed_mesh";
 
@@ -112,7 +113,7 @@ public final class DefaultMesh implements IMesh {
 	// I3DObject implementation
 
 	@Override
-	public BoundingBox getBounds() {
+	final public BoundingBox getBounds() {
 		if (bb == null) {
 			bb = new BoundingBox();
 			bb.add(getTransformedPositionData());
@@ -121,71 +122,71 @@ public final class DefaultMesh implements IMesh {
 	}
 
 	@Override
-	public Vec3 getPosition() {
+	final public Vec3 getPosition() {
 		return position;
 	}
 
 	@Override
-	public void setPosition(Vec3 position) {
+	final public void setPosition(Vec3 position) {
 		this.position = position;
 		bb = null;
 		updateRequest();
 	}
 
 	@Override
-	public String getName() {
+	final public String getName() {
 		return name;
 	}
 
 	@Override
-	public void setName(String name) {
+	final public void setName(String name) {
 		this.name = name;
 	}
 
 	// IMesh implementation
 
 	@Override
-	public IMesh createInstance() {
+	final public IMesh createInstance() {
 		return new DefaultMesh(this);
 	}
 	
 	@Override
-	public Queue getQueue() {
+	final public Queue getQueue() {
 		return queue;
 	}
 
 	@Override
-	public Set<Flag> getFlags() {
+	final public Set<Flag> getFlags() {
 		return flags;
 	}
 
 	@Override
-	public boolean hasFlag(Flag flag) {
+	final public boolean hasFlag(Flag flag) {
 		return flags.contains(flag);
 	}
 	
 	@Override
-	public Primitive getType() {
+	final public Primitive getType() {
 		return type;
 	}
 
 	@Override
-	public IMaterial getMaterial() {
+	final public IMaterial getMaterial() {
 		return material;
 	}
 
 	@Override
-	public IGeometry getGeometry() {
+	final public IGeometry getGeometry() {
 		return geometry;
 	}
 
 	@Override
-	public Mat4 getTransform() {
+	final public Mat4 getTransform() {
 		return transform;
 	}
 
 	@Override
-	public void setTransform(Mat4 transform) {
+	final public void setTransform(Mat4 transform) {
 		if (this.transform != transform) {
 			this.transform = transform;
 			bb = null;
@@ -194,13 +195,13 @@ public final class DefaultMesh implements IMesh {
 	}
 	
 	@Override
-	public float[] getTransformedPositionData() {
+	final public float[] getTransformedPositionData() {
 		Mat4 tp = Mat4.multiply(Mat4.translate(position), transform);
 		return tp.transform(geometry.getData()[0]);
 	}
 	
 	@Override
-	public float[][] getTransformedGeometryData() {
+	final public float[][] getTransformedGeometryData() {
 		float[][] src = geometry.getData();
 		float[][] dst = new float[src.length][];
 		IGeometryAttribute[] attrs = geometry.getAttributes();
@@ -218,14 +219,14 @@ public final class DefaultMesh implements IMesh {
 	}
 
 	@Override
-	public int getNumPrimitives() {
+	final public int getNumPrimitives() {
 		float[][] data = geometry.getData();
 		IGeometryAttribute[] attrs = geometry.getAttributes();
 		return data[0].length / (attrs[0].getNumComponents() * getType().getNumVertices());
 	}
 
 	@Override
-	public UpdateRequest getUpdater() {
+	final public UpdateRequest getUpdater() {
 		return update;
 	}
 
@@ -235,17 +236,17 @@ public final class DefaultMesh implements IMesh {
 
 	// we purposely leave equals and hashcode at default (identity)
 	@Override
-	public boolean equals(Object obj) {
+	final public boolean equals(Object obj) {
 		return super.equals(obj);
 	}
 
 	@Override
-	public int hashCode() {
+	final public int hashCode() {
 		return super.hashCode();
 	}
 
 	@Override
-	public String toString() {
+	final public String toString() {
 		return name + " (" + getNumPrimitives() + " " + getType() + ")";
 	}
 
@@ -256,5 +257,21 @@ public final class DefaultMesh implements IMesh {
 			if (!geometryAttributes.contains(attr))
 				throw new IllegalArgumentException("geometry does not provide required attribute: " + attr);				
 		}
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+	
+	@Override
+	public void draw(int mode, int numVertices){
+		if (visible)
+			IMesh.super.draw(mode, numVertices);
 	}
 }

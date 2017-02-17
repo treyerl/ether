@@ -23,6 +23,12 @@ ext {
   lwjglArch = getLwjglArch(System.properties['os.name'])
 }
 
+task slimJar(type: Jar){
+    baseName = project.name + '-core'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 dependencies {
     compile "org.eclipse.swt:$swtArtifactName:$swtVersion"
 
@@ -47,7 +53,6 @@ dependencies {
 
     compile "net.sourceforge.jaadec:jaad:0.8.4"
 
-    compile files("libs/xuggle/xuggle-xuggler-5.4.jar")
     compile files("libs/jcodec/jcodec-0.2.jar")
     compile files("libs/mmj/mmj.jar")
     compile files("libs/plugins/plugins.jar")
