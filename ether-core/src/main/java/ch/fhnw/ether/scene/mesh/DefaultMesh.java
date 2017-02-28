@@ -34,7 +34,9 @@ package ch.fhnw.ether.scene.mesh;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.fhnw.ether.scene.attribute.IAttribute;
@@ -53,10 +55,11 @@ public class DefaultMesh implements IMesh {
 	private final Set<Flag> flags;
 	private final IMaterial material;
 	private final IGeometry geometry;
-	private Vec3 position = Vec3.ZERO;
+//	private Vec3 position = Vec3.ZERO;
 	private Mat4 transform = Mat4.ID;
 	private BoundingBox bb;
 	private boolean visible = true;
+	private final Map<String,Object> attributes = new HashMap<>();
 
 	private String name = "unnamed_mesh";
 
@@ -97,6 +100,7 @@ public class DefaultMesh implements IMesh {
 		this.queue = queue;
 		this.flags = Collections.unmodifiableSet(flags);
 		checkAttributeConsistency(material, geometry);
+		material.appliesTransformation(flags.contains(Flag.SHADER_TRANSFORMATION));
 	}
 
 	private DefaultMesh(DefaultMesh mesh) {
@@ -105,32 +109,34 @@ public class DefaultMesh implements IMesh {
 		this.geometry = mesh.geometry;
 		this.queue = mesh.queue;
 		this.flags = mesh.flags;
-		this.position = mesh.position;
 		this.transform = mesh.transform;
 		this.bb = null;
 	}
-
+	
 	// I3DObject implementation
 
 	@Override
 	final public BoundingBox getBounds() {
 		if (bb == null) {
 			bb = new BoundingBox();
-			bb.add(getTransformedPositionData());
+			bb.add(getGeometry().getData()[0]);
 		}
+		if (transform != Mat4.ID) 
+			return bb.transform(transform);
 		return bb;
 	}
 
 	@Override
 	final public Vec3 getPosition() {
-		return position;
+		return transform.getTranslation();
 	}
 
 	@Override
-	final public void setPosition(Vec3 position) {
-		this.position = position;
-		bb = null;
-		updateRequest();
+	final public void setPosition(Vec3 p) {
+		setTransform(new Mat4(transform.m00, transform.m10, transform.m20, p.x, 
+							  transform.m01, transform.m11, transform.m21, p.y, 
+							  transform.m02, transform.m12, transform.m22, p.z, 
+							  transform.m03, transform.m13, transform.m23, transform.m33));
 	}
 
 	@Override
@@ -144,7 +150,7 @@ public class DefaultMesh implements IMesh {
 	}
 
 	// IMesh implementation
-
+	
 	@Override
 	final public IMesh createInstance() {
 		return new DefaultMesh(this);
@@ -186,18 +192,20 @@ public class DefaultMesh implements IMesh {
 	}
 
 	@Override
-	final public void setTransform(Mat4 transform) {
-		if (this.transform != transform) {
-			this.transform = transform;
-			bb = null;
-			updateRequest();
+	final public IMesh setTransform(Mat4 transform) {
+		synchronized(this.transform){
+			if (this.transform != transform) {
+				this.transform = transform;
+				if (!hasFlag(Flag.SHADER_TRANSFORMATION)) 
+					updateRequest();
+			}
 		}
+		return this;
 	}
 	
 	@Override
-	final public float[] getTransformedPositionData() {
-		Mat4 tp = Mat4.multiply(Mat4.translate(position), transform);
-		return tp.transform(geometry.getData()[0]);
+	final public float[] getTransformedVertexData() {
+		return transform.transform(geometry.getData()[0]);
 	}
 	
 	@Override
@@ -205,7 +213,7 @@ public class DefaultMesh implements IMesh {
 		float[][] src = geometry.getData();
 		float[][] dst = new float[src.length][];
 		IGeometryAttribute[] attrs = geometry.getAttributes();
-		Mat4 tp = Mat4.multiply(Mat4.translate(position), transform);
+		Mat4 tp = getTransform();
 		dst[0] = tp.transform(src[0]);
 		for (int i = 1; i < src.length; ++i) {
 			if (attrs[i].equals(IGeometry.NORMAL_ARRAY)) {
@@ -216,6 +224,17 @@ public class DefaultMesh implements IMesh {
 			}
 		}
 		return dst;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ch.fhnw.ether.scene.mesh.IMesh#getUpdatedGeometryData()
+	 * 
+	 * not final to be overridden by mutable mesh
+	 */
+	@Override
+	public float[][] getUpdatedGeometryData(){
+		if (hasFlag(Flag.SHADER_TRANSFORMATION)) return geometry.getData();
+		return getTransformedGeometryData();
 	}
 
 	@Override
@@ -251,7 +270,7 @@ public class DefaultMesh implements IMesh {
 	}
 
 	private static void checkAttributeConsistency(IMaterial material, IGeometry geometry) {
-		// geometry must provide all materials required by material
+		// geometry must provide all data required by material
 		List<IGeometryAttribute> geometryAttributes = Arrays.asList(geometry.getAttributes());
 		for (IAttribute attr : material.getRequiredAttributes()) {
 			if (!geometryAttributes.contains(attr))
@@ -265,13 +284,12 @@ public class DefaultMesh implements IMesh {
 	}
 	
 	@Override
-	public void setVisible(boolean visible) {
+	public IMesh setVisible(boolean visible) {
 		this.visible = visible;
+		return this;
 	}
-	
 	@Override
-	public void draw(int mode, int numVertices){
-		if (visible)
-			IMesh.super.draw(mode, numVertices);
+	public Map<String,Object> getAttributes(){
+		return attributes;
 	}
 }

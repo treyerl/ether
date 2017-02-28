@@ -34,6 +34,7 @@ package ch.fhnw.util.math.geometry;
 import java.util.Collection;
 
 import ch.fhnw.util.HashUtilities;
+import ch.fhnw.util.math.Mat4;
 import ch.fhnw.util.math.Vec3;
 
 /**
@@ -264,6 +265,15 @@ public final class BoundingBox {
 
 	public boolean contains2D(Vec3 vertex) {
 		return contains2D(vertex.x, vertex.y);
+	}
+	
+	public BoundingBox transform(Mat4 m){
+		Vec3 min = m.transform(new Vec3(minX, minY, minZ));
+		Vec3 max = m.transform(new Vec3(maxX, maxY, maxZ));
+		BoundingBox bb = new BoundingBox();
+		bb.add(min);
+		bb.add(max);
+		return bb;
 	}
 
 	@Override

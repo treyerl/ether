@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import java.util.function.Supplier;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.platform.Platform;
@@ -59,8 +61,8 @@ import ch.fhnw.util.math.Vec3;
 public final class CustomViewShaderExample {
 	static final class CustomMaterial extends AbstractMaterial implements ICustomMaterial {
 		private static class Shader extends AbstractShader {
-			public Shader() {
-				super(CustomViewShaderExample.class, "custom_shader_example.custom_view_shader", "/shaders/custom_view_shader", Primitive.LINES);
+			public Shader(Supplier<Mat4> transformer) {
+				super(CustomViewShaderExample.class, "custom_shader_example.custom_view_shader", "/shaders/custom_view_shader", Primitive.LINES, transformer);
 				addArray(new PositionArray());
 
 				addUniform(new Mat4FloatUniform("custom.mvp", "mvp"));
@@ -68,11 +70,12 @@ public final class CustomViewShaderExample {
 		}
 
 
-		private final IShader shader = new Shader();
+		private final IShader shader;
 		private float rotation;
 
-		public CustomMaterial(float rotation) {
+		public CustomMaterial(float rotation, Supplier<Mat4> transformer) {
 			super(provide(new MaterialAttribute<Mat4>("custom.mvp")), require(IGeometry.POSITION_ARRAY));
+			shader = new Shader(transformer);
 			this.rotation = rotation;
 		}
 
@@ -122,7 +125,7 @@ public final class CustomViewShaderExample {
 			controller.setScene(scene);
 			
 			IGeometry geometry = DefaultGeometry.createV(MeshUtilities.UNIT_CUBE_EDGES);
-			IMaterial material = new CustomMaterial(0);
+			IMaterial material = new CustomMaterial(0, () -> mesh.getTransform());
 			mesh = new DefaultMesh(Primitive.LINES, material, geometry, Queue.DEPTH);
 			scene.add3DObject(mesh);
 		});

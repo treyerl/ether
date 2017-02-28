@@ -67,14 +67,16 @@ public final class Renderable {
 	}
 
 	public void render() {
-		boolean disableCulling = hasFlag(Flag.DONT_CULL_FACE);
-		if (disableCulling)
-			GL11.glDisable(GL11.GL_CULL_FACE);
-		shader.enable();
-		shader.render(buffer);
-		shader.disable();
-		if (disableCulling)
-			GL11.glEnable(GL11.GL_CULL_FACE);
+		if (buffer.isVisible()){
+			boolean disableCulling = hasFlag(Flag.DONT_CULL_FACE);
+			if (disableCulling)
+				GL11.glDisable(GL11.GL_CULL_FACE);
+//			shader.enable();
+			shader.render(buffer);
+//			shader.disable();
+			if (disableCulling)
+				GL11.glEnable(GL11.GL_CULL_FACE);
+		}
 	}
 	
 	public IShader getShader() {

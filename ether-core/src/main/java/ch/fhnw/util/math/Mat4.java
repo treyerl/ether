@@ -302,6 +302,27 @@ public final class Mat4 implements IFloatArrayCopyProvider {
 
 		return new Mat4(v00, v10, v20, v30, v01, v11, v21, v31, v02, v12, v22, v32, v03, v13, v23, v33);
 	}
+	
+	/**
+	 * @return Vec3 representing the translation of this matrix
+	 */
+	public Vec3 getTranslation(){
+		return new Vec3(m30, m31, m32);
+	}
+	
+	/**
+	 * @return Quaternion representing the rotation of this Matrix
+	 */
+	public Quaternion getRotation(){
+		return Quaternion.fromMatrix(this);
+	}
+	
+	/**
+	 * @return Vec3 representing the scale in x,y,z of this Matrix
+	 */
+	public Vec3 getScale(){
+		return new Vec3(m00, m11, m22);
+	}
 
 	/**
 	 * Multiplies two matrices (result = a * b).

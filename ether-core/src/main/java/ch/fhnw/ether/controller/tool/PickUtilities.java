@@ -78,7 +78,7 @@ public final class PickUtilities {
 			return d;
 		
 		IMesh mesh = (IMesh)object;
-		float[] data = mesh.getTransformedPositionData();
+		float[] data = mesh.getTransformedVertexData();
 		
 		switch (mesh.getType()) {
 		case POINTS:

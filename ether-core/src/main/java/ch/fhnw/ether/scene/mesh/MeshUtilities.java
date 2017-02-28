@@ -192,13 +192,30 @@ public final class MeshUtilities {
 		return new DefaultMesh(Primitive.TRIANGLES, material, g, queue, flags);
 	}
 	
+	/**Create a white disk with radius 1 and n segments
+	 * @param n resolution
+	 * @return
+	 */
 	public static IMesh createDisk(int n) {
-		return createDisk(new ColorMaterial(RGBA.WHITE), n);
+		return createDisk(new ColorMaterial(RGBA.WHITE), n, Queue.DEPTH, IMesh.NO_FLAGS);
 	}
 
-	public static IMesh createDisk(IMaterial material, int n) {
+	public static IMesh createDisk(IMaterial material, int n){
+		return createDisk(material, n, Queue.DEPTH, IMesh.NO_FLAGS);
+	}
+	
+	/**Create a disk with radius 1 and n segments
+	 * @param material
+	 * @param n resolution
+	 * @return
+	 */
+	public static IMesh createDisk(IMaterial material, int n, Queue queue, Set<Flag> flags) {
 		if (requireTexCoords(material))
 			throw new IllegalArgumentException("texture coordinates unsupported");
+		return new DefaultMesh(Primitive.TRIANGLES, material, createDiskGeometry(n), queue, flags);
+	}
+	
+	public static IGeometry createDiskGeometry(int n){
 		if (n < 3)
 			throw new IllegalArgumentException("n < 3");
 		float[] v = new float[3 * 3 * n];
@@ -214,7 +231,7 @@ public final class MeshUtilities {
 			v[j++] = 0.5f * (float)Math.sin(Math.PI * 2 * (i + 1) / n);
 			v[j++] = 0;
 		}
-		return new DefaultMesh(Primitive.TRIANGLES, material, DefaultGeometry.createVN(v, DEFAULT_UP_NORMAL));
+		return DefaultGeometry.createVN(v, DEFAULT_UP_NORMAL);
 	}
 	
 	public static IMesh createCylinder(int n, boolean addCaps) {

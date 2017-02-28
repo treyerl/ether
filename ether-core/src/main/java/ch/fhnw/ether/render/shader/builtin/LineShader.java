@@ -32,6 +32,7 @@
 package ch.fhnw.ether.render.shader.builtin;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
@@ -45,10 +46,11 @@ import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.util.color.RGBA;
+import ch.fhnw.util.math.Mat4;
 
 public class LineShader extends AbstractShader {
-	public LineShader(Collection<IAttribute> attributes, Primitive primitive) {
-		super(IShader.class, "builtin.shader.lines", "/shaders/unshaded_vct", primitive);
+	public LineShader(Collection<IAttribute> attributes, Primitive primitive, Runnable preShade, Supplier<Mat4> transformer) {
+		super(IShader.class, "builtin.shader.lines", "/shaders/unshaded_vct", primitive, transformer);
 
 		boolean useVertexColors = attributes.contains(IGeometry.COLOR_ARRAY);
 		
@@ -63,5 +65,7 @@ public class LineShader extends AbstractShader {
 		addUniform(new ColorUniform(attributes.contains(IMaterial.COLOR) ? null : () -> RGBA.WHITE));
 		
 		addUniform(new ViewUniformBlock());
+		
+		addPreShade(preShade);
 	}
 }

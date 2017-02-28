@@ -32,11 +32,13 @@
 package ch.fhnw.ether.render;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.fhnw.ether.scene.attribute.AbstractAttribute;
 import ch.fhnw.ether.scene.camera.IViewCameraState;
 import ch.fhnw.ether.scene.light.ILight.LightSource;
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.view.IView;
 
 /**
@@ -60,7 +62,7 @@ public interface IRenderer {
 
 		List<LightSource> getLights();
 
-		List<Renderable> getRenderables();
+		Map<IMaterial, List<Renderable>> getRenderables();
 		
 		boolean hasPost();
 	}

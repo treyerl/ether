@@ -137,7 +137,7 @@ public final class Program {
 
 	private static final Map<String, Program> PROGRAMS = new HashMap<>();
 
-	private final String id;
+	public final String id;
 	private final GLObject programObject;
 
 	private Program(PrintStream out, Shader... shaders) {

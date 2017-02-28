@@ -33,6 +33,7 @@ package ch.fhnw.ether.render;
 
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -43,7 +44,7 @@ import ch.fhnw.ether.render.gl.IArrayBuffer;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.variable.IShaderArray;
 import ch.fhnw.ether.scene.mesh.IMesh;
-import ch.fhnw.ether.scene.mesh.IMutableMesh;
+import ch.fhnw.ether.scene.mesh.IIncrementalMesh;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry.IGeometryAttribute;
 
 // TODO: deal with max vbo size & multiple vbos, memory optimization, handle non-float arrays, indexed buffers
@@ -52,7 +53,7 @@ public final class VertexBuffer implements IVertexBuffer {
 	private static final ThreadLocal<FloatBuffer> TARGET = 
 			ThreadLocal.withInitial(() -> BufferUtils.createFloatBuffer(1024 * 1024));
 
-	private final FloatArrayBuffer buffer;
+	private final IArrayBuffer buffer;
 
 	private final int stride;
 	private final int[] sizes;
@@ -61,7 +62,7 @@ public final class VertexBuffer implements IVertexBuffer {
 	private final IMesh mesh;
 	
 	public VertexBuffer(IShader shader, IMesh mesh) {
-		this.buffer = (mesh instanceof IMutableMesh) ? ((IMutableMesh) mesh).getFloatArrayBuffer() : new FloatArrayBuffer();
+		this.buffer = (mesh instanceof IIncrementalMesh) ? ((IIncrementalMesh) mesh).getArrayBuffer() : new FloatArrayBuffer();
 		this.mesh = mesh;
 		IGeometryAttribute[] attributes = mesh.getGeometry().getAttributes();
 		List<IShaderArray<?>> arrays = shader.getArrays();
@@ -116,11 +117,6 @@ public final class VertexBuffer implements IVertexBuffer {
 	}
 	
 	@Override
-	public void draw(int mode){
-		mesh.draw(mode, getNumVertices());
-	}
-	
-	@Override
 	public int getNumVertices() {
 		return buffer.size() / stride;
 	}
@@ -161,5 +157,17 @@ public final class VertexBuffer implements IVertexBuffer {
 				target.put(data[j], k, sizes[j]);
 			}
 		}
+	}
+
+	@Override
+	public boolean isVisible() {
+		return mesh.isVisible();
+	}
+
+	@Override
+	public Consumer<Integer> drawing() {
+		if (mesh instanceof IIncrementalMesh) 
+			return (mode) -> ((IIncrementalMesh) mesh).glDrawArrays(mode, getNumVertices());
+		return (mode) -> GL11.glDrawArrays(mode, 0, getNumVertices());
 	}
 }

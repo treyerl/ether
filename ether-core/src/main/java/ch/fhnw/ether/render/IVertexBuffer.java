@@ -31,19 +31,19 @@
 
 package ch.fhnw.ether.render;
 
-import org.lwjgl.opengl.GL11;
+import java.util.function.Consumer;
 
 public interface IVertexBuffer {
 	
 	int getNumVertices();
+	
+	boolean isVisible();
+	
+	Consumer<Integer> drawing();
 
 	void bind();
 
 	void unbind();
-	
-	default public void draw(int mode){
-		GL11.glDrawArrays(mode, 0, getNumVertices());
-	}
 
 	void enableAttribute(int bufferIndex, int shaderIndex);
 

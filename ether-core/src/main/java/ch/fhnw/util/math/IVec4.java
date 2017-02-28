@@ -31,6 +31,8 @@
 
 package ch.fhnw.util.math;
 
+import java.util.Collection;
+
 import ch.fhnw.util.IFloatArrayCopyProvider;
 
 public interface IVec4 extends IFloatArrayCopyProvider {
@@ -40,4 +42,19 @@ public interface IVec4 extends IFloatArrayCopyProvider {
 	float w();
 	
 	Vec4 toVec4();
+	
+	public static float[] toArray(Collection<Vec4> vectors) {
+		if (vectors == null)
+			return null;
+
+		float[] result = new float[vectors.size() * 4];
+		int i = 0;
+		for (Vec4 v : vectors) {
+			result[i++] = v.x;
+			result[i++] = v.y;
+			result[i++] = v.z;
+			result[i++] = v.w;
+		}
+		return result;
+	}
 }

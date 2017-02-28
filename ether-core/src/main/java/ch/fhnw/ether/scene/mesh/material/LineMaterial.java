@@ -31,10 +31,13 @@
 
 package ch.fhnw.ether.scene.mesh.material;
 
+import org.lwjgl.opengl.GL11;
+
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.util.color.RGBA;
 
-// width currently unsupported
+// width support currently restricted to platform dependent line width implementation
+// typically supported line widths between 0.5f and 1.0f
 public final class LineMaterial extends AbstractMaterial {
 	
 	private RGBA color;
@@ -80,4 +83,9 @@ public final class LineMaterial extends AbstractMaterial {
 	public String toString() {
 		return super.toString() + "[" + color + ", " + width + "]";
 	}
+	
+	public Runnable preShade(){
+		return () -> GL11.glLineWidth(width);
+	}
+
 }

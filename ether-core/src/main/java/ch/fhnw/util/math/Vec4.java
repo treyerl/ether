@@ -31,8 +31,6 @@
 
 package ch.fhnw.util.math;
 
-import java.util.Collection;
-
 import ch.fhnw.util.HashUtilities;
 
 /**
@@ -171,20 +169,5 @@ public final class Vec4 implements IVec4 {
 	
 	public static Vec4 lerp(Vec4 v0, Vec4 v1, float t) {
 		return new Vec4(MathUtilities.lerp(v0.x, v1.x, t), MathUtilities.lerp(v0.y, v1.y, t), MathUtilities.lerp(v0.z, v1.z, t), MathUtilities.lerp(v0.w, v1.w, t));
-	}	
-
-	public static float[] toArray(Collection<Vec4> vectors) {
-		if (vectors == null)
-			return null;
-
-		float[] result = new float[vectors.size() * 4];
-		int i = 0;
-		for (Vec4 v : vectors) {
-			result[i++] = v.x;
-			result[i++] = v.y;
-			result[i++] = v.z;
-			result[i++] = v.w;
-		}
-		return result;
 	}
 }

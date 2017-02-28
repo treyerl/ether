@@ -32,6 +32,7 @@
 package ch.fhnw.ether.render.shader.builtin;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
@@ -51,10 +52,11 @@ import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.util.color.RGBA;
+import ch.fhnw.util.math.Mat4;
 
 public class PointShader extends AbstractShader {
-	public PointShader(Collection<IAttribute> attributes) {
-		super(IShader.class, "builtin.shader.points", "/shaders/point_vc", Primitive.POINTS);
+	public PointShader(Collection<IAttribute> attributes, Supplier<Mat4> transformer) {
+		super(IShader.class, "builtin.shader.points", "/shaders/point_vc", Primitive.POINTS, transformer);
 
 		boolean useVertexColors = attributes.contains(IGeometry.COLOR_ARRAY);
 		boolean useVertexPointSize = attributes.contains(IGeometry.POINT_SIZE_ARRAY);

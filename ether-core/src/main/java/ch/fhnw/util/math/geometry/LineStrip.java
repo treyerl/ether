@@ -11,14 +11,14 @@ import ch.fhnw.util.math.Vec3;
  * @author treyerl
  *
  */
-public class LineString implements Iterable<Pair<Vec3, Vec3>>{
+public class LineStrip implements Iterable<Pair<Vec3, Vec3>>{
 	protected LinkedList<Vec3> points;
 	
-	protected LineString(){
+	protected LineStrip(){
 		points = new LinkedList<>();
 	}
 	
-	public LineString(LinkedList<Vec3> points){
+	public LineStrip(LinkedList<Vec3> points){
 		this.points = points;
 	}
 	
@@ -65,12 +65,12 @@ public class LineString implements Iterable<Pair<Vec3, Vec3>>{
 		return points.getFirst().equals(points.getLast());
 	}
 	
-	public LineString setClosed(){
+	public LineStrip setClosed(){
 		if (!isClosed()) points.add(points.getFirst());
 		return this;
 	}
 	
-	public LineString setOpen(){
+	public LineStrip setOpen(){
 		if (isClosed()) points.removeLast();
 		return this;
 	}

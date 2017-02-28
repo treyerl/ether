@@ -31,9 +31,9 @@
 
 package ch.fhnw.ether.render.gl;
 
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 
 import ch.fhnw.ether.render.gl.GLObject.Type;
@@ -53,16 +53,20 @@ public class FloatArrayBuffer implements IArrayBuffer {
 
 	public FloatArrayBuffer() {
 	}
+	
+	public GLObject create(){
+		return new GLObject(Type.BUFFER);
+	}
 
-	public void load(FloatBuffer data) {
+	public void load(Buffer data) {
 		if (vbo == null)
-			vbo = new GLObject(Type.BUFFER);
+			vbo = create();
 
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo.getId());
 		if (data != null && data.limit() != 0) {
 			size = data.limit();
 			data.rewind();
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_STATIC_DRAW);
+			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, (FloatBuffer) data, GL15.GL_STATIC_DRAW);
 		} else {
 			size = 0;
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, BufferUtilities.EMPTY_FLOAT_BUFFER, GL15.GL_STATIC_DRAW);

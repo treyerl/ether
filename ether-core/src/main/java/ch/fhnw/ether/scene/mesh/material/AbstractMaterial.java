@@ -46,6 +46,7 @@ public abstract class AbstractMaterial implements IMaterial {
 	private final IGeometryAttribute[] geometryAttributes;
 
 	private final UpdateRequest update = new UpdateRequest();
+	private boolean appliesTransformation;
 
 	private String name = "material";
 
@@ -95,8 +96,11 @@ public abstract class AbstractMaterial implements IMaterial {
 		if (!(obj instanceof AbstractMaterial))
 			return false;
 		AbstractMaterial m = (AbstractMaterial) obj;
-		return name.equals(m.name) && Arrays.equals(providedAttributes, m.providedAttributes)
-				&& Arrays.equals(geometryAttributes, m.geometryAttributes) && Arrays.equals(getData(), m.getData());
+		return name.equals(m.name) 
+				&& appliesTransformation == m.appliesTransformation
+				&& Arrays.equals(providedAttributes, m.providedAttributes)
+				&& Arrays.equals(geometryAttributes, m.geometryAttributes) 
+				&& Arrays.equals(getData(), m.getData());
 	}
 
 	@Override
@@ -123,5 +127,13 @@ public abstract class AbstractMaterial implements IMaterial {
 
 	protected final void updateRequest() {
 		update.request();
+	}
+	
+	public Runnable preShade(){
+		return null;
+	}
+	
+	public void appliesTransformation(boolean applies){
+		appliesTransformation = applies;
 	}
 }

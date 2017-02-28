@@ -33,6 +33,7 @@ package ch.fhnw.ether.render.shader.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL11;
 
@@ -41,8 +42,10 @@ import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.variable.IShaderArray;
 import ch.fhnw.ether.render.variable.IShaderUniform;
+import ch.fhnw.ether.render.variable.base.Mat4FloatUniform;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.util.Log;
+import ch.fhnw.util.math.Mat4;
 
 public abstract class AbstractShader implements IShader {
 	private static final Log LOG = Log.create();
@@ -59,28 +62,48 @@ public abstract class AbstractShader implements IShader {
 	private final String name;
 	private final String[] source;
 	private final Primitive type;
+	private final boolean SHADER_TRANSFORMATION;
+	private final Supplier<Mat4> transformer;
 	private Program program;
+	private Mat4FloatUniform transformation;
 
 	private List<IShaderUniform<?>> uniforms = new ArrayList<>();
 	private List<IShaderArray<?>> arrays = new ArrayList<>();
-
-	protected AbstractShader(Class<?> root, String name, String source, Primitive type) {
+	private List<Runnable> preShades = new ArrayList<>();
+	
+	protected AbstractShader(Class<?> root, String name, String source, Primitive type, Supplier<Mat4> transformer) {
 		this.root = root;
 		this.name = name;
 		this.source = new String[] { source };
 		this.type = type;
+		this.transformer = transformer;
+		this.SHADER_TRANSFORMATION = transformer != null;
+		transformationInit();
 	}
 
-	protected AbstractShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
+	protected AbstractShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type, Supplier<Mat4> transformer) {
 		this.root = root;
 		this.name = name;
 		this.source = new String[] { vert, frag, geom };
 		this.type = type;
+		this.transformer = transformer;
+		this.SHADER_TRANSFORMATION = transformer != null;
+		transformationInit();
+	}
+
+	private void transformationInit() {
+		transformation = new Mat4FloatUniform("shader.transformation", "transformation");
+		transformation.setIndex(0);
 	}
 
 	@Override
 	public final String id() {
 		return name;
+	}
+	
+	@Override
+	public final Program getProgram(){
+		return program;
 	}
 
 	@Override
@@ -90,7 +113,7 @@ public abstract class AbstractShader implements IShader {
 			String fragShader;
 			String geomShader;
 			if (source.length == 1) {
-				vertShader = source[0] + "_vert.glsl";
+				vertShader = source[0] + (SHADER_TRANSFORMATION ? "_vert_trans.glsl" : "_vert.glsl");
 				fragShader = source[0] + "_frag.glsl";
 				geomShader = source[0] + "_geom.glsl";
 			} else {
@@ -110,24 +133,31 @@ public abstract class AbstractShader implements IShader {
 
 	@Override
 	public final void enable() {
-		// enable program & uniforms (set uniforms, enable textures, change gl
-		// state)
+		// enable program & uniforms (set uniforms, enable textures, change GL state)
 		program.enable();
 		uniforms.forEach(attr -> attr.enable(program));
+		preShades.forEach(preShade -> preShade.run());
 	}
 
 	@Override
 	public final void render(IVertexBuffer buffer) {
+		
+//		IMesh mesh = buffer.getMesh();
+		if (SHADER_TRANSFORMATION){
+			transformation.update(new Object[]{transformer.get()});
+			transformation.enable(program);
+		}
+		
 		buffer.bind();
 		arrays.forEach(attr -> attr.enable(program, buffer));
 
 		int mode = MODE[type.ordinal()];
-		buffer.draw(mode);
+		buffer.drawing().accept(mode);
 
 		arrays.forEach(attr -> attr.disable(program, buffer));
 		buffer.unbind();
 	}
-
+	
 	@Override
 	public final void disable() {
 		// disable program and uniforms (disable textures, restore gl state)
@@ -151,6 +181,10 @@ public abstract class AbstractShader implements IShader {
 
 	protected final void addArray(IShaderArray<?> array) {
 		arrays.add(array);
+	}
+	
+	protected final void addPreShade(Runnable pre){
+		if (pre != null) preShades.add(pre);
 	}
 
 	@Override

@@ -32,9 +32,8 @@
 package ch.fhnw.ether.scene.mesh;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
-
-import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.scene.I3DObject;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
@@ -56,10 +55,11 @@ public interface IMesh extends I3DObject {
 
 	enum Flag {
 		DONT_CULL_FACE,
-		DONT_CAST_SHADOW
+		DONT_CAST_SHADOW,
+		SHADER_TRANSFORMATION
 	}
 	
-	enum Primitive {
+	enum Primitive{
 		POINTS("points", 1), 
 		LINES("lines", 2), 
 		LINE_STRIP("line_strip", 1),
@@ -127,7 +127,7 @@ public interface IMesh extends I3DObject {
 	 * Get this mesh's geometry.
 	 */
 	IGeometry getGeometry();
-
+	
 	/**
 	 * Get this mesh's transform.
 	 */
@@ -136,12 +136,12 @@ public interface IMesh extends I3DObject {
 	/**
 	 * Set this mesh's transform.
 	 */
-	void setTransform(Mat4 transform);
+	IMesh setTransform(Mat4 transform);
 	
 	/**
-	 * Get a copy of the transformed position data (position * transform).
+	 * Get a copy of transformed vertex coordinates.
 	 */
-	float[] getTransformedPositionData();
+	float[] getTransformedVertexData();
 
 	/**
 	 * Get a copy of the transformed geometry data (positions and normals
@@ -152,19 +152,30 @@ public interface IMesh extends I3DObject {
 	float[][] getTransformedGeometryData();
 	
 	/**
+	 * Get a copy of the UNTRANSFORMED geometry data that needs to be uploaded to the GPU.
+	 * Called once per draw cycle. Clear any updates  
+	 * @return
+	 */
+	float[][] getUpdatedGeometryData();
+	
+	/**
 	 * Get the number of primitives in this geometry.
 	 */
 	int getNumPrimitives();
 	
+	/**Visibility of the mesh
+	 * @return visibility state
+	 */
 	boolean isVisible();
 	
-	void setVisible(boolean visible);
-	
-	/**Allows a mesh to override the drawing procedure; useful for toggle visibility of objects
-	 * @param mode
-	 * @param numVertices
+	/**Set the visibility fo the mesh
+	 * @param visible
+	 * 					boolean
 	 */
-	default void draw(int mode, int numVertices) {
-		GL11.glDrawArrays(mode, 0, numVertices);
-	}
+	IMesh setVisible(boolean visible);
+	
+	/**For categorizing meshes on application specific attributes
+	 * @return
+	 */
+	Map<String,Object> getAttributes();
 }

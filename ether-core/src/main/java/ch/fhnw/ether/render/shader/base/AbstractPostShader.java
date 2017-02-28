@@ -46,14 +46,14 @@ public abstract class AbstractPostShader extends AbstractShader {
 	private final SamplerUniform depthMapUniform;
 	
 	protected AbstractPostShader(Class<?> root, String name, String source, Primitive type) {
-		super(root, name, source, type);
+		super(root, name, source, type, null);
 		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
 		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
 		addUniforms();
 	}
 
 	protected AbstractPostShader(Class<?> root, String name, String vert, String frag, String geom, Primitive type) {
-		super(root, name, vert, frag, geom, type);
+		super(root, name, vert, frag, geom, type, null);
 		colorMapUniform = new SamplerUniform("post.color_map", "colorMap", 0, GL11.GL_TEXTURE_2D);
 		depthMapUniform = new SamplerUniform("post.depth_map", "depthMap", 1, GL11.GL_TEXTURE_2D);
 		addUniforms();

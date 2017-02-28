@@ -33,7 +33,9 @@ package ch.fhnw.ether.render;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +53,6 @@ import ch.fhnw.ether.scene.light.ILight;
 import ch.fhnw.ether.scene.light.ILight.LightSource;
 import ch.fhnw.ether.scene.mesh.IMesh;
 import ch.fhnw.ether.scene.mesh.IMesh.Queue;
-import ch.fhnw.ether.scene.mesh.IMutableMesh;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.view.IView;
@@ -91,10 +92,7 @@ public class DefaultRenderManager implements IRenderManager {
 				materialData = null;
 
 			if (geometryChanged)
-				if (mesh instanceof IMutableMesh)
-					geometryData = ((IMutableMesh) mesh).getUpdatedTransformedGeometryData();
-				else
-					geometryData = mesh.getTransformedGeometryData();
+				geometryData = mesh.getUpdatedGeometryData();
 			else
 				geometryData = null;
 		}
@@ -112,7 +110,7 @@ public class DefaultRenderManager implements IRenderManager {
 		final Map<IMesh, SceneMeshState> meshes = new IdentityHashMap<>();
 		final List<ILight> lights = new ArrayList<>(Collections.singletonList(ILight.DEFAULT_LIGHT));
 
-		List<Renderable> renderables = new ArrayList<>();
+		Map<IMaterial, List<Renderable>> renderables = new HashMap<>();
 		boolean hasPost = false;
 
 		boolean rebuildMeshes = true;
@@ -151,12 +149,14 @@ public class DefaultRenderManager implements IRenderManager {
 		}
 
 		void addMesh(IMesh mesh) {
+//			System.out.println("addMesh");
 			if (meshes.putIfAbsent(mesh, new SceneMeshState()) != null)
 				throw new IllegalArgumentException("mesh already in renderer: " + mesh);
 			rebuildMeshes = true;
 		}
 
 		void removeMesh(IMesh mesh) {
+//			System.out.println("removeMesh");
 			if (meshes.remove(mesh) == null)
 				throw new IllegalArgumentException("mesh not in renderer: " + mesh);
 			rebuildMeshes = true;
@@ -180,6 +180,7 @@ public class DefaultRenderManager implements IRenderManager {
 		}
 
 		public void clear() {
+//			System.out.println("clear");
 			materials.clear();
 			geometries.clear();
 			meshes.clear();
@@ -201,7 +202,7 @@ public class DefaultRenderManager implements IRenderManager {
 			// 1. add meshes and mesh updates to render state
 			final List<IRenderUpdate> updates = new ArrayList<>();
 			if (rebuildMeshes) {
-				renderables = new ArrayList<>();
+				renderables = new HashMap<>();
 				hasPost = false;
 				materials.clear();
 				geometries.clear();
@@ -234,8 +235,10 @@ public class DefaultRenderManager implements IRenderManager {
 				if (materialChanged || geometryChanged) {
 					updates.add(new RenderUpdate(state.renderable, mesh, materialChanged, geometryChanged));
 				}
-				if (rebuildMeshes)
-					renderables.add(state.renderable);
+				if (rebuildMeshes){
+					List<Renderable> sameMaterial = renderables.computeIfAbsent(material, (mat) -> new LinkedList<>());
+					sameMaterial.add(state.renderable);
+				}
 			});
 
 			// second loop required to update flags
@@ -243,7 +246,7 @@ public class DefaultRenderManager implements IRenderManager {
 			geometries.forEach(geometry -> geometry.getUpdater().clear());
 
 			// seal collections
-			final List<Renderable> renderRenderables = Collections.unmodifiableList(renderables);
+			final Map<IMaterial, List<Renderable>> renderRenderables = Collections.unmodifiableMap(renderables);
 			final List<IRenderUpdate> renderUpdates = Collections.unmodifiableList(updates);
 
 			// 2. add lights to render state
@@ -269,7 +272,7 @@ public class DefaultRenderManager implements IRenderManager {
 					}
 
 					@Override
-					public List<Renderable> getRenderables() {
+					public  Map<IMaterial, List<Renderable>> getRenderables() {
 						return renderRenderables;
 					}
 

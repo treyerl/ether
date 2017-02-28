@@ -34,6 +34,7 @@ package ch.fhnw.ether.render.shader;
 import java.util.List;
 
 import ch.fhnw.ether.render.IVertexBuffer;
+import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.render.variable.IShaderArray;
 import ch.fhnw.ether.render.variable.IShaderUniform;
 
@@ -61,4 +62,6 @@ public interface IShader {
 	List<IShaderUniform<?>> getUniforms();
 
 	List<IShaderArray<?>> getArrays();
+	
+	Program getProgram();
 }

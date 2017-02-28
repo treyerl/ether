@@ -62,7 +62,7 @@ public final class UpdateRequest {
 	}
 
 	/**
-	 * Test for an update and clear a pending request.
+	 * Test for an update request.
 	 * 
 	 * @return true if update is required, false otherwise.
 	 */

@@ -32,6 +32,7 @@
 package ch.fhnw.ether.render.shader.builtin;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractShader;
@@ -47,10 +48,11 @@ import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.util.color.RGBA;
+import ch.fhnw.util.math.Mat4;
 
 public class UnshadedTriangleShader extends AbstractShader {
-	public UnshadedTriangleShader(Collection<IAttribute> attributes) {
-		super(IShader.class, "builtin.shader.unshaded_triangles", "/shaders/unshaded_vct", Primitive.TRIANGLES);
+	public UnshadedTriangleShader(Collection<IAttribute> attributes, Supplier<Mat4> transformer) {
+		super(IShader.class, "builtin.shader.unshaded_triangles", "/shaders/unshaded_vct", Primitive.TRIANGLES, transformer);
 
 		boolean useVertexColors = attributes.contains(IGeometry.COLOR_ARRAY);
 		boolean useTexture = attributes.contains(IGeometry.COLOR_MAP_ARRAY);

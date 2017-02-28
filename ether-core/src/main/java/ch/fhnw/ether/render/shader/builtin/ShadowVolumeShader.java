@@ -46,7 +46,7 @@ import ch.fhnw.util.math.IVec4;
 
 public class ShadowVolumeShader extends AbstractShader {
 	public ShadowVolumeShader(Supplier<Integer> lightIndex, Supplier<Float> extrudeDistance, Supplier<IVec4> volumeColor) {
-		super(IShader.class, "builtin.shader.shadow_volumes", "/shaders/shadow_volumes", Primitive.TRIANGLES);
+		super(IShader.class, "builtin.shader.shadow_volumes", "/shaders/shadow_volumes", Primitive.TRIANGLES, null);
 
 		addArray(new PositionArray());
 

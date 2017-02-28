@@ -69,7 +69,7 @@ public final class ObjWriter {
 		meshes.add(mesh);
 		ModelGroup g = new ModelGroup(mesh.getName());
 		final List<Vec3> vs = object.getVertices();
-		float[] data = mesh.getTransformedPositionData();
+		float[] data = mesh.getTransformedVertexData();
 		for (int i = 0; i < data.length; i += 9) {
 			int[] vi = new int[3];
 			vs.add(new Vec3(data[i + 0], data[i + 1], data[i + 2]));

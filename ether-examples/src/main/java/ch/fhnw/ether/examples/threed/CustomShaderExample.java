@@ -31,6 +31,8 @@
 
 package ch.fhnw.ether.examples.threed;
 
+import java.util.function.Supplier;
+
 import ch.fhnw.ether.controller.DefaultController;
 import ch.fhnw.ether.controller.IController;
 import ch.fhnw.ether.platform.Platform;
@@ -52,12 +54,13 @@ import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.view.DefaultView;
 import ch.fhnw.ether.view.IView;
 import ch.fhnw.ether.view.IView.ViewType;
+import ch.fhnw.util.math.Mat4;
 
 public final class CustomShaderExample {
 	static final class CustomMaterial extends AbstractMaterial implements ICustomMaterial {
 		private static class Shader extends AbstractShader {
-			public Shader() {
-				super(CustomShaderExample.class, "custom_shader_example.custom_shader", "/shaders/custom_shader", Primitive.TRIANGLES);
+			public Shader(Supplier<Mat4> transformer) {
+				super(CustomShaderExample.class, "custom_shader_example.custom_shader", "/shaders/custom_shader", Primitive.TRIANGLES, transformer);
 				addArray(new PositionArray());
 				addArray(new ColorArray());
 
@@ -66,11 +69,12 @@ public final class CustomShaderExample {
 			}
 		}
 
-		private final IShader shader = new Shader();
+		private final IShader shader;
 		private float redGain;
 
-		public CustomMaterial(float redGain) {
+		public CustomMaterial(float redGain, Supplier<Mat4> transformer) {
 			super(provide(new MaterialAttribute<Float>("custom.red_gain")), require(IGeometry.POSITION_ARRAY));
+			shader = new Shader(transformer);
 			this.redGain = redGain;
 		}
 
@@ -98,12 +102,12 @@ public final class CustomShaderExample {
 		new CustomShaderExample();
 	}
 
-	private static IMesh makeColoredTriangle() {
+	private static IMesh makeColoredTriangle(Supplier<Mat4> transformer) {
 		float[] vertices = { 0, 0, 0, 0.5f, 0, 0.5f, 0, 0, 0.5f };
 		float[] colors = { 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1 };
 
 		DefaultGeometry g = DefaultGeometry.createVC(vertices, colors);
-		return new DefaultMesh(Primitive.TRIANGLES, new CustomMaterial(2f), g);
+		return new DefaultMesh(Primitive.TRIANGLES, new CustomMaterial(2f, transformer), g);
 	}
 
 	private IMesh mesh;
@@ -123,7 +127,7 @@ public final class CustomShaderExample {
 			IScene scene = new DefaultScene(controller);
 			controller.setScene(scene);
 
-			mesh = makeColoredTriangle();
+			mesh = makeColoredTriangle(() -> mesh.getTransform());
 			scene.add3DObject(mesh);
 		});
 		controller.animate((time, interval) -> {

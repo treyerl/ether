@@ -96,4 +96,9 @@ public interface IMaterial extends IUpdateTracker {
 	 * Get a copy of the provided material attribute data. 
 	 */
 	Object[] getData();
+	
+	Runnable preShade();
+	
+	void appliesTransformation(boolean applies);
+	
 }

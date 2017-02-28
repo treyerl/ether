@@ -31,9 +31,16 @@
 
 package ch.fhnw.ether.render.gl;
 
+import java.nio.Buffer;
+
 import org.lwjgl.opengl.GL15;
 
 public interface IArrayBuffer {
+	
+	GLObject create();
+	
+	void load(Buffer buffer);
+	
 	void clear();
 
 	void bind();

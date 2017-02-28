@@ -46,12 +46,14 @@ import ch.fhnw.ether.render.shader.builtin.UnshadedTriangleShader;
 import ch.fhnw.ether.render.variable.IShaderUniform;
 import ch.fhnw.ether.scene.attribute.IAttribute;
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.IMesh.Flag;
 import ch.fhnw.ether.scene.mesh.material.ColorMapMaterial;
 import ch.fhnw.ether.scene.mesh.material.ColorMaterial;
 import ch.fhnw.ether.scene.mesh.material.ICustomMaterial;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 import ch.fhnw.ether.scene.mesh.material.ShadedMaterial;
 import ch.fhnw.util.Pair;
+import ch.fhnw.util.math.Mat4;
 
 public final class ShaderBuilder {
 	private static final class Attributes {
@@ -126,22 +128,22 @@ public final class ShaderBuilder {
 		if (material instanceof ICustomMaterial) {
 			return ((ICustomMaterial) material).getShader();
 		}
-
+		Supplier<Mat4> transformer = mesh.hasFlag(Flag.SHADER_TRANSFORMATION) ? () -> mesh.getTransform() : null;
 		switch (mesh.getType()) {
 		case POINTS:
-			return new PointShader(attributes);
+			return new PointShader(attributes, transformer);
 		case LINES:
 		case LINE_STRIP:
 		case LINE_LOOP:
-			return new LineShader(attributes, mesh.getType());
+			return new LineShader(attributes, mesh.getType(), material.preShade(), transformer);
 		case TRIANGLES:
 		case TRIANGLE_STRIP:
 		case TRIANGLE_FAN:
 			if (material instanceof ColorMaterial || material instanceof ColorMapMaterial) {
-				return new UnshadedTriangleShader(attributes);
+				return new UnshadedTriangleShader(attributes, transformer);
 			} else if (material instanceof ShadedMaterial) {
 				//return new FlatShadedTriangleShader(attributes);
-				return new FragmentShadedTriangleShader(attributes);
+				return new FragmentShadedTriangleShader(attributes, transformer);
 			}
 		}
 		throw new UnsupportedOperationException("cant create shader for mesh: " + mesh);

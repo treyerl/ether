@@ -42,7 +42,7 @@ import ch.fhnw.util.math.IVec4;
 
 public class TrivialDeviceSpaceShader extends AbstractShader {
 	public TrivialDeviceSpaceShader(Supplier<IVec4> color) {
-		super(IShader.class, "builtin.shader.trivial_device_space", "/shaders/device_space", Primitive.TRIANGLES);
+		super(IShader.class, "builtin.shader.trivial_device_space", "/shaders/device_space", Primitive.TRIANGLES, null);
 
 		addArray(new PositionArray());
 

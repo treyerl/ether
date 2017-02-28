@@ -31,17 +31,20 @@
 
 package ch.fhnw.ether.render;
 
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.lwjgl.opengl.GL11;
 
 import ch.fhnw.ether.render.forward.ShadowVolumes;
 import ch.fhnw.ether.render.gl.GLContextManager;
 import ch.fhnw.ether.render.gl.GLError;
+import ch.fhnw.ether.render.gl.Program;
 import ch.fhnw.ether.render.gl.Texture;
 import ch.fhnw.ether.render.shader.IShader;
 import ch.fhnw.ether.render.shader.base.AbstractPostShader;
@@ -203,34 +206,51 @@ public abstract class AbstractRenderer implements IRenderer {
 	protected abstract void render(IRenderTargetState state);
 
 	protected void renderObjects(IRenderTargetState state, Queue pass) {
-		for (Renderable renderable : state.getRenderables()) {
-			if (renderable.getQueue() == pass) {
-				renderable.render();
+		state.getRenderables().forEach((mat,renderables) -> {
+			if (renderables.size() > 0){
+				Renderable r1 = renderables.get(0);
+				// if renderables are taken out of the scene
+				// we might end up with a shader here that was
+				// not initialized (has no program)
+				Program p = r1.getShader().getProgram();
+				if (p == null) r1.getShader().update(mat.getData());
+				r1.getShader().enable();
+				for (Renderable renderable : renderables) {
+					if (renderable.getQueue() == pass) {
+						renderable.render();
+					}
+				}
+				r1.getShader().disable();
 			}
-		}
+		});
+		
 	}
 
 	protected void renderPostObjects(IRenderTargetState state, Queue pass, Texture colorMap, Texture depthMap) {
-		for (Renderable renderable : state.getRenderables()) {
-			if (renderable.getQueue() == pass) {
-				// XXX: set color/depth map to renderable's shader
-				IShader shader = renderable.getShader();
-				if (shader instanceof AbstractPostShader) {
-					((AbstractPostShader)shader).setMaps(colorMap, depthMap);
-					renderable.render();
-				} else {
-					// XXX warn?? fail? we should be able to test for this case much earlier in a flexible way
-					renderable.render();
+		state.getRenderables().forEach((mat,renderables) -> {
+			for (Renderable renderable : renderables) {
+				if (renderable.getQueue() == pass) {
+					// XXX: set color/depth map to renderable's shader
+					IShader shader = renderable.getShader();
+					if (shader instanceof AbstractPostShader) {
+						((AbstractPostShader)shader).setMaps(colorMap, depthMap);
+						renderable.render();
+					} else {
+						// XXX warn?? fail? we should be able to test for this case much earlier in a flexible way
+						renderable.render();
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	protected void renderShadowVolumes(IRenderTargetState state, Queue pass) {
 		if (shadowVolumes == null) {
 			shadowVolumes = new ShadowVolumes(globals.attributes);
 		}
-		shadowVolumes.render(pass, state.getRenderables(), globals.lightInfo.getNumLights());
+		shadowVolumes.render(pass, state.getRenderables().values().stream()
+										.flatMap(Collection::stream)
+										.collect(Collectors.toList()), globals.lightInfo.getNumLights());
 	}
 
 	private void runRenderThread() {
