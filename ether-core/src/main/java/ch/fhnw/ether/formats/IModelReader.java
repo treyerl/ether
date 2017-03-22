@@ -32,9 +32,12 @@
 package ch.fhnw.ether.formats;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.IMesh.Flag;
+import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
 
 public interface IModelReader {
@@ -47,5 +50,7 @@ public interface IModelReader {
 	List<IMesh> getMeshes();
 	
 	List<IMesh> getMeshes(IMaterial material, Function<String, String> namingPattern);
+	
+	List<IMesh> getMeshes(IMaterial material, Function<String, String> namingPattern, Queue queue, Set<Flag> flags);
 
 }

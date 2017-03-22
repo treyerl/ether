@@ -37,11 +37,14 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import ch.fhnw.ether.scene.mesh.DefaultMesh;
 import ch.fhnw.ether.scene.mesh.IMesh;
+import ch.fhnw.ether.scene.mesh.IMesh.Flag;
 import ch.fhnw.ether.scene.mesh.IMesh.Primitive;
+import ch.fhnw.ether.scene.mesh.IMesh.Queue;
 import ch.fhnw.ether.scene.mesh.geometry.DefaultGeometry;
 import ch.fhnw.ether.scene.mesh.geometry.IGeometry;
 import ch.fhnw.ether.scene.mesh.material.IMaterial;
@@ -148,8 +151,12 @@ public class ModelObject {
 	public List<IMesh> getMeshes() {
 		return getMeshes(null, groupName -> TextUtilities.getFileName(getResource().getFile()) + "/" + groupName);
 	}
+	
+	public List<IMesh> getMeshes(IMaterial requestedMaterial, Function<String, String> namingPattern){
+		return getMeshes(requestedMaterial, namingPattern, Queue.DEPTH, IMesh.NO_FLAGS);
+	}
 
-	public List<IMesh> getMeshes(IMaterial requestedMaterial, Function<String, String> namingPattern) {
+	public List<IMesh> getMeshes(IMaterial requestedMaterial, Function<String, String> namingPattern, Queue queue, Set<Flag> flags) {
 		final List<IMesh> meshes = new ArrayList<>();
 
 		List<Vec3> vertices = getVertices();
@@ -219,7 +226,7 @@ public class ModelObject {
 			else
 				geometry = DefaultGeometry.createVN(tv, tn);
 
-			DefaultMesh mesh = new DefaultMesh(Primitive.TRIANGLES, material, geometry);
+			DefaultMesh mesh = new DefaultMesh(Primitive.TRIANGLES, material, geometry, queue, flags);
 			mesh.setName(namingPattern.apply(group.getName()));
 			meshes.add(mesh);
 		}
