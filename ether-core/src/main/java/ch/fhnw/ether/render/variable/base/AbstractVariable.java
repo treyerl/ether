@@ -65,7 +65,7 @@ public abstract class AbstractVariable<T> implements IShaderVariable<T> {
 		if (shaderIndex == -1) {
 			shaderIndex = resolveShaderIndex(program, shaderName);
 			if (shaderIndex == -1) {
-				LOG.warning("shader variable " + id + ": cannot resolve glsl name " + shaderName);
+				LOG.warning("shader variable " + id + ": cannot resolve glsl name " + shaderName +" "+ program.id);
 				shaderIndex = -2;
 			}
 		}
