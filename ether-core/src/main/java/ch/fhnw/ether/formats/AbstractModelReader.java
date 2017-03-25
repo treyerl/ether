@@ -77,6 +77,11 @@ public abstract class AbstractModelReader implements IModelReader {
 		this.object = new ModelObject(resource);
 		this.options = options;
 	}
+	
+	public AbstractModelReader(EnumSet<Options> options){
+		this.object = new ModelObject();
+		this.options = options;
+	}
 
 	@Override
 	public final ModelObject getObject() {

@@ -236,8 +236,7 @@ public class DefaultRenderManager implements IRenderManager {
 					updates.add(new RenderUpdate(state.renderable, mesh, materialChanged, geometryChanged));
 				}
 				if (rebuildMeshes){
-					List<Renderable> sameMaterial = renderables.computeIfAbsent(material, (mat) -> new LinkedList<>());
-					sameMaterial.add(state.renderable);
+					renderables.computeIfAbsent(material, (mat) -> new ArrayList<>()).add(state.renderable);
 				}
 			});
 

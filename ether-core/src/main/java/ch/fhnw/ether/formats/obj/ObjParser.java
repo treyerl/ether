@@ -73,6 +73,12 @@ final class ObjParser {
 		this.path = p;
 	}
 	
+	public ObjParser(boolean convertToZUp, ModelObject object){
+		this.convertToZUp = convertToZUp;
+		this.object = object;
+		path = null;
+	}
+	
 	public void parse() throws IOException {
 		parse(object.getResource().openStream());
 	}

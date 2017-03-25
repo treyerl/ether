@@ -33,6 +33,7 @@ package ch.fhnw.ether.formats.obj;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.EnumSet;
 
@@ -62,5 +63,14 @@ public final class ObjReader extends AbstractModelReader {
 	public ObjReader(URL resource, EnumSet<Options> options) throws IOException {
 		super(resource, options);
 		new ObjParser(getObject(), options.contains(Options.CONVERT_TO_Z_UP)).parse();
+	}
+	
+	public ObjReader(InputStream obj){
+		this(obj, EnumSet.noneOf(Options.class));
+	}
+	
+	public ObjReader(InputStream obj, EnumSet<Options> options) {
+		super(options);
+		new ObjParser(options.contains(Options.CONVERT_TO_Z_UP), getObject()).parse(obj);
 	}
 }

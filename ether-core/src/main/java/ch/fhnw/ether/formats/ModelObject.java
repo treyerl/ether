@@ -70,6 +70,10 @@ public class ModelObject {
 
 	private BoundingBox bounds;
 
+	ModelObject(){
+		resource = null;
+	}
+	
 	public ModelObject(URL resource) {
 		this.resource = resource;
 	}
